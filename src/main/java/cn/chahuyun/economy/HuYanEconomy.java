@@ -1,9 +1,10 @@
 package cn.chahuyun.economy;
 
+import cn.chahuyun.config.DriverCarEventConfig;
 import cn.chahuyun.config.EconomyConfig;
+import cn.chahuyun.config.EconomyEventConfig;
 import cn.chahuyun.config.EconomyPluginConfig;
-import cn.chahuyun.economy.event.BotOnlineEventListener;
-import cn.chahuyun.economy.event.MessageEventListener;
+import cn.chahuyun.economy.event.*;
 import cn.chahuyun.economy.manager.BankManager;
 import cn.chahuyun.economy.manager.LotteryManager;
 import cn.chahuyun.economy.plugin.FishManager;
@@ -61,6 +62,8 @@ public final class HuYanEconomy extends JavaPlugin {
         //加载配置
         reloadPluginConfig(EconomyConfig.INSTANCE);
         reloadPluginConfig(EconomyPluginConfig.INSTANCE);
+        reloadPluginConfig(EconomyEventConfig.INSTANCE);
+        reloadPluginConfig(DriverCarEventConfig.INSTANCE);
         config = EconomyConfig.INSTANCE;
         //插件功能初始化
         PluginManager.init();
@@ -72,8 +75,11 @@ public final class HuYanEconomy extends JavaPlugin {
             LotteryManager.init(true);
             FishManager.init();
             BankManager.init();
+            eventEventChannel.registerListenerHost(new EconomyEventListener());
             eventEventChannel.registerListenerHost(new BotOnlineEventListener());
             eventEventChannel.registerListenerHost(new MessageEventListener());
+            eventEventChannel.registerListenerHost(new DriverCarEventListener());
+            eventEventChannel.registerListenerHost(new RandomMoneyListener());
             PowerManager.init(eventEventChannel);
             Log.info("事件已监听!");
         }

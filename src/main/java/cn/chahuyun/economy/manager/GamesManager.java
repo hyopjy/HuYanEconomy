@@ -69,8 +69,8 @@ public class GamesManager {
         if (playerCooling.containsKey(userInfo.getQq())) {
             Date date = playerCooling.get(userInfo.getQq());
             long between = DateUtil.between(date, new Date(), DateUnit.MINUTE, true);
-            if (between < 10) {
-                subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"你还差%s分钟来抛第二杆!", 10 - between));
+            if (between < 2) {
+                subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"你还差%s分钟来抛第二杆!", 2 - between));
                 return;
             } else {
                 playerCooling.remove(userInfo.getQq());
@@ -114,7 +114,7 @@ public class GamesManager {
 
         //随机睡眠
         try {
-            Thread.sleep(RandomUtil.randomInt(5000, 200000));
+            Thread.sleep(RandomUtil.randomInt(5000, 600000));
         } catch (InterruptedException e) {
             Log.debug(e);
         }
@@ -278,12 +278,12 @@ public class GamesManager {
         }
 
         double moneyByUser = EconomyUtil.getMoneyByUser(user);
-        if (moneyByUser - 500 < 0) {
-            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"我这把钓鱼竿可是神器！他能吸收你的金币来进化，卖你500还嫌贵？"));
+        if (moneyByUser - 1 < 0) {
+            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"我这把钓鱼竿可是神器！他能吸收你的金币来进化，卖你1还嫌贵？"));
             return;
         }
 
-        if (EconomyUtil.minusMoneyToUser(user, 500)) {
+        if (EconomyUtil.minusMoneyToUser(user, 1)) {
             fishInfo.setFishRod(true);
             fishInfo.save();
             subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"拿好了，这鱼竿到手即不负责，永不提供售后！"));
