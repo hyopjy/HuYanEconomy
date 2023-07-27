@@ -187,7 +187,7 @@ public class LotteryManager {
             return;
         }
         lotteryInfo.save();
-        subject.sendMessage(MessageUtil.formatMessageChain(message,"猜签成功:\n猜签类型:%s\n猜签号码:%s\n猜签金币:%s", typeString, number, money));
+        subject.sendMessage(MessageUtil.formatMessageChain(message,"猜签成功:\n猜签类型:%s\n猜签号码:%s\n猜签WDIT币币:%s", typeString, number, money));
         init(false);
     }
 
@@ -226,7 +226,7 @@ public class LotteryManager {
         }
         member.sendMessage(lotteryInfo.toMessage());
         if (location == 3) {
-            group.sendMessage(String.format("得签着:%s(%s),奖励%s金币", member.getNick(), member.getId(), lotteryInfo.getBonus()));
+            group.sendMessage(String.format("得签着:%s(%s),奖励%sWDIT币币", member.getNick(), member.getId(), lotteryInfo.getBonus()));
         }
     }
 

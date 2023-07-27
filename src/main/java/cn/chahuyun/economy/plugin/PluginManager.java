@@ -40,7 +40,7 @@ public class PluginManager {
         //插件加载的时候启动调度器
         CronUtil.start();
         //加载道具
-        PropsCard propsCard = new PropsCard(Constant.SIGN_DOUBLE_SINGLE_CARD, "签到双倍金币卡", 99, true, "张", "不要999，不要599，只要99金币，你的下一次签到将翻倍！", false, null, null, false, null);
+        PropsCard propsCard = new PropsCard(Constant.SIGN_DOUBLE_SINGLE_CARD, "签到双倍币币卡", 99, true, "张", "不要999，不要599，只要199币币，你的下一次签到将翻倍！", false, null, null, false, null);
 
         propsManager.registerProps(propsCard);
         try {

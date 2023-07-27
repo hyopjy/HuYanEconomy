@@ -106,13 +106,13 @@ public class EconomyEventListener extends SimpleListenerHost {
         User user = event.getSender();
         double moneyByUser = EconomyUtil.getMoneyByUser(user);
         if (moneyByUser - regexConst.getConst() < 0) {
-            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "差钱"));
+            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "没有足够的WDIT币币"));
             event.intercept();
             return;
         }
 
         if (EconomyUtil.minusMoneyToUser(user, regexConst.getConst())) {
-            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "消费" + regexConst.getConst()));
+            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "消费" + regexConst.getConst()) +"WDIT币币");
         } else {
             event.intercept();
             Log.error("游戏管理:失败!");

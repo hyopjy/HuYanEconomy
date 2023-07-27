@@ -86,7 +86,7 @@ public class BankManager {
         int money = Integer.parseInt(code.split(" ")[1]);
         double moneyByUser = EconomyUtil.getMoneyByUser(user);
         if (moneyByUser - money < 0) {
-            singleMessages.append(String.format("你的金币不够%s了", money));
+            singleMessages.append(String.format("你的币币不够%s了", money));
             subject.sendMessage(singleMessages.build());
             return;
         }
@@ -122,7 +122,7 @@ public class BankManager {
         int money = Integer.parseInt(code.split(" ")[1]);
         double moneyByBank = EconomyUtil.getMoneyByBank(user);
         if (moneyByBank - money < 0) {
-            singleMessages.append(String.format("你的银行余额不够%s枚金币了", money));
+            singleMessages.append(String.format("你的银行余额不够%s枚WDIT币币了", money));
             subject.sendMessage(singleMessages.build());
             return;
         }

@@ -62,7 +62,7 @@ public class TransferManager {
         }
 
         if (0 > money || user.getId() == qq) {
-            subject.sendMessage("耍我了？小子？");
+            subject.sendMessage("\uD83E\uDD14嗯？");
             return;
         }
 
@@ -80,7 +80,7 @@ public class TransferManager {
         MessageChainBuilder chainBuilder = new MessageChainBuilder();
         if (EconomyUtil.turnUserToUser(user, member, money)) {
             assert member != null;
-            chainBuilder.append(String.format("成功向%s转账%s金币", member.getNick(), money));
+            chainBuilder.append(String.format("成功向%s转账%sWDIT币币", member.getNick(), money));
             subject.sendMessage(chainBuilder.build());
         } else {
             subject.sendMessage("转账失败！请联系管理员!");

@@ -180,11 +180,11 @@ public class FishInfo implements Serializable {
      */
     private SingleMessage isMoney(User user, double userMoney, int upMoney) {
         if (userMoney - upMoney < 0) {
-            return new PlainText(String.format("你的金币不够%s拉！", upMoney));
+            return new PlainText(String.format("😣你的币币不够%s啦！", upMoney));
         }
         if (EconomyUtil.minusMoneyToUser(user, upMoney)) {
             upFishRod();
-            return new PlainText(String.format("升级成功,花费%s金币!你的鱼竿更强了!\n%s->%s", upMoney, this.getRodLevel() - 1, getRodLevel()));
+            return new PlainText(String.format("升级成功,花费%sWDIT币币!你的鱼竿更强了!\n%s->%s", upMoney, this.getRodLevel() - 1, getRodLevel()));
         }
         return new PlainText("升级失败!");
     }

@@ -76,10 +76,10 @@ public class SignManager {
             randomNumber = RandomUtil.randomInt(0, 10);
             if (randomNumber > 8) {
                 goldNumber = RandomUtil.randomInt(200, 501);
-                plainText = new PlainText(String.format("卧槽,你家祖坟裂了,冒出%s金币", goldNumber));
+                plainText = new PlainText(String.format("今天的你运气爆棚,获得了%sWDIT币币", goldNumber));
             } else {
                 goldNumber = RandomUtil.randomInt(100, 200);
-                plainText = new PlainText(String.format("哇偶,你今天运气爆棚,获得%s金币", goldNumber));
+                plainText = new PlainText(String.format("好耶,获得%sWDIT币币", goldNumber));
             }
         } else {
             goldNumber = RandomUtil.randomInt(50, 100);
@@ -98,7 +98,7 @@ public class SignManager {
                     doubleStatus = true;
                     userInfo = propsManager.deleteProp(userInfo, card);
                     if (userInfo == null) {
-                        subject.sendMessage("双倍签到金币卡使用失败!签到失败!");
+                        subject.sendMessage("签到双倍币币卡使用失败!签到失败!");
                         return;
                     }
                     break;
@@ -118,7 +118,7 @@ public class SignManager {
         userInfo.save();
         double moneyBytUser = EconomyUtil.getMoneyByUser(userInfo.getUser());
         messages.append(new PlainText("签到成功!"));
-        messages.append(new PlainText(String.format("金币:%s(+%s)", moneyBytUser, goldNumber)));
+        messages.append(new PlainText(String.format("WDIT币币:%s(+%s)", moneyBytUser, goldNumber)));
         if (userInfo.getOldSignNumber() != 0) {
             messages.append(String.format("你的连签线断在了%d天,可惜~", userInfo.getOldSignNumber()));
         }

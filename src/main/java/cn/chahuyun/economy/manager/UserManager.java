@@ -137,7 +137,7 @@ public class UserManager {
             return;
         }
 
-        singleMessages.append(userInfo.getString()).append(String.format("金币:%s", moneyByUser));
+        singleMessages.append(userInfo.getString()).append(String.format("WDIT币币:%s", moneyByUser));
 
         BufferedImage userInfoImageBase = getUserInfoImageBase(userInfo);
         if (userInfoImageBase == null) {

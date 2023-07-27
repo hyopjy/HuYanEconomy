@@ -57,7 +57,7 @@ public class GamesManager {
         FishInfo fishInfo = userInfo.getFishInfo();
         //能否钓鱼
         if (!fishInfo.isFishRod()) {
-            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"你连鱼竿都没得，拿**钓？"));
+            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"没有鱼竿，bobo也帮不了你🥹"));
             return;
         }
         //是否已经在钓鱼
@@ -92,7 +92,7 @@ public class GamesManager {
         //获取鱼塘限制鱼竿最低等级
         int minLevel = fishPond.getMinLevel();
         if (fishInfo.getRodLevel() < minLevel) {
-            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"你的鱼竿太拉了，这里不让你来，升升级吧..."));
+            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"鱼竿等级太低，bobo拒绝你在这里钓鱼\uD83D\uDE45\u200D♀️"));
             return;
         }
         //开始钓鱼
@@ -107,10 +107,11 @@ public class GamesManager {
         int rankMin = 1;
         int rankMax = 1;
 
-        String[] successMessages = {"这不轻轻松松嘛~", "这鱼还没发力！", "慢慢的、慢慢的..."};
-        String[] failureMessages = {"挂底了吗？", "怎么这么有劲？难道是大鱼？", "卧槽！卧槽！卧槽！"};
-        String[] otherMessages = {"钓鱼就是这么简单", "一条小鱼也敢班门弄斧！", "收！收！收！~~"};
-        String[] errorMessages = {"风吹的...", "眼花了...", "走神了...", "呀！切线了...", "钓鱼佬绝不空军！"};
+        String[] successMessages = new String[]{"🎣溜成功了！(高价🐠概率+6)", "🎣轻松收线！(高价🐠概率+6)", "🎣慢慢的、慢慢的...(高价🐠概率+6)"};
+        String[] failureMessages = new String[]{"😣拉不动了！(高价🐟概率-5)", "😣是不是操作失误了？(高价🐟概率-5)", "😣bobo开始怀疑你的钓鱼水平？(高价🐟概率-5)"};
+        String[] otherMessages = new String[]{"🤗钓鱼就是这么简单(高价🐠概率+8)", "🤗太轻松了，能钓到大鱼吗(高价🐠概率+8)", "🤗收线~~！(高价🐠概率+8)"};
+        String[] errorMessages = new String[]{"钓鱼失败:哎呀，风吹的……", "钓鱼失败:哎呀，眼花了……", "钓鱼失败:bobo摇头", "钓鱼失败:呀！切线了！", "钓鱼失败:什么都没有钓上来！"};
+
 
         //随机睡眠
         try {
@@ -132,10 +133,10 @@ public class GamesManager {
                 case "左":
                 case "1":
                     if (randomInt == 1) {
-                        difficultyMin += 5;
+                        difficultyMin += 6;
                         subject.sendMessage(successMessages[randomInt]);
                     } else {
-                        difficultyMin -= 8;
+                        difficultyMin -= 5;
                         subject.sendMessage(failureMessages[randomInt]);
                     }
                     break;
@@ -143,10 +144,10 @@ public class GamesManager {
                 case "右":
                 case "2":
                     if (randomInt == 2) {
-                        difficultyMin += 5;
+                        difficultyMin += 6;
                         subject.sendMessage(successMessages[randomInt]);
                     } else {
-                        difficultyMin -= 8;
+                        difficultyMin -= 5;
                         subject.sendMessage(failureMessages[randomInt]);
                     }
                     break;
@@ -155,10 +156,10 @@ public class GamesManager {
                 case "收":
                 case "0":
                     if (randomInt == 0) {
-                        difficultyMin += 5;
+                        difficultyMin += 8;
                         subject.sendMessage(otherMessages[randomInt]);
                     } else {
-                        difficultyMin -= 12;
+                        difficultyMin -= 5;
                         subject.sendMessage(failureMessages[randomInt]);
                     }
                     rankMax++;
@@ -278,15 +279,15 @@ public class GamesManager {
         }
 
         double moneyByUser = EconomyUtil.getMoneyByUser(user);
-        if (moneyByUser - 1 < 0) {
-            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"我这把钓鱼竿可是神器！他能吸收你的金币来进化，卖你1还嫌贵？"));
+        if (moneyByUser - 250 < 0) {
+            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"\uD83E\uDD16只要250枚耀眼的WDIT币币，才能买到这么神奇的鱼竿！你有这么多币币吗？！"));
             return;
         }
 
-        if (EconomyUtil.minusMoneyToUser(user, 1)) {
+        if (EconomyUtil.minusMoneyToUser(user, 250)) {
             fishInfo.setFishRod(true);
             fishInfo.save();
-            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"拿好了，这鱼竿到手即不负责，永不提供售后！"));
+            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"收好你的鱼竿，高定产品，bobo不提供售后！"));
         } else {
             Log.error("游戏管理:购买鱼竿失败!");
         }
@@ -306,11 +307,11 @@ public class GamesManager {
 
         FishInfo fishInfo = userInfo.getFishInfo();
         if (!fishInfo.isFishRod()) {
-            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"鱼竿都没得，你升级个锤子!"));
+            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"没有鱼竿，bobo不能帮你升级!"));
             return;
         }
         if (fishInfo.getStatus()) {
-            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"钓鱼期间不可升级鱼竿!"));
+            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"钓鱼\uD83C\uDFA3期间不可升级鱼竿!"));
             return;
         }
         SingleMessage singleMessage = fishInfo.updateRod(userInfo);

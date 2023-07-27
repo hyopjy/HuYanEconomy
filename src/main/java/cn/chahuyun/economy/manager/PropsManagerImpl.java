@@ -220,7 +220,7 @@ public class PropsManagerImpl implements PropsManager {
         String propCode = PropsType.getCode(no);
         if (propCode == null) {
             Log.warning("道具系统:购买道具为空");
-            subject.sendMessage(MessageUtil.formatMessageChain(message,"我这里不卖这个..."));
+            subject.sendMessage(MessageUtil.formatMessageChain(message,"\uD83D\uDE23bobo没有这个……"));
             return;
         }
         Log.info("道具系统:购买道具-Code " + propCode);
@@ -240,11 +240,11 @@ public class PropsManagerImpl implements PropsManager {
         int total = propsInfo.getCost() * num;
 
         if (money - total < -propsInfo.getCost() * 5) {
-            messages.append(new PlainText("做梦去吧你，" + propsInfo.getName() + "也是你能想要的东西?"));
+            messages.append(new PlainText("😣"  + propsInfo.getName() + "可不能卖给你！"));
             subject.sendMessage(messages.build());
             return;
         } else if (money - total < 0) {
-            messages.append(new PlainText("这么点钱就想买" + propsInfo.getName() + "?"));
+            messages.append(new PlainText("没币币就不要想买" + propsInfo.getName() + "！"));
             subject.sendMessage(messages.build());
             return;
         }
@@ -275,7 +275,7 @@ public class PropsManagerImpl implements PropsManager {
 
         money = EconomyUtil.getMoneyByUser(sender);
 
-        messages.append(String.format("成功购买 %s %d%s,你还有 %s 枚金币", propsInfo.getName(), num, propsInfo.getUnit(), money));
+        messages.append(String.format("成功购买 %s %d%s,你还有 %s 枚WDIT币币", propsInfo.getName(), num, propsInfo.getUnit(), money));
 
         Log.info("道具系统:道具购买成功");
 

@@ -14,7 +14,7 @@ public class GoldEconomyCurrency implements EconomyCurrency {
     @NotNull
     @Override
     public String getDescription() {
-        return "闪闪发亮的金币";
+        return "耀眼的WDIT币币";
     }
 
     @NotNull
@@ -26,12 +26,12 @@ public class GoldEconomyCurrency implements EconomyCurrency {
     @NotNull
     @Override
     public String getName() {
-        return "金币";
+        return "WDIT币币";
     }
 
     @NotNull
     @Override
     public String format(double amount) {
-        return String.format("%s枚金币", NumberUtil.roundStr(amount, 0));
+        return String.format("%s枚WDIT币币", NumberUtil.roundStr(amount, 0));
     }
 }
