@@ -89,8 +89,8 @@ public class CommandOperator {
     private synchronized Message getCarMessage(long groupId, String carName, String messageType,Group group) {
         List<CarDetail> carDetailList = Optional.ofNullable(DriverCarEventConfig.INSTANCE.getDriverCar().get(groupId)).orElse(new ArrayList<>());
         Optional<CarDetail> carDetail = carDetailList.stream().filter(car -> car.getCarName().equals(carName)).findFirst();
-        double userMoney = 4.00;
-        double driverMoney = 10.00;
+        double userMoney = 2.00;
+        double driverMoney = 5.00;
         double luckMoney = 0.00;
         if (carDetail.isPresent()) {
             CarDetail car = carDetail.get();
@@ -143,17 +143,17 @@ public class CommandOperator {
         if (!EconomyEventConfig.INSTANCE.getEconomyCheckGroup().contains(group.getId())) {
             return false;
         }
-        for (int i = 0; i < carUsers.size(); i++) {
-            NormalMember member = group.get(carUsers.get(i));
-            if (driverUser == carUsers.get(i)) {
-                EconomyUtil.plusMoneyToUser(member, driverMoney);
-            } else {
-                EconomyUtil.plusMoneyToUser(member, userMoney);
-            }
+        // 加车主
+        NormalMember member = group.get(driverUser);
+        EconomyUtil.plusMoneyToUser(member, driverMoney);
+
+        for (int i = 1; i < carUsers.size(); i++) {
+            NormalMember user = group.get(carUsers.get(i));
+            EconomyUtil.plusMoneyToUser(user, userMoney);
         }
         if (Objects.nonNull(luckBoy)) {
-            NormalMember member = group.get(luckBoy);
-            EconomyUtil.plusMoneyToUser(member, luckMoney);
+            NormalMember luckyMember = group.get(luckBoy);
+            EconomyUtil.plusMoneyToUser(luckyMember, luckMoney);
         }
         return true;
     }
