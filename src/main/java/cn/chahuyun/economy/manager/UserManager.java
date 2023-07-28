@@ -380,9 +380,9 @@ public class UserManager {
      * @param cornerRadius 圆角度
      * @return 处理后的图片
      */
-    private static BufferedImage makeRoundedCorner(BufferedImage image, int cornerRadius) {
-        int w = image.getWidth();
-        int h = image.getHeight();
+    public static BufferedImage makeRoundedCorner(BufferedImage image, int cornerRadius) {
+        int w = image.getWidth() / 2;
+        int h = image.getHeight() / 2;
         BufferedImage output = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2 = output.createGraphics();
 

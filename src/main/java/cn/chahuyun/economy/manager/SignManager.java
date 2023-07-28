@@ -10,9 +10,7 @@ import cn.chahuyun.economy.utils.Log;
 import cn.chahuyun.economy.utils.MessageUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.RandomUtil;
-import net.mamoe.mirai.contact.AvatarSpec;
-import net.mamoe.mirai.contact.Contact;
-import net.mamoe.mirai.contact.User;
+import net.mamoe.mirai.contact.*;
 import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.message.data.MessageChain;
 import net.mamoe.mirai.message.data.MessageChainBuilder;
@@ -25,6 +23,7 @@ import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -52,7 +51,6 @@ public class SignManager {
         User user = event.getSender();
         Contact subject = event.getSubject();
         MessageChain message = event.getMessage();
-
         UserInfo userInfo = UserManager.getUserInfo(user);
 
         MessageChainBuilder messages = MessageUtil.quoteReply(message);
@@ -125,10 +123,39 @@ public class SignManager {
         if (plainText != null) {
             messages.append(plainText);
         }
-        sendSignImage(userInfo, subject, messages.build());
+       //  sendSignImage(userInfo, subject, messages.build());
 //        sendSignImage(userInfo, user, subject, moneyBytUser, goldNumber, messages.build());
 
 //        subject.sendMessage(messages.build());
+        sendSignImageFb(userInfo, subject, messages.build());
+    }
+
+    public static void sendSignImageFb(UserInfo userInfo, Contact subject, MessageChain messages) {
+        Group group = null;
+        if (subject instanceof Group) {
+            group = (Group) subject;
+        }
+
+        String special = "";
+        if (Objects.nonNull(group)) {
+            NormalMember normalMember = group.get(userInfo.getUser().getId());
+            if (Objects.nonNull(normalMember)) {
+                special = normalMember.getSpecialTitle();
+            }
+        }
+        BufferedImage userInfoImageBase = FbUserManager.getUserInfoImageBaseFb(userInfo,special);
+        if (userInfoImageBase == null) {
+            return;
+        }
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        try {
+            ImageIO.write(userInfoImageBase, "png", stream);
+        } catch (IOException e) {
+            Log.error("签到管理:签到图片发送错误!", e);
+            subject.sendMessage(messages);
+            return;
+        }
+        Contact.sendImage(subject, new ByteArrayInputStream(stream.toByteArray()));
     }
 
     /**
@@ -141,6 +168,7 @@ public class SignManager {
      * @author Moyuyanli
      * @date 2022/12/5 16:22
      */
+    @Deprecated
     public static void sendSignImage(UserInfo userInfo, Contact subject, MessageChain messages) {
         BufferedImage userInfoImageBase = UserManager.getUserInfoImageBase(userInfo);
         if (userInfoImageBase == null) {

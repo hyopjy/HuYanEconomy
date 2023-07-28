@@ -14,6 +14,8 @@ import net.mamoe.mirai.event.events.EventCancelledException;
 import net.mamoe.mirai.event.events.MessageEvent;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 /**
@@ -76,7 +78,14 @@ public class MessageEventListener extends SimpleListenerHost {
             case "个人信息":
             case "info":
                 Log.info("个人信息指令");
-                UserManager.getUserInfoImage(event);
+                String special = "";
+                if (Objects.nonNull(group)) {
+                    NormalMember normalMember = group.get(event.getSender().getId());
+                    if (Objects.nonNull(normalMember)) {
+                        special = normalMember.getSpecialTitle();
+                    }
+                }
+                FbUserManager.getUserInfoImageFb(event, special);
                 return;
             case "背包":
             case "backpack":

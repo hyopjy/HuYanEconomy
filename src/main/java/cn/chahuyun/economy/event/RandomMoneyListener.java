@@ -1,5 +1,6 @@
 package cn.chahuyun.economy.event;
 
+import cn.chahuyun.config.EconomyEventConfig;
 import cn.chahuyun.economy.utils.EconomyUtil;
 import cn.chahuyun.economy.utils.Log;
 import cn.chahuyun.economy.utils.MessageUtil;
@@ -37,7 +38,8 @@ public class RandomMoneyListener extends SimpleListenerHost {
         Member sender = event.getSender();
         Contact subject = event.getSubject();
         String message = event.getMessage().serializeToMiraiCode();
-        if(message.equals("WDIT")){
+        if (message.equals("WDIT") && EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
+        // if (message.equals("WDIT")) {
             int money = RandomUtil.randomInt(100, 500);
             EconomyUtil.plusMoneyToUser(sender, money);
             subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "恭喜你获得" +money +"WDIT 币币"));
