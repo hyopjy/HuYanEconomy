@@ -1,5 +1,6 @@
 package cn.chahuyun.economy.manager;
 
+import cn.chahuyun.economy.HuYanEconomy;
 import cn.chahuyun.economy.entity.UserInfo;
 import cn.chahuyun.economy.entity.fish.Fish;
 import cn.chahuyun.economy.entity.fish.FishInfo;
@@ -11,6 +12,8 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.RandomUtil;
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.Contact;
+import net.mamoe.mirai.contact.Group;
+import net.mamoe.mirai.contact.NormalMember;
 import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.message.data.*;
@@ -18,10 +21,7 @@ import org.hibernate.query.criteria.HibernateCriteriaBuilder;
 import org.hibernate.query.criteria.JpaCriteriaQuery;
 import org.hibernate.query.criteria.JpaRoot;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -54,14 +54,14 @@ public class GamesManager {
         User user = userInfo.getUser();
         Contact subject = event.getSubject();
         //获取玩家钓鱼信息
-        FishInfo fishInfo = userInfo.getFishInfo();
+        FishInfo userFishInfo = userInfo.getFishInfo();
         //能否钓鱼
-        if (!fishInfo.isFishRod()) {
+        if (!userFishInfo.isFishRod()) {
             subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"没有鱼竿，bobo也帮不了你🥹"));
             return;
         }
         //是否已经在钓鱼
-        if (fishInfo.getStatus()) {
+        if (userFishInfo.getStatus()) {
             subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"你已经在钓鱼了！"));
             return;
         }
@@ -79,19 +79,19 @@ public class GamesManager {
             playerCooling.put(userInfo.getQq(), new Date());
         }
         //是否已经在钓鱼
-        if (fishInfo.isStatus()) {
+        if (userFishInfo.isStatus()) {
             subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"你已经在钓鱼了！"));
             return;
         }
         //获取鱼塘
-        FishPond fishPond = fishInfo.getFishPond();
+        FishPond fishPond = userFishInfo.getFishPond();
         if (fishPond == null) {
             subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"默认鱼塘不存在!"));
             return;
         }
         //获取鱼塘限制鱼竿最低等级
         int minLevel = fishPond.getMinLevel();
-        if (fishInfo.getRodLevel() < minLevel) {
+        if (userFishInfo.getRodLevel() < minLevel) {
             subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"鱼竿等级太低，bobo拒绝你在这里钓鱼\uD83D\uDE45\u200D♀️"));
             return;
         }
@@ -102,6 +102,7 @@ public class GamesManager {
 
         //初始钓鱼信息
         boolean theRod = false;
+        // 困难度
         int difficultyMin = 0;
         int difficultyMax = 101;
         int rankMin = 1;
@@ -195,7 +196,7 @@ public class GamesManager {
             if (RandomUtil.randomInt(0, 101) >= 50) {
 //                subject.sendMessage(errorMessages[RandomUtil.randomInt(0, 5)]);
                 subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), errorMessages[RandomUtil.randomInt(0, 5)]));
-                fishInfo.switchStatus();
+                userFishInfo.switchStatus();
                 return;
             }
         }
@@ -204,13 +205,13 @@ public class GamesManager {
         最小钓鱼等级 = max((钓鱼竿支持最大等级/5)+1,基础最小等级）
         最大钓鱼等级 = max(最小钓鱼等级+1,min(钓鱼竿支持最大等级,鱼塘支持最大等级,拉扯的等级))
          */
-        rankMin = Math.max((fishInfo.getLevel() / 5) + 1, rankMin);
-        rankMax = Math.max(rankMin + 1, Math.min(fishInfo.getLevel(), Math.min(fishPond.getPondLevel(), rankMax)));
+        rankMin = Math.max((userFishInfo.getLevel() / 5) + 1, rankMin);
+        rankMax = Math.max(rankMin + 1, Math.min(userFishInfo.getLevel(), Math.min(fishPond.getPondLevel(), rankMax)));
         /*
         最小难度 = 拉扯最小难度
         最大难度 = max(拉扯最小难度,基本最大难度+鱼竿等级)
          */
-        difficultyMax = Math.max(difficultyMin + 1, difficultyMax + fishInfo.getRodLevel());
+        difficultyMax = Math.max(difficultyMin + 1, difficultyMax + userFishInfo.getRodLevel());
         //roll等级
         int rank = RandomUtil.randomInt(rankMin, rankMax + 1);
         Log.debug("钓鱼管理:roll等级min" + rankMin);
@@ -222,7 +223,7 @@ public class GamesManager {
         while (true) {
             if (rank == 0) {
                 subject.sendMessage("切线了我去！");
-                fishInfo.switchStatus();
+                userFishInfo.switchStatus();
                 return;
             }
             //roll难度
@@ -254,6 +255,17 @@ public class GamesManager {
         int dimensions = fish.getDimensions(winning);
         int money = fish.getPrice() * dimensions;
         double v = money * (1 - fishPond.getRebate());
+        Log.info("当前扣的点是: " + fishPond.getRebate());
+        Group group = null;
+        if (subject instanceof Group) {
+            group = (Group) subject;
+        }
+        if (Objects.nonNull(group)) {
+            NormalMember normalMember = group.get(HuYanEconomy.config.getOwner());
+            if(Objects.nonNull(normalMember)){
+                EconomyUtil.plusMoneyToUser(normalMember, money * fishPond.getRebate());
+            }
+        }
         if (EconomyUtil.plusMoneyToUser(user, v) && EconomyUtil.plusMoneyToBankForId(fishPond.getCode(), fishPond.getDescription(), money * fishPond.getRebate())) {
             fishPond.addNumber();
             String format = String.format("\n起竿咯！\n%s\n等级:%s\n单价:%s\n尺寸:%d\n总金额:%d\n%s", fish.getName(), fish.getLevel(), fish.getPrice(), dimensions, money, fish.getDescription());
@@ -264,8 +276,8 @@ public class GamesManager {
             subject.sendMessage("钓鱼失败!");
             playerCooling.remove(userInfo.getQq());
         }
-        fishInfo.switchStatus();
-        new FishRanking(userInfo.getQq(), userInfo.getName(), dimensions, money, fishInfo.getRodLevel(), fish, fishPond).save();
+        userFishInfo.switchStatus();
+        new FishRanking(userInfo.getQq(), userInfo.getName(), dimensions, money, userFishInfo.getRodLevel(), fish, fishPond).save();
     }
 
     /**

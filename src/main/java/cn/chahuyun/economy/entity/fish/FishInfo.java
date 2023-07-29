@@ -134,6 +134,7 @@ public class FishInfo implements Serializable {
             });
             //如果不存在 或者报错，则进行新建改鱼塘
             if (fishPond != null) {
+                fishPond.setRebate(0.13);
                 fishPond.setDescription("「纯天然湖泊，鱼情优秀，又大又多」，但据内部人士爆料，这是黑心土著挖的人工湖");
                 return fishPond;
             }

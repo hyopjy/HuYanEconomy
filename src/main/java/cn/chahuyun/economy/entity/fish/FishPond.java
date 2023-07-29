@@ -94,7 +94,7 @@ public class FishPond implements Serializable {
         }
         this.pondType = pondType;
         this.minLevel = 0;
-        this.rebate = 0.05;
+        this.rebate = 0.13;
         this.number = 0;
     }
 

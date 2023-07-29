@@ -16,16 +16,10 @@ import net.mamoe.mirai.event.SimpleListenerHost;
 import net.mamoe.mirai.event.events.EventCancelledException;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.event.events.UserMessageEvent;
-import net.mamoe.mirai.message.data.Message;
 import org.hibernate.Transaction;
-import org.hibernate.query.MutationQuery;
 import org.hibernate.query.Query;
-import org.hibernate.query.criteria.HibernateCriteriaBuilder;
-import org.hibernate.query.criteria.JpaCriteriaDelete;
-import org.hibernate.query.criteria.JpaCriteriaQuery;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
 
 public class RandomMoneyListener extends SimpleListenerHost {
 
@@ -72,6 +66,7 @@ public class RandomMoneyListener extends SimpleListenerHost {
         String message = event.getMessage().serializeToMiraiCode();
 
         if (message.equals("重置鱼塘") && EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
+         // HibernateUtil.factory.fromTransaction(session -> session.merge(newFishInfo));
            int tempDelete =  HibernateUtil.factory.fromSession(session -> {
                Transaction tx = session.beginTransaction();  //创建transaction实例
                int fish = 0;
@@ -99,6 +94,7 @@ public class RandomMoneyListener extends SimpleListenerHost {
             GamesManager.playerCooling.clear();
             FishManager.fishMap.clear();
             GamesManager.refresh(event);
+           //  FishPondManager.refresh(event);
             Log.info("清理数据"+tempDelete + "条");
             FishManager.init();
             Log.info("重新加载完成！");
