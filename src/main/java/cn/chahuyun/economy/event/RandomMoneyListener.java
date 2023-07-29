@@ -1,7 +1,9 @@
 package cn.chahuyun.economy.event;
 
 import cn.chahuyun.config.EconomyEventConfig;
+import cn.chahuyun.economy.plugin.FishManager;
 import cn.chahuyun.economy.utils.EconomyUtil;
+import cn.chahuyun.economy.utils.HibernateUtil;
 import cn.chahuyun.economy.utils.Log;
 import cn.chahuyun.economy.utils.MessageUtil;
 import cn.hutool.core.util.RandomUtil;
@@ -12,8 +14,17 @@ import net.mamoe.mirai.event.ListeningStatus;
 import net.mamoe.mirai.event.SimpleListenerHost;
 import net.mamoe.mirai.event.events.EventCancelledException;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
+import net.mamoe.mirai.event.events.UserMessageEvent;
 import net.mamoe.mirai.message.data.Message;
+import org.hibernate.Transaction;
+import org.hibernate.query.MutationQuery;
+import org.hibernate.query.Query;
+import org.hibernate.query.criteria.HibernateCriteriaBuilder;
+import org.hibernate.query.criteria.JpaCriteriaDelete;
+import org.hibernate.query.criteria.JpaCriteriaQuery;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 public class RandomMoneyListener extends SimpleListenerHost {
 
@@ -39,10 +50,43 @@ public class RandomMoneyListener extends SimpleListenerHost {
         Contact subject = event.getSubject();
         String message = event.getMessage().serializeToMiraiCode();
         if (message.equals("WDIT") && EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
-        // if (message.equals("WDIT")) {
-            int money = RandomUtil.randomInt(100, 500);
+            int money = RandomUtil.randomInt(30, 365);
             EconomyUtil.plusMoneyToUser(sender, money);
             subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "恭喜你获得" +money +"WDIT 币币"));
+        }
+
+        if(message.equals("余额")){
+            double money = EconomyUtil.getMoneyByUser(sender);
+            double bankMoney = EconomyUtil.getMoneyByBank(sender);
+            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "当前WDIT 币币余额%s;当前银行存款%s", money, bankMoney));
+        }
+
+        return ListeningStatus.LISTENING;
+    }
+
+    @EventHandler()
+    public synchronized ListeningStatus onUserMessage(UserMessageEvent event) {
+        User sender = event.getSender();
+        String message = event.getMessage().serializeToMiraiCode();
+        if (message.equals("重置鱼塘") && EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
+           int tempDelete =  HibernateUtil.factory.fromSession(session -> {
+                Transaction tx = session.beginTransaction();  //创建transaction实例
+                int temp = 0;
+                try {
+                    String hql = "delete from Fish";
+                    Query query = session.createQuery(hql);
+                    temp = query.executeUpdate();
+                    tx.commit();            //提交事务
+                    return temp;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    tx.rollback();
+                }
+                return  temp;
+            });
+            Log.info("清理数据"+tempDelete + "条");
+            FishManager.init();
+            Log.info("重新加载完成！");
         }
         return ListeningStatus.LISTENING;
     }

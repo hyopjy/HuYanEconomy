@@ -1,6 +1,5 @@
 package cn.chahuyun.economy.plugin;
 
-import cn.chahuyun.config.EconomyPluginConfig;
 import cn.chahuyun.economy.HuYanEconomy;
 import cn.chahuyun.economy.entity.fish.Fish;
 import cn.chahuyun.economy.utils.HibernateUtil;
@@ -71,7 +70,7 @@ public class FishManager {
     /**
      * 从resources里面读取鱼数据
      */
-    private static void reloadFish() {
+    public static void reloadFish() {
         HuYanEconomy instance = HuYanEconomy.INSTANCE;
         ExcelReader reader = ExcelUtil.getReader(instance.getResourceAsStream("fish.xlsx"));
         Map<String, String> map = new HashMap<>();

@@ -133,7 +133,10 @@ public class FishInfo implements Serializable {
                 return session.createQuery(query).getSingleResult();
             });
             //如果不存在 或者报错，则进行新建改鱼塘
-            if (fishPond != null) return fishPond;
+            if (fishPond != null) {
+                fishPond.setDescription("「纯天然湖泊，鱼情优秀，又大又多」，但据内部人士爆料，这是黑心土著挖的人工湖");
+                return fishPond;
+            }
         } catch (Exception e) {
             Log.debug(e);
         }
@@ -145,7 +148,7 @@ public class FishInfo implements Serializable {
             Group botGroup = HuYanEconomy.INSTANCE.bot.getGroup(group);
             assert botGroup != null;
             //注册新鱼塘
-            FishPond finalFishPond = new FishPond(1, group, HuYanEconomy.config.getOwner(), botGroup.getName() + "鱼塘", "一个天然形成的鱼塘，无人管理，鱼情良好，深受钓鱼佬喜爱！");
+            FishPond finalFishPond = new FishPond(1, group, HuYanEconomy.config.getOwner(), botGroup.getName() + "鱼塘", "「纯天然湖泊，鱼情优秀，又大又多」，但据内部人士爆料，这是黑心土著挖的人工湖");
             return HibernateUtil.factory.fromTransaction(session -> session.merge(finalFishPond));
         } else {
             //todo 私人鱼塘

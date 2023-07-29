@@ -78,14 +78,7 @@ public class MessageEventListener extends SimpleListenerHost {
             case "个人信息":
             case "info":
                 Log.info("个人信息指令");
-                String special = "";
-                if (Objects.nonNull(group)) {
-                    NormalMember normalMember = group.get(event.getSender().getId());
-                    if (Objects.nonNull(normalMember)) {
-                        special = normalMember.getSpecialTitle();
-                    }
-                }
-                FbUserManager.getUserInfoImageFb(event, special);
+                FbUserManager.getUserInfoImageFb(event);
                 return;
             case "背包":
             case "backpack":

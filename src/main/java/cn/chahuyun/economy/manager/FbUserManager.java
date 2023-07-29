@@ -20,15 +20,22 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Objects;
 
 public class FbUserManager  {
 
     private FbUserManager() {
         super();
     }
-    public static void getUserInfoImageFb(MessageEvent event, String special) {
+    public static void getUserInfoImageFb(MessageEvent event) {
         Contact subject = event.getSubject();
         User sender = event.getSender();
+
+        Group group = null;
+        if (subject instanceof Group) {
+            group = (Group) subject;
+        }
+
 
         UserInfo userInfo = UserManager.getUserInfo(sender);
         double moneyByUser = EconomyUtil.getMoneyByUser(sender);
@@ -48,7 +55,7 @@ public class FbUserManager  {
 
         singleMessages.append(userInfo.getString()).append(String.format("WDIT币币:%s", moneyByUser));
 
-        BufferedImage userInfoImageBase = getUserInfoImageBaseFb(userInfo, special);
+        BufferedImage userInfoImageBase = getUserInfoImageBaseFb(userInfo, group);
         if (userInfoImageBase == null) {
             subject.sendMessage(singleMessages.build());
             return;
@@ -86,9 +93,22 @@ public class FbUserManager  {
      * @author Moyuyanli
      * @date 2022/12/5 16:11
      */
-    public static BufferedImage getUserInfoImageBaseFb(UserInfo userInfo,String special) {
+    public static BufferedImage getUserInfoImageBaseFb(UserInfo userInfo,Group group) {
         HuYanEconomy instance = HuYanEconomy.INSTANCE;
         User user = userInfo.getUser();
+        String special = "";
+        String groupUserName = "";
+        if (Objects.nonNull(group)) {
+            NormalMember normalMember = group.get(userInfo.getUser().getId());
+            if (Objects.nonNull(normalMember)) {
+                special = normalMember.getSpecialTitle();
+                groupUserName = normalMember.getNameCard();
+                if (groupUserName.length() > 11) {
+                    groupUserName = groupUserName.substring(0, 11) + "...";
+                }
+            }
+        }
+
         try {
             int index = RandomUtil.randomInt(4) +1;
             InputStream asStream = instance.getResourceAsStream("sign" + index + ".png");
@@ -134,6 +154,9 @@ public class FbUserManager  {
              * Font.PLAIN（正常），Font.BOLD（粗体），Font.ITALIC（斜体）
              */
             //根据名字长度改变大小
+            if(StrUtil.isNotBlank(groupUserName)){
+                userInfoName = groupUserName;
+            }
             if (userInfoName.length() > 6) {
                 fontSize = 20;
                 pen.setFont(new Font("黑体", Font.BOLD, fontSize));

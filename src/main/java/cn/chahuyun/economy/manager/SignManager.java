@@ -136,14 +136,7 @@ public class SignManager {
             group = (Group) subject;
         }
 
-        String special = "";
-        if (Objects.nonNull(group)) {
-            NormalMember normalMember = group.get(userInfo.getUser().getId());
-            if (Objects.nonNull(normalMember)) {
-                special = normalMember.getSpecialTitle();
-            }
-        }
-        BufferedImage userInfoImageBase = FbUserManager.getUserInfoImageBaseFb(userInfo,special);
+        BufferedImage userInfoImageBase = FbUserManager.getUserInfoImageBaseFb(userInfo, group);
         if (userInfoImageBase == null) {
             return;
         }

@@ -69,8 +69,8 @@ public class GamesManager {
         if (playerCooling.containsKey(userInfo.getQq())) {
             Date date = playerCooling.get(userInfo.getQq());
             long between = DateUtil.between(date, new Date(), DateUnit.MINUTE, true);
-            if (between < 2) {
-                subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"你还差%s分钟来抛第二杆!", 2 - between));
+            if (between < 10) {
+                subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"你还差%s分钟来抛第二杆!", 10 - between));
                 return;
             } else {
                 playerCooling.remove(userInfo.getQq());
@@ -115,7 +115,7 @@ public class GamesManager {
 
         //随机睡眠
         try {
-            Thread.sleep(RandomUtil.randomInt(5000, 600000));
+            Thread.sleep(RandomUtil.randomInt(10000, 60000));
         } catch (InterruptedException e) {
             Log.debug(e);
         }
