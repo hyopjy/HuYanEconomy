@@ -5,6 +5,7 @@ import cn.chahuyun.economy.entity.bank.Bank;
 import cn.chahuyun.economy.entity.bank.action.Transfer;
 import cn.chahuyun.economy.utils.EconomyUtil;
 import cn.chahuyun.economy.utils.Log;
+import cn.hutool.core.util.StrUtil;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.NormalMember;
@@ -80,7 +81,11 @@ public class TransferManager {
         MessageChainBuilder chainBuilder = new MessageChainBuilder();
         if (EconomyUtil.turnUserToUser(user, member, money)) {
             assert member != null;
-            chainBuilder.append(String.format("成功向%s转账%sWDIT币币", member.getNick(), money));
+            String name = member.getNameCard();
+            if(StrUtil.isBlank(name)){
+                name = member.getNick();
+            }
+            chainBuilder.append(String.format("成功向%s转账%sWDIT币币", name, money));
             subject.sendMessage(chainBuilder.build());
         } else {
             subject.sendMessage("转账失败！请联系管理员!");

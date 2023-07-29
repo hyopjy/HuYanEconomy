@@ -1,6 +1,7 @@
 package cn.chahuyun.economy.event;
 
 import cn.chahuyun.config.EconomyEventConfig;
+import cn.chahuyun.economy.manager.GamesManager;
 import cn.chahuyun.economy.plugin.FishManager;
 import cn.chahuyun.economy.utils.EconomyUtil;
 import cn.chahuyun.economy.utils.HibernateUtil;
@@ -67,26 +68,41 @@ public class RandomMoneyListener extends SimpleListenerHost {
     @EventHandler()
     public synchronized ListeningStatus onUserMessage(UserMessageEvent event) {
         User sender = event.getSender();
+        Contact subject = event.getSubject();
         String message = event.getMessage().serializeToMiraiCode();
+
         if (message.equals("重置鱼塘") && EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
            int tempDelete =  HibernateUtil.factory.fromSession(session -> {
-                Transaction tx = session.beginTransaction();  //创建transaction实例
-                int temp = 0;
+               Transaction tx = session.beginTransaction();  //创建transaction实例
+               int fish = 0;
+               int fishRank = 0;
                 try {
+                    String rankhql = "delete from FishRanking";
+                    Query rankQuery = session.createQuery(rankhql);
+                    fishRank = rankQuery.executeUpdate();
+                    Log.info("清理排行榜数据"+fishRank );
+
                     String hql = "delete from Fish";
                     Query query = session.createQuery(hql);
-                    temp = query.executeUpdate();
+                    fish = query.executeUpdate();
+
+                    // 更新钓鱼人状态
                     tx.commit();            //提交事务
-                    return temp;
+                    return fish;
                 } catch (Exception e) {
                     e.printStackTrace();
                     tx.rollback();
                 }
-                return  temp;
+                return fish;
+
             });
+            GamesManager.playerCooling.clear();
+            FishManager.fishMap.clear();
+            GamesManager.refresh(event);
             Log.info("清理数据"+tempDelete + "条");
             FishManager.init();
             Log.info("重新加载完成！");
+            subject.sendMessage(MessageUtil.formatMessageChain("重新加载完成"));
         }
         return ListeningStatus.LISTENING;
     }

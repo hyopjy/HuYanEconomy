@@ -24,7 +24,7 @@ public class FishManager {
     /**
      * 归类整理的鱼
      */
-    private static final Map<Integer, List<Fish>> fishMap = new HashMap<>();
+    public static final Map<Integer, List<Fish>> fishMap = new HashMap<>();
 
     private FishManager() {
     }

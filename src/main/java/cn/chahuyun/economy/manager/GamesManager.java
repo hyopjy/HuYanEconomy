@@ -37,7 +37,7 @@ public class GamesManager {
     /**
      * 玩家钓鱼冷却
      */
-    private static final Map<Long, Date> playerCooling = new HashMap<>();
+    public static final Map<Long, Date> playerCooling = new HashMap<>();
 
     private GamesManager() {
     }
@@ -68,9 +68,9 @@ public class GamesManager {
         //钓鱼冷却
         if (playerCooling.containsKey(userInfo.getQq())) {
             Date date = playerCooling.get(userInfo.getQq());
-            long between = DateUtil.between(date, new Date(), DateUnit.MINUTE, true);
+            long between = DateUtil.between(date, new Date(), DateUnit.SECOND, true);
             if (between < 10) {
-                subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"你还差%s分钟来抛第二杆!", 10 - between));
+                subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"你还差%s秒来抛第二杆!", 10 - between));
                 return;
             } else {
                 playerCooling.remove(userInfo.getQq());
@@ -115,7 +115,7 @@ public class GamesManager {
 
         //随机睡眠
         try {
-            Thread.sleep(RandomUtil.randomInt(10000, 60000));
+            Thread.sleep(RandomUtil.randomInt(30000, 300000));
         } catch (InterruptedException e) {
             Log.debug(e);
         }
@@ -134,10 +134,12 @@ public class GamesManager {
                 case "1":
                     if (randomInt == 1) {
                         difficultyMin += 6;
-                        subject.sendMessage(successMessages[randomInt]);
+                        subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), successMessages[randomInt]));
+                        // subject.sendMessage(successMessages[randomInt]);
                     } else {
                         difficultyMin -= 5;
-                        subject.sendMessage(failureMessages[randomInt]);
+                        subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), failureMessages[randomInt]));
+                        // subject.sendMessage(failureMessages[randomInt]);
                     }
                     break;
                 case "向右拉":
@@ -145,10 +147,12 @@ public class GamesManager {
                 case "2":
                     if (randomInt == 2) {
                         difficultyMin += 6;
-                        subject.sendMessage(successMessages[randomInt]);
+                        // subject.sendMessage(successMessages[randomInt]);
+                        subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), successMessages[randomInt]));
                     } else {
                         difficultyMin -= 5;
-                        subject.sendMessage(failureMessages[randomInt]);
+                        // subject.sendMessage(failureMessages[randomInt]);
+                        subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), failureMessages[randomInt]));
                     }
                     break;
                 case "收线":
@@ -157,10 +161,12 @@ public class GamesManager {
                 case "0":
                     if (randomInt == 0) {
                         difficultyMin += 8;
-                        subject.sendMessage(otherMessages[randomInt]);
+                        // subject.sendMessage(otherMessages[randomInt]);
+                        subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), otherMessages[randomInt]));
                     } else {
                         difficultyMin -= 5;
-                        subject.sendMessage(failureMessages[randomInt]);
+//                        subject.sendMessage(failureMessages[randomInt]);
+                        subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), failureMessages[randomInt]));
                     }
                     rankMax++;
                     break;
@@ -169,7 +175,9 @@ public class GamesManager {
                 case "~":
                     difficultyMin += 20;
                     rankMax = 1;
-                    subject.sendMessage("你把你收回来的线，又放了出去!");
+                    // subject.sendMessage("你把你收回来的线，又放了出去!");
+                    subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "你把你收回来的线，又放了出去!"));
+
                     break;
                 default:
                     if (Pattern.matches("[!！收起提竿杆]{1,2}", nextMessageCode)) {
@@ -185,7 +193,8 @@ public class GamesManager {
         //空军
         if (theRod) {
             if (RandomUtil.randomInt(0, 101) >= 50) {
-                subject.sendMessage(errorMessages[RandomUtil.randomInt(0, 5)]);
+//                subject.sendMessage(errorMessages[RandomUtil.randomInt(0, 5)]);
+                subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), errorMessages[RandomUtil.randomInt(0, 5)]));
                 fishInfo.switchStatus();
                 return;
             }
