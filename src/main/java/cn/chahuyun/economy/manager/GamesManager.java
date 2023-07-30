@@ -116,7 +116,7 @@ public class GamesManager {
 
         //随机睡眠
         try {
-            Thread.sleep(RandomUtil.randomInt(30000, 300000));
+            Thread.sleep(RandomUtil.randomInt(30000, 600000));
         } catch (InterruptedException e) {
             Log.debug(e);
         }

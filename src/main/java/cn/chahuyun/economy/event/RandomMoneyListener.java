@@ -3,6 +3,7 @@ package cn.chahuyun.economy.event;
 import cn.chahuyun.config.EconomyEventConfig;
 import cn.chahuyun.economy.manager.GamesManager;
 import cn.chahuyun.economy.plugin.FishManager;
+import cn.chahuyun.economy.plugin.FishPondManager;
 import cn.chahuyun.economy.utils.EconomyUtil;
 import cn.chahuyun.economy.utils.HibernateUtil;
 import cn.chahuyun.economy.utils.Log;
@@ -94,9 +95,10 @@ public class RandomMoneyListener extends SimpleListenerHost {
             GamesManager.playerCooling.clear();
             FishManager.fishMap.clear();
             GamesManager.refresh(event);
-           //  FishPondManager.refresh(event);
             Log.info("清理数据"+tempDelete + "条");
             FishManager.init();
+
+            FishPondManager.refresh(event);
             Log.info("重新加载完成！");
             subject.sendMessage(MessageUtil.formatMessageChain("重新加载完成"));
         }
