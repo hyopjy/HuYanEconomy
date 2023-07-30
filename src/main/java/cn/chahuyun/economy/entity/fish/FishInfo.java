@@ -161,7 +161,7 @@ public class FishInfo implements Serializable {
      * @return 鱼竿支持最大等级
      */
     public int getLevel() {
-        return getRodLevel() == 0 ? 1 : getRodLevel() / 10 + 2;
+        return getRodLevel() == 0 ? 1 : getRodLevel() / 4 + 1;
     }
 
     /**

@@ -1,10 +1,13 @@
 package cn.chahuyun.economy.manager;
 
+import cn.chahuyun.config.EconomyConfig;
 import cn.chahuyun.economy.entity.UserInfo;
 import cn.chahuyun.economy.entity.bank.Bank;
 import cn.chahuyun.economy.entity.bank.action.Transfer;
 import cn.chahuyun.economy.utils.EconomyUtil;
 import cn.chahuyun.economy.utils.Log;
+import cn.chahuyun.economy.utils.MessageUtil;
+import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Group;
@@ -13,8 +16,10 @@ import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.message.data.At;
 import net.mamoe.mirai.message.data.MessageChain;
-import net.mamoe.mirai.message.data.MessageChainBuilder;
 import net.mamoe.mirai.message.data.SingleMessage;
+
+import java.math.BigDecimal;
+import java.util.Objects;
 
 /**
  * 转账管理<p>
@@ -77,18 +82,47 @@ public class TransferManager {
         }
 
         NormalMember member = group.get(qq);
+        // 获取转账金额 - money
+        // 邮电费
 
-        MessageChainBuilder chainBuilder = new MessageChainBuilder();
-        if (EconomyUtil.turnUserToUser(user, member, money)) {
+        BigDecimal amountBig = NumberUtil.round(NumberUtil.mul(money,0.02),2);
+        double amount = amountBig.doubleValue();
+        // 转账用户当前金额
+        double userMoney = EconomyUtil.getMoneyByUser(user);
+        if (userMoney < money + amount) {
+            userMoney = EconomyUtil.getMoneyByBank(user);
+            if (userMoney < money + amount) {
+                subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "余额不足！"));
+                return;
+            } else {
+                // 银行有钱，但余额没钱
+                // 将银行的钱转移到余额，在通过余额转给被转账用户
+                EconomyUtil.turnBankToUser(user, money + amount);
+            }
+        }
+        // 用户账号扣除 money + amount  102 - 98
+        // 被转账用户收到  money - amount
+        // 管理员收到 double amount
+        double finalMoney = money - amount;
+        if (EconomyUtil.turnUserToUser(user, member, finalMoney)) {
+            // 给管理员转账
+            NormalMember admin = group.get(EconomyConfig.INSTANCE.getOwner());
+            if (Objects.nonNull(admin)) {
+                if (EconomyUtil.turnUserToUser(user, admin, 2 * amount)) {
+                    Log.info("转账管理:管理员转账成功");
+                }
+            }
             assert member != null;
             String name = member.getNameCard();
-            if(StrUtil.isBlank(name)){
+            if (StrUtil.isBlank(name)) {
                 name = member.getNick();
             }
-            chainBuilder.append(String.format("成功向%s转账%sWDIT币币", name, money));
-            subject.sendMessage(chainBuilder.build());
+            // 成功转账100WDIT币币（额外向您收取2手续费），MM获得98（额外向她收取2手续费）
+            // 成功转账%sWDIT币币（额外消耗%s邮电费），%s获得%s（额外收取%s手续费）
+            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), String.format("成功转账%sWDIT币币（额外消耗%s邮电费），%s获得%s（额外收取%s手续费)",
+                    money, amount, name, finalMoney, amount)));
         } else {
-            subject.sendMessage("转账失败！请联系管理员!");
+            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "转账失败！请联系管理员!"));
             Log.error("转账管理:用户金币转移失败");
         }
     }
