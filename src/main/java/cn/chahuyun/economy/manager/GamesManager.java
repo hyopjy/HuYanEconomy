@@ -108,9 +108,9 @@ public class GamesManager {
         int rankMin = 1;
         int rankMax = 1;
 
-        String[] successMessages = new String[]{"🎣溜成功了！(高价🐠概率+6)", "🎣轻松收线！(高价🐠概率+6)", "🎣慢慢的、慢慢的...(高价🐠概率+6)"};
-        String[] failureMessages = new String[]{"😣拉不动了！(高价🐟概率-5)", "😣是不是操作失误了？(高价🐟概率-5)", "😣bobo开始怀疑你的钓鱼水平？(高价🐟概率-5)"};
-        String[] otherMessages = new String[]{"🤗钓鱼就是这么简单(高价🐠概率+8)", "🤗太轻松了，能钓到大鱼吗(高价🐠概率+8)", "🤗收线~~！(高价🐠概率+8)"};
+        String[] successMessages = new String[]{"🎣溜成功了！(最小难度+6)", "🎣轻松收线！(最小难度+6)", "🎣慢慢的、慢慢的...(高价🐠概率+6)"};
+        String[] failureMessages = new String[]{"😣拉不动了！(最小难度-5)", "😣是不是操作失误了？(最小难度-5)", "😣bobo开始怀疑你的钓鱼水平？(最小难度-5)"};
+        String[] otherMessages = new String[]{"🤗钓鱼就是这么简单(最小难度+8)", "🤗太轻松了，能钓到大鱼吗(最小难度+8)", "🤗收线~~！(最小难度+8)"};
         String[] errorMessages = new String[]{"钓鱼失败:哎呀，风吹的……", "钓鱼失败:哎呀，眼花了……", "钓鱼失败:bobo摇头", "钓鱼失败:呀！切线了！", "钓鱼失败:什么都没有钓上来！"};
 
 
