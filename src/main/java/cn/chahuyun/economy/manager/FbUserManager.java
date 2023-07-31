@@ -126,7 +126,7 @@ public class FbUserManager  {
             pen.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
             pen.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             //获取头像链接
-            String avatarUrl = user.getAvatarUrl(AvatarSpec.LARGE);
+            String avatarUrl = user.getAvatarUrl(AvatarSpec.SMALL);
             BufferedImage avatar = ImageIO.read(new URL(avatarUrl));
             BufferedImage avatarRounder = UserManager.makeRoundedCorner(avatar, 50);
             //写入头像
