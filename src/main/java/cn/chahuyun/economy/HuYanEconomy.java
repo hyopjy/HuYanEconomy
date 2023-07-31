@@ -11,6 +11,7 @@ import cn.chahuyun.economy.plugin.FishManager;
 import cn.chahuyun.economy.plugin.PluginManager;
 import cn.chahuyun.economy.power.PowerManager;
 import cn.chahuyun.economy.utils.EconomyUtil;
+import cn.chahuyun.economy.utils.FileUtils;
 import cn.chahuyun.economy.utils.HibernateUtil;
 import cn.chahuyun.economy.utils.Log;
 import cn.hutool.cron.CronUtil;
@@ -21,6 +22,9 @@ import net.mamoe.mirai.event.Event;
 import net.mamoe.mirai.event.EventChannel;
 import net.mamoe.mirai.event.GlobalEventChannel;
 import xyz.cssxsh.mirai.hibernate.MiraiHibernateConfiguration;
+
+import java.io.InputStream;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class HuYanEconomy extends JavaPlugin {
     /**
@@ -35,6 +39,9 @@ public final class HuYanEconomy extends JavaPlugin {
      * 配置
      */
     public static EconomyConfig config;
+
+    public static final ConcurrentHashMap<Integer, InputStream> INPUT_STREAM_MAP = new ConcurrentHashMap<>();
+
     /**
      * 插件所属bot
      */
@@ -64,6 +71,10 @@ public final class HuYanEconomy extends JavaPlugin {
         reloadPluginConfig(EconomyPluginConfig.INSTANCE);
         reloadPluginConfig(EconomyEventConfig.INSTANCE);
         reloadPluginConfig(DriverCarEventConfig.INSTANCE);
+        // 加载文件流
+        for (int i = 1; i < 5; i++) {
+            FileUtils.getInputStream(i);
+        }
         config = EconomyConfig.INSTANCE;
         //插件功能初始化
         PluginManager.init();

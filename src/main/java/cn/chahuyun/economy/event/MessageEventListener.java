@@ -73,12 +73,20 @@ public class MessageEventListener extends SimpleListenerHost {
             case "打卡":
             case "sign":
                 Log.info("签到指令");
-                SignManager.sign(event);
+                try {
+                    SignManager.sign(event);
+                } catch (Exception exception) {
+                    Log.error("签到指令--异常:" + exception.getMessage());
+                }
                 return;
             case "个人信息":
             case "info":
                 Log.info("个人信息指令");
-                FbUserManager.getUserInfoImageFb(event);
+                try {
+                    FbUserManager.getUserInfoImageFb(event);
+                } catch (Exception exception) {
+                    Log.error("个人信息指令--异常:" + exception.getMessage());
+                }
                 return;
             case "背包":
             case "backpack":
