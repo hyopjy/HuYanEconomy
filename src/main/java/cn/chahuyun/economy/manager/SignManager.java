@@ -140,12 +140,6 @@ public class SignManager {
             return;
         }
 
-        try {
-             Contact.uploadImage(subject, new URL(userInfo.getUser().getAvatarUrl(AvatarSpec.SMALL)).openConnection().getInputStream());
-        } catch (IOException e) {
-            Log.error("用户管理:查询个人信息上传图片出错!", e);
-        }
-
         BufferedImage userInfoImageBase = FbUserManager.getUserInfoImageBaseFb(userInfo, group);
         if (userInfoImageBase == null) {
             return;

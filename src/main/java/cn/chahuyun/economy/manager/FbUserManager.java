@@ -2,6 +2,7 @@ package cn.chahuyun.economy.manager;
 
 import cn.chahuyun.economy.HuYanEconomy;
 import cn.chahuyun.economy.entity.UserInfo;
+import cn.chahuyun.economy.utils.CacheUtils;
 import cn.chahuyun.economy.utils.EconomyUtil;
 import cn.chahuyun.economy.utils.Log;
 import cn.hutool.core.date.DateUtil;
@@ -9,7 +10,6 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import net.mamoe.mirai.contact.*;
 import net.mamoe.mirai.event.events.MessageEvent;
-import net.mamoe.mirai.message.data.Image;
 import net.mamoe.mirai.message.data.MessageChainBuilder;
 
 import javax.imageio.ImageIO;
@@ -27,6 +27,7 @@ public class FbUserManager  {
     private FbUserManager() {
         super();
     }
+
     public static void getUserInfoImageFb(MessageEvent event) {
         Contact subject = event.getSubject();
         User sender = event.getSender();
@@ -42,12 +43,6 @@ public class FbUserManager  {
 
         MessageChainBuilder singleMessages = new MessageChainBuilder();
 
-        try {
-            Image image = Contact.uploadImage(subject, new URL(sender.getAvatarUrl(AvatarSpec.SMALL)).openConnection().getInputStream());
-            singleMessages.append(image);
-        } catch (IOException e) {
-            Log.error("用户管理:查询个人信息上传图片出错!", e);
-        }
         if (userInfo == null) {
             subject.sendMessage("获取用户信息出错!");
             return;
@@ -94,7 +89,7 @@ public class FbUserManager  {
      * @date 2022/12/5 16:11
      */
     public static BufferedImage getUserInfoImageBaseFb(UserInfo userInfo,Group group) {
-        HuYanEconomy instance = HuYanEconomy.INSTANCE;
+
         User user = userInfo.getUser();
         String special = "";
         String groupUserName = "";
@@ -111,8 +106,7 @@ public class FbUserManager  {
 
         try {
             int index = RandomUtil.randomInt(4) +1;
-            InputStream asStream = instance.getResourceAsStream("sign" + index + ".png");
-
+            InputStream asStream = HuYanEconomy.INPUT_STREAM_MAP.get(index);
             //验证
             if (asStream == null) {
                 Log.error("用户管理:个人信息图片底图获取错误!");
@@ -120,17 +114,22 @@ public class FbUserManager  {
             }
             //转图片处理
             BufferedImage image = ImageIO.read(asStream);
+            asStream.reset();
             //创建画笔
             Graphics2D pen = image.createGraphics();
             //图片与文字的抗锯齿
             pen.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
             pen.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             //获取头像链接
-            String avatarUrl = user.getAvatarUrl(AvatarSpec.SMALL);
-            BufferedImage avatar = ImageIO.read(new URL(avatarUrl));
-            BufferedImage avatarRounder = UserManager.makeRoundedCorner(avatar, 50);
-            //写入头像
-            pen.drawImage(avatarRounder, 195, 285, null);
+            // String avatarUrl = user.getAvatarUrl(AvatarSpec.LARGE);
+            InputStream userImageStream = CacheUtils.getAvatarUrlInputStream(user.getId(), user.getAvatarUrl(AvatarSpec.LARGE));
+            if (Objects.nonNull(userImageStream)) {
+                BufferedImage avatar = ImageIO.read(userImageStream);
+                userImageStream.reset();
+                BufferedImage avatarRounder = UserManager.makeRoundedCorner(avatar, 50);
+                //写入头像
+                pen.drawImage(avatarRounder, 195, 285, null);
+            }
 
             String userInfoName = userInfo.getName();
             int fontSize;
