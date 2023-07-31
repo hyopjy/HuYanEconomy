@@ -53,6 +53,10 @@ public class GamesManager {
         UserInfo userInfo = UserManager.getUserInfo(event.getSender());
         User user = userInfo.getUser();
         Contact subject = event.getSubject();
+        Group group = null;
+        if (subject instanceof Group) {
+            group = (Group) subject;
+        }
         //获取玩家钓鱼信息
         FishInfo userFishInfo = userInfo.getFishInfo();
         //能否钓鱼
@@ -95,8 +99,16 @@ public class GamesManager {
             subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"鱼竿等级太低，bobo拒绝你在这里钓鱼\uD83D\uDE45\u200D♀️"));
             return;
         }
+        String userName = userInfo.getName();
+        if (Objects.nonNull(group)) {
+            NormalMember member = group.get(userInfo.getQq());
+            if (Objects.nonNull(member)) {
+                userName = member.getNameCard();
+            }
+        }
+
         //开始钓鱼
-        String start = String.format("%s开始钓鱼\n鱼塘:%s\n等级:%s\n最低鱼竿等级:%s\n%s", userInfo.getName(), fishPond.getName(), fishPond.getPondLevel(), fishPond.getMinLevel(), fishPond.getDescription());
+        String start = String.format("%s开始钓鱼\n鱼塘:%s\n等级:%s\n最低鱼竿等级:%s\n%s", userName, fishPond.getName(), fishPond.getPondLevel(), fishPond.getMinLevel(), fishPond.getDescription());
         subject.sendMessage(start);
         Log.info(String.format("%s开始钓鱼", userInfo.getName()));
 
@@ -116,7 +128,7 @@ public class GamesManager {
 
         //随机睡眠
         try {
-            Thread.sleep(RandomUtil.randomInt(30000, 600000));
+            Thread.sleep(RandomUtil.randomInt(30000, 900000));
         } catch (InterruptedException e) {
             Log.debug(e);
         }
@@ -205,14 +217,6 @@ public class GamesManager {
         最小钓鱼等级 = max((钓鱼竿支持最大等级/5)+1,基础最小等级）
         最大钓鱼等级 = max(最小钓鱼等级+1,min(钓鱼竿支持最大等级,鱼塘支持最大等级,拉扯的等级))
          */
-        Log.info(user.getId() + "--> userFishInfoLevel:" + userFishInfo.getLevel());
-        Log.info(user.getId() + "--> userFishInfoLevel/5:" + ((userFishInfo.getLevel() / 4) + 1));
-        Log.info(user.getId() + "--> old rankMin:" + rankMin);
-        rankMin = Math.max((userFishInfo.getLevel() / 8) + 1, rankMin);
-
-        Log.info(user.getId() + "--> userFishInfoLevel:" + userFishInfo.getLevel());
-        Log.info(user.getId() + "--> getPondLevel:" + fishPond.getPondLevel());
-        Log.info(user.getId() + "--> old rankMax:" + rankMax);
         rankMax = Math.max(rankMin + 1, Math.min(userFishInfo.getLevel(), Math.min(fishPond.getPondLevel(), rankMax)));
         /*
         最小难度 = 拉扯最小难度
@@ -221,9 +225,6 @@ public class GamesManager {
         difficultyMax = Math.max(difficultyMin + 1, difficultyMax + userFishInfo.getRodLevel());
         //roll等级
         int rank = RandomUtil.randomInt(rankMin, rankMax + 1);
-        Log.info(user.getId() + "-->钓鱼管理:roll等级min" + rankMin);
-        Log.info(user.getId() + "-->钓鱼管理:roll等级max" + rankMax);
-        Log.info(user.getId() + "-->钓鱼管理:roll等级" + rank);
         Fish fish;
         //彩蛋
         boolean winning = false;
@@ -235,9 +236,6 @@ public class GamesManager {
             }
             //roll难度
             int difficulty = RandomUtil.randomInt(difficultyMin, difficultyMax);
-            Log.info(user.getId() + "-->钓鱼管理:等级:" + rank + "-roll难度min" + difficultyMin);
-            Log.info(user.getId() + "-->钓鱼管理:等级:" + rank + "-roll难度max" + difficultyMax);
-            Log.info(user.getId() + "-->钓鱼管理:等级:" + rank + "-roll难度" + difficulty);
             //在所有鱼中拿到对应的鱼等级
             List<Fish> levelFishList = fishPond.getFishList(rank);
             //过滤掉难度不够的鱼
@@ -262,11 +260,7 @@ public class GamesManager {
         int dimensions = fish.getDimensions(winning);
         int money = fish.getPrice() * dimensions;
         double v = money * (1 - fishPond.getRebate());
-        Log.info("当前扣的点是: " + fishPond.getRebate());
-        Group group = null;
-        if (subject instanceof Group) {
-            group = (Group) subject;
-        }
+
         if (Objects.nonNull(group)) {
             NormalMember normalMember = group.get(HuYanEconomy.config.getOwner());
             if(Objects.nonNull(normalMember)){
