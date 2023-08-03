@@ -179,7 +179,7 @@ public class GamesManager {
                         break;
                     }
                     pull = pull + 1;
-                    int randomLeftInt = RandomUtil.randomInt(0, 80);
+                    int randomLeftInt = RandomUtil.randomInt(10, 50);
                     difficultyMin += randomLeftInt;
                     subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "\uD83E\uDD16你横向拉动了鱼竿，最小难度%s", (randomLeftInt < 0 ? "-" : "+") + randomLeftInt));
                     user_left.add(user.getId());
@@ -191,7 +191,7 @@ public class GamesManager {
                         break;
                     }
                     pull = pull + 1;
-                    int randomRightInt = RandomUtil.randomInt(0, 40);
+                    int randomRightInt = RandomUtil.randomInt(0, 20);
                     difficultyMin += randomRightInt;
                     // 计算rankMax
                     rankMax = Math.max(rankMin + 1, Math.min(userFishInfo.getLevel(), Math.min(fishPond.getPondLevel(), rankMax)));
@@ -211,7 +211,7 @@ public class GamesManager {
                         break;
                     }
                     pull++;
-                    int randomPullInt = RandomUtil.randomInt(0, 20);
+                    int randomPullInt = RandomUtil.randomInt(0, 30);
                     difficultyMin = difficultyMin + randomPullInt;
 
                     rankMax = rankMin;
