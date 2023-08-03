@@ -10,6 +10,7 @@ import cn.chahuyun.economy.utils.*;
 import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.RandomUtil;
+import cn.hutool.core.util.StrUtil;
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Group;
@@ -39,6 +40,13 @@ public class GamesManager {
      */
     public static final Map<Long, Date> playerCooling = new HashMap<>();
 
+    public static final Map<Long, Double> userPay = new HashMap<>();
+
+    public static final Set<Long> user_left = new HashSet<>();
+    public static final Set<Long> user_right = new HashSet<>();
+    public static final Set<Long> user_pull = new HashSet<>();
+    public static final Set<Long> user_drop = new HashSet<>();
+
     private GamesManager() {
     }
 
@@ -61,20 +69,32 @@ public class GamesManager {
         FishInfo userFishInfo = userInfo.getFishInfo();
         //能否钓鱼
         if (!userFishInfo.isFishRod()) {
-            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"没有鱼竿，bobo也帮不了你🥹"));
+            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "没有鱼竿，bobo也帮不了你🥹"));
             return;
         }
-        //是否已经在钓鱼
-        if (userFishInfo.getStatus()) {
-            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"你已经在钓鱼了！"));
-            return;
-        }
+//        //是否已经在钓鱼
+//        if (userFishInfo.getStatus()) {
+//            Double constMoney = userPay.get(user.getId());
+//            Boolean checkUser = checkUserPay(user);
+//            if (checkUser) {
+//                subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "你已经在钓鱼了,还你%s💰", Optional.ofNullable(constMoney).orElse(0.0)));
+//            } else {
+//                subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "你已经在钓鱼了！"));
+//            }
+//            return;
+//        }
         //钓鱼冷却
         if (playerCooling.containsKey(userInfo.getQq())) {
             Date date = playerCooling.get(userInfo.getQq());
             long between = DateUtil.between(date, new Date(), DateUnit.SECOND, true);
             if (between < 10) {
-                subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"你还差%s秒来抛第二杆!", 10 - between));
+                Double constMoney = userPay.get(user.getId());
+                Boolean checkUser = checkUserPay(user);
+                if (checkUser) {
+                    subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "你已经在钓鱼了,你还差%s秒来抛第二杆!,还你%s💰", 10 - between, Optional.ofNullable(constMoney).orElse(0.0)));
+                } else {
+                    subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "你已经在钓鱼了！"));
+                }
                 return;
             } else {
                 playerCooling.remove(userInfo.getQq());
@@ -84,19 +104,25 @@ public class GamesManager {
         }
         //是否已经在钓鱼
         if (userFishInfo.isStatus()) {
-            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"你已经在钓鱼了！"));
+            Double constMoney = userPay.get(user.getId());
+            Boolean checkUser = checkUserPay(user);
+            if (checkUser) {
+                subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "你已经在钓鱼了,还你%s💰", Optional.ofNullable(constMoney).orElse(0.0)));
+            } else {
+                subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "你已经在钓鱼了！"));
+            }
             return;
         }
         //获取鱼塘
         FishPond fishPond = userFishInfo.getFishPond();
         if (fishPond == null) {
-            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"默认鱼塘不存在!"));
+            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "默认鱼塘不存在!"));
             return;
         }
         //获取鱼塘限制鱼竿最低等级
         int minLevel = fishPond.getMinLevel();
         if (userFishInfo.getRodLevel() < minLevel) {
-            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"鱼竿等级太低，bobo拒绝你在这里钓鱼\uD83D\uDE45\u200D♀️"));
+            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "鱼竿等级太低，bobo拒绝你在这里钓鱼\uD83D\uDE45\u200D♀️"));
             return;
         }
         String userName = userInfo.getName();
@@ -120,99 +146,187 @@ public class GamesManager {
         int rankMin = 1;
         int rankMax = 1;
 
-        String[] successMessages = new String[]{"🎣溜成功了！(最小难度+6)", "🎣轻松收线！(最小难度+6)", "🎣慢慢的、慢慢的...(高价🐠概率+6)"};
-        String[] failureMessages = new String[]{"😣拉不动了！(最小难度-5)", "😣是不是操作失误了？(最小难度-5)", "😣bobo开始怀疑你的钓鱼水平？(最小难度-5)"};
-        String[] otherMessages = new String[]{"🤗钓鱼就是这么简单(最小难度+8)", "🤗太轻松了，能钓到大鱼吗(最小难度+8)", "🤗收线~~！(最小难度+8)"};
         String[] errorMessages = new String[]{"钓鱼失败:哎呀，风吹的……", "钓鱼失败:哎呀，眼花了……", "钓鱼失败:bobo摇头", "钓鱼失败:呀！切线了！", "钓鱼失败:什么都没有钓上来！"};
-
 
         //随机睡眠
         try {
-            Thread.sleep(RandomUtil.randomInt(30000, 900000));
+            // Thread.sleep(RandomUtil.randomInt(30000, 900000));
+            Thread.sleep(RandomUtil.randomInt(100, 6000));
         } catch (InterruptedException e) {
             Log.debug(e);
         }
+        Log.info("difficultyMin-->"+ difficultyMin);
+        Log.info("difficultyMax-->"+ difficultyMax);
+        Log.info("rankMin-->"+ rankMin);
+        Log.info("rankMax-->"+ rankMax);
+        Log.info("start-->--------------------------->");
         subject.sendMessage(MessageUtils.newChain(new At(user.getId()), new PlainText("有动静了，快来！")));
         //开始拉扯
         boolean rankStatus = true;
         int pull = 0;
         while (rankStatus) {
-            //获取下一条消息
             MessageEvent newMessage = ShareUtils.getNextMessageEventFromUser(user, subject, false);
             String nextMessageCode = newMessage.getMessage().serializeToMiraiCode();
-            int randomInt = RandomUtil.randomInt(0, 3);
+            if (StrUtil.isBlank(nextMessageCode)) {
+                continue;
+            }
             switch (nextMessageCode) {
                 case "向左拉":
                 case "左":
                 case "1":
-                    if (randomInt == 1) {
-                        difficultyMin += 6;
-                        subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), successMessages[randomInt]));
-                        // subject.sendMessage(successMessages[randomInt]);
-                    } else {
-                        difficultyMin -= 5;
-                        subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), failureMessages[randomInt]));
-                        // subject.sendMessage(failureMessages[randomInt]);
+                    if(user_right.contains(user.getId()) || user_left.contains(user.getId())){
+                        break;
                     }
+                    pull = pull + 1;
+                    int randomLeftInt = RandomUtil.randomInt(-10, 30);
+                    difficultyMin += randomLeftInt;
+                    subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "\uD83E\uDD16你横向拉动了鱼竿，最小难度%s", randomLeftInt < 0 ? randomLeftInt : "+" + randomLeftInt));
+                    user_left.add(user.getId());
                     break;
                 case "向右拉":
                 case "右":
                 case "2":
-                    if (randomInt == 2) {
-                        difficultyMin += 6;
-                        // subject.sendMessage(successMessages[randomInt]);
-                        subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), successMessages[randomInt]));
-                    } else {
-                        difficultyMin -= 5;
-                        // subject.sendMessage(failureMessages[randomInt]);
-                        subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), failureMessages[randomInt]));
+                    if(user_left.contains(user.getId()) || user_right.contains(user.getId())){
+                        break;
                     }
+                    pull = pull + 1;
+                    int randomRightInt = RandomUtil.randomInt(-15, 15);
+                    difficultyMin += randomRightInt;
+
+                    int randomRankMaxRight = RandomUtil.randomInt(1, 4);
+                    rankMax += randomRankMaxRight;
+                    subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "\uD83E\uDD16你纵向拉动了鱼竿，最小难度%s，最大等级+%s",
+                            randomRightInt < 0 ? randomRightInt : "+" + randomRightInt, randomRankMaxRight));
+                    user_right.add(user.getId());
                     break;
                 case "收线":
                 case "拉":
                 case "收":
                 case "0":
-                    if (randomInt == 0) {
-                        difficultyMin += 8;
-                        // subject.sendMessage(otherMessages[randomInt]);
-                        subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), otherMessages[randomInt]));
-                    } else {
-                        difficultyMin -= 5;
-//                        subject.sendMessage(failureMessages[randomInt]);
-                        subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), failureMessages[randomInt]));
+                    if(!(user_left.contains(user.getId()) || user_right.contains(user.getId()))){
+                        break;
                     }
-                    rankMax++;
+                    if(user_pull.contains(user.getId()) || user_drop.contains(user.getId())){
+                        break;
+                    }
+                    pull++;
+                    int randomPullInt = RandomUtil.randomInt(0, 20);
+                    difficultyMin = difficultyMin + randomPullInt;
+                    rankMax = rankMax + 1;
+                    user_pull.add(user.getId());
+                    subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "\uD83E\uDD16拉了一下鱼,最小难度+%s,最大等级+1", difficultyMin));
                     break;
                 case "放线":
                 case "放":
                 case "~":
-                    difficultyMin += 20;
-                    rankMax = 1;
-                    // subject.sendMessage("你把你收回来的线，又放了出去!");
-                    subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "你把你收回来的线，又放了出去!"));
-
+                    if(!(user_left.contains(user.getId()) || user_right.contains(user.getId()))){
+                        break;
+                    }
+                    if(user_drop.contains(user.getId()) || user_pull.contains(user.getId())){
+                        break;
+                    }
+                    int randomOutInt = RandomUtil.randomInt(0, 50);
+                    difficultyMin += randomOutInt;
+                    rankMax = rankMin;
+                    subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "\uD83E\uDD16你把你收回来的线，又放了出去!最小难度+%s，最大等级=%s", randomOutInt, rankMin));
+                    user_drop.add(user.getId());
                     break;
                 default:
                     if (Pattern.matches("[!！收起提竿杆]{1,2}", nextMessageCode)) {
                         if (pull == 0) {
                             theRod = true;
                         }
+                        user_pull.remove(user.getId());
+                        user_drop.remove(user.getId());
+                        user_right.remove(user.getId());
+                        user_left.remove(user.getId());
                         rankStatus = false;
                     }
                     break;
             }
-            pull++;
         }
+
+
+//        while (rankStatus) {
+//            //获取下一条消息
+//            MessageEvent newMessage = ShareUtils.getNextMessageEventFromUser(user, subject, false);
+//            String nextMessageCode = newMessage.getMessage().serializeToMiraiCode();
+//            int randomInt = RandomUtil.randomInt(0, 3);
+//            switch (nextMessageCode) {
+//                case "向左拉":
+//                case "左":
+//                case "1":
+//                    if (randomInt == 1) {
+//                        difficultyMin += 6;
+//                        subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), successMessages[randomInt]));
+//                        // subject.sendMessage(successMessages[randomInt]);
+//                    } else {
+//                        difficultyMin -= 5;
+//                        subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), failureMessages[randomInt]));
+//                        // subject.sendMessage(failureMessages[randomInt]);
+//                    }
+//                    break;
+//                case "向右拉":
+//                case "右":
+//                case "2":
+//                    if (randomInt == 2) {
+//                        difficultyMin += 6;
+//                        // subject.sendMessage(successMessages[randomInt]);
+//                        subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), successMessages[randomInt]));
+//                    } else {
+//                        difficultyMin -= 5;
+//                        // subject.sendMessage(failureMessages[randomInt]);
+//                        subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), failureMessages[randomInt]));
+//                    }
+//                    break;
+//                case "收线":
+//                case "拉":
+//                case "收":
+//                case "0":
+//                    if (randomInt == 0) {
+//                        difficultyMin += 8;
+//                        // subject.sendMessage(otherMessages[randomInt]);
+//                        subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), otherMessages[randomInt]));
+//                    } else {
+//                        difficultyMin -= 5;
+////                        subject.sendMessage(failureMessages[randomInt]);
+//                        subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), failureMessages[randomInt]));
+//                    }
+//                    rankMax++;
+//                    break;
+//                case "放线":
+//                case "放":
+//                case "~":
+//                    difficultyMin += 20;
+//                    rankMax = 1;
+//                    // subject.sendMessage("你把你收回来的线，又放了出去!");
+//                    subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "你把你收回来的线，又放了出去!"));
+//
+//                    break;
+//                default:
+//                    if (Pattern.matches("[!！收起提竿杆]{1,2}", nextMessageCode)) {
+//                        if (pull == 0) {
+//                            theRod = true;
+//                        }
+//                        rankStatus = false;
+//                    }
+//                    break;
+//            }
+//            pull++;
+//        }
         //空军
         if (theRod) {
             if (RandomUtil.randomInt(0, 101) >= 50) {
-//                subject.sendMessage(errorMessages[RandomUtil.randomInt(0, 5)]);
                 subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), errorMessages[RandomUtil.randomInt(0, 5)]));
                 userFishInfo.switchStatus();
                 return;
             }
         }
 
+        Log.info("difficultyMin-->"+ difficultyMin);
+        Log.info("difficultyMax-->"+ difficultyMax);
+        Log.info("rankMin-->"+ rankMin);
+        Log.info("rankMax-->"+ rankMax);
         /*
         最小钓鱼等级 = max((钓鱼竿支持最大等级/5)+1,基础最小等级）
         最大钓鱼等级 = max(最小钓鱼等级+1,min(钓鱼竿支持最大等级,鱼塘支持最大等级,拉扯的等级))
@@ -263,7 +377,7 @@ public class GamesManager {
 
         if (Objects.nonNull(group)) {
             NormalMember normalMember = group.get(HuYanEconomy.config.getOwner());
-            if(Objects.nonNull(normalMember)){
+            if (Objects.nonNull(normalMember)) {
                 EconomyUtil.plusMoneyToUser(normalMember, money * fishPond.getRebate());
             }
         }
@@ -281,6 +395,16 @@ public class GamesManager {
         new FishRanking(userInfo.getQq(), userInfo.getName(), dimensions, money, userFishInfo.getRodLevel(), fish, fishPond).save();
     }
 
+    private static Boolean checkUserPay(User user) {
+        Double constMoney = userPay.get(user.getId());
+        if (Objects.nonNull(constMoney)) {
+            EconomyUtil.plusMoneyToUser(user, constMoney);
+            userPay.remove(user.getId());
+            return true;
+        }
+        return false;
+    }
+
     /**
      * 购买鱼竿
      *
@@ -296,20 +420,20 @@ public class GamesManager {
         Contact subject = event.getSubject();
 
         if (fishInfo.isFishRod()) {
-            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"你已经有一把钓鱼竿了，不用再买了！"));
+            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "你已经有一把钓鱼竿了，不用再买了！"));
             return;
         }
 
         double moneyByUser = EconomyUtil.getMoneyByUser(user);
         if (moneyByUser - 250 < 0) {
-            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"\uD83E\uDD16只要250枚耀眼的WDIT币币，才能买到这么神奇的鱼竿！你有这么多币币吗？！"));
+            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "\uD83E\uDD16只要250枚耀眼的WDIT币币，才能买到这么神奇的鱼竿！你有这么多币币吗？！"));
             return;
         }
 
         if (EconomyUtil.minusMoneyToUser(user, 250)) {
             fishInfo.setFishRod(true);
             fishInfo.save();
-            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"收好你的鱼竿，高定产品，bobo不提供售后！"));
+            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "收好你的鱼竿，高定产品，bobo不提供售后！"));
         } else {
             Log.error("游戏管理:购买鱼竿失败!");
         }
@@ -329,11 +453,11 @@ public class GamesManager {
 
         FishInfo fishInfo = userInfo.getFishInfo();
         if (!fishInfo.isFishRod()) {
-            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"没有鱼竿，bobo不能帮你升级!"));
+            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "没有鱼竿，bobo不能帮你升级!"));
             return;
         }
         if (fishInfo.getStatus()) {
-            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"钓鱼\uD83C\uDFA3期间不可升级鱼竿!"));
+            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "钓鱼\uD83C\uDFA3期间不可升级鱼竿!"));
             return;
         }
         SingleMessage singleMessage = fishInfo.updateRod(userInfo);
@@ -367,7 +491,7 @@ public class GamesManager {
             return list.subList(0, Math.min(list.size(), 30));
         });
         if (rankingList == null || rankingList.size() == 0) {
-            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"暂时没人钓鱼!"));
+            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "暂时没人钓鱼!"));
             return;
         }
         ForwardMessageBuilder iNodes = new ForwardMessageBuilder(subject);
@@ -414,20 +538,63 @@ public class GamesManager {
             return true;
         });
         playerCooling.clear();
+        userPay.clear();
+        user_pull.clear();
+        user_drop.clear();
+        user_right.clear();
+        user_left.clear();
         if (status) {
-            event.getSubject().sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"钓鱼状态刷新成功!"));
+            event.getSubject().sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "钓鱼状态刷新成功!"));
         } else {
-            event.getSubject().sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"钓鱼状态刷新成功!"));
+            event.getSubject().sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "钓鱼状态刷新成功!"));
         }
     }
 
-/**
- * 查看鱼竿等级
- *
- * @param event 消息事件
- * @author Moyuyanli
- * @date 2022/12/23 16:12
- */
+    /**
+     * 刷新钓鱼状态
+     *
+     * @param event 消息事件
+     * @author Moyuyanli
+     * @date 2022/12/16 11:04
+     */
+    public static void refresh(MessageEvent event,Long senderId) {
+        Boolean status = HibernateUtil.factory.fromTransaction(session -> {
+            HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
+            JpaCriteriaQuery<FishInfo> query = builder.createQuery(FishInfo.class);
+            JpaRoot<FishInfo> from = query.from(FishInfo.class);
+            query.select(from);
+            query.where(builder.equal(from.get("status"), true).in(from.get("qq"), senderId));
+            List<FishInfo> list;
+            try {
+                list = session.createQuery(query).list();
+            } catch (Exception e) {
+                return false;
+            }
+            for (FishInfo fishInfo : list) {
+                fishInfo.setStatus(false);
+                session.merge(fishInfo);
+            }
+            return true;
+        });
+        playerCooling.remove(senderId);
+        userPay.remove(senderId);
+        user_pull.remove(senderId);
+        user_drop.remove(senderId);
+        user_right.remove(senderId);
+        user_left.remove(senderId);
+        if (status) {
+            event.getSubject().sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "钓鱼状态刷新成功!"));
+        } else {
+            event.getSubject().sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "钓鱼状态刷新成功!"));
+        }
+    }
+    /**
+     * 查看鱼竿等级
+     *
+     * @param event 消息事件
+     * @author Moyuyanli
+     * @date 2022/12/23 16:12
+     */
     public static void viewFishLevel(MessageEvent event) {
         int rodLevel = UserManager.getUserInfo(event.getSender()).getFishInfo().getRodLevel();
         event.getSubject().sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "你的鱼竿等级为%s级", rodLevel));

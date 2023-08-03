@@ -153,9 +153,13 @@ public class MessageEventListener extends SimpleListenerHost {
                     GamesManager.viewFishLevel(event);
                     return;
                 case "刷新钓鱼":
+                    Log.info("游戏指令");
                     if (owner) {
-                        Log.info("游戏指令");
+                        Log.info("owner");
                         GamesManager.refresh(event);
+                    } else {
+                        Log.info("sender");
+                        GamesManager.refresh(event, sender.getId());
                     }
                     return;
                 case "银行利率":
