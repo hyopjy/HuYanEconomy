@@ -86,12 +86,12 @@ public class GamesManager {
         //钓鱼冷却
         if (playerCooling.containsKey(userInfo.getQq())) {
             Date date = playerCooling.get(userInfo.getQq());
-            long between = DateUtil.between(date, new Date(), DateUnit.SECOND, true);
+            long between = DateUtil.between(date, new Date(), DateUnit.MINUTE, true);
             if (between < 10) {
                 Double constMoney = userPay.get(user.getId());
                 Boolean checkUser = checkUserPay(user);
                 if (checkUser) {
-                    subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "你已经在钓鱼了,你还差%s秒来抛第二杆!,还你%s💰", 10 - between, Optional.ofNullable(constMoney).orElse(0.0)));
+                    subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "你已经在钓鱼了,你还差%s分钟来抛第二杆!,还你%s币币", 10 - between, Optional.ofNullable(constMoney).orElse(0.0)));
                 } else {
                     subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "你已经在钓鱼了！"));
                 }
@@ -150,8 +150,8 @@ public class GamesManager {
 
         //随机睡眠
         try {
-            // Thread.sleep(RandomUtil.randomInt(30000, 900000));
-            Thread.sleep(RandomUtil.randomInt(100, 6000));
+            Thread.sleep(RandomUtil.randomInt(30000, 900000));
+//            Thread.sleep(RandomUtil.randomInt(100, 6000));
         } catch (InterruptedException e) {
             Log.debug(e);
         }
@@ -563,7 +563,8 @@ public class GamesManager {
             JpaCriteriaQuery<FishInfo> query = builder.createQuery(FishInfo.class);
             JpaRoot<FishInfo> from = query.from(FishInfo.class);
             query.select(from);
-            query.where(builder.equal(from.get("status"), true).in(from.get("qq"), senderId));
+            query.where(builder.equal(from.get("status"), true));
+            query.where(builder.equal(from.get("qq"), senderId));
             List<FishInfo> list;
             try {
                 list = session.createQuery(query).list();
