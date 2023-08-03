@@ -45,7 +45,6 @@ public class GamesManager {
     public static final Set<Long> user_left = new HashSet<>();
     public static final Set<Long> user_right = new HashSet<>();
     public static final Set<Long> user_pull = new HashSet<>();
-    public static final Set<Long> user_drop = new HashSet<>();
 
     private GamesManager() {
     }
@@ -142,7 +141,7 @@ public class GamesManager {
         boolean theRod = false;
         // 困难度
         int difficultyMin = 0;
-        int difficultyMax = 101;
+        int difficultyMax = 131;
         int rankMin = 1;
         int rankMax = 1;
 
@@ -155,11 +154,13 @@ public class GamesManager {
         } catch (InterruptedException e) {
             Log.debug(e);
         }
+        Log.info("start-->--------------------------->");
         Log.info("difficultyMin-->"+ difficultyMin);
         Log.info("difficultyMax-->"+ difficultyMax);
         Log.info("rankMin-->"+ rankMin);
         Log.info("rankMax-->"+ rankMax);
-        Log.info("start-->--------------------------->");
+
+
         subject.sendMessage(MessageUtils.newChain(new At(user.getId()), new PlainText("有动静了，快来！")));
         //开始拉扯
         boolean rankStatus = true;
@@ -178,9 +179,9 @@ public class GamesManager {
                         break;
                     }
                     pull = pull + 1;
-                    int randomLeftInt = RandomUtil.randomInt(-10, 30);
+                    int randomLeftInt = RandomUtil.randomInt(0, 80);
                     difficultyMin += randomLeftInt;
-                    subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "\uD83E\uDD16你横向拉动了鱼竿，最小难度%s", randomLeftInt < 0 ? randomLeftInt : "+" + randomLeftInt));
+                    subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "\uD83E\uDD16你横向拉动了鱼竿，最小难度%s", (randomLeftInt < 0 ? "-" : "+") + randomLeftInt));
                     user_left.add(user.getId());
                     break;
                 case "向右拉":
@@ -190,46 +191,33 @@ public class GamesManager {
                         break;
                     }
                     pull = pull + 1;
-                    int randomRightInt = RandomUtil.randomInt(-15, 15);
+                    int randomRightInt = RandomUtil.randomInt(0, 40);
                     difficultyMin += randomRightInt;
+                    // 计算rankMax
+                    rankMax = Math.max(rankMin + 1, Math.min(userFishInfo.getLevel(), Math.min(fishPond.getPondLevel(), rankMax)));
 
                     int randomRankMaxRight = RandomUtil.randomInt(1, 4);
                     rankMax += randomRankMaxRight;
                     subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "\uD83E\uDD16你纵向拉动了鱼竿，最小难度%s，最大等级+%s",
-                            randomRightInt < 0 ? randomRightInt : "+" + randomRightInt, randomRankMaxRight));
+                            (randomRightInt<0 ?"-":"+")+randomRightInt, randomRankMaxRight));
                     user_right.add(user.getId());
                     break;
-                case "收线":
-                case "拉":
-                case "收":
+                case "放":
                 case "0":
                     if(!(user_left.contains(user.getId()) || user_right.contains(user.getId()))){
                         break;
                     }
-                    if(user_pull.contains(user.getId()) || user_drop.contains(user.getId())){
+                    if(user_pull.contains(user.getId())){
                         break;
                     }
                     pull++;
                     int randomPullInt = RandomUtil.randomInt(0, 20);
                     difficultyMin = difficultyMin + randomPullInt;
-                    rankMax = rankMax + 1;
-                    user_pull.add(user.getId());
-                    subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "\uD83E\uDD16拉了一下鱼,最小难度+%s,最大等级+1", difficultyMin));
-                    break;
-                case "放线":
-                case "放":
-                case "~":
-                    if(!(user_left.contains(user.getId()) || user_right.contains(user.getId()))){
-                        break;
-                    }
-                    if(user_drop.contains(user.getId()) || user_pull.contains(user.getId())){
-                        break;
-                    }
-                    int randomOutInt = RandomUtil.randomInt(0, 50);
-                    difficultyMin += randomOutInt;
+
                     rankMax = rankMin;
-                    subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "\uD83E\uDD16你把你收回来的线，又放了出去!最小难度+%s，最大等级=%s", randomOutInt, rankMin));
-                    user_drop.add(user.getId());
+                    subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "\uD83E\uDD16你把收回的线又放出去了！最小难度%s,最大等级=%s", (randomPullInt < 0 ? "-" : "+") + randomPullInt, rankMin));
+
+                    user_pull.add(user.getId());
                     break;
                 default:
                     if (Pattern.matches("[!！收起提竿杆]{1,2}", nextMessageCode)) {
@@ -237,7 +225,6 @@ public class GamesManager {
                             theRod = true;
                         }
                         user_pull.remove(user.getId());
-                        user_drop.remove(user.getId());
                         user_right.remove(user.getId());
                         user_left.remove(user.getId());
                         rankStatus = false;
@@ -322,16 +309,11 @@ public class GamesManager {
                 return;
             }
         }
-
-        Log.info("difficultyMin-->"+ difficultyMin);
-        Log.info("difficultyMax-->"+ difficultyMax);
-        Log.info("rankMin-->"+ rankMin);
-        Log.info("rankMax-->"+ rankMax);
-        /*
-        最小钓鱼等级 = max((钓鱼竿支持最大等级/5)+1,基础最小等级）
-        最大钓鱼等级 = max(最小钓鱼等级+1,min(钓鱼竿支持最大等级,鱼塘支持最大等级,拉扯的等级))
-         */
-        rankMax = Math.max(rankMin + 1, Math.min(userFishInfo.getLevel(), Math.min(fishPond.getPondLevel(), rankMax)));
+//        /*
+//        最小钓鱼等级 = max((钓鱼竿支持最大等级/5)+1,基础最小等级）
+//        最大钓鱼等级 = max(最小钓鱼等级+1,min(钓鱼竿支持最大等级,鱼塘支持最大等级,拉扯的等级))
+//         */
+//        rankMax = Math.max(rankMin + 1, Math.min(userFishInfo.getLevel(), Math.min(fishPond.getPondLevel(), rankMax)));
         /*
         最小难度 = 拉扯最小难度
         最大难度 = max(拉扯最小难度,基本最大难度+鱼竿等级)
@@ -339,6 +321,14 @@ public class GamesManager {
         difficultyMax = Math.max(difficultyMin + 1, difficultyMax + userFishInfo.getRodLevel());
         //roll等级
         int rank = RandomUtil.randomInt(rankMin, rankMax + 1);
+
+
+        Log.info("difficultyMin-->"+ difficultyMin);
+        Log.info("difficultyMax-->"+ difficultyMax);
+        Log.info("rankMin-->"+ rankMin);
+        Log.info("rankMax-->"+ rankMax);
+        Log.info("rank-->"+ rank);
+        Log.info("end-->--------------------------->");
         Fish fish;
         //彩蛋
         boolean winning = false;
@@ -540,7 +530,6 @@ public class GamesManager {
         playerCooling.clear();
         userPay.clear();
         user_pull.clear();
-        user_drop.clear();
         user_right.clear();
         user_left.clear();
         if (status) {
@@ -580,7 +569,6 @@ public class GamesManager {
         playerCooling.remove(senderId);
         userPay.remove(senderId);
         user_pull.remove(senderId);
-        user_drop.remove(senderId);
         user_right.remove(senderId);
         user_left.remove(senderId);
         if (status) {
