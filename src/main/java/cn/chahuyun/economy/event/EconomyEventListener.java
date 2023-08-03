@@ -2,6 +2,7 @@ package cn.chahuyun.economy.event;
 
 import cn.chahuyun.config.EconomyEventConfig;
 import cn.chahuyun.config.RegexConst;
+import cn.chahuyun.economy.manager.GamesManager;
 import cn.chahuyun.economy.utils.EconomyUtil;
 import cn.chahuyun.economy.utils.Log;
 import cn.chahuyun.economy.utils.MessageUtil;
@@ -112,6 +113,7 @@ public class EconomyEventListener extends SimpleListenerHost {
         }
 
         if (EconomyUtil.minusMoneyToUser(user, regexConst.getConst())) {
+            GamesManager.userPay.put(user.getId(), regexConst.getConst());
             subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "消费%s WDIT币币",regexConst.getConst()));
         } else {
             event.intercept();
