@@ -85,12 +85,12 @@ public class GamesManager {
         //钓鱼冷却
         if (playerCooling.containsKey(userInfo.getQq())) {
             Date date = playerCooling.get(userInfo.getQq());
-            long between = DateUtil.between(date, new Date(), DateUnit.MINUTE, true);
-            if (between < 10) {
+            long between = DateUtil.between(date, new Date(), DateUnit.SECOND, true);
+            if (between < 300) {
                 Double constMoney = userPay.get(user.getId());
                 Boolean checkUser = checkUserPay(user);
                 if (checkUser) {
-                    subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "你已经在钓鱼了,你还差%s分钟来抛第二杆!,还你%s币币", 10 - between, Optional.ofNullable(constMoney).orElse(0.0)));
+                    subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "你已经在钓鱼了,你还差%s秒来抛第二杆!,还你%s币币", 300 - between, Optional.ofNullable(constMoney).orElse(0.0)));
                 } else {
                     subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "你已经在钓鱼了！"));
                 }

@@ -3,28 +3,17 @@ package cn.chahuyun.economy.utils;
 import cn.chahuyun.config.CarDetail;
 import cn.chahuyun.config.DriverCarEventConfig;
 import cn.chahuyun.config.EconomyEventConfig;
-import cn.chahuyun.economy.entity.UserInfo;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.RandomUtil;
-import cn.hutool.json.JSONUtil;
-import kotlin.coroutines.Continuation;
-import kotlin.coroutines.CoroutineContext;
-import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.*;
-import net.mamoe.mirai.message.MessageReceipt;
-import net.mamoe.mirai.message.action.UserNudge;
+
 import net.mamoe.mirai.message.data.At;
-import net.mamoe.mirai.message.data.Image;
 import net.mamoe.mirai.message.data.Message;
 import net.mamoe.mirai.message.data.PlainText;
-import net.mamoe.mirai.utils.ExternalResource;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 public class CommandOperator {
@@ -39,9 +28,9 @@ public class CommandOperator {
     public Message handleToCar(String message, Group group, long senderId) {
         long groupId = group.getId();
         // 开车 独一无二的名字 整数 文案 天选模式
-        List<CarDetail> carDetailList = Optional.ofNullable(DriverCarEventConfig.INSTANCE.getDriverCar().get(groupId)).orElse(new ArrayList<>());
+        List<CarDetail> carDetailList = Optional.ofNullable(DriverCarEventConfig.INSTANCE.getDriverCar().get(groupId)).orElse(new CopyOnWriteArrayList<>());
         if (CollectionUtil.isEmpty(carDetailList)) {
-            carDetailList = new ArrayList<>();
+            carDetailList = new CopyOnWriteArrayList<>();
         }
         String[] messages = message.split(" ");
         if (!(messages.length == 4 || messages.length == 5)) {
@@ -75,19 +64,19 @@ public class CommandOperator {
                 carDesc = carDesc + " \uD83C\uDF40";
             }
         }
-        List<Long> carUser = new ArrayList<>();
+        List<Long> carUser = new CopyOnWriteArrayList<>();
         carUser.add(senderId);
         CarDetail carDetail = new CarDetail(carName, carNumber, carDesc, random, carUser, senderId);
         carDetailList.add(carDetail);
 
-        Optional.ofNullable(DriverCarEventConfig.INSTANCE.getDriverCar().get(groupId)).orElse(new ArrayList<>()).clear();
-        DriverCarEventConfig.INSTANCE.getDriverCar().put(groupId,carDetailList);
+        Optional.ofNullable(DriverCarEventConfig.INSTANCE.getDriverCar().get(groupId)).orElse(new CopyOnWriteArrayList<>()).clear();
+        DriverCarEventConfig.INSTANCE.getDriverCar().put(groupId, carDetailList);
         // 车满了 就散车m
         return getCarMessage(groupId, carName, "封车", group);
     }
 
     private synchronized Message getCarMessage(long groupId, String carName, String messageType,Group group) {
-        List<CarDetail> carDetailList = Optional.ofNullable(DriverCarEventConfig.INSTANCE.getDriverCar().get(groupId)).orElse(new ArrayList<>());
+        List<CarDetail> carDetailList = Optional.ofNullable(DriverCarEventConfig.INSTANCE.getDriverCar().get(groupId)).orElse(new CopyOnWriteArrayList<>());
         Optional<CarDetail> carDetail = carDetailList.stream().filter(car -> car.getCarName().equals(carName)).findFirst();
         double userMoney = 2.00;
         double driverMoney = 5.00;
@@ -124,12 +113,12 @@ public class CommandOperator {
                 // 删除车
                 carDetailList.removeIf(x -> x.getCarName().equals(car.getCarName()));
 
-                Optional.ofNullable(DriverCarEventConfig.INSTANCE.getDriverCar().get(groupId)).orElse(new ArrayList<>()).clear();
+                Optional.ofNullable(DriverCarEventConfig.INSTANCE.getDriverCar().get(groupId)).orElse(new CopyOnWriteArrayList<>()).clear();
                 DriverCarEventConfig.INSTANCE.getDriverCar().put(groupId,carDetailList);
             }
             if (messageType.equals("散车")) {
                 carDetailList.removeIf(x -> x.getCarName().equals(car.getCarName()));
-                Optional.ofNullable(DriverCarEventConfig.INSTANCE.getDriverCar().get(groupId)).orElse(new ArrayList<>()).clear();
+                Optional.ofNullable(DriverCarEventConfig.INSTANCE.getDriverCar().get(groupId)).orElse(new CopyOnWriteArrayList<>()).clear();
                 DriverCarEventConfig.INSTANCE.getDriverCar().put(groupId,carDetailList);
                 message = message.plus(car.getCarName() + " 已散车！");
             }
@@ -169,9 +158,9 @@ public class CommandOperator {
     public Message handleToOnCar(String message, Group group, long senderId) {
         // 上车 [独一无二的名字]
         long groupId = group.getId();
-        List<CarDetail> carDetailList =  Optional.ofNullable(DriverCarEventConfig.INSTANCE.getDriverCar().get(groupId)).orElse(new ArrayList<>());
+        List<CarDetail> carDetailList =  Optional.ofNullable(DriverCarEventConfig.INSTANCE.getDriverCar().get(groupId)).orElse(new CopyOnWriteArrayList<>());
         if (CollectionUtil.isEmpty(carDetailList)) {
-            carDetailList = new ArrayList<>();
+            carDetailList = new CopyOnWriteArrayList<>();
         }
         String[] messages = message.split(" ");
         if (!(messages.length == 2 || messages.length == 3)) {
@@ -204,12 +193,12 @@ public class CommandOperator {
             }
         }
 
-        List<CarDetail> updateCarDetail = new ArrayList<>();
+        List<CarDetail> updateCarDetail = new CopyOnWriteArrayList<>();
         for (int i = 0; i < carDetailList.size(); i++) {
             CarDetail carDetail = carDetailList.get(i);
             List<Long> carUser = carDetail.getCarUser();
             if (CollectionUtil.isEmpty(carUser)) {
-                carUser = new ArrayList<>();
+                carUser = new CopyOnWriteArrayList<>();
             }
             if(carName.equals(carDetail.getCarName())){
                 // 占两个
@@ -230,7 +219,7 @@ public class CommandOperator {
             updateCarDetail.add(up);
         }
 
-        Optional.ofNullable(DriverCarEventConfig.INSTANCE.getDriverCar().get(groupId)).orElse(new ArrayList<>()).clear();
+        Optional.ofNullable(DriverCarEventConfig.INSTANCE.getDriverCar().get(groupId)).orElse(new CopyOnWriteArrayList<>()).clear();
         DriverCarEventConfig.INSTANCE.getDriverCar().put(groupId,updateCarDetail);
 
         return getCarMessage(groupId, carName, "封车", group);
@@ -246,9 +235,9 @@ public class CommandOperator {
     public Message handleToRemoveCar(String message, Group group, long senderId) {
         // 散车
         long groupId = group.getId();
-        List<CarDetail> carDetailList =  Optional.ofNullable(DriverCarEventConfig.INSTANCE.getDriverCar().get(groupId)).orElse(new ArrayList<>());
+        List<CarDetail> carDetailList =  Optional.ofNullable(DriverCarEventConfig.INSTANCE.getDriverCar().get(groupId)).orElse(new CopyOnWriteArrayList<>());
         if (CollectionUtil.isEmpty(carDetailList)) {
-            carDetailList = new ArrayList<>();
+            carDetailList = new CopyOnWriteArrayList<>();
         }
         String[] messages = message.split(" ");
         if (!(messages.length == 2)) {
@@ -274,13 +263,13 @@ public class CommandOperator {
 
     public Message handleQueryCar(String message, Group group, long senderId) {
         long groupId = group.getId();
-        List<CarDetail> carDetailList = Optional.ofNullable(DriverCarEventConfig.INSTANCE.getDriverCar().get(groupId)).orElse(new ArrayList<>());
+        List<CarDetail> carDetailList = Optional.ofNullable(DriverCarEventConfig.INSTANCE.getDriverCar().get(groupId)).orElse(new CopyOnWriteArrayList<>());
         Message m =  new At(senderId).plus("当前车列表信息：").plus("\r\n");
         for(int i = 0; i< carDetailList.size();i++){
             CarDetail carDetail = carDetailList.get(i);
             List<Long> carUser = carDetail.getCarUser();
             if(CollectionUtil.isEmpty(carUser)){
-                carUser = new ArrayList<>();
+                carUser = new CopyOnWriteArrayList<>();
             }
             m =  m.plus((i+1)+"." + carDetail.getCarName() + " ("+carUser.size() +"/" + carDetail.getCarNumber() + ")").plus("\r\n");;
         }
