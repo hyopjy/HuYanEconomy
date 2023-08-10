@@ -80,12 +80,13 @@ public class LotteryManager {
 
 
         for (LotteryInfo lotteryInfo : lotteryInfos) {
+            String key = lotteryInfo.getQq() + "-" + lotteryInfo.getGroup() + "-" + lotteryInfo.getNumber();
             switch (lotteryInfo.getType()) {
                 case 1:
-                    GRAND_LOTTO_LOTTERY.put(lotteryInfo.getNumber(), lotteryInfo);
+                    GRAND_LOTTO_LOTTERY.put(key, lotteryInfo);
                     continue;
                 case 2:
-                    UNION_LOTTO.put(lotteryInfo.getNumber(), lotteryInfo);
+                    UNION_LOTTO.put(key, lotteryInfo);
 //                    continue;
 //                case 3:
 //                    dayLottery.put(lotteryInfo.getNumber(), lotteryInfo);
@@ -218,15 +219,16 @@ public class LotteryManager {
      * @date 2022/12/6 16:52
      */
     public static void result(int type, int location, LotteryInfo lotteryInfo) {
+        String key = lotteryInfo.getQq() + "-" + lotteryInfo.getGroup() + "-" + lotteryInfo.getNumber();
         switch (type) {
             case 1:
-                GRAND_LOTTO_LOTTERY.remove(lotteryInfo.getNumber());
+                GRAND_LOTTO_LOTTERY.remove(key);
                 break;
             case 2:
-                UNION_LOTTO.remove(lotteryInfo.getNumber());
+                UNION_LOTTO.remove(key);
                 break;
             case 3:
-                dayLottery.remove(lotteryInfo.getNumber());
+                dayLottery.remove(key);
         }
         lotteryInfo.remove();
         if (location == 0) {
@@ -501,6 +503,7 @@ class LotteryHoursTask implements Task {
             // 篮球单独计算
             if(split[3].equals(current[3])){
                 bonus = bonus + lotteryInfo.getMoney() * 160;
+                location++;
             }
             lotteryInfo.setBonus(bonus);
             lotteryInfo.setCurrent(currentString.toString());
