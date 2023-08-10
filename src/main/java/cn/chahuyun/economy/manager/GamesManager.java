@@ -71,17 +71,17 @@ public class GamesManager {
             subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "没有鱼竿，bobo也帮不了你🥹"));
             return;
         }
-//        //是否已经在钓鱼
-//        if (userFishInfo.getStatus()) {
-//            Double constMoney = userPay.get(user.getId());
-//            Boolean checkUser = checkUserPay(user);
-//            if (checkUser) {
-//                subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "你已经在钓鱼了,还你%s💰", Optional.ofNullable(constMoney).orElse(0.0)));
-//            } else {
-//                subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "你已经在钓鱼了！"));
-//            }
-//            return;
-//        }
+        //是否已经在钓鱼
+        if (userFishInfo.getStatus()) {
+            Double constMoney = userPay.get(user.getId());
+            Boolean checkUser = checkUserPay(user);
+            if (checkUser) {
+                subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "你已经在钓鱼了,还你%s💰", Optional.ofNullable(constMoney).orElse(0.0)));
+            } else {
+                subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "你已经在钓鱼了！"));
+            }
+            return;
+        }
         //钓鱼冷却
         if (playerCooling.containsKey(userInfo.getQq())) {
             Date date = playerCooling.get(userInfo.getQq());
