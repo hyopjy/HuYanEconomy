@@ -36,8 +36,8 @@ public class LotteryInfo implements Serializable {
     private double money;
     /**
      * 购买类型
-     * 1:分钟彩票
-     * 2:小时彩票
+     * 1:强制透每天12点 18点 22点
+     * 2:双色球每周二 周四 周五晚20点
      * 3:天彩票
      */
     private int type;

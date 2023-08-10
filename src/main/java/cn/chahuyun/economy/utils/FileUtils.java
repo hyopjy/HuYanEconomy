@@ -6,6 +6,19 @@ import java.io.*;
 import java.util.Objects;
 
 public class FileUtils {
+    public static InputStream LOTTERY_STREAM = null;
+
+    static {
+        try {
+            InputStream in = HuYanEconomy.INSTANCE.getResourceAsStream("lottery.png");
+            if (!Objects.isNull(in)) {
+                LOTTERY_STREAM = new ByteArrayInputStream(in.readAllBytes());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private static ByteArrayOutputStream getBOS(InputStream in) {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
@@ -33,4 +46,5 @@ public class FileUtils {
         }
         return null;
     }
+
 }
