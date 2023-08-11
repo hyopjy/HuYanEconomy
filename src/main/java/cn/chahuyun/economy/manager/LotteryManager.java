@@ -5,6 +5,7 @@ import cn.chahuyun.economy.HuYanEconomy;
 import cn.chahuyun.economy.dto.LotteryLocationInfo;
 import cn.chahuyun.economy.entity.LotteryInfo;
 import cn.chahuyun.economy.utils.*;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.cron.CronUtil;
@@ -534,15 +535,21 @@ class LotteryHoursTask implements Task {
     private void sendTextMessae(StringBuilder currentString, Map<Long, List<LotteryLocationInfo>> longListConcurrentHashMap, Long group, Bot bot,String current) {
         Message m = new PlainText(String.format("本期缺德球开签啦！\r\n开签号码%s \r\n特别号码%s", currentString, current) + "\r\n");
         List<LotteryLocationInfo> list = Optional.ofNullable(longListConcurrentHashMap.get(group)).orElse(new CopyOnWriteArrayList<>());
-        for(int i = 0 ; i <list.size() ; i ++ ){
-            LotteryLocationInfo l = list.get(i);
-            m = m.plus("\r\n");
-            Group group1 = bot.getGroup(group);
-            NormalMember member = group1.get(l.getLotteryInfo().getQq());
-            m = m.plus(new At(l.getLotteryInfo().getQq())
-                    .plus("中奖人："+ (StrUtil.isBlank(member.getNameCard())? member.getNick():member.getNameCard()))
-                    .plus("购买号码：" + l.getLotteryInfo().getNumber()+" "+"中奖金额："+ l.getLotteryInfo().getBonus() +"💰" + "\r\n"));
+        if (!CollectionUtil.isEmpty(list)) {
+            for (int i = 0; i < list.size(); i++) {
+                LotteryLocationInfo l = list.get(i);
+                m = m.plus("\r\n");
+                Group group1 = bot.getGroup(group);
+                NormalMember member = group1.get(l.getLotteryInfo().getQq());
+                m = m.plus(new At(l.getLotteryInfo().getQq())
+                        .plus("中奖人：" + (StrUtil.isBlank(member.getNameCard()) ? member.getNick() :
+                                member.getNameCard()))
+                        .plus("购买号码：" + l.getLotteryInfo().getNumber() + " " + "中奖金额：" + l.getLotteryInfo().getBonus() + "💰" + "\r\n"));
+            }
+        }else {
+            m = m.plus("根本没有人中奖！\uD83E\uDD7A"+  "\r\n");
         }
+
         Objects.requireNonNull(bot.getGroup(group)).sendMessage(m);
     }
 }

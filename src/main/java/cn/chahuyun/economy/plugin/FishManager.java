@@ -64,12 +64,7 @@ public class FishManager {
      * @date 2022/12/9 15:49
      */
     public static List<Fish> getLevelFishList(int fishLevel) {
-        Log.info("鱼的等级-->" + fishLevel);
-        Log.info("fishMap-->" + JSONUtil.toJsonStr(fishMap));
         List<Fish> fish = fishMap.get(fishLevel);
-        if(Objects.isNull(fish)){
-            fish = fishMap.get(1);
-        }
         return CollectionUtil.isEmpty(fish)? new ArrayList<>(): fish;
     }
 
