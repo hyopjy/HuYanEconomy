@@ -134,9 +134,14 @@ public class MessageEventListener extends SimpleListenerHost {
                 case "钓鱼":
                 case "抛竿":
                     Log.info("游戏指令");
-                    if (group != null && config.getFishGroup().contains(group.getId())) {
-                        GamesManager.fishing(event);
+                    try {
+                        if (group != null && config.getFishGroup().contains(group.getId())) {
+                            GamesManager.fishing(event);
+                        }
+                    } catch (Exception e) {
+                        Log.error("游戏指令-钓鱼error:" + e.getMessage());
                     }
+
                     return;
                 case "升级鱼竿":
                     Log.info("游戏指令");

@@ -3,15 +3,15 @@ package cn.chahuyun.economy.plugin;
 import cn.chahuyun.economy.HuYanEconomy;
 import cn.chahuyun.economy.entity.fish.Fish;
 import cn.chahuyun.economy.utils.HibernateUtil;
+import cn.chahuyun.economy.utils.Log;
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.json.JSONUtil;
 import cn.hutool.poi.excel.ExcelReader;
 import cn.hutool.poi.excel.ExcelUtil;
 import org.hibernate.query.criteria.HibernateCriteriaBuilder;
 import org.hibernate.query.criteria.JpaCriteriaQuery;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 鱼管理
@@ -64,7 +64,13 @@ public class FishManager {
      * @date 2022/12/9 15:49
      */
     public static List<Fish> getLevelFishList(int fishLevel) {
-        return fishMap.get(fishLevel);
+        Log.info("鱼的等级-->" + fishLevel);
+        Log.info("fishMap-->" + JSONUtil.toJsonStr(fishMap));
+        List<Fish> fish = fishMap.get(fishLevel);
+        if(Objects.isNull(fish)){
+            fish = fishMap.get(1);
+        }
+        return CollectionUtil.isEmpty(fish)? new ArrayList<>(): fish;
     }
 
     /**
