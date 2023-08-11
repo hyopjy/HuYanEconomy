@@ -35,6 +35,7 @@ public class FishRanking implements Serializable {
     /**
      * 名称
      */
+    @Column(columnDefinition = "text")
     private String name;
     /**
      * 尺寸

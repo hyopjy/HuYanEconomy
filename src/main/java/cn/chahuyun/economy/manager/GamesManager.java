@@ -149,7 +149,7 @@ public class GamesManager {
 
         //随机睡眠
         try {
-            Thread.sleep(RandomUtil.randomInt(5 * 60 * 1000, 60 * 60 * 10000));
+            Thread.sleep(RandomUtil.randomInt(2 * 60 * 1000, 7 * 60 * 1000));
 //            Thread.sleep(RandomUtil.randomInt(100, 6000));
         } catch (InterruptedException e) {
             Log.debug(e);
@@ -233,74 +233,6 @@ public class GamesManager {
             }
         }
 
-
-//        while (rankStatus) {
-//            //获取下一条消息
-//            MessageEvent newMessage = ShareUtils.getNextMessageEventFromUser(user, subject, false);
-//            String nextMessageCode = newMessage.getMessage().serializeToMiraiCode();
-//            int randomInt = RandomUtil.randomInt(0, 3);
-//            switch (nextMessageCode) {
-//                case "向左拉":
-//                case "左":
-//                case "1":
-//                    if (randomInt == 1) {
-//                        difficultyMin += 6;
-//                        subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), successMessages[randomInt]));
-//                        // subject.sendMessage(successMessages[randomInt]);
-//                    } else {
-//                        difficultyMin -= 5;
-//                        subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), failureMessages[randomInt]));
-//                        // subject.sendMessage(failureMessages[randomInt]);
-//                    }
-//                    break;
-//                case "向右拉":
-//                case "右":
-//                case "2":
-//                    if (randomInt == 2) {
-//                        difficultyMin += 6;
-//                        // subject.sendMessage(successMessages[randomInt]);
-//                        subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), successMessages[randomInt]));
-//                    } else {
-//                        difficultyMin -= 5;
-//                        // subject.sendMessage(failureMessages[randomInt]);
-//                        subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), failureMessages[randomInt]));
-//                    }
-//                    break;
-//                case "收线":
-//                case "拉":
-//                case "收":
-//                case "0":
-//                    if (randomInt == 0) {
-//                        difficultyMin += 8;
-//                        // subject.sendMessage(otherMessages[randomInt]);
-//                        subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), otherMessages[randomInt]));
-//                    } else {
-//                        difficultyMin -= 5;
-////                        subject.sendMessage(failureMessages[randomInt]);
-//                        subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), failureMessages[randomInt]));
-//                    }
-//                    rankMax++;
-//                    break;
-//                case "放线":
-//                case "放":
-//                case "~":
-//                    difficultyMin += 20;
-//                    rankMax = 1;
-//                    // subject.sendMessage("你把你收回来的线，又放了出去!");
-//                    subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "你把你收回来的线，又放了出去!"));
-//
-//                    break;
-//                default:
-//                    if (Pattern.matches("[!！收起提竿杆]{1,2}", nextMessageCode)) {
-//                        if (pull == 0) {
-//                            theRod = true;
-//                        }
-//                        rankStatus = false;
-//                    }
-//                    break;
-//            }
-//            pull++;
-//        }
         //空军
         if (theRod) {
             if (RandomUtil.randomInt(0, 101) >= 50) {

@@ -28,10 +28,12 @@ public class Fish implements Serializable {
     /**
      * 名称
      */
+    @Column(columnDefinition = "text")
     private String name;
     /**
      * 描述
      */
+    @Column(columnDefinition = "text")
     private String description;
     /**
      * 单价
