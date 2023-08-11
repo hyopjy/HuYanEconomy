@@ -149,7 +149,7 @@ public class GamesManager {
 
         //随机睡眠
         try {
-            Thread.sleep(RandomUtil.randomInt(2 * 60 * 1000, 7 * 60 * 1000));
+            Thread.sleep(RandomUtil.randomInt(5 * 60 * 1000, 60 * 60 * 1000));
 //            Thread.sleep(RandomUtil.randomInt(100, 6000));
         } catch (InterruptedException e) {
             Log.debug(e);
