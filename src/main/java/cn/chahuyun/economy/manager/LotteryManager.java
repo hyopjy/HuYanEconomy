@@ -348,58 +348,6 @@ class LotteryMinutesTask implements Task {
         }
         for (Long group : groups) {
             sendTextMessae(currentString,longListConcurrentHashMap,group,bot);
-            continue;
-//            InputStream asStream = FileUtils.LOTTERY_STREAM;
-//            //验证
-//            if (asStream == null) {
-//                sendTextMessae(currentString,longListConcurrentHashMap,group,bot);
-//            }
-//            //转图片处理
-//            try {
-//                BufferedImage image = ImageIO.read(asStream);
-//                asStream.reset();
-//                //创建画笔
-//                Graphics2D pen = image.createGraphics();
-//                //图片与文字的抗锯齿
-//                pen.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-//                pen.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-//                pen.setFont(new Font("黑体", Font.BOLD, 35));
-//                pen.drawString(String.format("本期强制透开签啦！开签号码%s", currentString), 540, 307);
-//                pen.setFont(new Font("黑体", Font.BOLD, 25));
-//                pen.drawString("中奖名单", 158, 278);
-//                List<LotteryLocationInfo> list = Optional.ofNullable(longListConcurrentHashMap.get(group)).orElse(new CopyOnWriteArrayList<>());
-//
-//                int startX = 160;
-//                int startY= 280;
-//                pen.setFont(new Font("黑体", Font.BOLD, 20));
-//                for(int i = 0 ; i <list.size() ; i ++ ){
-//                    LotteryLocationInfo l = list.get(i);
-//                    pen.drawString("中奖人：" + l.getLotteryInfo().getQq() + "购买号码："+l.getLotteryInfo().getNumber()+"中奖金额"+l.getLotteryInfo().getBonus(), startX, startY);
-//                    if(startX >= 1270-160){
-//                        startY = startY +50;
-//                        if(startY>=960-280){
-//                            break;
-//                        }
-//                    }else {
-//                        startX = startX+20;
-//                    }
-//
-//                }
-//                pen.dispose();
-//
-//                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-//                try {
-//                    ImageIO.write(image, "png", stream);
-//                } catch (IOException e) {
-//                    Log.error(":!", e);
-//                    return;
-//                }
-//                Contact.sendImage(Objects.requireNonNull(bot.getGroup(group)), new ByteArrayInputStream(stream.toByteArray()));
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//                sendTextMessae(currentString,longListConcurrentHashMap,group,bot);
-//
-//            }
         }
         lotteryInfos = new ArrayList<>();
         //定时任务执行完成，清除自身  我这里需要 其实可以不用
@@ -418,7 +366,6 @@ class LotteryMinutesTask implements Task {
             Group group1 = bot.getGroup(group);
             NormalMember member = group1.get(l.getLotteryInfo().getQq());
             m = m.plus(new At(l.getLotteryInfo().getQq())
-                            .plus("中奖人："+ (StrUtil.isBlank(member.getNameCard())? member.getNick():member.getNameCard()))
                     .plus("购买号码：" + l.getLotteryInfo().getNumber()+" "+"中奖金额："+ l.getLotteryInfo().getBonus() +"💰" + "\r\n"));
         }
         Objects.requireNonNull(bot.getGroup(group)).sendMessage(m);
@@ -479,7 +426,7 @@ class LotteryHoursTask implements Task {
             double bonus = 0;
 
             String[] split = lotteryInfo.getNumber().split(",");
-            for (int i = 0; i < split.length - 1; i++) {
+            for (int i = 0; i < split.length; i++) {
                 String s = split[i];
                 if (s.equals(current[i])) {
                     location++;
@@ -487,13 +434,21 @@ class LotteryHoursTask implements Task {
             }
             switch (location) {
                 case 4:
-                    bonus = lotteryInfo.getMoney() * 1250;
+                    bonus = lotteryInfo.getMoney() * 1225;
                     break;
                 case 3:
-                    bonus = lotteryInfo.getMoney() * 35;
+                    if (split[3].equals(current[3])) {
+                        bonus = lotteryInfo.getMoney() * 625;
+                    } else {
+                        bonus = lotteryInfo.getMoney() * 35;
+                    }
                     break;
                 case 2:
-                    bonus = lotteryInfo.getMoney() * 2.5;
+                    if (split[3].equals(current[3])) {
+                        bonus = lotteryInfo.getMoney() * 6.25;
+                    } else {
+                        bonus = lotteryInfo.getMoney() * 2.5;
+                    }
                     break;
                 case 1:
                     bonus = lotteryInfo.getMoney() * 0.5;
@@ -501,11 +456,6 @@ class LotteryHoursTask implements Task {
             }
             Log.info("LotteryMinutesTask-->中奖号码-缺德球-特别号码："+current[3]);
 
-            // 篮球单独计算
-            if(split[3].equals(current[3])){
-                bonus = bonus + lotteryInfo.getMoney() * 160;
-                location++;
-            }
             lotteryInfo.setBonus(bonus);
             lotteryInfo.setCurrent(currentString.toString());
             lotteryInfo.save();
