@@ -24,14 +24,21 @@ public class PropsFishCard extends PropsBase implements Serializable {
 
     private Boolean buy;
 
+    @Column(columnDefinition = "text")
+    private String priceDesc;
+
+    private Boolean exchange;
+
     public PropsFishCard() {
     }
 
-    public PropsFishCard(String code, String name, int cost, String description, String fishDesc, String content, Boolean buy){
+    public PropsFishCard(String code, String name, int cost, String description, String fishDesc, String content, Boolean buy,String priceDesc,Boolean exchange){
         super(code, name, cost, false, "", description, false, null, null);
         this.buy = buy;
         this.content = content;
         this.fishDesc = fishDesc;
+        this.priceDesc = priceDesc;
+        this.exchange = exchange;
 
     }
 
