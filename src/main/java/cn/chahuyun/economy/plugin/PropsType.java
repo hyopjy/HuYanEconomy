@@ -59,6 +59,11 @@ public class PropsType {
         map.put(String.valueOf(getProps().size()), code);
     }
 
+    public static void clear() {
+        props.clear();
+        map.clear();
+    }
+
     public static Map<String, PropsBase> getProps() {
         return props;
     }

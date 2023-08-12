@@ -56,6 +56,7 @@ public abstract class PropsBase implements Serializable {
     /**
      * 道具描述
      */
+    @Column(columnDefinition = "text")
     private String description;
     /**
      * 是否可复用
