@@ -22,6 +22,7 @@ public interface PropsManager {
      */
     boolean registerProps(PropsBase propsBase);
 
+    void clearProps();
 
     /**
      * 获取该用户的所有道具

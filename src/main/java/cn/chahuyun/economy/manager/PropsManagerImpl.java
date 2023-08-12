@@ -5,6 +5,7 @@ import cn.chahuyun.economy.entity.UserBackpack;
 import cn.chahuyun.economy.entity.UserInfo;
 import cn.chahuyun.economy.entity.props.PropsBase;
 import cn.chahuyun.economy.entity.props.PropsCard;
+import cn.chahuyun.economy.entity.props.PropsFishCard;
 import cn.chahuyun.economy.entity.props.factory.PropsCardFactory;
 import cn.chahuyun.economy.plugin.PropsType;
 import cn.chahuyun.economy.utils.EconomyUtil;
@@ -60,6 +61,11 @@ public class PropsManagerImpl implements PropsManager {
         }
         PropsType.add(code, propsBase);
         return true;
+    }
+
+    @Override
+    public void clearProps() {
+        PropsType.clear();
     }
 
 
@@ -187,8 +193,17 @@ public class PropsManagerImpl implements PropsManager {
                 propInfo += PropsType.getPropsInfo(string).toString();
                 propCard.add(bot, new PlainText(propInfo));
             }
+            if (string.startsWith("FISH-")) {
+                if(PropsType.getPropsInfo(string) instanceof PropsFishCard){
+                    PropsFishCard propsFishCard =(PropsFishCard)PropsType.getPropsInfo(string);
+                    if(propsFishCard.getBuy()){
+                        String propInfo = String.format("道具编号:%s\n", PropsType.getNo(string));
+                        propInfo += PropsType.getPropsInfo(string).toString();
+                        propCard.add(bot, new PlainText(propInfo));
+                    }
+                }
+            }
         }
-
         iNodes.add(bot, propCard.build());
         subject.sendMessage(iNodes.build());
     }

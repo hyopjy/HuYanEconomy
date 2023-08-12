@@ -1,9 +1,6 @@
 package cn.chahuyun.economy;
 
-import cn.chahuyun.config.DriverCarEventConfig;
-import cn.chahuyun.config.EconomyConfig;
-import cn.chahuyun.config.EconomyEventConfig;
-import cn.chahuyun.config.EconomyPluginConfig;
+import cn.chahuyun.config.*;
 import cn.chahuyun.economy.event.*;
 import cn.chahuyun.economy.manager.BankManager;
 import cn.chahuyun.economy.manager.LotteryManager;
