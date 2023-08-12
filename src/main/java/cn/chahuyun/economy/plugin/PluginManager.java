@@ -83,7 +83,10 @@ public class PluginManager {
                     propsFishConfig.getDescription(),
                     propsFishConfig.getFishDesc(),
                     propsFishConfig.getContent(),
-                    propsFishConfig.getBuy());
+                    propsFishConfig.getBuy(),
+                    propsFishConfig.getPriceDesc(),
+                    propsFishConfig.getExchange()
+            );
             propsFishCard.save();
             propsManager.registerProps(propsFishCard);
         });
@@ -101,6 +104,8 @@ public class PluginManager {
         map.put("价格", "cost");
         map.put("备注", "content");
         map.put("是否可以购买", "buy");
+        map.put("价格描述","priceDesc");
+        map.put("是否兑换","exchange");
         List<PropsFishCard> propsFishConfigList = reader.setHeaderAlias(map).readAll(PropsFishCard.class);
         propsFishConfigList.stream().forEach(propsFishConfig -> {
             PropsFishCard propsFishCard = new PropsFishCard(propsFishConfig.getCode(),
@@ -108,7 +113,10 @@ public class PluginManager {
                     propsFishConfig.getDescription(),
                     propsFishConfig.getFishDesc(),
                     propsFishConfig.getContent(),
-                    propsFishConfig.getBuy());
+                    propsFishConfig.getBuy(),
+                    propsFishConfig.getPriceDesc(),
+                    propsFishConfig.getExchange()
+            );
             propsFishCard.save();
             propsManager.registerProps(propsFishCard);
         });
