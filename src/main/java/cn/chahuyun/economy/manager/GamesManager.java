@@ -140,7 +140,9 @@ public class GamesManager {
         //初始钓鱼信息
         boolean theRod = false;
         // 困难度
-        int difficultyMin = 0;
+        // 溜鱼增加difficultymin，之前的difficultymin=1+根号(14*RodLevel)
+        double result =1 + Math.sqrt(userFishInfo.getRodLevel() * 14);
+        int difficultyMin = (int) result;
         int difficultyMax = 131;
         int rankMin = 1;
         int rankMax = 1;
@@ -271,7 +273,14 @@ public class GamesManager {
                 return;
             }
             //roll难度
-            int difficulty = RandomUtil.randomInt(difficultyMin, difficultyMax);
+            int difficulty;
+            if (difficultyMin > difficultyMax) {
+                difficulty = RandomUtil.randomInt(difficultyMax, difficultyMin);
+            } else if (difficultyMin == difficultyMax) {
+                difficulty = difficultyMin;
+            } else {
+                difficulty = RandomUtil.randomInt(difficultyMin, difficultyMax);
+            }
             //在所有鱼中拿到对应的鱼等级
             List<Fish> levelFishList = fishPond.getFishList(rank);
             //过滤掉难度不够的鱼

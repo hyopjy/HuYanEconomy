@@ -1,6 +1,8 @@
 package cn.chahuyun.economy.event;
 
 import cn.chahuyun.config.EconomyEventConfig;
+import cn.chahuyun.economy.entity.LotteryInfo;
+
 import cn.chahuyun.economy.manager.GamesManager;
 import cn.chahuyun.economy.plugin.FishManager;
 import cn.chahuyun.economy.plugin.FishPondManager;
@@ -17,9 +19,18 @@ import net.mamoe.mirai.event.SimpleListenerHost;
 import net.mamoe.mirai.event.events.EventCancelledException;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.event.events.UserMessageEvent;
+import net.mamoe.mirai.message.data.Message;
+import net.mamoe.mirai.message.data.PlainText;
+import org.apache.commons.collections4.CollectionUtils;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
+import org.hibernate.query.criteria.HibernateCriteriaBuilder;
+import org.hibernate.query.criteria.JpaCriteriaQuery;
+import org.hibernate.query.criteria.JpaRoot;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 public class RandomMoneyListener extends SimpleListenerHost {
@@ -55,6 +66,42 @@ public class RandomMoneyListener extends SimpleListenerHost {
             double money = EconomyUtil.getMoneyByUser(sender);
             double bankMoney = EconomyUtil.getMoneyByBank(sender);
             subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "当前WDIT 币币余额%s;当前银行存款%s", money, bankMoney));
+        }
+        if(message.equals("查看签签")){
+            List<LotteryInfo> list = HibernateUtil.factory.fromSession(session -> {
+                HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
+                JpaCriteriaQuery<LotteryInfo> query = builder.createQuery(LotteryInfo.class);
+                JpaRoot<LotteryInfo> from = query.from(LotteryInfo.class);
+                query.select(from);
+                query.where(builder.equal(from.get("qq"), sender.getId()));
+                query.where(builder.equal(from.get("group"), sender.getGroup().getId()));
+                return session.createQuery(query).list();
+            });
+            if(CollectionUtils.isEmpty(list)){
+                subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "暂时没有签"));
+            }else {
+                Message m = new PlainText("");
+                // 强制透
+                List<LotteryInfo> grandLotto = list.stream().filter(lotteryInfo -> lotteryInfo.getType() == 1).collect(Collectors.toList());
+                // 缺德球
+                List<LotteryInfo> union = list.stream().filter(lotteryInfo -> lotteryInfo.getType() == 2).collect(Collectors.toList());
+
+                if(!CollectionUtils.isEmpty(grandLotto)){
+                    m = m.plus("强制透签：").plus("\r\n");
+                   for(int i = 0 ; i < grandLotto.size(); i++ ) {
+                       m = m.plus("号码：" ).plus(grandLotto.get(i).getNumber()).plus(" 币币：" + grandLotto.get(i).getMoney()).plus("\r\n");
+                   }
+                }
+
+                if(!CollectionUtils.isEmpty(union)){
+                    m = m.plus("缺德球签：").plus("\r\n");
+                    for(int i = 0 ; i < union.size(); i++ ) {
+                        m = m.plus("号码：" ).plus(union.get(i).getNumber()).plus(" 币币：" + union.get(i).getMoney()).plus("\r\n");
+                    }
+                }
+                subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), m.contentToString()));
+            }
+
         }
 
         return ListeningStatus.LISTENING;
