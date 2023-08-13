@@ -12,6 +12,7 @@ import cn.chahuyun.economy.utils.Log;
 import cn.hutool.cron.CronUtil;
 import cn.hutool.poi.excel.ExcelReader;
 import cn.hutool.poi.excel.ExcelUtil;
+import org.apache.commons.collections4.CollectionUtils;
 import org.hibernate.query.criteria.HibernateCriteriaBuilder;
 import org.hibernate.query.criteria.JpaCriteriaQuery;
 
@@ -47,12 +48,11 @@ public class PluginManager {
     public static void init() {
         //插件加载的时候启动调度器
         CronUtil.start();
-        propsManager.clearProps();
         //加载道具
         PropsCard propsCard = new PropsCard(Constant.SIGN_DOUBLE_SINGLE_CARD, "签到双倍币币卡", 99, true, "张", "不要999，不要599，只要199币币，你的下一次签到将翻倍！", false, null, null, false, null);
         propsManager.registerProps(propsCard);
         // todo 重置
-        // initPropsFishCard();
+        initPropsFishCard();
         try {
             //壶言会话
             HuYanEconomy.INSTANCE.config.setOwner(ConfigData.INSTANCE.getOwner());
@@ -65,6 +65,9 @@ public class PluginManager {
     }
 
     private static void initPropsFishCard() {
+        // 缓存
+        propsManager.clearProps();
+
         List<PropsFishCard> PropsFishCardList = HibernateUtil.factory.fromSession(session -> {
             HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
             JpaCriteriaQuery<PropsFishCard> query = builder.createQuery(PropsFishCard.class);
@@ -72,23 +75,13 @@ public class PluginManager {
             return session.createQuery(query).list();
         });
 
-        if (PropsFishCardList == null || PropsFishCardList.size() == 0) {
+        if (CollectionUtils.isEmpty(PropsFishCardList)) {
             reloadPropsFishCard();
             return;
         }
 
         PropsFishCardList.stream().forEach(propsFishConfig -> {
-            PropsFishCard propsFishCard = new PropsFishCard(propsFishConfig.getCode(),
-                    propsFishConfig.getName(), propsFishConfig.getCost(),
-                    propsFishConfig.getDescription(),
-                    propsFishConfig.getFishDesc(),
-                    propsFishConfig.getContent(),
-                    propsFishConfig.getBuy(),
-                    propsFishConfig.getPriceDesc(),
-                    propsFishConfig.getExchange()
-            );
-            propsFishCard.save();
-            propsManager.registerProps(propsFishCard);
+            propsManager.registerProps(propsFishConfig);
         });
 
     }
@@ -117,8 +110,8 @@ public class PluginManager {
                     propsFishConfig.getPriceDesc(),
                     propsFishConfig.getExchange()
             );
-            propsFishCard.save();
-            propsManager.registerProps(propsFishCard);
+            PropsFishCard finalPropsFishCard = propsFishCard.save();
+            propsManager.registerProps(finalPropsFishCard);
         });
     }
 

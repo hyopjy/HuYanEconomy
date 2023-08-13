@@ -1,5 +1,6 @@
 package cn.chahuyun.economy.entity.props.factory;
 
+import cn.chahuyun.economy.entity.props.PropsBase;
 import cn.chahuyun.economy.entity.props.PropsCard;
 import cn.chahuyun.economy.plugin.PropsType;
 import cn.chahuyun.economy.utils.HibernateUtil;
@@ -42,5 +43,16 @@ public class PropsCardFactory implements PropsFactory {
     @Override
     public PropsCard create() {
         return new PropsCard();
+    }
+
+    @Override
+    public PropsBase getPropsBase(String code) {
+        PropsBase card;
+        try {
+            card = PropsType.getPropsInfo(code);
+        } catch (Exception e) {
+            return null;
+        }
+        return card;
     }
 }

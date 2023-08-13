@@ -269,17 +269,15 @@ public class PropsManagerImpl implements PropsManager {
             subject.sendMessage("系统出错，请联系主人!");
             return;
         }
-        PropsCard propsCard = null;
-        if (propCode.startsWith("K-")) {
-            propsCard = PropsCardFactory.INSTANCE.create(propCode);
-        }
-        if (propsCard == null) {
+        PropsBase propsBase = PropsCardFactory.INSTANCE.getPropsBase(propCode);
+        if (Objects.isNull(propsBase)) {
             Log.error("道具系统:道具创建为空");
             return;
         }
+
         int number = num;
         while (number != 0) {
-            UserBackpack userBackpack = new UserBackpack(userInfo, propsCard);
+            UserBackpack userBackpack = new UserBackpack(userInfo, propsBase);
             if (!userInfo.addPropToBackpack(userBackpack)) {
                 Log.warning("道具系统:添加道具到用户背包失败!");
                 subject.sendMessage("系统出错，请联系主人!");
