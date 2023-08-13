@@ -61,8 +61,10 @@ public class BankManager {
         } catch (Exception e) {
             Log.error("银行管理:利息加载出错!", e);
         }
+        CronUtil.remove("bank");
         BankInterestTask bankInterestTask = new BankInterestTask("bank", bankInfos);
         CronUtil.schedule("bank", "0 0 0 * * ?", bankInterestTask);
+         // CronUtil.schedule("bank", "*/30 * * * * *", bankInterestTask);
     }
 
     /**
@@ -83,7 +85,7 @@ public class BankManager {
         String code = message.serializeToMiraiCode();
 
 
-        int money = Integer.parseInt(code.split(" ")[1]);
+        double money = Double.parseDouble(code.split(" ")[1]);
         double moneyByUser = EconomyUtil.getMoneyByUser(user);
         if (moneyByUser - money < 0) {
             singleMessages.append(String.format("你的币币不够%s了", money));
@@ -119,7 +121,7 @@ public class BankManager {
         String code = message.serializeToMiraiCode();
 
 
-        int money = Integer.parseInt(code.split(" ")[1]);
+        double money = Double.parseDouble(code.split(" ")[1]);
         double moneyByBank = EconomyUtil.getMoneyByBank(user);
         if (moneyByBank - money < 0) {
             singleMessages.append(String.format("你的银行余额不够%s枚WDIT币币了", money));
@@ -193,7 +195,8 @@ class BankInterestTask implements Task {
                     bankInfo.setInterest(RandomUtil.randomInt(2, 9));
                 }
             }
-            if (bankInfo.getId() == 0) {
+            Log.info("bankInfo-id:"+ bankInfo.getId());
+            if (bankInfo.getId() == 1) {
                 int interest = bankInfo.getInterest();
                 Map<EconomyAccount, Double> accountByBank = EconomyUtil.getAccountByBank();
                 for (Map.Entry<EconomyAccount, Double> entry : accountByBank.entrySet()) {
@@ -203,6 +206,7 @@ class BankInterestTask implements Task {
                     }
                     double v = entry.getValue() * (interest / 100.0);
                     if (EconomyUtil.plusMoneyToBankForAccount(entry.getKey(), v)) {
+                        Log.info("用户："+ userInfo.getQq() + "银行收入：" + v);
                         userInfo.setBankEarnings(v);
                     } else {
                         Log.error("银行利息管理:" + id + "添加利息出错");
