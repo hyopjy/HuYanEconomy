@@ -11,7 +11,7 @@ import cn.chahuyun.economy.entity.props.PropsBase;
  */
 public interface PropsFactory {
     /**
-     * 通过 [code] 获取一个道具
+     * 通过 [code] 获取一个道具  -- 会存入数据库
      *
      * @param code 道具code
      * @return 对应的道具
@@ -19,4 +19,6 @@ public interface PropsFactory {
     PropsBase create(String code);
 
     PropsBase create();
+
+    PropsBase getPropsBase(String code);
 }
