@@ -1,6 +1,7 @@
 package cn.chahuyun.economy.manager;
 
 
+import cn.chahuyun.economy.command.PropUsage;
 import cn.chahuyun.economy.entity.UserBackpack;
 import cn.chahuyun.economy.entity.UserInfo;
 import cn.chahuyun.economy.entity.props.PropsBase;
@@ -29,6 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @date 2022/11/14 12:27
  */
 public class PropsManagerImpl implements PropsManager {
+
 
 
     /**
@@ -328,46 +330,30 @@ public class PropsManagerImpl implements PropsManager {
 
         String code = message.serializeToMiraiCode();
 
-        String[] s = code.split(" ");
+
+        String str = "";
+        int i = 0;
+        for (SingleMessage singleMessage : message) {
+            Log.info(singleMessage.contentToString());
+            if(i ==1){
+                str = singleMessage.contentToString();
+            }
+            i++;
+        }
+        String[] s = str.split(" ");
         String no = s[1];
         int num = 1;
-        if (s.length == 3) {
-            num = Integer.parseInt(s[2]);
-        }
+//        if (s.length == 3) {
+//            num = Integer.parseInt(s[2]);
+//        }
 
         String propCode = PropsType.getCode(no);
         Log.info("道具系统:使用道具-Code " + propCode);
-
-        UserInfo userInfo = UserManager.getUserInfo(sender);
-
-        int success = 0;
-        PropsBase prop = null;
-
-        if (propCode.startsWith("K-")) {
-            assert userInfo != null;
-            List<PropsCard> propsByUserFromCode = getPropsByUserFromCode(userInfo, propCode, PropsCard.class);
-            if (propsByUserFromCode.size() == 0) {
-                subject.sendMessage(messages.append("你的包里没有这个道具!").build());
-                return;
-            }
-
-            for (PropsCard propsCard : propsByUserFromCode) {
-                prop = propsCard;
-                if (propsCard.isStatus()) {
-                    continue;
-                }
-                if (num == 0) {
-                    break;
-                }
-                propsCard.setStatus(true);
-                propsCard.setEnabledTime(new Date());
-                HibernateUtil.factory.fromTransaction(session -> session.merge(propsCard));
-                num--;
-                success++;
-            }
+        if(Objects.isNull(propCode)){
+            subject.sendMessage(messages.append("请输入正确的道具名称!").build());
         }
-
-
+        UserInfo userInfo = UserManager.getUserInfo(sender);
+        PropsBase prop = null;
         if (propCode.startsWith("FISH-")) {
             assert userInfo != null;
             List<PropsFishCard> propsByUserFromCode = getPropsByUserFromCode(userInfo, propCode, PropsFishCard.class);
@@ -375,24 +361,29 @@ public class PropsManagerImpl implements PropsManager {
                 subject.sendMessage(messages.append("你的包里没有这个道具!").build());
                 return;
             }
-
+            if(Objects.nonNull(userUseCard.get(userInfo.getQq())) && userUseCard.get(userInfo.getQq())){
+                subject.sendMessage(messages.append("你正在使用道具!").build());
+                return;
+            }
+            userUseCard.put(userInfo.getQq(),true);
             for (PropsFishCard propsCard : propsByUserFromCode) {
                 prop = propsCard;
                 if (num == 0) {
                     break;
                 }
-                deleteProp(userInfo,prop, 1);
+                PropUsage usage = PropUsage.getPropUsage(propsCard, userInfo, event);
 
+                if(!usage.checkOrder(code)){
+                    break;
+                }
+                // 执行特效
+                if(Objects.nonNull(usage)){
+                    usage.execute(1);
+                }
+                deleteProp(userInfo,prop, 1);
                 num--;
-                success++;
             }
         }
-        assert prop != null;
-        if (success == 0) {
-            subject.sendMessage(messages.append(String.format("你没有未使用的%s", prop.getName())).build());
-            return;
-        }
-        subject.sendMessage(messages.append(String.format("成功使用%d张%s道具卡", success, prop.getName())).build());
     }
 
     /**
