@@ -136,9 +136,10 @@ public class FbUserManager  {
             //如果是群 根据管理员信息改变颜色
             if (user instanceof Member) {
                 MemberPermission permission = ((Member) user).getPermission();
-                if (permission == MemberPermission.OWNER) {
+                Log.info("uer:"+user.getId() +"userPermission:"+permission.getLevel());
+                if (permission.getLevel() == MemberPermission.OWNER.getLevel()) {
                     pen.setColor(Color.YELLOW);
-                } else if (permission == MemberPermission.ADMINISTRATOR) {
+                } else if (permission.getLevel() == MemberPermission.ADMINISTRATOR.getLevel()) {
                     pen.setColor(Color.GREEN);
                 } else {
                     pen.setColor(Color.WHITE);
@@ -229,11 +230,6 @@ public class FbUserManager  {
             //写入银行收益金币
             pen.drawString(String.valueOf(bankEarnings), 320, 740);
 
-//            fontSize = 15;
-//            pen.setColor(new Color(255, 255, 255, 230));
-//            pen.setFont(new Font("黑体", Font.ITALIC, fontSize));
-//
-//            pen.drawString("by Mirai & HuYanEconomy(壶言经济) " + HuYanEconomy.version, 540, 525);
 
             // 设置特殊称号
             // special

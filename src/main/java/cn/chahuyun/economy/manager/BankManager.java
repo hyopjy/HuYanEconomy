@@ -9,6 +9,7 @@ import cn.chahuyun.economy.utils.HibernateUtil;
 import cn.chahuyun.economy.utils.Log;
 import cn.chahuyun.economy.utils.MessageUtil;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.cron.CronUtil;
 import cn.hutool.cron.task.Task;
@@ -22,6 +23,7 @@ import org.hibernate.query.criteria.JpaCriteriaQuery;
 import org.hibernate.query.criteria.JpaRoot;
 import xyz.cssxsh.mirai.economy.service.EconomyAccount;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -64,7 +66,7 @@ public class BankManager {
         CronUtil.remove("bank");
         BankInterestTask bankInterestTask = new BankInterestTask("bank", bankInfos);
         CronUtil.schedule("bank", "0 0 0 * * ?", bankInterestTask);
-         // CronUtil.schedule("bank", "*/30 * * * * *", bankInterestTask);
+        // CronUtil.schedule("bank", "*/30 * * * * *", bankInterestTask);
     }
 
     /**
@@ -204,10 +206,13 @@ class BankInterestTask implements Task {
                     if (userInfo == null) {
                         continue;
                     }
-                    double v = entry.getValue() * (interest / 100.0);
+                    double dd = interest / 100.00;
+                    BigDecimal vB = NumberUtil.round(NumberUtil.mul(entry.getValue().doubleValue(),dd),2);
+                    double v = vB.doubleValue();
                     if (EconomyUtil.plusMoneyToBankForAccount(entry.getKey(), v)) {
                         Log.info("用户："+ userInfo.getQq() + "银行收入：" + v);
                         userInfo.setBankEarnings(v);
+                        userInfo.save();
                     } else {
                         Log.error("银行利息管理:" + id + "添加利息出错");
                     }

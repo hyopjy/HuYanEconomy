@@ -52,7 +52,7 @@ public class PluginManager {
         PropsCard propsCard = new PropsCard(Constant.SIGN_DOUBLE_SINGLE_CARD, "签到双倍币币卡", 99, true, "张", "不要999，不要599，只要199币币，你的下一次签到将翻倍！", false, null, null, false, null);
         propsManager.registerProps(propsCard);
         // todo 重置
-        initPropsFishCard();
+        // initPropsFishCard();
         try {
             //壶言会话
             HuYanEconomy.INSTANCE.config.setOwner(ConfigData.INSTANCE.getOwner());

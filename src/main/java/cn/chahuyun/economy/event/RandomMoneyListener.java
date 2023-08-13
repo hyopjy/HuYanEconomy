@@ -73,8 +73,7 @@ public class RandomMoneyListener extends SimpleListenerHost {
                 JpaCriteriaQuery<LotteryInfo> query = builder.createQuery(LotteryInfo.class);
                 JpaRoot<LotteryInfo> from = query.from(LotteryInfo.class);
                 query.select(from);
-                query.where(builder.equal(from.get("qq"), sender.getId()));
-                query.where(builder.equal(from.get("group"), sender.getGroup().getId()));
+                query.where(builder.equal(from.get("qq"), sender.getId()),builder.equal(from.get("group"), sender.getGroup().getId()));
                 return session.createQuery(query).list();
             });
             if(CollectionUtils.isEmpty(list)){
