@@ -1,6 +1,7 @@
 package cn.chahuyun.economy.entity;
 
 import cn.chahuyun.economy.entity.props.PropsBase;
+import cn.chahuyun.economy.utils.HibernateUtil;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -53,6 +54,16 @@ public class UserBackpack implements Serializable {
         this.propsCode = propsBase.getCode();
         this.propId = propsBase.getId();
         this.className = propsBase.getClass().getName();
+    }
+
+    /**
+     * 删除
+     */
+    public void remove() {
+        HibernateUtil.factory.fromTransaction(session -> {
+            session.remove(this);
+            return null;
+        });
     }
 
 }

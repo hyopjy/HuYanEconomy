@@ -82,31 +82,7 @@ public class SignManager {
         } else {
             goldNumber = RandomUtil.randomInt(50, 100);
         }
-        /*
-        双倍金币卡道具
-         */
-        if (false) {
-            PropsManager propsManager = PluginManager.getPropsManager();
 
-            List<PropsCard> cardS = propsManager.getPropsByUserFromCode(userInfo, Constant.SIGN_DOUBLE_SINGLE_CARD, PropsCard.class);
-
-            boolean doubleStatus = false;
-            for (PropsCard card : cardS) {
-                if (card.isStatus()) {
-                    doubleStatus = true;
-                    userInfo = propsManager.deleteProp(userInfo, card);
-                    if (userInfo == null) {
-                        subject.sendMessage("签到双倍币币卡使用失败!签到失败!");
-                        return;
-                    }
-                    break;
-                }
-            }
-
-            if (doubleStatus) {
-                goldNumber = goldNumber * 2;
-            }
-        }
         if (!EconomyUtil.plusMoneyToUser(userInfo.getUser(), goldNumber)) {
             subject.sendMessage("签到失败!");
             //todo 签到失败回滚

@@ -1,11 +1,15 @@
 package cn.chahuyun.economy.manager;
 
 import cn.chahuyun.economy.HuYanEconomy;
+import cn.chahuyun.economy.entity.UserBackpack;
 import cn.chahuyun.economy.entity.UserInfo;
 import cn.chahuyun.economy.entity.fish.Fish;
 import cn.chahuyun.economy.entity.fish.FishInfo;
 import cn.chahuyun.economy.entity.fish.FishPond;
 import cn.chahuyun.economy.entity.fish.FishRanking;
+import cn.chahuyun.economy.entity.props.PropsBase;
+import cn.chahuyun.economy.entity.props.factory.PropsCardFactory;
+import cn.chahuyun.economy.plugin.PropsType;
 import cn.chahuyun.economy.utils.*;
 import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
@@ -312,9 +316,44 @@ public class GamesManager {
                 EconomyUtil.plusMoneyToUser(normalMember, money * fishPond.getRebate());
             }
         }
+        // 道具
+        if(fish.isSpecial()){
+            String propCode = PropsType.getCode(fish.getName());
+            Log.info("钓鱼系统:获取道具-Code " + propCode);
+            PropsBase propsBase = PropsCardFactory.INSTANCE.getPropsBase(propCode);
+            if (Objects.isNull(propsBase)) {
+                Log.error("钓鱼系统:获取道具为空");
+                // 折现-钓鱼
+                sendFishInfoMessage(userInfo, user, subject, fishPond, fish, dimensions, money, v);
+            }else {
+                UserBackpack userBackpack = new UserBackpack(userInfo, propsBase);
+                if (!userInfo.addPropToBackpack(userBackpack)) {
+                    Log.error("钓鱼系统:添加道具到用户背包失败!");
+                    // subject.sendMessage("系统出错，请联系主人!");
+                    // 折现-钓鱼
+                    sendFishInfoMessage(userInfo, user, subject, fishPond, fish, dimensions, money, v);
+                }
+                String format = String.format("\r\n起竿咯！获取道具 \r\n%s\r\n等级:%s\r\n单价:%s\r\n尺寸:%d\r\n总金额:%d\r\n%s",
+                        fish.getName(), fish.getLevel(), fish.getPrice(), dimensions, money, fish.getDescription());
+                MessageChainBuilder messages = new MessageChainBuilder();
+                messages.append(new At(userInfo.getQq())).append(new PlainText(format));
+
+                subject.sendMessage(messages.build());
+                Log.info("钓鱼系统:添加道具到用户-Code " + propCode);
+            }
+        }else {
+            // 钓鱼
+            sendFishInfoMessage(userInfo, user, subject, fishPond, fish, dimensions, money, v);
+        }
+        userFishInfo.switchStatus();
+        new FishRanking(userInfo.getQq(), userInfo.getName(), dimensions, money, userFishInfo.getRodLevel(), fish, fishPond).save();
+    }
+
+    private static void sendFishInfoMessage(UserInfo userInfo, User user, Contact subject, FishPond fishPond, Fish fish, int dimensions, int money, double v) {
         if (EconomyUtil.plusMoneyToUser(user, v) && EconomyUtil.plusMoneyToBankForId(fishPond.getCode(), fishPond.getDescription(), money * fishPond.getRebate())) {
             fishPond.addNumber();
-            String format = String.format("\n起竿咯！\n%s\n等级:%s\n单价:%s\n尺寸:%d\n总金额:%d\n%s", fish.getName(), fish.getLevel(), fish.getPrice(), dimensions, money, fish.getDescription());
+            String format = String.format("\r\n起竿咯！\r\n%s\r\n等级:%s\r\n单价:%s\r\n尺寸:%d\r\n总金额:%d\r\n%s",
+                    fish.getName(), fish.getLevel(), fish.getPrice(), dimensions, money, fish.getDescription());
             MessageChainBuilder messages = new MessageChainBuilder();
             messages.append(new At(userInfo.getQq())).append(new PlainText(format));
             subject.sendMessage(messages.build());
@@ -322,8 +361,6 @@ public class GamesManager {
             subject.sendMessage("钓鱼失败!");
             playerCooling.remove(userInfo.getQq());
         }
-        userFishInfo.switchStatus();
-        new FishRanking(userInfo.getQq(), userInfo.getName(), dimensions, money, userFishInfo.getRodLevel(), fish, fishPond).save();
     }
 
     private static Boolean checkUserPay(User user) {

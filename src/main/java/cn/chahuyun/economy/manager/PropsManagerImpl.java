@@ -20,6 +20,7 @@ import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.message.data.*;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 道具管理<p>
@@ -144,13 +145,29 @@ public class PropsManagerImpl implements PropsManager {
      * @return true 成功删除
      */
     @Override
-    public UserInfo deleteProp(UserInfo userInfo, PropsBase props) {
+    public UserInfo deleteProp(UserInfo userInfo, PropsBase props, int num) {
         try {
+            AtomicInteger i = new AtomicInteger();
             return HibernateUtil.factory.fromTransaction(session -> {
-                session.remove(props);
                 List<UserBackpack> backpacks = userInfo.getBackpacks();
-                backpacks.removeIf(filter -> filter.getPropId() == props.getId());
-                userInfo.setBackpacks(backpacks);
+                backpacks.stream().forEach(backpack->{
+                    if(i.get() >= num){
+                        return;
+                    }
+                    if(backpack.getPropId() == props.getId()){
+                        backpack.remove();
+                    }
+                    i.getAndIncrement();
+                });
+                AtomicInteger j = new AtomicInteger();
+                backpacks.removeIf(filter -> {
+                    if(j.get() >= num){
+                        return false;
+                    }
+                    j.getAndIncrement();
+                    return filter.getPropId() == props.getId();
+                });
+
 //                HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
 //                JpaCriteriaQuery<UserBackpack> query = builder.createQuery(UserBackpack.class);
 //                JpaRoot<UserBackpack> from = query.from(UserBackpack.class);
@@ -349,12 +366,33 @@ public class PropsManagerImpl implements PropsManager {
                 success++;
             }
         }
+
+
+        if (propCode.startsWith("FISH-")) {
+            assert userInfo != null;
+            List<PropsFishCard> propsByUserFromCode = getPropsByUserFromCode(userInfo, propCode, PropsFishCard.class);
+            if (propsByUserFromCode.size() == 0) {
+                subject.sendMessage(messages.append("你的包里没有这个道具!").build());
+                return;
+            }
+
+            for (PropsFishCard propsCard : propsByUserFromCode) {
+                prop = propsCard;
+                if (num == 0) {
+                    break;
+                }
+                deleteProp(userInfo,prop, 1);
+
+                num--;
+                success++;
+            }
+        }
         assert prop != null;
         if (success == 0) {
             subject.sendMessage(messages.append(String.format("你没有未使用的%s", prop.getName())).build());
             return;
         }
-        subject.sendMessage(messages.append(String.format("成功使用%d%s%s", success, prop.getUnit(), prop.getName())).build());
+        subject.sendMessage(messages.append(String.format("成功使用%d张%s道具卡", success, prop.getName())).build());
     }
 
     /**
