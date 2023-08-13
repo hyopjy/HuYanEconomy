@@ -44,8 +44,12 @@ public class PropsFishCard extends PropsBase implements Serializable {
 
     @Override
     public String toString() {
+        String price = this.getCost() +"币币";
+        if(this.getCost() < 0){
+            price = this.getPriceDesc();
+        }
         return "道具名称:" + this.getName() +
-                "\r\n价格:" + this.getCost() + "币币" +
+                "\r\n价格:" + price +
                 "\r\n描述:" + this.getDescription();
     }
 

@@ -5,6 +5,7 @@ import cn.chahuyun.economy.entity.props.PropsBase;
 import net.mamoe.mirai.event.events.MessageEvent;
 
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 道具管理
@@ -14,6 +15,7 @@ import java.util.List;
  */
 public interface PropsManager {
 
+    ConcurrentHashMap<Long,Boolean> userUseCard = new ConcurrentHashMap<>();
 
     /**
      * 注册道具
