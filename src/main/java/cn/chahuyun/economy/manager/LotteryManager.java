@@ -111,7 +111,7 @@ public class LotteryManager {
             CronUtil.remove(hoursTaskId);
             LotteryHoursTask hoursTask = new LotteryHoursTask(hoursTaskId, UNION_LOTTO.values());
             //CronUtil.schedule(hoursTaskId, "0 0 * * * ?", hoursTask);
-            CronUtil.schedule(hoursTaskId, "0 30 19 ? * 2,4,5", hoursTask);
+            CronUtil.schedule(hoursTaskId, "0 0 20 ? * 2,4,5", hoursTask);
 
         }
 //        if (dayLottery.size() > 0) {
