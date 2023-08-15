@@ -15,8 +15,6 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public interface PropsManager {
 
-    ConcurrentHashMap<Long,Boolean> userUseCard = new ConcurrentHashMap<>();
-
     /**
      * 注册道具
      *

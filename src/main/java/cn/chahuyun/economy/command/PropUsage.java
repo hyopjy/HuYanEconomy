@@ -3,6 +3,7 @@ package cn.chahuyun.economy.command;
 import cn.chahuyun.economy.entity.UserInfo;
 import cn.chahuyun.economy.entity.props.PropsFishCard;
 import cn.chahuyun.economy.manager.PropsManager;
+import cn.chahuyun.economy.utils.CacheUtils;
 import net.mamoe.mirai.event.events.MessageEvent;
 
 public abstract class PropUsage {
@@ -22,6 +23,6 @@ public abstract class PropUsage {
     public abstract Boolean checkOrder(String order);
 
     public static void doRemove(Long qq){
-        PropsManager.userUseCard.remove(qq);
+        CacheUtils.USER_USE_CARD.remove(qq);
     }
 }
