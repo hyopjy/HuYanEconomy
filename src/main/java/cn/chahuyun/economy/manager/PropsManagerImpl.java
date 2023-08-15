@@ -9,10 +9,7 @@ import cn.chahuyun.economy.entity.props.PropsCard;
 import cn.chahuyun.economy.entity.props.PropsFishCard;
 import cn.chahuyun.economy.entity.props.factory.PropsCardFactory;
 import cn.chahuyun.economy.plugin.PropsType;
-import cn.chahuyun.economy.utils.EconomyUtil;
-import cn.chahuyun.economy.utils.HibernateUtil;
-import cn.chahuyun.economy.utils.Log;
-import cn.chahuyun.economy.utils.MessageUtil;
+import cn.chahuyun.economy.utils.*;
 import cn.hutool.core.util.StrUtil;
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.Contact;
@@ -361,11 +358,11 @@ public class PropsManagerImpl implements PropsManager {
                 subject.sendMessage(messages.append("你的包里没有这个道具!").build());
                 return;
             }
-            if(Objects.nonNull(userUseCard.get(userInfo.getQq())) && userUseCard.get(userInfo.getQq())){
+            if(Objects.nonNull(CacheUtils.USER_USE_CARD.get(userInfo.getQq())) && CacheUtils.USER_USE_CARD.get(userInfo.getQq())){
                 subject.sendMessage(messages.append("你正在使用道具!").build());
                 return;
             }
-            userUseCard.put(userInfo.getQq(),true);
+            CacheUtils.USER_USE_CARD.put(userInfo.getQq(),true);
             for (PropsFishCard propsCard : propsByUserFromCode) {
                 prop = propsCard;
                 if (num == 0) {

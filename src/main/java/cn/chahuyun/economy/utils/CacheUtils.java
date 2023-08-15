@@ -2,6 +2,7 @@ package cn.chahuyun.economy.utils;
 
 import cn.hutool.cache.Cache;
 import cn.hutool.cache.CacheUtil;
+import cn.hutool.cache.impl.TimedCache;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -9,10 +10,17 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class CacheUtils {
 
     public static Cache<Long, InputStream> fifoCache = CacheUtil.newLFUCache(50, 1000 * 60 * 60);
+
+    // public static Cache<Long, Long> fifoCache = CacheUtil.newLFUCache(50, 1000 * 60 * 60);
+
+    public static TimedCache<String, String> timedCache = CacheUtil.newTimedCache(3 * 60 *1000);
+
+    public static  ConcurrentHashMap<Long,Boolean> USER_USE_CARD = new ConcurrentHashMap<>();
 
     public static  InputStream getAvatarUrlInputStream(Long qq, String avatarUrl) {
         if (Objects.isNull(fifoCache.get(qq))) {
