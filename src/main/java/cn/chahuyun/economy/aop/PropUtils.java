@@ -11,7 +11,8 @@ public class PropUtils {
 
         if(CacheUtils.USER_USE_CARD.containsKey(934415751L)){
             //
-
+           // subject.sendMessage(messages.append("你正在使用道具!").build());
+            return;
         }
 
         PropsFishCard propsCard = new PropsFishCard();

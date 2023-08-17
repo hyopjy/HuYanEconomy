@@ -3,6 +3,8 @@ package cn.chahuyun.economy.factory;
 import cn.chahuyun.economy.constant.PropConstant;
 import cn.chahuyun.economy.entity.UserInfo;
 import cn.chahuyun.economy.entity.props.PropsFishCard;
+import cn.chahuyun.economy.manager.PropsManager;
+import cn.chahuyun.economy.plugin.PluginManager;
 import lombok.Getter;
 import lombok.Setter;
 import net.mamoe.mirai.event.events.MessageEvent;
@@ -33,6 +35,7 @@ public class PropFishUsageContext {
     public void excute() {
         if(iPropUsage.checkOrder()){
             iPropUsage.excute();
+            // PluginManager.getPropsManager().deleteProp();
         }
     }
 
