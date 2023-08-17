@@ -1,3 +1,10 @@
+buildscript {
+    repositories {
+        maven{url 'https://maven.aliyun.com/repository/public'}
+    }
+}
+
+
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.7.20'
     id 'org.jetbrains.kotlin.plugin.serialization' version '1.7.20'
@@ -8,11 +15,19 @@ plugins {
 group = 'cn.chahuyun'
 version = '0.1.16'
 
+
 repositories {
     mavenCentral()
 //    maven { url 'https://maven.aliyun.com/repository/public' }
 //    maven { url "https://www.sonatype.org/nexus/" }
 //    maven { url 'https://s01.oss.sonatype.org/content/repositories/snapshots/' }
+}
+
+
+allprojects {
+    repositories {
+        maven{url 'https://maven.aliyun.com/repository/public'}
+    }
 }
 
 dependencies {
