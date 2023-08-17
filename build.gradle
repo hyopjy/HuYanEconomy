@@ -41,6 +41,7 @@ dependencies {
 
     implementation 'cn.hutool:hutool-all:5.8.10'
     implementation 'org.apache.poi:poi-ooxml:4.1.2'
+    implementation 'cglib:cglib:3.2.7'
     //测试库
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.0'
 }
