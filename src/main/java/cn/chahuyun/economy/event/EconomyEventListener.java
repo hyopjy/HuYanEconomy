@@ -3,6 +3,7 @@ package cn.chahuyun.economy.event;
 import cn.chahuyun.config.EconomyEventConfig;
 import cn.chahuyun.config.RegexConst;
 import cn.chahuyun.economy.manager.GamesManager;
+import cn.chahuyun.economy.utils.CacheUtils;
 import cn.chahuyun.economy.utils.EconomyUtil;
 import cn.chahuyun.economy.utils.Log;
 import cn.chahuyun.economy.utils.MessageUtil;
@@ -16,6 +17,7 @@ import net.mamoe.mirai.event.ListeningStatus;
 import net.mamoe.mirai.event.SimpleListenerHost;
 import net.mamoe.mirai.event.events.EventCancelledException;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
+import net.mamoe.mirai.message.data.MessageSource;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -44,6 +46,15 @@ public class EconomyEventListener extends SimpleListenerHost {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public ListeningStatus onGroupMsg(GroupMessageEvent event) {
+        if(CacheUtils.TIME_PROHIBITION.containsKey(CacheUtils.timeCacheKey(event.getGroup().getId(),event.getSender().getId()))){
+            try {
+                MessageSource.recall(event.getSource());
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            event.intercept();
+        }
+
         if (!EconomyEventConfig.INSTANCE.getEconomyCheckGroup().contains(event.getGroup().getId())
                 || event.getBot().getId() == event.getSender().getId()) {
             return ListeningStatus.LISTENING;

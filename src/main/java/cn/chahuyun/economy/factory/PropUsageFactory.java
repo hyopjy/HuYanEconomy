@@ -6,5 +6,8 @@ import net.mamoe.mirai.event.events.MessageEvent;
 
 public interface PropUsageFactory {
 
-    IPropUsage createGlassBead(PropsFishCard propsCard, UserInfo userInfo, MessageEvent event);
+    IPropUsage createGlassBead();
+
+
+    IPropUsage createSisterDog();
 }

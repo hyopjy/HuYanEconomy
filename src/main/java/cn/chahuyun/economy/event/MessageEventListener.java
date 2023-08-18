@@ -184,7 +184,12 @@ public class MessageEventListener extends SimpleListenerHost {
             String userPropRegex = "使用 (\\S+)(( \\S+)|(\\[mirai:at:\\d+]( )*))?|use (\\S+)(( \\S+)|(\\[mirai:at:\\d+]))?";
             if (Pattern.matches(userPropRegex, code)) {
                 Log.info("使用指令");
-                propsManager.userProp(event);
+                try {
+                    propsManager.userProp(event);
+                }catch (Exception e){
+                    Log.error("[使用指令]发生异常：" + e.getMessage());
+                }
+
                 return;
             }
 

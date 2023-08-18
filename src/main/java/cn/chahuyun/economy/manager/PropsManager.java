@@ -58,7 +58,7 @@ public interface PropsManager {
      * @param props    用户的道具
      * @return 新用户信息
      */
-    UserInfo deleteProp(UserInfo userInfo, PropsBase props, int num);
+    UserInfo deleteProp(UserInfo userInfo, PropsBase props);
 
     /**
      * 查询道具商店

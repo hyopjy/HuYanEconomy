@@ -5,6 +5,7 @@ import cn.chahuyun.economy.utils.CacheUtils;
 import cn.chahuyun.economy.utils.Log;
 import cn.hutool.json.JSONUtil;
 import net.bytebuddy.asm.Advice;
+import net.mamoe.mirai.event.events.MessageEvent;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -14,12 +15,12 @@ public class PropAdvisor {
     public static void onMethodEnter(@Advice.Origin Method method, @Advice.AllArguments Object[] arguments) {
         if (method.getAnnotation(Prop.class) != null) {
             for (Object obj : arguments) {
-                if (obj instanceof UserInfo) {
-                    UserInfo user = (UserInfo) obj;
-                    CacheUtils.USER_USE_CARD.put(user.getQq(), true);
+                if (obj instanceof MessageEvent) {
+                    MessageEvent event = (MessageEvent) obj;
+                    CacheUtils.USER_USE_CARD.put(CacheUtils.userUseKey(event.getSubject().getId(),event.getSubject().getId()), true);
                 }
             }
-            Log.info("[PropAdvisor]-[Enter] method:" + method.getName() + " with arguments: " + Arrays.toString(arguments));
+            Log.info("[PropAdvisor]-[Enter] method:" + method.getName());
         }
     }
 
@@ -28,12 +29,12 @@ public class PropAdvisor {
     public static void onMethodExit(@Advice.Origin Method method, @Advice.AllArguments Object[] arguments) {
         if (method.getAnnotation(Prop.class) != null) {
             for (Object obj : arguments) {
-                if (obj instanceof UserInfo) {
-                    UserInfo user = (UserInfo) obj;
-                    CacheUtils.USER_USE_CARD.remove(user.getQq());
+                if (obj instanceof MessageEvent) {
+                    MessageEvent event = (MessageEvent) obj;
+                    CacheUtils.USER_USE_CARD.remove(CacheUtils.userUseKey(event.getSubject().getId(),event.getSubject().getId()));
                 }
             }
-            Log.info("[PropAdvisor]-[Exit] method:" + method.getName() + " with arguments: " + Arrays.toString(arguments));
+            Log.info("[PropAdvisor]-[Exit] method:" + method.getName());
         }
     }
 
