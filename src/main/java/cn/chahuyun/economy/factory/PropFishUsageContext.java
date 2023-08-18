@@ -1,9 +1,9 @@
 package cn.chahuyun.economy.factory;
 
+import cn.chahuyun.economy.aop.Prop;
 import cn.chahuyun.economy.constant.PropConstant;
 import cn.chahuyun.economy.entity.UserInfo;
 import cn.chahuyun.economy.entity.props.PropsFishCard;
-import cn.chahuyun.economy.manager.PropsManager;
 import cn.chahuyun.economy.plugin.PluginManager;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,14 +12,13 @@ import net.mamoe.mirai.event.events.MessageEvent;
 @Getter
 @Setter
 public class PropFishUsageContext {
-    IPropUsage iPropUsage;
-    Long  qq;
 
     public PropFishUsageContext() {
     }
 
-    public PropFishUsageContext(PropsFishCard propsCard, UserInfo userInfo, MessageEvent event) {
-        this.qq = userInfo.getQq();
+    @Prop
+    public void excute(PropsFishCard propsCard, UserInfo userInfo, MessageEvent event) {
+        IPropUsage iPropUsage  = null;
         PropFishUsageFactory factory = new PropFishUsageFactory();
         String propsCardName = propsCard.getName();
         switch (propsCardName) {
@@ -27,15 +26,14 @@ public class PropFishUsageContext {
                 iPropUsage = factory.createGlassBead(propsCard, userInfo, event);
                 break;
             default:
-                throw new IllegalArgumentException("Unsupport operation!");
+                break;
         }
-
-    }
-
-    public void excute() {
+        if(iPropUsage ==null){
+            return;
+        }
         if(iPropUsage.checkOrder()){
             iPropUsage.excute();
-            // PluginManager.getPropsManager().deleteProp();
+            PluginManager.getPropsManager().deleteProp(userInfo,propsCard,1);
         }
     }
 

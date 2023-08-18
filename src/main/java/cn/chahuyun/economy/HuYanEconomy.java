@@ -74,7 +74,7 @@ public final class HuYanEconomy extends JavaPlugin {
         }
         config = EconomyConfig.INSTANCE;
         //插件功能初始化
-        // PluginManager.init();
+        PluginManager.init();
         long configBot = config.getBot();
         if (configBot == 0) {
             Log.warning("插件管理机器人还没有配置，请尽快配置!");
