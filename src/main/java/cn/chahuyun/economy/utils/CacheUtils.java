@@ -11,16 +11,19 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 
 public class CacheUtils {
 
     public static Cache<Long, InputStream> fifoCache = CacheUtil.newLFUCache(50, 1000 * 60 * 60);
 
-    // public static Cache<Long, Long> fifoCache = CacheUtil.newLFUCache(50, 1000 * 60 * 60);
+    public static TimedCache<String, Boolean> TIME_PROHIBITION = CacheUtil.newTimedCache(3 * 60 *1000);
 
-    public static TimedCache<String, String> timedCache = CacheUtil.newTimedCache(3 * 60 *1000);
+    public static ConcurrentHashMap<String,Boolean> USER_USE_CARD = new ConcurrentHashMap<>();
 
-    public static  ConcurrentHashMap<Long,Boolean> USER_USE_CARD = new ConcurrentHashMap<>();
+    // CountDownLatch countDownLatch= ThreadUtil.newCountDownLatch(8);
+
+    public static Cache<String, CountDownLatch> FISH_COUNT = CacheUtil.newLFUCache(50);
 
     public static  InputStream getAvatarUrlInputStream(Long qq, String avatarUrl) {
         if (Objects.isNull(fifoCache.get(qq))) {
@@ -49,5 +52,18 @@ public class CacheUtils {
 
     }
 
+
+    public static String timeCacheKey(Long groupId,Long qq){
+        return "Time-Cache-key:"+groupId+":"+qq;
+    }
+
+    public static String userUseKey(Long groupId,Long qq){
+        return "user-use-card-key:"+groupId+":"+qq;
+    }
+
+
+    public static String userFishCountKey(Long groupId,Long qq){
+        return "user-fish-count-key:"+groupId+":"+qq;
+    }
 
 }

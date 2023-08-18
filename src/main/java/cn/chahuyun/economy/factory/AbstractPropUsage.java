@@ -14,11 +14,16 @@ import java.util.Objects;
 @Setter
 public abstract class AbstractPropUsage implements IPropUsage{
     protected PropsFishCard propsCard;
+
     protected UserInfo userInfo;
 
     protected MessageEvent event;
 
     protected Group group;
+
+    protected Contact subject;
+
+    protected Long target;
 
     @Override
     public abstract boolean checkOrder();
@@ -27,12 +32,4 @@ public abstract class AbstractPropUsage implements IPropUsage{
     @Override
     public abstract void excute();
 
-    protected Group getGroup() {
-        Contact subject = event.getSubject();
-        Group group = null;
-        if (subject instanceof Group) {
-            group = (Group) subject;
-        }
-        return group;
-    }
 }

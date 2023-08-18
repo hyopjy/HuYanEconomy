@@ -19,8 +19,12 @@ public class PropUtils {
         Contact subject = event.getSubject();
         MessageChain message = event.getMessage();
         MessageChainBuilder messages = MessageUtil.quoteReply(message);
-        if(CacheUtils.USER_USE_CARD.containsKey(userInfo.getQq())){
-             subject.sendMessage(messages.append("你正在使用道具!").build());
+
+        if (CacheUtils.USER_USE_CARD.containsKey(CacheUtils.userUseKey(subject.getId(), userInfo.getQq()))
+                || CacheUtils.TIME_PROHIBITION.containsKey(CacheUtils.timeCacheKey(subject.getId(), userInfo.getQq()))
+                || CacheUtils.FISH_COUNT.containsKey(CacheUtils.userFishCountKey(subject.getId(), userInfo.getQq()))
+        ) {
+            subject.sendMessage(messages.append("你正在使用道具!").build());
             return;
         }
         try{

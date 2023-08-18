@@ -5,9 +5,15 @@ import cn.chahuyun.economy.constant.PropConstant;
 import cn.chahuyun.economy.entity.UserInfo;
 import cn.chahuyun.economy.entity.props.PropsFishCard;
 import cn.chahuyun.economy.plugin.PluginManager;
+import cn.chahuyun.economy.utils.CacheUtils;
+import cn.chahuyun.economy.utils.MessageUtil;
 import lombok.Getter;
 import lombok.Setter;
+import net.mamoe.mirai.contact.Contact;
+import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.event.events.MessageEvent;
+
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -23,7 +29,10 @@ public class PropFishUsageContext {
         String propsCardName = propsCard.getName();
         switch (propsCardName) {
             case PropConstant.GLASS_BEAD:
-                iPropUsage = factory.createGlassBead(propsCard, userInfo, event);
+                iPropUsage = factory.createGlassBead();
+                break;
+            case PropConstant.SISTER_DOG:
+                iPropUsage = factory.createSisterDog();
                 break;
             default:
                 break;
@@ -31,9 +40,37 @@ public class PropFishUsageContext {
         if(iPropUsage ==null){
             return;
         }
-        if(iPropUsage.checkOrder()){
-            iPropUsage.excute();
-            PluginManager.getPropsManager().deleteProp(userInfo,propsCard,1);
+        Contact subject = event.getSubject();
+
+        Group group = null;
+        if (subject instanceof Group) {
+            group = (Group) subject;
+        }
+        if(group ==null){
+            return;
+        }
+        AbstractPropUsage abstractPropUsage = (AbstractPropUsage) iPropUsage;
+        abstractPropUsage.setEvent(event);
+        abstractPropUsage.setPropsCard(propsCard);
+        abstractPropUsage.setUserInfo(userInfo);
+        abstractPropUsage.setGroup(group);
+        abstractPropUsage.setSubject(subject);
+        if(abstractPropUsage.checkOrder()){
+            //
+            if(Objects.nonNull(abstractPropUsage.getTarget())){
+                if (CacheUtils.TIME_PROHIBITION.containsKey(CacheUtils.timeCacheKey(group.getId(),abstractPropUsage.getTarget()))) {
+                    subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "指定对象正则被使用[姐姐的狗]"));
+                    return;
+                }
+
+                if(CacheUtils.FISH_COUNT.containsKey(CacheUtils.userFishCountKey(group.getId(),abstractPropUsage.getTarget()))){
+                    subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "指定对象正则被使用[年年有鱼]"));
+                    return;
+                }
+            }
+
+            abstractPropUsage.excute();
+            PluginManager.getPropsManager().deleteProp(userInfo,propsCard);
         }
     }
 

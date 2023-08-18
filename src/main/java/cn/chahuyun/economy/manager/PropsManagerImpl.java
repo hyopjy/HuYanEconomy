@@ -2,7 +2,6 @@ package cn.chahuyun.economy.manager;
 
 
 import cn.chahuyun.economy.aop.PropUtils;
-import cn.chahuyun.economy.command.PropUsage;
 import cn.chahuyun.economy.entity.UserBackpack;
 import cn.chahuyun.economy.entity.UserInfo;
 import cn.chahuyun.economy.entity.props.PropsBase;
@@ -145,26 +144,16 @@ public class PropsManagerImpl implements PropsManager {
      * @return true 成功删除
      */
     @Override
-    public UserInfo deleteProp(UserInfo userInfo, PropsBase props, int num) {
+    public UserInfo deleteProp(UserInfo userInfo, PropsBase props) {
         try {
-            AtomicInteger i = new AtomicInteger();
             return HibernateUtil.factory.fromTransaction(session -> {
                 List<UserBackpack> backpacks = userInfo.getBackpacks();
                 backpacks.stream().forEach(backpack->{
-                    if(i.get() >= num){
-                        return;
-                    }
                     if(backpack.getPropId() == props.getId()){
                         backpack.remove();
                     }
-                    i.getAndIncrement();
                 });
-                AtomicInteger j = new AtomicInteger();
                 backpacks.removeIf(filter -> {
-                    if(j.get() >= num){
-                        return false;
-                    }
-                    j.getAndIncrement();
                     return filter.getPropId() == props.getId();
                 });
 
@@ -327,8 +316,6 @@ public class PropsManagerImpl implements PropsManager {
         MessageChainBuilder messages = MessageUtil.quoteReply(message);
 
         String code = message.serializeToMiraiCode();
-
-
         String str = "";
         int i = 0;
         for (SingleMessage singleMessage : message) {
@@ -340,10 +327,6 @@ public class PropsManagerImpl implements PropsManager {
         }
         String[] s = str.split(" ");
         String no = s[1];
-        int num = 1;
-//        if (s.length == 3) {
-//            num = Integer.parseInt(s[2]);
-//
 
         String propCode = PropsType.getCode(no);
         Log.info("道具系统:使用道具-Code " + propCode);
@@ -355,19 +338,18 @@ public class PropsManagerImpl implements PropsManager {
         if (propCode.startsWith("FISH-")) {
             List<PropsFishCard> propsByUserFromCode = getPropsByUserFromCode(userInfo, propCode, PropsFishCard.class);
             if (propsByUserFromCode.size() == 0) {
-                subject.sendMessage(messages.append("你的包里没有这个道具!").build());
+                subject.sendMessage(messages.append("你的包里没有道具!").build());
                 return;
             }
-
             Optional<PropsFishCard> optionalPropsFishCard = propsByUserFromCode.stream()
-                    .filter(propsFishCard -> propCode.equals(propsFishCard.getCode())).findFirst();
+                    .filter(propsFishCard -> propCode.equals(propsFishCard.getCode()))
+                    .findFirst();
 
-            if(optionalPropsFishCard.isPresent()){
+            if (optionalPropsFishCard.isPresent()) {
                 PropsFishCard card = optionalPropsFishCard.get();
-                PropUtils.excute(card,userInfo,event);
-
-            }else{
-                subject.sendMessage(messages.append("使用失败!").build());
+                PropUtils.excute(card, userInfo, event);
+            } else {
+                subject.sendMessage(messages.append("你的包里没有[" + no + "]!").build());
             }
 
         }
