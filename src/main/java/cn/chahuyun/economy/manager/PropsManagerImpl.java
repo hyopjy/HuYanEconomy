@@ -1,6 +1,7 @@
 package cn.chahuyun.economy.manager;
 
 
+import cn.chahuyun.economy.aop.PropUtils;
 import cn.chahuyun.economy.command.PropUsage;
 import cn.chahuyun.economy.entity.UserBackpack;
 import cn.chahuyun.economy.entity.UserInfo;
@@ -342,45 +343,71 @@ public class PropsManagerImpl implements PropsManager {
         int num = 1;
 //        if (s.length == 3) {
 //            num = Integer.parseInt(s[2]);
-//        }
+//
 
         String propCode = PropsType.getCode(no);
         Log.info("道具系统:使用道具-Code " + propCode);
         if(Objects.isNull(propCode)){
             subject.sendMessage(messages.append("请输入正确的道具名称!").build());
+            return;
         }
         UserInfo userInfo = UserManager.getUserInfo(sender);
-        PropsBase prop = null;
         if (propCode.startsWith("FISH-")) {
-            assert userInfo != null;
             List<PropsFishCard> propsByUserFromCode = getPropsByUserFromCode(userInfo, propCode, PropsFishCard.class);
             if (propsByUserFromCode.size() == 0) {
                 subject.sendMessage(messages.append("你的包里没有这个道具!").build());
                 return;
             }
-            if(Objects.nonNull(CacheUtils.USER_USE_CARD.get(userInfo.getQq())) && CacheUtils.USER_USE_CARD.get(userInfo.getQq())){
-                subject.sendMessage(messages.append("你正在使用道具!").build());
-                return;
-            }
-            CacheUtils.USER_USE_CARD.put(userInfo.getQq(),true);
-            for (PropsFishCard propsCard : propsByUserFromCode) {
-                prop = propsCard;
-                if (num == 0) {
-                    break;
-                }
-                PropUsage usage = PropUsage.getPropUsage(propsCard, userInfo, event);
 
-                if(!usage.checkOrder(code)){
-                    break;
-                }
-                // 执行特效
-                if(Objects.nonNull(usage)){
-                    usage.execute(1);
-                }
-                deleteProp(userInfo,prop, 1);
-                num--;
+            Optional<PropsFishCard> optionalPropsFishCard = propsByUserFromCode.stream()
+                    .filter(propsFishCard -> propCode.equals(propsFishCard.getCode())).findFirst();
+
+            if(optionalPropsFishCard.isPresent()){
+                PropsFishCard card = optionalPropsFishCard.get();
+                PropUtils.excute(card,userInfo,event);
+
+            }else{
+                subject.sendMessage(messages.append("使用失败!").build());
             }
+
         }
+
+
+
+
+
+
+//        PropsBase prop = null;
+//        if (propCode.startsWith("FISH-")) {
+//            assert userInfo != null;
+//            List<PropsFishCard> propsByUserFromCode = getPropsByUserFromCode(userInfo, propCode, PropsFishCard.class);
+//            if (propsByUserFromCode.size() == 0) {
+//                subject.sendMessage(messages.append("你的包里没有这个道具!").build());
+//                return;
+//            }
+//            if(Objects.nonNull(CacheUtils.USER_USE_CARD.get(userInfo.getQq())) && CacheUtils.USER_USE_CARD.get(userInfo.getQq())){
+//                subject.sendMessage(messages.append("你正在使用道具!").build());
+//                return;
+//            }
+//            CacheUtils.USER_USE_CARD.put(userInfo.getQq(),true);
+//            for (PropsFishCard propsCard : propsByUserFromCode) {
+//                prop = propsCard;
+//                if (num == 0) {
+//                    break;
+//                }
+//                PropUsage usage = PropUsage.getPropUsage(propsCard, userInfo, event);
+//
+//                if(!usage.checkOrder(code)){
+//                    break;
+//                }
+//                // 执行特效
+//                if(Objects.nonNull(usage)){
+//                    usage.execute(1);
+//                }
+//                deleteProp(userInfo,prop, 1);
+//                num--;
+//            }
+//        }
     }
 
     /**
