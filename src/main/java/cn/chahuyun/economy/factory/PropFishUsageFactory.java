@@ -1,6 +1,7 @@
 package cn.chahuyun.economy.factory;
 
 import cn.chahuyun.economy.command.Glassbead;
+import cn.chahuyun.economy.command.Mask;
 import cn.chahuyun.economy.command.SisterDog;
 import cn.chahuyun.economy.entity.UserInfo;
 import cn.chahuyun.economy.entity.props.PropsFishCard;
@@ -24,5 +25,14 @@ public class PropFishUsageFactory implements PropUsageFactory{
     @Override
     public IPropUsage createSisterDog() {
         return new SisterDog();
+    }
+
+    /**
+     * 面具
+     * @return
+     */
+    @Override
+    public IPropUsage createMask() {
+        return new Mask();
     }
 }

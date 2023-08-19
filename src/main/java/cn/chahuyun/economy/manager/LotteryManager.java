@@ -6,6 +6,7 @@ import cn.chahuyun.economy.dto.LotteryLocationInfo;
 import cn.chahuyun.economy.entity.LotteryInfo;
 import cn.chahuyun.economy.utils.*;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.cron.CronUtil;
@@ -321,13 +322,13 @@ class LotteryMinutesTask implements Task {
             }
             switch (location) {
                 case 3:
-                    bonus = lotteryInfo.getMoney() * 160;
+                    bonus = NumberUtil.round(NumberUtil.mul(lotteryInfo.getMoney(),160),2).doubleValue();
                     break;
                 case 2:
-                    bonus = lotteryInfo.getMoney() * 6;
+                    bonus = NumberUtil.round(NumberUtil.mul(lotteryInfo.getMoney(),6),2).doubleValue();
                     break;
                 case 1:
-                    bonus = lotteryInfo.getMoney() * 0.7;
+                    bonus = NumberUtil.round(NumberUtil.mul(lotteryInfo.getMoney(),0.7),2).doubleValue();
                     break;
             }
             lotteryInfo.setBonus(bonus);
@@ -347,7 +348,7 @@ class LotteryMinutesTask implements Task {
             }
         }
         for (Long group : groups) {
-            sendTextMessae(currentString,longListConcurrentHashMap,group,bot);
+            sendTextMessae(currentString, longListConcurrentHashMap, group, bot);
         }
         lotteryInfos = new ArrayList<>();
         //定时任务执行完成，清除自身  我这里需要 其实可以不用
@@ -434,24 +435,24 @@ class LotteryHoursTask implements Task {
             }
             switch (location) {
                 case 4:
-                    bonus = lotteryInfo.getMoney() * 1225;
+                    bonus = NumberUtil.round(NumberUtil.mul(lotteryInfo.getMoney(),1225),2).doubleValue();
                     break;
                 case 3:
                     if (split[3].equals(current[3])) {
-                        bonus = lotteryInfo.getMoney() * 625;
+                        bonus = NumberUtil.round(NumberUtil.mul(lotteryInfo.getMoney(),625),2).doubleValue();
                     } else {
-                        bonus = lotteryInfo.getMoney() * 35;
+                        bonus = NumberUtil.round(NumberUtil.mul(lotteryInfo.getMoney(),35),2).doubleValue();
                     }
                     break;
                 case 2:
                     if (split[3].equals(current[3])) {
-                        bonus = lotteryInfo.getMoney() * 6.25;
+                        bonus = NumberUtil.round(NumberUtil.mul(lotteryInfo.getMoney(),6.25),2).doubleValue();
                     } else {
-                        bonus = lotteryInfo.getMoney() * 2.5;
+                        bonus = NumberUtil.round(NumberUtil.mul(lotteryInfo.getMoney(),2.5),2).doubleValue();
                     }
                     break;
                 case 1:
-                    bonus = lotteryInfo.getMoney() * 0.5;
+                    bonus = NumberUtil.round(NumberUtil.mul(lotteryInfo.getMoney(),0.5),2).doubleValue();
                     break;
             }
             Log.info("LotteryMinutesTask-->中奖号码-缺德球-特别号码："+current[3]);

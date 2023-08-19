@@ -34,7 +34,11 @@ public class PropFishUsageContext {
             case PropConstant.SISTER_DOG:
                 iPropUsage = factory.createSisterDog();
                 break;
+            case PropConstant.MASK:
+                iPropUsage = factory.createMask();
+                break;
             default:
+                event.getSubject().sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "道具暂未开放～"));
                 break;
         }
         if(iPropUsage ==null){
@@ -56,14 +60,9 @@ public class PropFishUsageContext {
         abstractPropUsage.setGroup(group);
         abstractPropUsage.setSubject(subject);
         if(abstractPropUsage.checkOrder()){
-            //
+            // 判断用户是否正在使用
             if(Objects.nonNull(abstractPropUsage.getTarget())){
-                if (CacheUtils.TIME_PROHIBITION.containsKey(CacheUtils.timeCacheKey(group.getId(),abstractPropUsage.getTarget()))) {
-                    subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "指定对象正则被使用[姐姐的狗]"));
-                    return;
-                }
-
-                if(CacheUtils.FISH_COUNT.containsKey(CacheUtils.userFishCountKey(group.getId(),abstractPropUsage.getTarget()))){
+                if(CacheUtils.checkUserFishCountKey(group.getId(),abstractPropUsage.getTarget())){
                     subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "指定对象正则被使用[年年有鱼]"));
                     return;
                 }

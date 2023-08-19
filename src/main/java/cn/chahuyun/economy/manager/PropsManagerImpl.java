@@ -19,6 +19,7 @@ import net.mamoe.mirai.message.data.*;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
  * 道具管理<p>
@@ -145,33 +146,18 @@ public class PropsManagerImpl implements PropsManager {
      */
     @Override
     public UserInfo deleteProp(UserInfo userInfo, PropsBase props) {
-        try {
-            return HibernateUtil.factory.fromTransaction(session -> {
-                List<UserBackpack> backpacks = userInfo.getBackpacks();
-                backpacks.stream().forEach(backpack->{
-                    if(backpack.getPropId() == props.getId()){
-                        backpack.remove();
-                    }
-                });
-                backpacks.removeIf(filter -> {
-                    return filter.getPropId() == props.getId();
-                });
-
-//                HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
-//                JpaCriteriaQuery<UserBackpack> query = builder.createQuery(UserBackpack.class);
-//                JpaRoot<UserBackpack> from = query.from(UserBackpack.class);
-//                query.select(from);
-//                query.where(builder.equal(from.get("propsCode"), props.getCode()));
-//                query.where(builder.equal(from.get("propId"), props.getId()));
-//                UserBackpack backpack = session.createQuery(query).getSingleResult();
-//                session.remove(backpack);
-//                backpacks.remove(backpack);
-                return userInfo;
-            });
-        } catch (Exception e) {
-            Log.error("道具管理:删除道具出错");
-            return null;
-        }
+        List<UserBackpack> backpacks = userInfo.getBackpacks();
+        Optional<UserBackpack> userBackpack = backpacks.stream().filter(Objects::nonNull)
+                .filter(back -> back.getPropId() == props.getId())
+                .findAny();
+        userBackpack.ifPresent(UserBackpack::remove);
+//        if (userBackpack.isPresent()) {
+//            userBackpack.ifPresent(UserBackpack::remove);
+//            backpacks.removeIf(filter -> {
+//               return filter.getId().equals(userBackpack.get().getId());
+//            });
+//        }
+        return UserManager.getUserInfo(userInfo.getUser());
     }
 
     /**
@@ -187,10 +173,9 @@ public class PropsManagerImpl implements PropsManager {
         Contact subject = event.getSubject();
         Bot bot = event.getBot();
 
-
-        ForwardMessageBuilder iNodes = new ForwardMessageBuilder(subject);
+      //   ForwardMessageBuilder iNodes = new ForwardMessageBuilder(subject);
         ForwardMessageBuilder propCard = new ForwardMessageBuilder(subject);
-        iNodes.add(bot, new PlainText("道具系统"));
+       // iNodes.add(bot, new PlainText("道具系统"));
         propCard.add(bot, new PlainText("道具卡商店"));
         Set<String> strings = PropsType.getProps().keySet();
         for (String string : strings) {
@@ -210,8 +195,9 @@ public class PropsManagerImpl implements PropsManager {
                 }
             }
         }
-        iNodes.add(bot, propCard.build());
-        subject.sendMessage(iNodes.build());
+        // iNodes.add(bot, propCard.build());
+        subject.sendMessage(propCard.build());
+
     }
 
     /**
@@ -255,6 +241,14 @@ public class PropsManagerImpl implements PropsManager {
         }
 
         PropsBase propsInfo = PropsType.getPropsInfo(propCode);
+        if(propsInfo instanceof PropsFishCard){
+            PropsFishCard card = (PropsFishCard) propsInfo;
+            if(!card.getBuy()){
+                messages.append(new PlainText("😣 ["+ propsInfo.getName() + "]非卖品"));
+                subject.sendMessage(messages.build());
+                return;
+            }
+        }
         //用户钱包现有余额
         double money = EconomyUtil.getMoneyByUser(sender);
         //购买道具合计金额
@@ -349,7 +343,7 @@ public class PropsManagerImpl implements PropsManager {
                 PropsFishCard card = optionalPropsFishCard.get();
                 PropUtils.excute(card, userInfo, event);
             } else {
-                subject.sendMessage(messages.append("你的包里没有[" + no + "]!").build());
+                subject.sendMessage(messages.append("你的包里没有这个道具!").build());
             }
 
         }
@@ -406,7 +400,7 @@ public class PropsManagerImpl implements PropsManager {
         UserInfo userInfo = UserManager.getUserInfo(sender);
 
         assert userInfo != null;
-        List<PropsBase> propsByUser = getPropsByUser(userInfo);
+        List<PropsBase> propsByUser = getPropsByUser(userInfo).stream().filter(Objects::nonNull).collect(Collectors.toList());
         if (propsByUser.size() == 0) {
             subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "你的背包空荡荡的..."));
             return;
@@ -432,29 +426,40 @@ public class PropsManagerImpl implements PropsManager {
             }
         }
 
-        for (Map.Entry<String, List<PropsBase>> stringListEntry : propsListMap.entrySet()) {
-            PropsBase propsInfo = PropsType.getPropsInfo(stringListEntry.getKey());
-            String no = PropsType.getNo(stringListEntry.getKey());
-            List<PropsBase> value = stringListEntry.getValue();
-            int size = value.size();
-            int open = 0;
-            if (propsInfo instanceof PropsCard) {
-                for (PropsBase propsBase : value) {
-                    PropsCard propsCard = (PropsCard) propsBase;
-                    if (propsCard.isStatus()) {
-                        open++;
-                    }
-                }
-            }
-            String format = String.format("道具编号:%s\n道具名称:%s\n道具描述:%s\n总数量:%d\n启用数量:%d", no, propsInfo.getName(), propsInfo.getDescription(), size, open);
-            iNodes.add(bot, new PlainText(format));
-        }
+//        for (Map.Entry<String, List<PropsBase>> stringListEntry : propsListMap.entrySet()) {
+//            PropsBase propsInfo = PropsType.getPropsInfo(stringListEntry.getKey());
+//            String no = PropsType.getNo(stringListEntry.getKey());
+//            List<PropsBase> value = stringListEntry.getValue();
+//            int size = value.size();
+//            int open = 0;
+//            if (propsInfo instanceof PropsCard) {
+//                for (PropsBase propsBase : value) {
+//                    PropsCard propsCard = (PropsCard) propsBase;
+//                    if (propsCard.isStatus()) {
+//                        open++;
+//                    }
+//                }
+//            }
+//            String format = String.format("道具编号:%s\n道具名称:%s\n道具描述:%s\n总数量:%d\n启用数量:%d", no, propsInfo.getName(), propsInfo.getDescription(), size, open);
+//            iNodes.add(bot, new PlainText(format));
+//        }
 
-        for (PropsBase propsBase : propsBaseList) {
-            String no = PropsType.getNo(propsBase.getCode());
-            String format = String.format("道具编号:%s\n道具名称:%s\n道具描述:%s", no, propsBase.getName(), propsBase.getDescription());
-            iNodes.add(bot, new PlainText(format));
+        Map<String, List<PropsBase>> propsBaseMap = propsBaseList.stream().collect(Collectors.groupingBy(PropsBase::getCode));
+        for (Map.Entry<String, List<PropsBase>> entry : propsBaseMap.entrySet()) {
+            String no = PropsType.getNo(entry.getKey());
+            Optional<PropsBase> propsBases = entry.getValue().stream().findAny();
+            if(propsBases.isPresent()){
+                PropsBase p = propsBases.get();
+                 String format = String.format("道具编号:%s\r\n道具名称:%s\r\n道具描述:%s\r\n道具数量:%s\r\n",
+                         no, p.getName(), p.getDescription(),entry.getValue().size());
+                iNodes.add(bot, new PlainText(format));
+            }
         }
+//        for (PropsBase propsBase : propsBaseList) {
+//            String no = PropsType.getNo(propsBase.getCode());
+//            String format = String.format("道具编号:%s\n道具名称:%s\n道具描述:%s", no, propsBase.getName(), propsBase.getDescription());
+//            iNodes.add(bot, new PlainText(format));
+//        }
 
         subject.sendMessage(iNodes.build());
 

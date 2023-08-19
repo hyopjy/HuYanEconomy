@@ -2,6 +2,7 @@ package cn.chahuyun.economy.utils;
 
 import cn.chahuyun.economy.HuYanEconomy;
 import cn.chahuyun.economy.constant.Constant;
+import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.User;
 import xyz.cssxsh.mirai.economy.EconomyService;
 import xyz.cssxsh.mirai.economy.service.*;
@@ -551,6 +552,19 @@ public class EconomyUtil {
             Log.error("经济获取出错:获取银行对应货币的所有经济信息", e);
             return new HashMap<>();
         }
+    }
+
+    public static Map<EconomyAccount, Double> getAllAccount() {
+        return getAllAccount(Constant.CURRENCY_GOLD);
+    }
+
+    public static Map<EconomyAccount, Double> getAllAccount(EconomyCurrency economyCurrency) {
+        try (EconomyContext context = economyService.custom(HuYanEconomy.INSTANCE)) {
+            return context.balance(Constant.CURRENCY_GOLD);
+        } catch (Exception e) {
+            Log.error("经济转移出错:获取所有经济账户", e);
+        }
+        return new HashMap<>();
     }
 
 }
