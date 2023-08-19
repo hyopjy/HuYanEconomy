@@ -247,11 +247,12 @@ public class GamesManager {
                 return;
             }
         }
-//        /*
-//        最小钓鱼等级 = max((钓鱼竿支持最大等级/5)+1,基础最小等级）
-//        最大钓鱼等级 = max(最小钓鱼等级+1,min(钓鱼竿支持最大等级,鱼塘支持最大等级,拉扯的等级))
-//         */
-//        rankMax = Math.max(rankMin + 1, Math.min(userFishInfo.getLevel(), Math.min(fishPond.getPondLevel(), rankMax)));
+        /*
+        最小钓鱼等级 = max((钓鱼竿支持最大等级/5)+1,基础最小等级）
+        最大钓鱼等级 = max(最小钓鱼等级+1,min(钓鱼竿支持最大等级,鱼塘支持最大等级,拉扯的等级))
+        */
+        rankMin = Math.max((userFishInfo.getLevel() / 8) + 1, rankMin);
+        rankMax = Math.max(rankMin + 1, Math.min(userFishInfo.getLevel(), Math.min(fishPond.getPondLevel(), rankMax)));
         /*
         最小难度 = 拉扯最小难度
         最大难度 = max(拉扯最小难度,基本最大难度+鱼竿等级)
