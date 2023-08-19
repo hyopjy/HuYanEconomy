@@ -445,6 +445,7 @@ public class PropsManagerImpl implements PropsManager {
 //        }
 
         Map<String, List<PropsBase>> propsBaseMap = propsBaseList.stream().collect(Collectors.groupingBy(PropsBase::getCode));
+        propsBaseMap = sortMapByKey(propsBaseMap);
         for (Map.Entry<String, List<PropsBase>> entry : propsBaseMap.entrySet()) {
             String no = PropsType.getNo(entry.getKey());
             Optional<PropsBase> propsBases = entry.getValue().stream().findAny();
@@ -465,6 +466,14 @@ public class PropsManagerImpl implements PropsManager {
 
     }
 
+    public static Map<String, List<PropsBase>> sortMapByKey(Map<String, List<PropsBase>> map) {
+        if (map == null || map.isEmpty()) {
+            return null;
+        }
+        Map<String, List<PropsBase>> sortMap = new TreeMap<String, List<PropsBase>>(new MapKeyComparator());
+        sortMap.putAll(map);
+        return sortMap;
+    }
 
 }
 
