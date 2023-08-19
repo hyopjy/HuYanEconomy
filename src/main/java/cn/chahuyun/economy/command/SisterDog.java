@@ -3,6 +3,7 @@ package cn.chahuyun.economy.command;
 import cn.chahuyun.economy.entity.UserInfo;
 import cn.chahuyun.economy.factory.AbstractPropUsage;
 import cn.chahuyun.economy.manager.UserManager;
+import cn.chahuyun.economy.plugin.PropsType;
 import cn.chahuyun.economy.utils.CacheUtils;
 import cn.chahuyun.economy.utils.EconomyUtil;
 import cn.chahuyun.economy.utils.MessageUtil;
@@ -28,11 +29,12 @@ public class SisterDog extends AbstractPropUsage {
 
     @Override
     public boolean checkOrder() {
-        String match = "使用 姐姐的狗( )*";
+        String no = PropsType.getNo(propsCard.getCode());
+        String match = "使用 (" + propsCard.getName() + "|" + no + ")( )*";
         String code = event.getMessage().serializeToMiraiCode();
         Contact subject = event.getSubject();
         if(!Pattern.matches(match, code)){
-            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "请输入正确的命令[使用 姐姐的狗]"));
+            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "请输入正确的命令[使用 " + propsCard.getName() + "或者" + no + "]"));
             return false;
         }
         return true;
@@ -42,11 +44,10 @@ public class SisterDog extends AbstractPropUsage {
     public void excute() {
         // 消耗品，对指定目标使用，使目标失去自我3分钟，并获得目标的币币（随机100-800）
         // 获取随机目标
-        Map<EconomyAccount, Double> accountByBank = EconomyUtil.getAccountByBank();
+        Map<EconomyAccount, Double> accountByBank = EconomyUtil.getAllAccount();
         List<EconomyAccount> economyAccount = accountByBank.keySet().stream()
                 .filter(Objects::nonNull).collect(Collectors.toList());
         List<UserInfo> userInfoList = economyAccount.stream().map(UserManager::getUserInfo)
-                // .filter(user -> Objects.nonNull(user) && user.getRegisterGroup() == group.getId())
                 .filter(user -> Objects.nonNull(user) && Objects.nonNull(group.get(user.getQq())))
                 .collect(Collectors.toList());
 
@@ -61,11 +62,12 @@ public class SisterDog extends AbstractPropUsage {
             EconomyUtil.plusMoneyToUser(sender, money);
 
             subject.sendMessage(new MessageChainBuilder().append(new QuoteReply(event.getMessage()))
-                    .append( propsCard.getName() + "使用成功").append("\r\n")
+                    .append(propsCard.getName()).append("使用成功").append("\r\n")
                     .append(new At(sender.getId()).getDisplay(group)).append("成功获得" + money + "币币").append("\r\n")
                     .append(new At(user.getQq()).getDisplay(group)).append("失去自我3分钟").append("\r\n")
                     .build());
-            CacheUtils.TIME_PROHIBITION.put(CacheUtils.timeCacheKey(group.getId(),user.getQq()),true);
+            // 失去自我的用户加入缓存
+            CacheUtils.addTimeCacheKey(group.getId(), user.getQq());
         }else {
             subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "随机用户为空！"));
         }

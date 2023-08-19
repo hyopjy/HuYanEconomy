@@ -46,7 +46,7 @@ public class EconomyEventListener extends SimpleListenerHost {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public ListeningStatus onGroupMsg(GroupMessageEvent event) {
-        if(CacheUtils.TIME_PROHIBITION.containsKey(CacheUtils.timeCacheKey(event.getGroup().getId(),event.getSender().getId()))){
+        if(CacheUtils.checkTimeCacheKey(event.getGroup().getId(),event.getSender().getId())){
             try {
                 MessageSource.recall(event.getSource());
             }catch (Exception e){

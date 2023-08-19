@@ -4,6 +4,7 @@ import cn.chahuyun.economy.entity.UserInfo;
 import cn.chahuyun.economy.entity.props.PropsFishCard;
 import cn.chahuyun.economy.factory.PropFishUsageContext;
 import cn.chahuyun.economy.utils.CacheUtils;
+import cn.chahuyun.economy.utils.Log;
 import cn.chahuyun.economy.utils.MessageUtil;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.asm.Advice;
@@ -19,14 +20,11 @@ public class PropUtils {
         Contact subject = event.getSubject();
         MessageChain message = event.getMessage();
         MessageChainBuilder messages = MessageUtil.quoteReply(message);
-
-        if (CacheUtils.USER_USE_CARD.containsKey(CacheUtils.userUseKey(subject.getId(), userInfo.getQq()))
-                || CacheUtils.TIME_PROHIBITION.containsKey(CacheUtils.timeCacheKey(subject.getId(), userInfo.getQq()))
-                || CacheUtils.FISH_COUNT.containsKey(CacheUtils.userFishCountKey(subject.getId(), userInfo.getQq()))
-        ) {
-            subject.sendMessage(messages.append("你正在使用道具!").build());
+        // 校验是否正在使用道具
+        if (checkUserUseCard(subject.getId(), userInfo.getQq(), messages, subject)) {
             return;
         }
+
         try{
             PropFishUsageContext service = new ByteBuddy()
                     // 动态生成Service类的子类
@@ -51,4 +49,22 @@ public class PropUtils {
 
 
     }
+
+    private static boolean checkUserUseCard(long groupId, long qq, MessageChainBuilder messages, Contact subject) {
+        // 校验是否正在使用道具
+        if (CacheUtils.checkUserUseCardKey(groupId, qq)) {
+            Log.info("checkUserUseCardKey has used");
+            subject.sendMessage(messages.append("你正在使用道具!").build());
+            return true;
+        }
+        // 校验是否在使用或者被使用-年年有鱼
+        if (CacheUtils.checkUserFishCountKey(groupId, qq)) {
+            Log.info("checkUserFishCountKey has used");
+            subject.sendMessage(messages.append("你正在使用道具!").build());
+            return true;
+        }
+
+        return false;
+    }
+
 }

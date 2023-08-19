@@ -5,8 +5,10 @@ import cn.chahuyun.economy.utils.HibernateUtil;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.math3.stat.descriptive.summary.Product;
 
 import java.io.Serializable;
+import java.nio.file.attribute.UserPrincipal;
 
 /**
  * 用户背包
@@ -65,5 +67,4 @@ public class UserBackpack implements Serializable {
             return null;
         });
     }
-
 }

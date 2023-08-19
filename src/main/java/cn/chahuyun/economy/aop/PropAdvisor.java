@@ -17,7 +17,7 @@ public class PropAdvisor {
             for (Object obj : arguments) {
                 if (obj instanceof MessageEvent) {
                     MessageEvent event = (MessageEvent) obj;
-                    CacheUtils.USER_USE_CARD.put(CacheUtils.userUseKey(event.getSubject().getId(),event.getSubject().getId()), true);
+                    CacheUtils.addUserUseCardKey(event.getSubject().getId(), event.getSubject().getId());
                 }
             }
             Log.info("[PropAdvisor]-[Enter] method:" + method.getName());
@@ -31,7 +31,7 @@ public class PropAdvisor {
             for (Object obj : arguments) {
                 if (obj instanceof MessageEvent) {
                     MessageEvent event = (MessageEvent) obj;
-                    CacheUtils.USER_USE_CARD.remove(CacheUtils.userUseKey(event.getSubject().getId(),event.getSubject().getId()));
+                    CacheUtils.removeUserUseCardKey(event.getSubject().getId(),event.getSubject().getId());
                 }
             }
             Log.info("[PropAdvisor]-[Exit] method:" + method.getName());
