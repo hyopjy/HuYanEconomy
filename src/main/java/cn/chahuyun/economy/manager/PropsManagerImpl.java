@@ -81,7 +81,7 @@ public class PropsManagerImpl implements PropsManager {
         //todo 获取该用户的所有道具
         List<PropsBase> props = new ArrayList<>();
 
-        List<UserBackpack> backpacks = userInfo.getBackpacks();
+        List<UserBackpack> backpacks = Optional.ofNullable(userInfo.getBackpacks()).orElse(new ArrayList<>());
         for (UserBackpack backpack : backpacks) {
             Class<? extends PropsBase> aClass;
             try {
@@ -146,7 +146,7 @@ public class PropsManagerImpl implements PropsManager {
      */
     @Override
     public UserInfo deleteProp(UserInfo userInfo, PropsBase props) {
-        List<UserBackpack> backpacks = userInfo.getBackpacks();
+        List<UserBackpack> backpacks = Optional.ofNullable(userInfo.getBackpacks()).orElse(new ArrayList<>());
         Optional<UserBackpack> userBackpack = backpacks.stream().filter(Objects::nonNull)
                 .filter(back -> back.getPropId() == props.getId())
                 .findAny();

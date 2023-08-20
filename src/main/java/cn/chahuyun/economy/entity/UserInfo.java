@@ -14,9 +14,7 @@ import net.mamoe.mirai.console.permission.AbstractPermitteeId;
 import net.mamoe.mirai.contact.User;
 
 import java.io.Serializable;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * 用户信息<p>
@@ -152,7 +150,7 @@ public class UserInfo implements Serializable {
      * @date 2022/11/28 15:55
      */
     public boolean addPropToBackpack(UserBackpack userBackpack) {
-        this.getBackpacks().add(userBackpack);
+        Optional.ofNullable(this.getBackpacks()).orElse(new ArrayList<>()).add(userBackpack);
         try {
             HibernateUtil.factory.fromTransaction(session -> session.merge(this));
             HibernateUtil.factory.fromTransaction(session -> session.merge(userBackpack));

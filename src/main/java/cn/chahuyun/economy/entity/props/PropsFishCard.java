@@ -1,6 +1,5 @@
 package cn.chahuyun.economy.entity.props;
 
-import cn.chahuyun.economy.entity.fish.FishInfo;
 import cn.chahuyun.economy.utils.HibernateUtil;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -28,18 +27,30 @@ public class PropsFishCard extends PropsBase implements Serializable {
     private String priceDesc;
 
     private Boolean exchange;
+    // 是否下架
+    private boolean delete;
 
     public PropsFishCard() {
     }
 
-    public PropsFishCard(String code, String name, int cost, String description, String fishDesc, String content, Boolean buy,String priceDesc,Boolean exchange){
+    public PropsFishCard(String code, String name, int cost, String description, String fishDesc, String content, Boolean buy,String priceDesc,Boolean exchange,Boolean delete){
         super(code, name, cost, false, "", description, false, null, null);
         this.buy = buy;
         this.content = content;
         this.fishDesc = fishDesc;
         this.priceDesc = priceDesc;
         this.exchange = exchange;
+        this.delete = delete;
+    }
 
+    public PropsFishCard(Long id,String code, String name, int cost, String description, String fishDesc, String content, Boolean buy,String priceDesc,Boolean exchange,Boolean delete){
+        super(id, code, name, cost, false, "", description, false, null, null);
+        this.buy = buy;
+        this.content = content;
+        this.fishDesc = fishDesc;
+        this.priceDesc = priceDesc;
+        this.exchange = exchange;
+        this.delete = delete;
     }
 
     @Override

@@ -17,6 +17,8 @@ import org.hibernate.query.criteria.HibernateCriteriaBuilder;
 import org.hibernate.query.criteria.JpaCriteriaQuery;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * 插件管理<p>
@@ -87,19 +89,7 @@ public class PluginManager {
     }
 
     private static void reloadPropsFishCard() {
-        HuYanEconomy instance = HuYanEconomy.INSTANCE;
-        ExcelReader reader = ExcelUtil.getReader(instance.getResourceAsStream("fish.xlsx"), 1);
-        Map<String, String> map = new HashMap<>();
-        map.put("编号", "code");
-        map.put("道具", "name");
-        map.put("钓鱼描述", "fishDesc");
-        map.put("道具描述", "description");
-        map.put("价格", "cost");
-        map.put("备注", "content");
-        map.put("是否可以购买", "buy");
-        map.put("价格描述","priceDesc");
-        map.put("是否兑换","exchange");
-        List<PropsFishCard> propsFishConfigList = reader.setHeaderAlias(map).readAll(PropsFishCard.class);
+        List<PropsFishCard> propsFishConfigList = getExcelData();
         propsFishConfigList.stream().forEach(propsFishConfig -> {
             PropsFishCard propsFishCard = new PropsFishCard(propsFishConfig.getCode(),
                     propsFishConfig.getName(), propsFishConfig.getCost(),
@@ -108,7 +98,8 @@ public class PluginManager {
                     propsFishConfig.getContent(),
                     propsFishConfig.getBuy(),
                     propsFishConfig.getPriceDesc(),
-                    propsFishConfig.getExchange()
+                    propsFishConfig.getExchange(),
+                    propsFishConfig.getDelete()
             );
             PropsFishCard finalPropsFishCard = propsFishCard.save();
             propsManager.registerProps(finalPropsFishCard);
@@ -131,5 +122,78 @@ public class PluginManager {
      */
     public static void setPropsManager(PropsManager propsManager) {
         PluginManager.propsManager = propsManager;
+    }
+
+    /**
+     * 更新鱼塘-- 有就 更新 没有就创建
+     */
+    public static void refreshPropsFishCard() {
+        // 缓存
+        propsManager.clearProps();
+
+        /**
+         * 查出数据库有的道具
+         */
+        List<PropsFishCard> PropsFishCardList = HibernateUtil.factory.fromSession(session -> {
+            HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
+            JpaCriteriaQuery<PropsFishCard> query = builder.createQuery(PropsFishCard.class);
+            query.select(query.from(PropsFishCard.class));
+            return session.createQuery(query).list();
+        });
+        Map<String, PropsFishCard> maps = PropsFishCardList.stream().collect(Collectors.toMap(
+                PropsFishCard::getCode, Function.identity()));
+
+
+        List<PropsFishCard> propsFishConfigList = getExcelData();
+
+        propsFishConfigList.forEach(propsFishConfig -> {
+            PropsFishCard propsFishCard = null;
+            if(Objects.nonNull(maps.get(propsFishConfig.getCode()))){
+                propsFishCard = new PropsFishCard(maps.get(propsFishConfig.getCode()).getId()
+                        ,propsFishConfig.getCode(),
+                        propsFishConfig.getName(), propsFishConfig.getCost(),
+                        propsFishConfig.getDescription(),
+                        propsFishConfig.getFishDesc(),
+                        propsFishConfig.getContent(),
+                        propsFishConfig.getBuy(),
+                        propsFishConfig.getPriceDesc(),
+                        propsFishConfig.getExchange(),
+                        propsFishConfig.getDelete()
+                );
+            }else {
+                propsFishCard = new PropsFishCard(propsFishConfig.getCode(),
+                        propsFishConfig.getName(), propsFishConfig.getCost(),
+                        propsFishConfig.getDescription(),
+                        propsFishConfig.getFishDesc(),
+                        propsFishConfig.getContent(),
+                        propsFishConfig.getBuy(),
+                        propsFishConfig.getPriceDesc(),
+                        propsFishConfig.getExchange(),
+                        propsFishConfig.getDelete()
+                );
+            }
+            PropsFishCard finalPropsFishCard = propsFishCard.save();
+            propsManager.registerProps(finalPropsFishCard);
+        });
+
+    }
+
+    private static List<PropsFishCard> getExcelData() {
+        HuYanEconomy instance = HuYanEconomy.INSTANCE;
+        ExcelReader reader = ExcelUtil.getReader(instance.getResourceAsStream("fish.xlsx"), 1);
+        Map<String, String> map = new HashMap<>();
+        map.put("编号", "code");
+        map.put("道具", "name");
+        map.put("钓鱼描述", "fishDesc");
+        map.put("道具描述", "description");
+        map.put("价格", "cost");
+        map.put("备注", "content");
+        map.put("是否可以购买", "buy");
+        map.put("价格描述","priceDesc");
+        map.put("是否兑换","exchange");
+        map.put("是否下架","delete");
+        List<PropsFishCard> list = reader.setHeaderAlias(map).readAll(PropsFishCard.class);
+        reader.close();
+        return list;
     }
 }

@@ -6,6 +6,7 @@ import cn.chahuyun.economy.entity.LotteryInfo;
 import cn.chahuyun.economy.manager.GamesManager;
 import cn.chahuyun.economy.plugin.FishManager;
 import cn.chahuyun.economy.plugin.FishPondManager;
+import cn.chahuyun.economy.plugin.PluginManager;
 import cn.chahuyun.economy.utils.EconomyUtil;
 import cn.chahuyun.economy.utils.HibernateUtil;
 import cn.chahuyun.economy.utils.Log;
@@ -148,6 +149,12 @@ public class RandomMoneyListener extends SimpleListenerHost {
             Log.info("重新加载完成！");
             subject.sendMessage(MessageUtil.formatMessageChain("重新加载完成"));
         }
+
+        if (message.equals("刷新道具") && EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
+            PluginManager.refreshPropsFishCard();
+            subject.sendMessage(MessageUtil.formatMessageChain("刷新道具完成"));
+        }
+
         return ListeningStatus.LISTENING;
     }
 }
