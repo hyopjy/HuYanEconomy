@@ -28,7 +28,7 @@ public class PropsFishCard extends PropsBase implements Serializable {
 
     private Boolean exchange;
     // 是否下架
-    private boolean delete;
+    private Boolean delete;
 
     public PropsFishCard() {
     }
