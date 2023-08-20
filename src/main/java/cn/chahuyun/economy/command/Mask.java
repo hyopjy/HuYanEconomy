@@ -44,9 +44,8 @@ public class Mask extends AbstractPropUsage {
 
     @Override
     public void excute() {
-       // 化身正义岛民，对指定目标使用，获得目标的币币（随机200-800）（每人每天最多可使用3次）
         User sender = event.getSender();
-        int money = RandomUtil.randomInt(501, 1000);
+        int money = RandomUtil.randomInt(501, 1500);
         NormalMember member = group.get(target);
         // 自己获得
         EconomyUtil.plusMoneyToUser(sender, money);

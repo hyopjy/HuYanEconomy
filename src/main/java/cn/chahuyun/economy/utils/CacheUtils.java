@@ -198,4 +198,14 @@ public class CacheUtils {
         String key = CacheUtils.userMaskCountKey(groupId, qq);
         return Optional.ofNullable(CacheUtils.MASK_COUNT.get(key)).orElse(0);
     }
+
+    /**
+     * 重置清理用户缓存
+     */
+    public static void clearCache(){
+        TIME_PROHIBITION.clear();
+        USER_USE_CARD.clear();
+        FISH_COUNT.clear();
+        MASK_COUNT.clear();
+    }
 }

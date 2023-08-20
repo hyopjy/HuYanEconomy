@@ -98,6 +98,19 @@ public abstract class PropsBase implements Serializable {
         this.expiredTime = expiredTime;
     }
 
+    public PropsBase(Long id,String code, String name, int cost, boolean stack, String unit, String description, boolean reuse, Date getTime, Date expiredTime) {
+        this.id = id;
+        this.code = code;
+        this.name = name;
+        this.cost = cost;
+        this.stack = stack;
+        this.unit = unit;
+        this.description = description;
+        this.reuse = reuse;
+        this.getTime = getTime;
+        this.expiredTime = expiredTime;
+    }
+
     @Override
     public String toString() {
         return null;
