@@ -155,6 +155,7 @@ public class RandomMoneyListener extends SimpleListenerHost {
             subject.sendMessage(MessageUtil.formatMessageChain("刷新道具完成"));
         }
 
+        // todo 删除背包指定道具
         return ListeningStatus.LISTENING;
     }
 }
