@@ -181,6 +181,13 @@ public class MessageEventListener extends SimpleListenerHost {
                 return;
             }
 
+            String exchangePropRegex = "兑换 (\\S+)( \\S+)?|buy (\\S+)( \\S+)?";
+            if (Pattern.matches(buyPropRegex, code)) {
+                Log.info("兑换指令");
+                propsManager.exchangePropFromStore(event);
+                return;
+            }
+
             String userPropRegex = "使用 (\\S+)(( \\S+)|(\\[mirai:at:\\d+]( )*))?|use (\\S+)(( \\S+)|(\\[mirai:at:\\d+]))?";
             if (Pattern.matches(userPropRegex, code)) {
                 Log.info("使用指令");
