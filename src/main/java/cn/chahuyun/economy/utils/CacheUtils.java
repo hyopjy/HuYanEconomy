@@ -20,7 +20,7 @@ public class CacheUtils {
     /**
      * 签到图片缓存
      */
-    public static Cache<Long, InputStream> fifoCache = CacheUtil.newLFUCache(4, 1000 * 60 * 60);
+    public static Cache<Long, InputStream> fifoCache = CacheUtil.newLFUCache(4);
     /**
      * 三分钟禁言 限制--姐姐的鱼 特效
      */
@@ -33,12 +33,12 @@ public class CacheUtils {
     /**
      * 年年有鱼-增加钓鱼难度
      */
-    public static Cache<String, DifficultyBuffDto> FISH_CARD_COUNT = CacheUtil.newLFUCache(200);
+    public static ConcurrentHashMap<String, DifficultyBuffDto> FISH_CARD_COUNT = new ConcurrentHashMap<>();
 
     /**
      * buff-正在占用的buff缓存 key - BUFF-groupID-QQid, BUFFNAME
      */
-    public static Cache<String, String> BUFF_CACHE = CacheUtil.newLFUCache(200);
+    public static ConcurrentHashMap<String, String> BUFF_CACHE =  new ConcurrentHashMap<>();
 
     /**
      * 面罩-每人每天限制3次
