@@ -165,6 +165,10 @@ public class CacheUtils {
         CacheUtils.FISH_CARD_COUNT.put(getUserFishCardKey(groupId, qq, cardName), difficultyBuffDto);
     }
 
+    public static DifficultyBuffDto getFishCardKey(Long groupId, Long qq, String cardName) {
+        return CacheUtils.FISH_CARD_COUNT.get(getUserFishCardKey(groupId, qq, cardName));
+    }
+
     public static boolean checkUserFishCardKey(Long groupId, Long qq, String cardName) {
         String key = CacheUtils.getUserFishCardKey(groupId, qq, cardName);
         if(CacheUtils.FISH_CARD_COUNT.containsKey(key)){
@@ -174,6 +178,11 @@ public class CacheUtils {
             }
         }
         return false;
+    }
+
+    public static void removeUserFishCardKey(Long groupId, Long qq, String cardName) {
+        String key = CacheUtils.getUserFishCardKey(groupId, qq, cardName);
+        CacheUtils.FISH_CARD_COUNT.remove(key);
     }
 
 
