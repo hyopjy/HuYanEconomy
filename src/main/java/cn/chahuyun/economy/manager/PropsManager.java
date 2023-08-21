@@ -90,5 +90,10 @@ public interface PropsManager {
      */
     void viewUserBackpack(MessageEvent event);
 
+    /**
+     * 兑换
+     * @param event
+     */
 
+    void exchangePropFromStore(MessageEvent event);
 }
