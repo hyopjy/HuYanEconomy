@@ -59,15 +59,12 @@ public class PropFishUsageContext {
         abstractPropUsage.setUserInfo(userInfo);
         abstractPropUsage.setGroup(group);
         abstractPropUsage.setSubject(subject);
+        // 校验命令是否合适
         if(abstractPropUsage.checkOrder()){
-            // 判断用户是否正在使用
-            if(Objects.nonNull(abstractPropUsage.getTarget())){
-                if(CacheUtils.checkUserFishCountKey(group.getId(),abstractPropUsage.getTarget())){
-                    subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "指定对象正则被使用[年年有鱼]"));
-                    return;
-                }
+            // 如果正在使用buff 则返回
+            if(!abstractPropUsage.checkBuff()){
+                return;
             }
-
             abstractPropUsage.excute();
             PluginManager.getPropsManager().deleteProp(userInfo,propsCard);
         }
