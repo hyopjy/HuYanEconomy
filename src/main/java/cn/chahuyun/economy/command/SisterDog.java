@@ -6,6 +6,7 @@ import cn.chahuyun.economy.manager.UserManager;
 import cn.chahuyun.economy.plugin.PropsType;
 import cn.chahuyun.economy.utils.CacheUtils;
 import cn.chahuyun.economy.utils.EconomyUtil;
+import cn.chahuyun.economy.utils.Log;
 import cn.chahuyun.economy.utils.MessageUtil;
 import cn.hutool.core.util.RandomUtil;
 import net.mamoe.mirai.contact.Contact;
@@ -50,10 +51,10 @@ public class SisterDog extends AbstractPropUsage {
         List<UserInfo> userInfoList = economyAccount.stream().map(UserManager::getUserInfo)
                 .filter(user -> Objects.nonNull(user) && Objects.nonNull(group.get(user.getQq())))
                 .collect(Collectors.toList());
-
-        Optional<UserInfo> userInfo = userInfoList.stream().findAny();
-        if(userInfo.isPresent()){
-            UserInfo user = userInfo.get();
+        int userIndex = RandomUtil.randomInt(0, userInfoList.size());
+        Log.info("[SisterDog] - userList：" + userInfoList.size()  + ",userIndex: " + userIndex);
+        UserInfo user = userInfoList.get(userIndex);
+        if(Objects.nonNull(user)){
             int money = RandomUtil.randomInt(100, 800);
             // 减去目标用户
             EconomyUtil.minusMoneyToUser(group.get(user.getQq()), money);
