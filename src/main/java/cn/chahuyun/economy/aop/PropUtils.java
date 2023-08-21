@@ -10,7 +10,6 @@ import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.asm.Advice;
 import net.bytebuddy.matcher.ElementMatchers;
 import net.mamoe.mirai.contact.Contact;
-import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.message.data.MessageChain;
 import net.mamoe.mirai.message.data.MessageChainBuilder;
@@ -57,13 +56,6 @@ public class PropUtils {
             subject.sendMessage(messages.append("你正在使用道具!").build());
             return true;
         }
-        // 校验是否在使用或者被使用-年年有鱼
-        if (CacheUtils.checkUserFishCountKey(groupId, qq)) {
-            Log.info("checkUserFishCountKey has used");
-            subject.sendMessage(messages.append("你正在使用道具!").build());
-            return true;
-        }
-
         return false;
     }
 
