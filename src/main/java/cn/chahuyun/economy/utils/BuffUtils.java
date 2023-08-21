@@ -1,33 +1,44 @@
 package cn.chahuyun.economy.utils;
 
-import cn.chahuyun.economy.dto.DifficultyBuffDto;
+
+import cn.chahuyun.economy.dto.Buff;
+import cn.chahuyun.economy.dto.BuffProperty;
 
 import java.util.Objects;
 import java.util.Optional;
 
 public class BuffUtils {
-    /**
-     * 获取正在使用的buff 名称
-     *
-     * @param groupId
-     * @param qq
-     * @return
-     */
-    public static String getBuffCacheValue(Long groupId, Long qq) {
-        return CacheUtils.getBuffCacheValue(groupId,qq);
-    }
 
-    public static DifficultyBuffDto getBuffFishCard(Long groupId, Long qq, String cardName) {
-        return Optional.ofNullable(CacheUtils.getFishCardKey(groupId, qq, cardName)).orElse(new DifficultyBuffDto());
-    }
-
-    public static synchronized void reduceBuffFishCard(long groupId, long qq, String cardName) {
-        if(CacheUtils.checkUserFishCardKey(groupId, qq, cardName)){
-            DifficultyBuffDto difficultyBuffDto = CacheUtils.getFishCardKey(groupId, qq, cardName);
-            difficultyBuffDto.setCount(difficultyBuffDto.getCount() - 1);
-            CacheUtils.addFishCardKey(groupId, qq, cardName,difficultyBuffDto);
-        }else {
-            CacheUtils.removeUserFishCardKey(groupId, qq, cardName);
+    public static int getIntegerPropValue(Buff buff, String propKey) {
+        Optional<BuffProperty> property = buff.getProperties().stream()
+                .filter(prop -> propKey.equals(prop.getPropertyKey())).findAny();
+        if(property.isPresent()){
+            Object p = property.get().getPropertyValue();
+            if(p instanceof Integer){
+                return (int) p;
+            }
         }
+        return 0;
+    }
+
+    public static synchronized void reduceBuffCount(long id, long qq) {
+        Buff buff = CacheUtils.getBuff(id, qq);
+        if (Objects.nonNull(buff)) {
+            int count = buff.getCount();
+            buff.setCount(count - 1);
+            CacheUtils.addBuff(id, qq, buff);
+        }
+    }
+
+    public static String getBooleanPropType(Buff buffBack, String propKey) {
+        Optional<BuffProperty> property = buffBack.getProperties().stream()
+                .filter(prop -> propKey.equals(prop.getPropertyKey())).findAny();
+        if(property.isPresent()){
+            Object p = property.get().getPropertyValue();
+            if(p instanceof String){
+                return (String) p;
+            }
+        }
+        return "";
     }
 }

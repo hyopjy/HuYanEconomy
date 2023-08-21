@@ -1,7 +1,9 @@
 package cn.chahuyun.economy.manager;
 
 import cn.chahuyun.economy.HuYanEconomy;
-import cn.chahuyun.economy.dto.DifficultyBuffDto;
+import cn.chahuyun.economy.constant.BuffPropsEnum;
+import cn.chahuyun.economy.constant.Constant;
+import cn.chahuyun.economy.dto.Buff;
 import cn.chahuyun.economy.entity.UserBackpack;
 import cn.chahuyun.economy.entity.UserInfo;
 import cn.chahuyun.economy.entity.fish.Fish;
@@ -251,16 +253,21 @@ public class GamesManager {
         /**
          * 收杆时- 增加buff
          */
-        // 判断是否正在使用buff
-        String buffName  = BuffUtils.getBuffCacheValue(group.getId(),userInfo.getQq());
         int addDifficultyMin = 0;
         int addRankMin = 0;
-        if(!StrUtil.isBlank(buffName)){
-            DifficultyBuffDto difficultyBuffDto = BuffUtils.getBuffFishCard(group.getId(),userInfo.getQq(),buffName);
-            if (difficultyBuffDto.getCount() > 0) {
-                addDifficultyMin = difficultyBuffDto.getDifficultyMin();
-                addRankMin = difficultyBuffDto.getRankMin();
-            }
+        String buffName = "";
+        // 判断是否正在使用buff
+        Buff buff = CacheUtils.getBuff(group.getId(), userInfo.getQq());
+        /**
+         * 前置 buff:如 difficultymin52，rankmin5
+         * 后置buff: 如 5次钓鱼都会额外上钩一条鱼   2次钓鱼都只会上钩[摸鱼]
+         */
+        if(Objects.nonNull(buff) && Constant.BUFF_FRONT.equals(buff.getBuffType())){
+            buffName = buff.getBuffName();
+            addDifficultyMin = BuffUtils.getIntegerPropValue(buff, BuffPropsEnum.DIFFICULTY_MIN.getName());
+            addRankMin = BuffUtils.getIntegerPropValue(buff, BuffPropsEnum.RANK_MIN.getName());
+            // 减去
+            BuffUtils.reduceBuffCount(group.getId(), userInfo.getQq());
         }
         Log.info("[buff]-addDifficultyMin:" + addDifficultyMin);
         Log.info("[buff]-addRankMin:" + addRankMin);
@@ -288,9 +295,18 @@ public class GamesManager {
         Log.info("rankMax-->"+ rankMax);
         Log.info("rank-->"+ rank);
         Log.info("end-->--------------------------->");
-        Fish fish;
+        List<Fish> fishList = new ArrayList<>();
         //彩蛋
         boolean winning = false;
+        // 后置buff
+        Buff buffBack = CacheUtils.getBuff(group.getId(), userInfo.getQq());
+        if(Objects.nonNull(buffBack) && Constant.BUFF_BACK.equals(buff.getBuffType())){
+            buffName = buffBack.getBuffName();
+            BuffUtils.getBooleanPropType(buffBack, BuffPropsEnum.OTHER_FISH.getName());
+            BuffUtils.getBooleanPropType(buffBack,BuffPropsEnum.SPECIAL_FISH.getName());
+            // 减去
+            BuffUtils.reduceBuffCount(group.getId(), userInfo.getQq());
+        }
         while (true) {
             if (rank == 0) {
                 subject.sendMessage("切线了我去！");
@@ -323,59 +339,65 @@ public class GamesManager {
                 winning = true;
             }
             //roll鱼
-            fish = collect.get(RandomUtil.randomInt(size > 6 ? size - 6 : 0, size));
+            fishList.add(collect.get(RandomUtil.randomInt(size > 6 ? size - 6 : 0, size)));
             break;
         }
-        //roll尺寸
-        int dimensions = fish.getDimensions(winning);
-        int money = fish.getPrice() * dimensions;
-        double v = money * (1 - fishPond.getRebate());
+        String finalBuffName = buffName;
+        boolean finalWinning = winning;
+        Group finalGroup = group;
 
-        NormalMember normalMember = group.get(HuYanEconomy.config.getOwner());
-        if (Objects.nonNull(normalMember)) {
-            EconomyUtil.plusMoneyToUser(normalMember, money * fishPond.getRebate());
-        }
-        // buff
-        String buffDesc = StrUtil.isBlank(buffName) ? "" : "[" + buffName + "] ";
-        // 道具
-        if(fish.isSpecial()){
-            String propCode = PropsType.getCode(fish.getName());
-            Log.info("钓鱼系统:获取道具-Code " + propCode);
-            PropsBase propsBase = PropsCardFactory.INSTANCE.getPropsBase(propCode);
-            if (Objects.isNull(propsBase)) {
-                Log.error("钓鱼系统:获取道具为空");
-                // 折现-钓鱼
-                sendFishInfoMessage(userInfo, user, subject, fishPond, fish, dimensions, money, v, buffDesc);
-            }else {
-                UserBackpack userBackpack = new UserBackpack(userInfo, propsBase);
-                if (!userInfo.addPropToBackpack(userBackpack)) {
-                    Log.error("钓鱼系统:添加道具到用户背包失败!");
-                    // subject.sendMessage("系统出错，请联系主人!");
+        fishList.forEach(fish->{
+            //roll尺寸
+            int dimensions = fish.getDimensions(finalWinning);
+            int money = fish.getPrice() * dimensions;
+            double v = money * (1 - fishPond.getRebate());
+
+            NormalMember normalMember = finalGroup.get(HuYanEconomy.config.getOwner());
+            if (Objects.nonNull(normalMember)) {
+                EconomyUtil.plusMoneyToUser(normalMember, money * fishPond.getRebate());
+            }
+            // buff
+            String buffDesc = StrUtil.isBlank(finalBuffName) ? "" : "[" + finalBuffName + "] ";
+            // 道具
+            if(fish.isSpecial()){
+                String propCode = PropsType.getCode(fish.getName());
+                Log.info("钓鱼系统:获取道具-Code " + propCode);
+                PropsBase propsBase = PropsCardFactory.INSTANCE.getPropsBase(propCode);
+                if (Objects.isNull(propsBase)) {
+                    Log.error("钓鱼系统:获取道具为空");
                     // 折现-钓鱼
                     sendFishInfoMessage(userInfo, user, subject, fishPond, fish, dimensions, money, v, buffDesc);
-                }
-                String format = String.format("\r\n" + buffDesc + "起竿咯！获取道具 \r\n%s\r\n等级:%s\r\n单价:%s\r\n尺寸:%d\r\n" +
-                                "总金额:%d\r\n%s",
-                        fish.getName(), fish.getLevel(), fish.getPrice(), dimensions, money, fish.getDescription());
-                MessageChainBuilder messages = new MessageChainBuilder();
-                messages.append(new At(userInfo.getQq())).append(new PlainText(format));
+                }else {
+                    UserBackpack userBackpack = new UserBackpack(userInfo, propsBase);
+                    if (!userInfo.addPropToBackpack(userBackpack)) {
+                        Log.error("钓鱼系统:添加道具到用户背包失败!");
+                        // subject.sendMessage("系统出错，请联系主人!");
+                        // 折现-钓鱼
+                        sendFishInfoMessage(userInfo, user, subject, fishPond, fish, dimensions, money, v, buffDesc);
+                    }
+                    String format = String.format("\r\n" + buffDesc + "起竿咯！获取道具 \r\n%s\r\n等级:%s\r\n单价:%s\r\n尺寸:%d\r\n" +
+                                    "总金额:%d\r\n%s",
+                            fish.getName(), fish.getLevel(), fish.getPrice(), dimensions, money, fish.getDescription());
+                    MessageChainBuilder messages = new MessageChainBuilder();
+                    messages.append(new At(userInfo.getQq())).append(new PlainText(format));
 
-                subject.sendMessage(messages.build());
-                Log.info("钓鱼系统:添加道具到用户-Code " + propCode);
+                    subject.sendMessage(messages.build());
+                    Log.info("钓鱼系统:添加道具到用户-Code " + propCode);
+                }
+            }else {
+                // 钓鱼
+                sendFishInfoMessage(userInfo, user, subject, fishPond, fish, dimensions, money, v, finalBuffName);
             }
-        }else {
-            // 钓鱼
-            sendFishInfoMessage(userInfo, user, subject, fishPond, fish, dimensions, money, v, buffName);
-        }
+            new FishRanking(userInfo.getQq(), userInfo.getName(), dimensions, money, userFishInfo.getRodLevel(), fish, fishPond).save();
+        });
         userFishInfo.switchStatus();
-        // 减去
-        BuffUtils.reduceBuffFishCard(group.getId(),userInfo.getQq(),buffName);
-        new FishRanking(userInfo.getQq(), userInfo.getName(), dimensions, money, userFishInfo.getRodLevel(), fish, fishPond).save();
     }
 
     private static void sendFishInfoMessage(UserInfo userInfo, User user, Contact subject, FishPond fishPond,
                                             Fish fish, int dimensions, int money, double v,String buffDesc) {
-        if (EconomyUtil.plusMoneyToUser(user, v) && EconomyUtil.plusMoneyToBankForId(fishPond.getCode(), fishPond.getDescription(), money * fishPond.getRebate())) {
+        if (EconomyUtil.plusMoneyToUser(user, v)
+                && EconomyUtil.plusMoneyToBankForId(fishPond.getCode(), fishPond.getDescription(),
+                money * fishPond.getRebate())) {
             fishPond.addNumber();
             String format = String.format("\r\n"+buffDesc+"起竿咯！\r\n%s\r\n等级:%s\r\n单价:%s\r\n尺寸:%d\r\n总金额:%d\r\n%s",
                     fish.getName(), fish.getLevel(), fish.getPrice(), dimensions, money, fish.getDescription());
@@ -387,6 +409,7 @@ public class GamesManager {
             playerCooling.remove(userInfo.getQq());
         }
     }
+
 
     private static Boolean checkUserPay(User user) {
         Double constMoney = userPay.get(user.getId());
