@@ -200,6 +200,13 @@ public class MessageEventListener extends SimpleListenerHost {
                 return;
             }
 
+            String sellPropRegex = "出售 (\\S+)( \\S+)?|sell (\\S+)( \\S+)?";
+            if (Pattern.matches(sellPropRegex, code)) {
+                Log.info("出售指令");
+                propsManager.sellPropFromStore(event);
+                return;
+            }
+
             String buyLotteryRegex = "猜签 (\\d+)( \\d+)|lottery (\\d+)( \\d+)";
             if (Pattern.matches(buyLotteryRegex, code)) {
                 Log.info("彩票指令");
@@ -226,6 +233,7 @@ public class MessageEventListener extends SimpleListenerHost {
                 BankManager.withdrawal(event);
                 return;
             }
+
 
         } catch (Exception exception) {
             Log.error("发生异常！！！:" + exception.getMessage());
