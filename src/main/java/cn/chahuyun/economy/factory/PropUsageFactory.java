@@ -12,4 +12,6 @@ public interface PropUsageFactory {
     IPropUsage createSisterDog();
 
     IPropUsage createMask();
+
+    IPropUsage createFiveFlavoredFish();
 }

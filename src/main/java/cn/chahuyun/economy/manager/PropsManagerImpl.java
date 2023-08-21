@@ -16,6 +16,7 @@ import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.message.data.*;
+import org.apache.commons.collections4.CollectionUtils;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -532,6 +533,62 @@ public class PropsManagerImpl implements PropsManager {
         double money = EconomyUtil.getMoneyByUser(sender);
         messages.append(String.format("成功出售 %s %d%s,获得 %s 币币,你还有 %s 枚WDIT币币", propsInfo.getName(), num, propsInfo.getUnit(),quantity, money));
         subject.sendMessage(messages.build());
+    }
+
+    /**
+     * 兑换
+     *
+     * @param event
+     */
+    @Override
+    public void exchangePropFromStore(MessageEvent event) {
+        Contact subject = event.getSubject();
+        User sender = event.getSender();
+        MessageChain message = event.getMessage();
+
+        MessageChainBuilder messages = MessageUtil.quoteReply(message);
+
+        String code = message.serializeToMiraiCode();
+
+        String[] s = code.split(" ");
+        String no = s[1];
+        int num = 1;
+        if (s.length == 3) {
+            num = Integer.parseInt(s[2]);
+        }
+
+        String propCode = PropsType.getCode(no);
+        if (propCode == null) {
+            Log.warning("道具系统:兑换道具为空");
+            subject.sendMessage(MessageUtil.formatMessageChain(message,"\uD83D\uDE23bobo没有这个……"));
+            return;
+        }
+
+        UserInfo userInfo = UserManager.getUserInfo(sender);
+        if (userInfo == null) {
+            Log.warning("道具系统:获取用户为空！");
+            subject.sendMessage("系统出错，请联系主人!");
+            return;
+        }
+
+        PropsBase propsInfo = PropsType.getPropsInfo(propCode);
+        if(propsInfo instanceof PropsFishCard) {
+            PropsFishCard card = (PropsFishCard) propsInfo;
+            if (!card.getExchange()) {
+                messages.append(new PlainText("😣 [" + propsInfo.getName() + "]不可兑换"));
+                subject.sendMessage(messages.build());
+                return;
+            }
+        }
+        // 道具背包
+        List<UserBackpack> userBackpack = userInfo.getBackpacks();
+        // 获取组成的道具
+        List<PropsBase> list = new ArrayList<>();
+        // 如果有这些道具
+        // if (checkUserBackPack(userBackpack, propsInfo)) {
+        // 删除道具
+        // 增加到道具
+        // }
     }
 
     public static Map<String, List<PropsBase>> sortMapByKey(Map<String, List<PropsBase>> map) {

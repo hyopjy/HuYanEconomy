@@ -9,6 +9,9 @@ import cn.chahuyun.economy.plugin.PropsType;
 import cn.chahuyun.economy.utils.CacheUtils;
 import cn.chahuyun.economy.utils.MessageUtil;
 import net.mamoe.mirai.contact.Contact;
+import net.mamoe.mirai.contact.User;
+import net.mamoe.mirai.message.data.MessageChainBuilder;
+import net.mamoe.mirai.message.data.QuoteReply;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,8 +52,13 @@ public class FiveFlavoredFish extends AbstractPropUsage {
         properties.add(property1);
         properties.add(property2);
         buff.setProperties(properties);
+        User sender = event.getSender();
+        CacheUtils.addBuff(group.getId(), sender.getId(), buff);
 
-        CacheUtils.addBuff(group.getId(), subject.getId(), buff);
+        subject.sendMessage(new MessageChainBuilder().append(new QuoteReply(event.getMessage()))
+                .append(propsCard.getName() + "使用成功").append("\r\n")
+                .append("之后5次钓鱼都会difficultymin增加50，rankmin增加5")
+                .build());
     }
 
 }

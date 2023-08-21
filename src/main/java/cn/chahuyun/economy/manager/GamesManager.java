@@ -300,14 +300,14 @@ public class GamesManager {
         //彩蛋
         boolean winning = false;
         // 后置buff
-        Buff buffBack = CacheUtils.getBuff(group.getId(), userInfo.getQq());
-        if(Objects.nonNull(buffBack) && Constant.BUFF_BACK.equals(buff.getBuffType())){
-            buffName = buffBack.getBuffName();
-            BuffUtils.getBooleanPropType(buffBack, BuffPropsEnum.OTHER_FISH.getName());
-            BuffUtils.getBooleanPropType(buffBack,BuffPropsEnum.SPECIAL_FISH.getName());
-            // 减去
-            BuffUtils.reduceBuffCount(group.getId(), userInfo.getQq());
-        }
+//        Buff buffBack = CacheUtils.getBuff(group.getId(), userInfo.getQq());
+//        if(Objects.nonNull(buffBack) && Constant.BUFF_BACK.equals(buff.getBuffType())){
+//            buffName = buffBack.getBuffName();
+//            BuffUtils.getBooleanPropType(buffBack, BuffPropsEnum.OTHER_FISH.getName());
+//            BuffUtils.getBooleanPropType(buffBack,BuffPropsEnum.SPECIAL_FISH.getName());
+//            // 减去
+//            BuffUtils.reduceBuffCount(group.getId(), userInfo.getQq());
+//        }
         while (true) {
             if (rank == 0) {
                 subject.sendMessage("切线了我去！");
