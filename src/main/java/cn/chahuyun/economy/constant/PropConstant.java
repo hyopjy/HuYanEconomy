@@ -6,4 +6,6 @@ public interface PropConstant {
     String SISTER_DOG = "姐姐的狗";
 
     String MASK = "面罩";
+
+    String FIVE_FLAVORED_FISH = "年年有鱼";
 }

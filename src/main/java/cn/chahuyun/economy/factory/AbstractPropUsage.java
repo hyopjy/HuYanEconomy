@@ -5,11 +5,11 @@ import cn.chahuyun.economy.entity.UserInfo;
 import cn.chahuyun.economy.entity.props.PropsFishCard;
 import cn.chahuyun.economy.utils.CacheUtils;
 import cn.chahuyun.economy.utils.MessageUtil;
-import cn.hutool.core.util.StrUtil;
 import lombok.Getter;
 import lombok.Setter;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Group;
+import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.event.events.MessageEvent;
 
 import java.util.Objects;
@@ -45,7 +45,8 @@ public abstract class AbstractPropUsage implements IPropUsage{
         }
         // 校验是否正在使用BUff -- 执行结束后删除
         // 判断命令执行者是否在使用其他buff
-        Buff buff = CacheUtils.getBuff(group.getId(), subject.getId());
+        User sender = event.getSender();
+        Buff buff = CacheUtils.getBuff(group.getId(), sender.getId());
         if (isBuff && Objects.nonNull(buff)) {
             subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "正在使用[" + buff.getBuffName() + "]buff"));
             return false;

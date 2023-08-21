@@ -1,5 +1,6 @@
 package cn.chahuyun.economy.factory;
 
+import cn.chahuyun.economy.command.FiveFlavoredFish;
 import cn.chahuyun.economy.command.Glassbead;
 import cn.chahuyun.economy.command.Mask;
 import cn.chahuyun.economy.command.SisterDog;
@@ -34,5 +35,10 @@ public class PropFishUsageFactory implements PropUsageFactory{
     @Override
     public IPropUsage createMask() {
         return new Mask();
+    }
+
+    @Override
+    public IPropUsage createFiveFlavoredFish() {
+        return new FiveFlavoredFish();
     }
 }

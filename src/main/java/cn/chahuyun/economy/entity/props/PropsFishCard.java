@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.Optional;
 
 @Entity(name = "PropsFishCard")
 @Table
@@ -71,4 +72,7 @@ public class PropsFishCard extends PropsBase implements Serializable {
         return HibernateUtil.factory.fromTransaction(session -> session.merge(this));
     }
 
+    public Boolean getExchange() {
+        return Optional.ofNullable(exchange).orElse(false);
+    }
 }
