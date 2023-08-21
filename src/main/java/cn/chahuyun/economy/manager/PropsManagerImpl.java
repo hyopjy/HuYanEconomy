@@ -4,6 +4,7 @@ package cn.chahuyun.economy.manager;
 import cn.chahuyun.economy.aop.PropUtils;
 import cn.chahuyun.economy.entity.UserBackpack;
 import cn.chahuyun.economy.entity.UserInfo;
+import cn.chahuyun.economy.entity.fish.FishInfo;
 import cn.chahuyun.economy.entity.props.PropsBase;
 import cn.chahuyun.economy.entity.props.PropsCard;
 import cn.chahuyun.economy.entity.props.PropsFishCard;
@@ -17,8 +18,9 @@ import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.message.data.*;
 
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -247,6 +249,12 @@ public class PropsManagerImpl implements PropsManager {
                 messages.append(new PlainText("😣 ["+ propsInfo.getName() + "]非卖品"));
                 subject.sendMessage(messages.build());
                 return;
+            }
+            //购买道具合计金额
+            if (card.getCost() < 0) {
+                // 100*rodlevel+900
+                FishInfo userFishInfo = userInfo.getFishInfo();
+                propsInfo.setCost(100 * userFishInfo.getRodLevel() + 900);
             }
         }
         //用户钱包现有余额
