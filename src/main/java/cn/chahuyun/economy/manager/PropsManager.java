@@ -58,8 +58,9 @@ public interface PropsManager {
      * @param props    用户的道具
      * @return 新用户信息
      */
-    UserInfo deleteProp(UserInfo userInfo, PropsBase props);
+    UserInfo deleteProp(UserInfo userInfo, PropsBase props,int limit);
 
+    UserInfo deleteProp(UserInfo userInfo, PropsBase props);
     /**
      * 查询道具商店
      *
@@ -91,4 +92,5 @@ public interface PropsManager {
     void viewUserBackpack(MessageEvent event);
 
 
+    void sellPropFromStore(MessageEvent event);
 }
