@@ -17,6 +17,7 @@ import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.message.data.*;
+import org.apache.commons.collections4.CollectionUtils;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -147,19 +148,17 @@ public class PropsManagerImpl implements PropsManager {
      * @return true 成功删除
      */
     @Override
-    public UserInfo deleteProp(UserInfo userInfo, PropsBase props) {
+    public UserInfo deleteProp(UserInfo userInfo, PropsBase props,int limit) {
         List<UserBackpack> backpacks = Optional.ofNullable(userInfo.getBackpacks()).orElse(new ArrayList<>());
-        Optional<UserBackpack> userBackpack = backpacks.stream().filter(Objects::nonNull)
+        backpacks.stream().filter(Objects::nonNull)
                 .filter(back -> back.getPropId() == props.getId())
-                .findAny();
-        userBackpack.ifPresent(UserBackpack::remove);
-//        if (userBackpack.isPresent()) {
-//            userBackpack.ifPresent(UserBackpack::remove);
-//            backpacks.removeIf(filter -> {
-//               return filter.getId().equals(userBackpack.get().getId());
-//            });
-//        }
+                .limit(limit).forEach(UserBackpack::remove);
         return UserManager.getUserInfo(userInfo.getUser());
+    }
+
+    @Override
+    public UserInfo deleteProp(UserInfo userInfo, PropsBase props) {
+        return deleteProp(userInfo,props,1);
     }
 
     /**
@@ -472,6 +471,56 @@ public class PropsManagerImpl implements PropsManager {
 
         subject.sendMessage(iNodes.build());
 
+    }
+
+    /**
+     * 出售
+     * @param event
+     */
+    @Override
+    public void sellPropFromStore(MessageEvent event) {
+        Contact subject = event.getSubject();
+        User sender = event.getSender();
+        MessageChain message = event.getMessage();
+
+        MessageChainBuilder messages = MessageUtil.quoteReply(message);
+
+        String code = message.serializeToMiraiCode();
+
+        String[] s = code.split(" ");
+        String no = s[1];
+        int num = 1;
+        if (s.length == 3) {
+            num = Integer.parseInt(s[2]);
+        }
+        UserInfo userInfo = UserManager.getUserInfo(sender);
+        if (userInfo == null) {
+            Log.warning("道具系统:获取用户为空！");
+            subject.sendMessage("系统出错，请联系主人!");
+            return;
+        }
+        String propCode = PropsType.getCode(no);
+        List<UserBackpack> backpacks = userInfo.getBackpacks()
+                .stream()
+                .filter(back->back.getPropsCode().equals(propCode))
+                .collect(Collectors.toList());
+        if(CollectionUtils.isEmpty(backpacks)){
+            messages.append("没有这个道具");
+            subject.sendMessage(messages.build());
+            return;
+        }
+        if(num > backpacks.size()){
+            num = backpacks.size();
+        }
+        PropsBase propsInfo = PropsType.getPropsInfo(propCode);
+        deleteProp(userInfo, propsInfo,num);
+
+        int quantity = num * 10;
+        EconomyUtil.plusMoneyToUser(sender, quantity);
+
+        double money = EconomyUtil.getMoneyByUser(sender);
+        messages.append(String.format("成功出售 %s %d%s,获得 %s 币币,你还有 %s 枚WDIT币币", propsInfo.getName(), num, propsInfo.getUnit(),quantity, money));
+        subject.sendMessage(messages.build());
     }
 
     public static Map<String, List<PropsBase>> sortMapByKey(Map<String, List<PropsBase>> map) {
