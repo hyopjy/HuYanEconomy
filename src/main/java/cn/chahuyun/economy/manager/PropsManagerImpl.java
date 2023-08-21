@@ -16,9 +16,6 @@ import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.message.data.*;
-
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -265,23 +262,8 @@ public class PropsManagerImpl implements PropsManager {
             //购买道具合计金额
             if (card.getCost() < 0) {
                 // 100*rodlevel+900
-                String priceDesc = card.getPriceDesc();
                 FishInfo userFishInfo = userInfo.getFishInfo();
-                priceDesc = priceDesc.replace("rodlevel",userFishInfo.getRodLevel()+"");
-
-                ScriptEngineManager manager = new ScriptEngineManager();
-                ScriptEngine engine = manager.getEngineByName("js");
-                try {
-                    Object result = engine.eval(priceDesc);
-                    Log.info("结果类型:" + result.getClass().getName() + ",计算结果:" + result);
-                    if(result instanceof Integer){
-                        propsInfo.setCost((Integer)result);
-                    }else {
-                        propsInfo.setCost(1000000);
-                    }
-                }catch (Exception e){
-                     Log.error("发生异常:" + e.getMessage());
-                }
+                propsInfo.setCost(100 * userFishInfo.getRodLevel() + 900);
             }
         }
         //用户钱包现有余额
@@ -499,62 +481,6 @@ public class PropsManagerImpl implements PropsManager {
 
         subject.sendMessage(iNodes.build());
 
-    }
-
-    /**
-     * 兑换
-     *
-     * @param event
-     */
-    @Override
-    public void exchangePropFromStore(MessageEvent event) {
-        Contact subject = event.getSubject();
-        User sender = event.getSender();
-        MessageChain message = event.getMessage();
-
-        MessageChainBuilder messages = MessageUtil.quoteReply(message);
-
-        String code = message.serializeToMiraiCode();
-
-        String[] s = code.split(" ");
-        String no = s[1];
-        int num = 1;
-        if (s.length == 3) {
-            num = Integer.parseInt(s[2]);
-        }
-
-        String propCode = PropsType.getCode(no);
-        if (propCode == null) {
-            Log.warning("道具系统:兑换道具为空");
-            subject.sendMessage(MessageUtil.formatMessageChain(message,"\uD83D\uDE23bobo没有这个……"));
-            return;
-        }
-
-        UserInfo userInfo = UserManager.getUserInfo(sender);
-        if (userInfo == null) {
-            Log.warning("道具系统:获取用户为空！");
-            subject.sendMessage("系统出错，请联系主人!");
-            return;
-        }
-
-        PropsBase propsInfo = PropsType.getPropsInfo(propCode);
-        if(propsInfo instanceof PropsFishCard) {
-            PropsFishCard card = (PropsFishCard) propsInfo;
-            if (!card.getExchange()) {
-                messages.append(new PlainText("😣 [" + propsInfo.getName() + "]不可兑换"));
-                subject.sendMessage(messages.build());
-                return;
-            }
-        }
-        // 道具背包
-        List<UserBackpack> userBackpack = userInfo.getBackpacks();
-        // 获取组成的道具
-        List<PropsBase> list = new ArrayList<>();
-        // 如果有这些道具
-       // if (checkUserBackPack(userBackpack, propsInfo)) {
-            // 删除道具
-            // 增加到道具
-       // }
     }
 
     public static Map<String, List<PropsBase>> sortMapByKey(Map<String, List<PropsBase>> map) {

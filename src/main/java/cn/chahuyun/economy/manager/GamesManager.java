@@ -144,16 +144,6 @@ public class GamesManager {
         subject.sendMessage(start);
         Log.info(String.format("%s开始钓鱼", userInfo.getName()));
 
-        //初始钓鱼信息
-        boolean theRod = false;
-        // 困难度
-        // 溜鱼增加difficultymin，之前的difficultymin=1+根号(14*RodLevel)
-        double result =1 + Math.sqrt(userFishInfo.getRodLevel() * 14);
-        int difficultyMin = (int) result ;
-        int difficultyMax = 131;
-        int rankMin = 1;
-        int rankMax = 1;
-
         String[] errorMessages = new String[]{"钓鱼失败:哎呀，风吹的……", "钓鱼失败:哎呀，眼花了……", "钓鱼失败:bobo摇头", "钓鱼失败:呀！切线了！", "钓鱼失败:什么都没有钓上来！"};
 
         //随机睡眠
@@ -163,13 +153,25 @@ public class GamesManager {
         } catch (InterruptedException e) {
             Log.debug(e);
         }
+
+
+        //初始钓鱼信息
+        boolean theRod = false;
+        // 困难度
+        // 溜鱼增加difficultymin，之前的difficultymin=1+根号(14*RodLevel)
+        double result =1 + Math.sqrt(userFishInfo.getRodLevel() * 14);
+        int difficultyMin = (int) result ;
+        int difficultyMax = 131;
+        int rankMin = 1;
+        int rankMax = 1;
+        rankMin = Math.max((userFishInfo.getLevel() / 8) + 1, rankMin);
+        rankMax = Math.max(rankMin + 1, Math.min(userFishInfo.getLevel(), fishPond.getPondLevel()));
+
         Log.info("start-->--------------------------->");
         Log.info("difficultyMin-->"+ difficultyMin);
         Log.info("difficultyMax-->"+ difficultyMax);
         Log.info("rankMin-->"+ rankMin);
         Log.info("rankMax-->"+ rankMax);
-
-
         subject.sendMessage(MessageUtils.newChain(new At(user.getId()), new PlainText("有动静了，快来！")));
         //开始拉扯
         boolean rankStatus = true;
@@ -276,9 +278,8 @@ public class GamesManager {
         最小钓鱼等级 = max((钓鱼竿支持最大等级/5)+1,基础最小等级）
         最大钓鱼等级 = max(最小钓鱼等级+1,min(钓鱼竿支持最大等级,鱼塘支持最大等级,拉扯的等级))
         */
-        rankMin = Math.max((userFishInfo.getLevel() / 8) + 1, rankMin) + addRankMin;
-        rankMax = Math.max(rankMin + 1, Math.min(userFishInfo.getLevel(), Math.min(fishPond.getPondLevel(), rankMax)));
-
+        // rankMin = Math.max((userFishInfo.getLevel() / 8) + 1, rankMin);
+        // rankMax = Math.max(rankMin + 1, Math.min(userFishInfo.getLevel(), Math.min(fishPond.getPondLevel(), rankMax)));
         /*
         最小难度 = 拉扯最小难度
         最大难度 = max(拉扯最小难度,基本最大难度+鱼竿等级)
