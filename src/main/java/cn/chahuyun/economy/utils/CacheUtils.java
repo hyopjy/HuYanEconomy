@@ -1,6 +1,6 @@
 package cn.chahuyun.economy.utils;
 
-import cn.chahuyun.economy.dto.DifficultyBuffDto;
+import cn.chahuyun.economy.dto.Buff;
 import cn.hutool.cache.Cache;
 import cn.hutool.cache.CacheUtil;
 import cn.hutool.cache.impl.TimedCache;
@@ -31,19 +31,15 @@ public class CacheUtils {
     public static ConcurrentHashMap<String,Boolean> USER_USE_CARD = new ConcurrentHashMap<>();
 
     /**
-     * 年年有鱼-增加钓鱼难度
-     */
-    public static ConcurrentHashMap<String, DifficultyBuffDto> FISH_CARD_COUNT = new ConcurrentHashMap<>();
-
-    /**
-     * buff-正在占用的buff缓存 key - BUFF-groupID-QQid, BUFFNAME
-     */
-    public static ConcurrentHashMap<String, String> BUFF_CACHE =  new ConcurrentHashMap<>();
-
-    /**
      * 面罩-每人每天限制3次
      */
     public static Cache<String, Integer> MASK_COUNT = CacheUtil.newLFUCache(200, 24 * 60 * 60 * 1000);
+
+    /**
+     * buff道具缓存信息
+     */
+    public static Cache<String, Buff> BUFF_CACHE = CacheUtil.newLFUCache(250);
+
 
     public static  InputStream getAvatarUrlInputStream(Long qq, String avatarUrl) {
         if (Objects.isNull(fifoCache.get(qq))) {
@@ -145,48 +141,6 @@ public class CacheUtils {
     }
 
     /**
-     * 年年有鱼
-     * @param groupId
-     * @param qq
-     * @return
-     */
-    private static String getUserFishCardKey(Long groupId, Long qq, String cardName) {
-        return "fish-count:" + cardName + ":" + groupId + ":" + qq;
-    }
-
-    /**
-     * 增加 - 钓鱼困难度dto[年年有鱼buff]
-     * @param groupId
-     * @param qq
-     * @param cardName
-     * @return
-     */
-    public static void addFishCardKey(Long groupId, Long qq, String cardName, DifficultyBuffDto difficultyBuffDto) {
-        CacheUtils.FISH_CARD_COUNT.put(getUserFishCardKey(groupId, qq, cardName), difficultyBuffDto);
-    }
-
-    public static DifficultyBuffDto getFishCardKey(Long groupId, Long qq, String cardName) {
-        return CacheUtils.FISH_CARD_COUNT.get(getUserFishCardKey(groupId, qq, cardName));
-    }
-
-    public static boolean checkUserFishCardKey(Long groupId, Long qq, String cardName) {
-        String key = CacheUtils.getUserFishCardKey(groupId, qq, cardName);
-        if(CacheUtils.FISH_CARD_COUNT.containsKey(key)){
-            DifficultyBuffDto difficultybuffDto =  CacheUtils.FISH_CARD_COUNT.get(key);
-            if(Objects.nonNull(difficultybuffDto) && difficultybuffDto.getCount() > 0){
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public static void removeUserFishCardKey(Long groupId, Long qq, String cardName) {
-        String key = CacheUtils.getUserFishCardKey(groupId, qq, cardName);
-        CacheUtils.FISH_CARD_COUNT.remove(key);
-    }
-
-
-    /**
      * mask - key MASK_COUNT
      */
     private static String userMaskCountKey(Long groupId, Long qq) {
@@ -220,29 +174,35 @@ public class CacheUtils {
     }
 
     /**
-     * BUFF道具的key 获取
-     *
+     * buff key
+     *   监听模式移除缓存 --事件+监听
      */
-    private static String getBuffCacheKey(Long groupId, Long qq) {
+    private static String getBuffKey(Long groupId, Long qq) {
         return "buff:key:" + groupId + ":" + qq;
     }
 
-    public static void addBuffCacheValue(Long groupId, Long qq, String value) {
-        BUFF_CACHE.put(getBuffCacheKey(groupId, qq), value);
-    }
-
-    public static String getBuffCacheValue(Long groupId, Long qq) {
-       return BUFF_CACHE.get(getBuffCacheKey(groupId, qq));
+    /**
+     * 增加buff
+     * @param groupId
+     * @param qq
+     * @return
+     */
+    public static void addBuff(Long groupId, Long qq, Buff buff) {
+        String buffKey = getBuffKey(groupId, qq);
+        BUFF_CACHE.put(buffKey, buff);
     }
 
     /**
-     * 监听模式实现删除
-     * @param groupId
-     * @param qq
-     * @param value
+     * 获取buff
+     *
      */
-    public static void removeBuffCacheValue(Long groupId, Long qq, String value) {
-         BUFF_CACHE.remove(getBuffCacheKey(groupId, qq));
+    public static Buff getBuff(Long groupId, Long qq) {
+        String buffKey = getBuffKey(groupId, qq);
+        Buff buff = BUFF_CACHE.get(buffKey);
+        if (Objects.nonNull(buff) && buff.getCount() <= 0) {
+            BUFF_CACHE.remove(buffKey);
+        }
+        return BUFF_CACHE.get(buffKey);
     }
 
     /**
@@ -251,7 +211,6 @@ public class CacheUtils {
     public static void clearCache(){
         TIME_PROHIBITION.clear();
         USER_USE_CARD.clear();
-        FISH_CARD_COUNT.clear();
         MASK_COUNT.clear();
     }
 }

@@ -1,12 +1,17 @@
 package cn.chahuyun.economy.command;
 
-import cn.chahuyun.economy.dto.DifficultyBuffDto;
+import cn.chahuyun.economy.constant.BuffPropsEnum;
+import cn.chahuyun.economy.constant.Constant;
+import cn.chahuyun.economy.dto.Buff;
+import cn.chahuyun.economy.dto.BuffProperty;
 import cn.chahuyun.economy.factory.AbstractPropUsage;
 import cn.chahuyun.economy.plugin.PropsType;
 import cn.chahuyun.economy.utils.CacheUtils;
 import cn.chahuyun.economy.utils.MessageUtil;
 import net.mamoe.mirai.contact.Contact;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -32,15 +37,20 @@ public class FiveFlavoredFish extends AbstractPropUsage {
     @Override
     public void excute() {
         // 消耗品，使用后获得「年年有鱼」buff，之后的5次钓鱼都会额外增加difficultymin50，rankmin5
-        DifficultyBuffDto difficultyBuffDto = new DifficultyBuffDto();
-        difficultyBuffDto.setBuffName(propsCard.getName());
-        difficultyBuffDto.setDifficultyMin(50);
-        difficultyBuffDto.setRankMin(5);
-        difficultyBuffDto.setCount(5);
-        //
-        CacheUtils.addFishCardKey(group.getId(), subject.getId(), propsCard.getName(), difficultyBuffDto);
-        // 监听者模式 移除 BuffCacheValue  FishCardKey
-        CacheUtils.addBuffCacheValue(group.getId(), subject.getId(), propsCard.getName());
+        Buff buff = new Buff();
+        buff.setGroupId(group.getId());
+        buff.setQq(subject.getId());
+        buff.setBuffName(propsCard.getName());
+        buff.setBuffType(Constant.BUFF_FRONT);
+        buff.setCount(5);
+        List<BuffProperty> properties = new ArrayList<>(2);
+        BuffProperty property1 = new BuffProperty(BuffPropsEnum.DIFFICULTY_MIN.getName(), 50);
+        BuffProperty property2 = new BuffProperty(BuffPropsEnum.RANK_MIN.getName(), 5);
+        properties.add(property1);
+        properties.add(property2);
+        buff.setProperties(properties);
+
+        CacheUtils.addBuff(group.getId(), subject.getId(), buff);
     }
 
 }
