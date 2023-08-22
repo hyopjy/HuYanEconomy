@@ -150,10 +150,9 @@ public class UserInfo implements Serializable {
      * @date 2022/11/28 15:55
      */
     public boolean addPropToBackpack(UserBackpack userBackpack) {
-        Optional.ofNullable(this.getBackpacks()).orElse(new ArrayList<>()).add(userBackpack);
         try {
-            HibernateUtil.factory.fromTransaction(session -> session.merge(this));
             HibernateUtil.factory.fromTransaction(session -> session.merge(userBackpack));
+            HibernateUtil.factory.fromTransaction(session -> session.merge(this));
         } catch (Exception e) {
             Log.error("用户信息:添加道具到背包出错", e);
             return false;
