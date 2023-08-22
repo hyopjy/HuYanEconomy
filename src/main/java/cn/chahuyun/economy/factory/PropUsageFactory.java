@@ -14,4 +14,6 @@ public interface PropUsageFactory {
     IPropUsage createMask();
 
     IPropUsage createFiveFlavoredFish();
+
+    IPropUsage createLittleTrumpetFishStory();
 }

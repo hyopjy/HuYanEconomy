@@ -8,4 +8,6 @@ public interface PropConstant {
     String MASK = "面罩";
 
     String FIVE_FLAVORED_FISH = "年年有鱼";
+
+    String LITTLE_TRUMPET_FISH_STORY = "《小喇叭鱼的故事》";
 }
