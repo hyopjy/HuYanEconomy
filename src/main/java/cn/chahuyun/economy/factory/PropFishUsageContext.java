@@ -43,7 +43,9 @@ public class PropFishUsageContext {
             case PropConstant.LITTLE_TRUMPET_FISH_STORY:
                 iPropUsage = factory.createLittleTrumpetFishStory();
                 break;
-
+            case PropConstant.SCH_DINGER_FISH:
+                iPropUsage = factory.createSchDingerFish();
+                break;
             default:
                 event.getSubject().sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "道具暂未开放～"));
                 break;

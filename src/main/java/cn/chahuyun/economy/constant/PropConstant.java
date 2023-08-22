@@ -10,4 +10,6 @@ public interface PropConstant {
     String FIVE_FLAVORED_FISH = "年年有鱼";
 
     String LITTLE_TRUMPET_FISH_STORY = "《小喇叭鱼的故事》";
+
+    String SCH_DINGER_FISH = "薛定谔的鱼";
 }
