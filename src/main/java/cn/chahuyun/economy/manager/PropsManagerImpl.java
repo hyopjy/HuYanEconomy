@@ -33,6 +33,39 @@ import java.util.stream.Collectors;
 public class PropsManagerImpl implements PropsManager {
 
 
+   private static final Map<String, List<String>> PROP_EXCHANGE = new HashMap<>(4);
+   static {
+       List<String> pfpfkList = new ArrayList<>(5);
+       pfpfkList.add("FISH-5");
+       pfpfkList.add("FISH-3");
+       pfpfkList.add("FISH-4");
+       pfpfkList.add("FISH-5");
+       pfpfkList.add("FISH-6");
+       PROP_EXCHANGE.put("FISH-15",pfpfkList);
+
+       List<String> pftnkList = new ArrayList<>(5);
+       pfpfkList.add("FISH-5");
+       pfpfkList.add("FISH-3");
+       pfpfkList.add("FISH-7");
+       pfpfkList.add("FISH-8");
+       pfpfkList.add("FISH-6");
+       PROP_EXCHANGE.put("FISH-16",pftnkList);
+
+       List<String> hkList = new ArrayList<>(6);
+       hkList.add("FISH-9");
+       hkList.add("FISH-10");
+       hkList.add("FISH-11");
+       hkList.add("FISH-12");
+       hkList.add("FISH-13");
+       hkList.add("FISH-24");
+       PROP_EXCHANGE.put("FISH-17",hkList);
+
+       List<String> storyList = new ArrayList<>(2);
+       storyList.add("FISH-18");
+       storyList.add("FISH-19");
+       PROP_EXCHANGE.put("FISH-20",storyList);
+
+   }
 
     /**
      * 注册道具<p>
@@ -590,13 +623,42 @@ public class PropsManagerImpl implements PropsManager {
         }
         // 道具背包
         List<UserBackpack> userBackpack = userInfo.getBackpacks();
+
         // 获取组成的道具
-        List<PropsBase> list = new ArrayList<>();
+        List<String> propsList = PROP_EXCHANGE.get(propsInfo.getCode());
+        userBackpack = userBackpack.stream().filter(user ->
+                        propsList.contains(user.getPropsCode()))
+                .collect(Collectors.toList());
         // 如果有这些道具
-        // if (checkUserBackPack(userBackpack, propsInfo)) {
-        // 删除道具
-        // 增加到道具
-        // }
+         if (checkUserBackPack(userBackpack, propsList)) {
+//         删除道具
+//         增加到道具
+
+         }else {
+             messages.append(new PlainText("😣 请集齐道具再来兑换"));
+             subject.sendMessage(messages.build());
+             return;
+         }
+    }
+
+    private boolean checkUserBackPack(List<UserBackpack> userBackpack, List<String> list) {
+        List<String> userBackpackCode = userBackpack.stream()
+                .map(UserBackpack::getPropsCode)
+                .collect(Collectors.toList());
+        List<String> finalList = new ArrayList<>(list);
+
+        Iterator<String> listIterator = finalList.listIterator();
+
+        while (listIterator.hasNext()) {
+            Iterator<String> userPackIterator = userBackpackCode.listIterator();
+            while (userPackIterator.hasNext()) {
+                if(listIterator.next().equals(userPackIterator.next())){
+                    listIterator.remove();
+                    userPackIterator.remove();
+                }
+            }
+        }
+        return finalList.size() == 0;
     }
 
     public static Map<String, List<PropsBase>> sortMapByKey(Map<String, List<PropsBase>> map) {
