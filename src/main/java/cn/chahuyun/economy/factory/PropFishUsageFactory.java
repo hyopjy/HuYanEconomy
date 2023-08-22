@@ -1,9 +1,6 @@
 package cn.chahuyun.economy.factory;
 
-import cn.chahuyun.economy.command.FiveFlavoredFish;
-import cn.chahuyun.economy.command.Glassbead;
-import cn.chahuyun.economy.command.Mask;
-import cn.chahuyun.economy.command.SisterDog;
+import cn.chahuyun.economy.command.*;
 import cn.chahuyun.economy.entity.UserInfo;
 import cn.chahuyun.economy.entity.props.PropsFishCard;
 import net.mamoe.mirai.event.events.MessageEvent;
@@ -40,5 +37,9 @@ public class PropFishUsageFactory implements PropUsageFactory{
     @Override
     public IPropUsage createFiveFlavoredFish() {
         return new FiveFlavoredFish();
+    }
+
+    public IPropUsage createLittleTrumpetFishStory() {
+        return new LittleTrumpetFishStory();
     }
 }
