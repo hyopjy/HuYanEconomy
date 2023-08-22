@@ -630,10 +630,19 @@ public class PropsManagerImpl implements PropsManager {
                         propsList.contains(user.getPropsCode()))
                 .collect(Collectors.toList());
         // 如果有这些道具
-         if (checkUserBackPack(userBackpack, propsList)) {
-//         删除道具
-//         增加到道具
+        if (checkUserBackPack(userBackpack, propsList)) {
+            // 删除道具
+            propsList.stream().forEach(prop -> {
+                PropsBase propsEntity = PropsType.getPropsInfo(propCode);
+                deleteProp(userInfo, propsEntity);
+            });
+            // 新增道具
+            UserBackpack addPack = new UserBackpack(userInfo, propsInfo);
+            userInfo.addPropToBackpack(addPack);
 
+            messages.append(new PlainText("兑换成功！请到背包查看"));
+            subject.sendMessage(messages.build());
+            return;
          }else {
              messages.append(new PlainText("😣 请集齐道具再来兑换"));
              subject.sendMessage(messages.build());
