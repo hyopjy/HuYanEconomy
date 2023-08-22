@@ -46,7 +46,9 @@ public class EconomyEventListener extends SimpleListenerHost {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public ListeningStatus onGroupMsg(GroupMessageEvent event) {
-        if(CacheUtils.checkTimeCacheKey(event.getGroup().getId(),event.getSender().getId())){
+        if(CacheUtils.checkTimeCacheKey(event.getGroup().getId(),event.getSender().getId())
+         || CacheUtils.checkSchDingerFishKey(event.getGroup().getId(),event.getSender().getId())
+        ){
             try {
                 MessageSource.recall(event.getSource());
             }catch (Exception e){
@@ -54,6 +56,7 @@ public class EconomyEventListener extends SimpleListenerHost {
             }
             event.intercept();
         }
+
 
         if (!EconomyEventConfig.INSTANCE.getEconomyCheckGroup().contains(event.getGroup().getId())
                 || event.getBot().getId() == event.getSender().getId()) {

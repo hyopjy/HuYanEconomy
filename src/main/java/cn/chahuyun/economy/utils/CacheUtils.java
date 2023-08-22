@@ -36,6 +36,11 @@ public class CacheUtils {
     public static Cache<String, Integer> MASK_COUNT = CacheUtil.newLFUCache(200, 24 * 60 * 60 * 1000);
 
     /**
+     * 薛定谔的鱼
+     */
+    public static TimedCache<String, Boolean> SCH_DINGER_FISH = CacheUtil.newTimedCache(2 * 60 *1000);
+
+    /**
      * buff道具缓存信息
      */
     public static Cache<String, Buff> BUFF_CACHE = CacheUtil.newLFUCache(250);
@@ -100,6 +105,28 @@ public class CacheUtils {
     }
 
 
+    private static String getSchDingerFishKey(Long groupId, Long qq) {
+        return "sch-dinger-fish-Cache-key:" + groupId + ":" + qq;
+    }
+    /**
+     * 薛定谔的鱼 + 2分钟缓存限制
+     *
+     * @param groupId
+     * @param qq
+     */
+    public static void addSchDingerFishKey(Long groupId, Long qq) {
+        CacheUtils.SCH_DINGER_FISH.put(CacheUtils.getSchDingerFishKey(groupId, qq), true);
+    }
+
+    /**
+     * 薛定谔的鱼 + 2分钟缓存限制
+     *
+     * @param groupId
+     * @param qq
+     */
+    public static boolean checkSchDingerFishKey(Long groupId, Long qq) {
+        return CacheUtils.SCH_DINGER_FISH.containsKey(CacheUtils.getSchDingerFishKey(groupId, qq));
+    }
     /**
      * 用户 使用道具的缓存 key
      *
