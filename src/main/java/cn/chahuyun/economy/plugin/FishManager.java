@@ -39,6 +39,7 @@ public class FishManager {
             query.select(query.from(Fish.class));
             return session.createQuery(query).list();
         });
+
         if (fishList == null || fishList.size() == 0) {
             reloadFish();
             return;

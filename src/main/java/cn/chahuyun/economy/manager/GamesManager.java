@@ -581,8 +581,7 @@ public class GamesManager {
             JpaCriteriaQuery<FishInfo> query = builder.createQuery(FishInfo.class);
             JpaRoot<FishInfo> from = query.from(FishInfo.class);
             query.select(from);
-            query.where(builder.equal(from.get("status"), true));
-            query.where(builder.equal(from.get("qq"), senderId));
+            query.where(builder.equal(from.get("status"), true), builder.equal(from.get("qq"), senderId));
             List<FishInfo> list;
             try {
                 list = session.createQuery(query).list();

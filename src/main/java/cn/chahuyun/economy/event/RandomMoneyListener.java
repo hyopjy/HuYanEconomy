@@ -3,6 +3,8 @@ package cn.chahuyun.economy.event;
 import cn.chahuyun.config.EconomyEventConfig;
 import cn.chahuyun.economy.entity.LotteryInfo;
 
+import cn.chahuyun.economy.entity.fish.Fish;
+import cn.chahuyun.economy.entity.fish.FishRanking;
 import cn.chahuyun.economy.manager.BackpackManager;
 import cn.chahuyun.economy.manager.GamesManager;
 import cn.chahuyun.economy.plugin.FishManager;
@@ -114,37 +116,37 @@ public class RandomMoneyListener extends SimpleListenerHost {
         String message = event.getMessage().serializeToMiraiCode();
 
         if (message.equals("重置鱼塘") && EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
-         // HibernateUtil.factory.fromTransaction(session -> session.merge(newFishInfo));
-           int tempDelete =  HibernateUtil.factory.fromSession(session -> {
-               Transaction tx = session.beginTransaction();  //创建transaction实例
-               int fish = 0;
-               int fishRank = 0;
-                try {
-                    String rankhql = "delete from FishRanking";
-                    Query rankQuery = session.createQuery(rankhql);
-                    fishRank = rankQuery.executeUpdate();
-                    Log.info("清理排行榜数据"+fishRank );
-
-                    String hql = "delete from Fish";
-                    Query query = session.createQuery(hql);
-                    fish = query.executeUpdate();
-
-                    // 更新钓鱼人状态
-                    tx.commit();            //提交事务
-                    return fish;
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    tx.rollback();
-                }
-                return fish;
-
+            List<FishRanking> fishRankList = HibernateUtil.factory.fromSession(session -> {
+                HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
+                JpaCriteriaQuery<FishRanking> query = builder.createQuery(FishRanking.class);
+                query.select(query.from(FishRanking.class));
+                return session.createQuery(query).list();
             });
+
+            fishRankList.stream().forEach(fishRanking -> {
+                HibernateUtil.factory.fromTransaction(session -> {
+                    session.remove(fishRanking);
+                    return null;
+                });
+            });
+
+            List<Fish> fishList = HibernateUtil.factory.fromSession(session -> {
+                HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
+                JpaCriteriaQuery<Fish> query = builder.createQuery(Fish.class);
+                query.select(query.from(Fish.class));
+                return session.createQuery(query).list();
+            });
+            fishList.stream().forEach(fish -> {
+                 HibernateUtil.factory.fromTransaction(session -> {
+                     session.remove(fish);
+                     return null;
+                 });
+            });
+
+            FishManager.init();
             GamesManager.playerCooling.clear();
             FishManager.fishMap.clear();
             GamesManager.refresh(event);
-            Log.info("清理数据"+tempDelete + "条");
-            FishManager.init();
-
             FishPondManager.refresh(event);
             Log.info("重新加载完成！");
             subject.sendMessage(MessageUtil.formatMessageChain("重新加载完成"));

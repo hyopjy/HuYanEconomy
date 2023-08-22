@@ -3,6 +3,10 @@ package cn.chahuyun.economy.constant;
 import cn.chahuyun.economy.entity.currency.GoldEconomyCurrency;
 import xyz.cssxsh.mirai.economy.service.EconomyCurrency;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * 固定常量
  *
@@ -29,4 +33,5 @@ public interface Constant {
      * 后置buff
      */
     Integer BUFF_BACK = 2;
+
 }
