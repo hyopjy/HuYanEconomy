@@ -125,6 +125,7 @@ public class GamesManager {
             subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "默认鱼塘不存在!"));
             return;
         }
+        fishPond.setName("日夜颠岛");
         //获取鱼塘限制鱼竿最低等级
         int minLevel = fishPond.getMinLevel();
         if (userFishInfo.getRodLevel() < minLevel) {
