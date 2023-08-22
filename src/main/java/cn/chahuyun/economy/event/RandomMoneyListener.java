@@ -3,10 +3,10 @@ package cn.chahuyun.economy.event;
 import cn.chahuyun.config.EconomyEventConfig;
 import cn.chahuyun.economy.entity.LotteryInfo;
 
+import cn.chahuyun.economy.manager.BackpackManager;
 import cn.chahuyun.economy.manager.GamesManager;
 import cn.chahuyun.economy.plugin.FishManager;
 import cn.chahuyun.economy.plugin.FishPondManager;
-import cn.chahuyun.economy.plugin.PluginManager;
 import cn.chahuyun.economy.utils.EconomyUtil;
 import cn.chahuyun.economy.utils.HibernateUtil;
 import cn.chahuyun.economy.utils.Log;
@@ -150,12 +150,18 @@ public class RandomMoneyListener extends SimpleListenerHost {
             subject.sendMessage(MessageUtil.formatMessageChain("重新加载完成"));
         }
 
-        if (message.equals("刷新道具") && EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
-            PluginManager.refreshPropsFishCard();
-            subject.sendMessage(MessageUtil.formatMessageChain("刷新道具完成"));
+//        if (message.equals("刷新道具") &&
+//                EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
+//            PluginManager.refreshPropsFishCard();
+//            subject.sendMessage(MessageUtil.formatMessageChain("刷新道具完成"));
+//        }
+
+        // 清理用户背包自动钓鱼机
+        if (message.equals("自动钓鱼机") && EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
+            BackpackManager.clearFishMachine(event);
         }
 
-        // todo 删除背包指定道具
+
         return ListeningStatus.LISTENING;
     }
 }
