@@ -13,6 +13,7 @@ import cn.chahuyun.economy.utils.*;
 import cn.hutool.core.util.StrUtil;
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.Contact;
+import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.message.data.*;
@@ -424,9 +425,16 @@ public class PropsManagerImpl implements PropsManager {
             subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "你的背包空荡荡的..."));
             return;
         }
-
+        Group group = null;
+        if (subject instanceof Group) {
+            group = (Group) subject;
+        }
+        if(group ==null){
+            return;
+        }
         ForwardMessageBuilder iNodes = new ForwardMessageBuilder(subject);
-
+        // 背包增加@用户
+        iNodes.add(bot, new PlainText("").plus(new At(sender.getId()).getDisplay(group)));
         Map<String, List<PropsBase>> propsListMap = new HashMap<>();
         List<PropsBase> propsBaseList = new ArrayList<>();
 
