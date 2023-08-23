@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 鱼
@@ -59,6 +60,9 @@ public class Fish implements Serializable {
      * 特殊标记
      */
     private boolean special;
+
+    @OneToMany(targetEntity = FishRanking.class)
+    private List<FishRanking> fishList;
 
     /**
      * 获取鱼的尺寸<p>
