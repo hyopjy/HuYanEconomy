@@ -57,7 +57,7 @@ public class FishRanking implements Serializable {
      * 钓起来的鱼
      */
     @ManyToOne(targetEntity = Fish.class, fetch = FetchType.EAGER)
-    @JoinColumn(name = "FishId")
+    @JoinColumn(name = "FishId",referencedColumnName = "id")
     private Fish fish;
     /**
      * 钓起来的鱼塘
