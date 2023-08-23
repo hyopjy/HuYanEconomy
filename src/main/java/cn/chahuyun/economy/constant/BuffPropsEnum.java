@@ -17,8 +17,12 @@ public enum BuffPropsEnum {
     /**
      * 指定鱼
      */
-    SPECIAL_FISH("special"),
+    SPECIAL_FISH("special_fish"),
 
+    /**
+     * 指定等级
+     */
+    SPECIAL_LEVEL("special_level")
 
     ;
     final String name;
