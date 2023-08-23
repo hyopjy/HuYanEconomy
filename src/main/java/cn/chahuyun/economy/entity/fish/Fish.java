@@ -61,8 +61,6 @@ public class Fish implements Serializable {
      */
     private boolean special;
 
-    @OneToMany(targetEntity = FishRanking.class)
-    private List<FishRanking> fishList;
 
     /**
      * 获取鱼的尺寸<p>
