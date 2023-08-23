@@ -58,4 +58,12 @@ public class PropFishUsageFactory {
     public IPropUsage createFishOnTheBlade() {
         return new FishOnTheBlade();
     }
+
+    public IPropUsage createWholeheartedFishingPermit() {
+        return new WholeheartedFishingPermit();
+    }
+
+    public IPropUsage createFishTroubledWaters() {
+        return new FishTroubledWaters();
+    }
 }

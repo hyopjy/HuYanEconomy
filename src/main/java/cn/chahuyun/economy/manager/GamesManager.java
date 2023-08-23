@@ -300,16 +300,33 @@ public class GamesManager {
         List<Fish> fishList = new ArrayList<>();
         //彩蛋
         boolean winning = false;
+        // 判断是否有buff
         // 后置buff
-//        Buff buffBack = CacheUtils.getBuff(group.getId(), userInfo.getQq());
-//        if(Objects.nonNull(buffBack) && Constant.BUFF_BACK.equals(buff.getBuffType())){
-//            buffName = buffBack.getBuffName();
-//            BuffUtils.getBooleanPropType(buffBack, BuffPropsEnum.OTHER_FISH.getName());
-//            BuffUtils.getBooleanPropType(buffBack,BuffPropsEnum.SPECIAL_FISH.getName());
-//            // 减去
-//            BuffUtils.reduceBuffCount(group.getId(), userInfo.getQq());
-//        }
         while (true) {
+            boolean otherFishB = false;
+            // 后置钓鱼buff
+            Buff buffBack = CacheUtils.getBuff(group.getId(), userInfo.getQq());
+            if(Objects.nonNull(buffBack) && Constant.BUFF_BACK.equals(buff.getBuffType())){
+                buffName = buffBack.getBuffName();
+                String specialFish = BuffUtils.getBooleanPropType(buffBack,BuffPropsEnum.SPECIAL_FISH.getName());
+                if(!StrUtil.isBlank(specialFish)){
+                    Integer specialLevel = Integer.valueOf(BuffUtils.getBooleanPropType(buffBack, BuffPropsEnum.SPECIAL_LEVEL.getName()));
+                    List<Fish> levelFishList = fishPond.getFishList(specialLevel);
+                    Fish special = levelFishList.stream().filter(fish -> specialFish.equals(fish.getName())).findFirst().get();
+                    fishList.add(special);
+                    // 减去
+                    BuffUtils.reduceBuffCount(group.getId(), userInfo.getQq());
+                    break;
+                }
+
+                String otherFish = BuffUtils.getBooleanPropType(buffBack, BuffPropsEnum.OTHER_FISH.getName());
+                if(!StrUtil.isBlank(otherFish)){
+                    otherFishB = true;
+                    // 减去
+                    BuffUtils.reduceBuffCount(group.getId(), userInfo.getQq());
+                }
+            }
+
             if (rank == 0) {
                 subject.sendMessage("切线了我去！");
                 userFishInfo.switchStatus();
@@ -342,6 +359,10 @@ public class GamesManager {
             }
             //roll鱼
             fishList.add(collect.get(RandomUtil.randomInt(size > 6 ? size - 6 : 0, size)));
+            // 额外增加一条鱼
+            if (otherFishB) {
+                fishList.add(collect.get(RandomUtil.randomInt(size > 6 ? size - 6 : 0, size)));
+            }
             break;
         }
         String finalBuffName = buffName;

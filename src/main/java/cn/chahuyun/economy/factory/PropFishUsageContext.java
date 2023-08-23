@@ -58,6 +58,12 @@ public class PropFishUsageContext {
             case PropConstant.FISH_ON_THE_BLADE:
                 iPropUsage = factory.createFishOnTheBlade();
                 break;
+            case PropConstant.WHOLE_HEARTED_FISHING_PERMIT:
+                iPropUsage = factory.createWholeheartedFishingPermit();
+                break;
+            case PropConstant.FISH_TROUBLED_WATERS:
+                iPropUsage = factory.createFishTroubledWaters();
+                break;
             default:
                 event.getSubject().sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "道具暂未开放～"));
                 break;

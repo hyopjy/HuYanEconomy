@@ -20,4 +20,8 @@ public interface PropConstant {
     String SPECIAL_TITLE_ALAWYS = "自定义永久头衔";
 
     String FISH_ON_THE_BLADE = "游刃有鱼";
+
+    String WHOLE_HEARTED_FISHING_PERMIT = "竭泽而渔许可证";
+
+    String FISH_TROUBLED_WATERS = "浑水摸鱼";
 }
