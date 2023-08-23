@@ -14,4 +14,6 @@ public interface PropConstant {
     String SCH_DINGER_FISH = "薛定谔的鱼";
 
     String FREEN_FISH = "福丽恩";
+
+    String BECKY_FISH = "阿慕壮";
 }
