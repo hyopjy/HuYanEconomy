@@ -42,4 +42,8 @@ public class PropFishUsageFactory {
     public IPropUsage createSchDingerFish() {
         return new SchDingerFish();
     }
+
+    public IPropUsage createFreenFish() {
+        return new FreenFish();
+    }
 }

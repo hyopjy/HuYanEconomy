@@ -1,6 +1,7 @@
 package cn.chahuyun.economy.factory;
 
 import cn.chahuyun.economy.aop.Prop;
+import cn.chahuyun.economy.command.FreenFish;
 import cn.chahuyun.economy.constant.PropConstant;
 import cn.chahuyun.economy.entity.UserInfo;
 import cn.chahuyun.economy.entity.props.PropsFishCard;
@@ -45,6 +46,9 @@ public class PropFishUsageContext {
                 break;
             case PropConstant.SCH_DINGER_FISH:
                 iPropUsage = factory.createSchDingerFish();
+                break;
+            case PropConstant.FREEN_FISH:
+                iPropUsage = factory.createFreenFish();
                 break;
             default:
                 event.getSubject().sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "道具暂未开放～"));

@@ -12,4 +12,6 @@ public interface PropConstant {
     String LITTLE_TRUMPET_FISH_STORY = "《小喇叭鱼的故事》";
 
     String SCH_DINGER_FISH = "薛定谔的鱼";
+
+    String FREEN_FISH = "福丽恩";
 }
