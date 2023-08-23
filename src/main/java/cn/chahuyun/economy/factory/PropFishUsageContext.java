@@ -50,6 +50,9 @@ public class PropFishUsageContext {
             case PropConstant.BECKY_FISH:
                 iPropUsage = factory.createBeckyFish();
                 break;
+            case PropConstant.SPECIAL_TITLE_ALAWYS:
+                iPropUsage = factory.createSpecialTitleAlawys();
+                break;
             default:
                 event.getSubject().sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "道具暂未开放～"));
                 break;
