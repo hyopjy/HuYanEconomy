@@ -16,4 +16,6 @@ public interface PropConstant {
     String FREEN_FISH = "福丽恩";
 
     String BECKY_FISH = "阿慕壮";
+
+    String SPECIAL_TITLE_ALAWYS = "自定义永久头衔";
 }

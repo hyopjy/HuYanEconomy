@@ -50,4 +50,8 @@ public class PropFishUsageFactory {
     public IPropUsage createBeckyFish() {
         return new BeckyFish();
     }
+
+    public IPropUsage createSpecialTitleAlawys() {
+        return new SpecialTitleAlawys();
+    }
 }
