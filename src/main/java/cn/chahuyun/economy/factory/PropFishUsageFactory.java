@@ -54,4 +54,8 @@ public class PropFishUsageFactory {
     public IPropUsage createSpecialTitleAlawys() {
         return new SpecialTitleAlawys();
     }
+
+    public IPropUsage createFishOnTheBlade() {
+        return new FishOnTheBlade();
+    }
 }
