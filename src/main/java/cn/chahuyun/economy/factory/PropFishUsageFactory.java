@@ -46,4 +46,8 @@ public class PropFishUsageFactory {
     public IPropUsage createFreenFish() {
         return new FreenFish();
     }
+
+    public IPropUsage createBeckyFish() {
+        return new BeckyFish();
+    }
 }

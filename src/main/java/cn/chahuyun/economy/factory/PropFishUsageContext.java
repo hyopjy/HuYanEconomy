@@ -1,12 +1,10 @@
 package cn.chahuyun.economy.factory;
 
 import cn.chahuyun.economy.aop.Prop;
-import cn.chahuyun.economy.command.FreenFish;
 import cn.chahuyun.economy.constant.PropConstant;
 import cn.chahuyun.economy.entity.UserInfo;
 import cn.chahuyun.economy.entity.props.PropsFishCard;
 import cn.chahuyun.economy.plugin.PluginManager;
-import cn.chahuyun.economy.utils.CacheUtils;
 import cn.chahuyun.economy.utils.MessageUtil;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,7 +12,6 @@ import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.event.events.MessageEvent;
 
-import java.util.Objects;
 
 @Getter
 @Setter
@@ -49,6 +46,9 @@ public class PropFishUsageContext {
                 break;
             case PropConstant.FREEN_FISH:
                 iPropUsage = factory.createFreenFish();
+                break;
+            case PropConstant.BECKY_FISH:
+                iPropUsage = factory.createBeckyFish();
                 break;
             default:
                 event.getSubject().sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "道具暂未开放～"));
