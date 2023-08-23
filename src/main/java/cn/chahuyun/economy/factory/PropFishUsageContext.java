@@ -53,6 +53,11 @@ public class PropFishUsageContext {
             case PropConstant.SPECIAL_TITLE_ALAWYS:
                 iPropUsage = factory.createSpecialTitleAlawys();
                 break;
+            // todo 自定义一日头衔
+            // todo 岛岛全自动钓鱼机
+            case PropConstant.FISH_ON_THE_BLADE:
+                iPropUsage = factory.createFishOnTheBlade();
+                break;
             default:
                 event.getSubject().sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "道具暂未开放～"));
                 break;

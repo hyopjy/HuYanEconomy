@@ -18,4 +18,6 @@ public interface PropConstant {
     String BECKY_FISH = "阿慕壮";
 
     String SPECIAL_TITLE_ALAWYS = "自定义永久头衔";
+
+    String FISH_ON_THE_BLADE = "游刃有鱼";
 }
