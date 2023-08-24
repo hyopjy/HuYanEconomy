@@ -176,9 +176,6 @@ public class GamesManager {
         while (rankStatus) {
             MessageEvent newMessage = ShareUtils.getNextMessageEventFromUser(user, subject, false);
             String nextMessageCode = newMessage.getMessage().serializeToMiraiCode();
-            if (StrUtil.isBlank(nextMessageCode)) {
-                continue;
-            }
             switch (nextMessageCode) {
                 case "向左拉":
                 case "左":
