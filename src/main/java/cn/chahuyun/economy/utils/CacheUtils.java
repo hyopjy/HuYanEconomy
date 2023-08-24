@@ -4,6 +4,7 @@ import cn.chahuyun.economy.dto.Buff;
 import cn.hutool.cache.Cache;
 import cn.hutool.cache.CacheUtil;
 import cn.hutool.cache.impl.TimedCache;
+import cn.hutool.core.util.StrUtil;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -45,6 +46,7 @@ public class CacheUtils {
      */
     public static Cache<String, Buff> BUFF_CACHE = CacheUtil.newLFUCache(250);
 
+    public static Cache<String, String> AUTOMATIC_FISH_USER = CacheUtil.newLFUCache(250,8 * 60 * 60 * 1000);
 
     public static  InputStream getAvatarUrlInputStream(Long qq, String avatarUrl) {
         if (Objects.isNull(fifoCache.get(qq))) {
@@ -230,6 +232,24 @@ public class CacheUtils {
             BUFF_CACHE.remove(buffKey);
         }
         return BUFF_CACHE.get(buffKey);
+    }
+
+    private static String getAutomaticFishKey(Long groupId, Long qq) {
+        return "automatic:fish:" + groupId + ":" + qq;
+    }
+    public static void addAutomaticFishBuff(Long groupId, Long qq, String value) {
+        String automaticFishKey = getAutomaticFishKey(groupId, qq);
+        AUTOMATIC_FISH_USER.put(automaticFishKey, value);
+    }
+
+    public static String getAutomaticFishBuff(Long groupId, Long qq) {
+        String buffKey = getAutomaticFishKey(groupId, qq);
+        return AUTOMATIC_FISH_USER.get(buffKey);
+    }
+
+    public static Boolean checkAutomaticFishBuff(Long groupId, Long qq) {
+        String buffKey = getAutomaticFishKey(groupId, qq);
+        return !StrUtil.isBlank(AUTOMATIC_FISH_USER.get(buffKey));
     }
 
     /**

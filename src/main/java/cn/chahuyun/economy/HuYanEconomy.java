@@ -68,6 +68,9 @@ public final class HuYanEconomy extends JavaPlugin {
         reloadPluginConfig(EconomyPluginConfig.INSTANCE);
         reloadPluginConfig(EconomyEventConfig.INSTANCE);
         reloadPluginConfig(DriverCarEventConfig.INSTANCE);
+        //
+        reloadPluginConfig(AutomaticFishConfig.INSTANCE);
+
         // 加载文件流
         for (int i = 1; i < 5; i++) {
             FileUtils.getInputStream(i);
