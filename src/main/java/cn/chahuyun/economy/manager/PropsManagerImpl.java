@@ -500,7 +500,7 @@ public class PropsManagerImpl implements PropsManager {
             return;
         }
         String propCode = PropsType.getCode(no);
-        List<UserBackpack> backpacks = userInfo.getBackpacks()
+        List<UserBackpack> backpacks = Optional.ofNullable(userInfo.getBackpacks()).orElse(new ArrayList<>())
                 .stream()
                 .filter(back->back.getPropsCode().equals(propCode))
                 .collect(Collectors.toList());

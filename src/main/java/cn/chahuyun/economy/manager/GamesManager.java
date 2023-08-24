@@ -335,13 +335,12 @@ public class GamesManager {
                     // subject.sendMessage("系统出错，请联系主人!");
                     // 折现-钓鱼
                     sendFishInfoMessage(userInfo, user, subject, fishPond, fish, dimensions, money, v);
+                } else {
+                    String format = String.format("\r\n起竿咯！获取道具 \r\n%s\r\n等级:%s\r\n单价:%s\r\n尺寸:%d\r\n总金额:%d\r\n%s", fish.getName(), fish.getLevel(), fish.getPrice(), dimensions, money, fish.getDescription());
+                    MessageChainBuilder messages = new MessageChainBuilder();
+                    messages.append(new At(userInfo.getQq())).append(new PlainText(format));
+                    subject.sendMessage(messages.build());
                 }
-                String format = String.format("\r\n起竿咯！获取道具 \r\n%s\r\n等级:%s\r\n单价:%s\r\n尺寸:%d\r\n总金额:%d\r\n%s",
-                        fish.getName(), fish.getLevel(), fish.getPrice(), dimensions, money, fish.getDescription());
-                MessageChainBuilder messages = new MessageChainBuilder();
-                messages.append(new At(userInfo.getQq())).append(new PlainText(format));
-
-                subject.sendMessage(messages.build());
                 Log.info("钓鱼系统:添加道具到用户-Code " + propCode);
             }
         }else {
