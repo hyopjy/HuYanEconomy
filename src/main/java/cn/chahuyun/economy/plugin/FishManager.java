@@ -91,7 +91,14 @@ public class FishManager {
         for (Fish fish : fishList) {
             HibernateUtil.factory.fromTransaction(session -> session.merge(fish));
         }
-        for (Fish fish : fishList) {
+
+        List<Fish> finalList = HibernateUtil.factory.fromSession(session -> {
+            HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
+            JpaCriteriaQuery<Fish> query = builder.createQuery(Fish.class);
+            query.select(query.from(Fish.class));
+            return session.createQuery(query).list();
+        });
+        for (Fish fish : finalList) {
             int level = fish.getLevel();
             if (fishMap.containsKey(level)) {
                 fishMap.get(level).add(fish);
