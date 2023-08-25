@@ -8,4 +8,7 @@ data class AutomaticFish(
     // todo
     @SerialName("name")
     val name: String,
+
+    @SerialName("message")
+    val message: String,
 )
