@@ -168,7 +168,8 @@ public class FishInfo implements Serializable {
      * 鱼竿等级+1
      */
     private void upFishRod() {
-        this.setRodLevel(getRodLevel() + 1);
+        int upRod = getRodLevel();
+        this.setRodLevel(upRod + 1);
         save();
     }
 
@@ -180,7 +181,7 @@ public class FishInfo implements Serializable {
      * @param upMoney   升级鱼竿的金币
      * @return 成功消息
      */
-    private SingleMessage isMoney(User user, double userMoney, int upMoney) {
+    private synchronized SingleMessage isMoney(User user, double userMoney, int upMoney) {
         if (userMoney - upMoney < 0) {
             return new PlainText(String.format("😣你的币币不够%s啦！", upMoney));
         }
