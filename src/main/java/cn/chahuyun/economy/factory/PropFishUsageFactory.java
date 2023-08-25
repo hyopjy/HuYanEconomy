@@ -66,4 +66,8 @@ public class PropFishUsageFactory {
     public IPropUsage createFishTroubledWaters() {
         return new FishTroubledWaters();
     }
+
+    public IPropUsage createAutomaticFish() {
+        return new AutomaticFishingMachine();
+    }
 }

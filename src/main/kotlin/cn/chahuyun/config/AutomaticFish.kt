@@ -11,4 +11,7 @@ data class AutomaticFish(
 
     @SerialName("message")
     val message: String,
+
+    @SerialName("money")
+    val money: Double,
 )

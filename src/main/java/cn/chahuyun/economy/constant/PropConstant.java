@@ -24,4 +24,6 @@ public interface PropConstant {
     String WHOLE_HEARTED_FISHING_PERMIT = "竭泽而渔许可证";
 
     String FISH_TROUBLED_WATERS = "浑水摸鱼";
+
+    String AUTOMATIC_FISH = "岛岛全自动钓鱼机";
 }

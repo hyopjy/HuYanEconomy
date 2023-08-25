@@ -54,7 +54,9 @@ public class PropFishUsageContext {
                 iPropUsage = factory.createSpecialTitleAlawys();
                 break;
             // todo 自定义一日头衔
-            // todo 岛岛全自动钓鱼机
+            case PropConstant.AUTOMATIC_FISH:
+                iPropUsage = factory.createAutomaticFish();
+                break;
             case PropConstant.FISH_ON_THE_BLADE:
                 iPropUsage = factory.createFishOnTheBlade();
                 break;
