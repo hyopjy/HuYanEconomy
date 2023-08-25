@@ -4,7 +4,6 @@ import cn.chahuyun.config.EconomyConfig;
 import cn.chahuyun.economy.HuYanEconomy;
 import cn.chahuyun.economy.manager.*;
 import cn.chahuyun.economy.plugin.PluginManager;
-import cn.chahuyun.economy.utils.CacheUtils;
 import cn.chahuyun.economy.utils.Log;
 import cn.chahuyun.economy.utils.MessageUtil;
 import kotlin.coroutines.CoroutineContext;
@@ -135,16 +134,25 @@ public class MessageEventListener extends SimpleListenerHost {
                 case "钓鱼":
                 case "抛竿":
                     Log.info("游戏指令");
-                    try {
-                        if (group != null && config.getFishGroup().contains(group.getId())) {
-                            if(CacheUtils.checkAutomaticFishBuff(group.getId(),sender.getId())){
-                                subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "岛岛全自动钓鱼机生效中，手动钓鱼失效！"));
+                    if (group != null && config.getFishGroup().contains(group.getId())) {
+                        if(CacheUtils.checkAutomaticFishBuff(group.getId(),sender.getId())){
+                            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "岛岛全自动钓鱼机生效中，手动钓鱼失效！"));
+                            return;
+                        }
+                        RLock lock = RedissonConfig.REDISSON_CLIENT.getLock(group.getId() + "-" + sender.getId());
+                        try {
+                            boolean b = lock.tryLock(3, 20, TimeUnit.SECONDS);
+                            if(b){
+                                GamesManager.fishing(event);
+                            }else {
+                                subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "正在钓鱼"));
                                 return;
                             }
-                            GamesManager.fishing(event);
+                        } catch (Exception e) {
+                            Log.error("游戏指令-钓鱼error:" + e.getMessage());
+                        }finally {
+                            lock.unlock();
                         }
-                    } catch (Exception e) {
-                        Log.error("游戏指令-钓鱼error:" + e.getMessage());
                     }
 
                     return;
