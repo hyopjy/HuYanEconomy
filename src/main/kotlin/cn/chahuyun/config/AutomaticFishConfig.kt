@@ -11,6 +11,6 @@ import java.util.concurrent.ConcurrentHashMap
 object AutomaticFishConfig : AutoSavePluginConfig("AutomaticFishConfig")  {
     @ValueDescription("钓鱼机使用人列表")
     @Serializable
-    var automaticFishUserList: ConcurrentHashMap<Long, List<AutomaticFishUser>> =  ConcurrentHashMap();
+    var automaticFishUserMap: ConcurrentHashMap<String, AutomaticFishUser> =  ConcurrentHashMap();
 
 }
