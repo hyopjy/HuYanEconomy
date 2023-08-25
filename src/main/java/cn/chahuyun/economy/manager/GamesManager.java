@@ -410,7 +410,9 @@ public class GamesManager {
                 // 钓鱼
                 sendFishInfoMessage(userInfo, user, subject, fishPond, fish, dimensions, money, v, finalBuffName);
             }
-            new FishRanking(userInfo.getQq(), userInfo.getName(), dimensions, money, userFishInfo.getRodLevel(), fish, fishPond).save();
+            if(!fish.isSpecial()){
+                new FishRanking(userInfo.getQq(), userInfo.getName(), dimensions, money, userFishInfo.getRodLevel(), fish, fishPond).save();
+            }
         });
         userFishInfo.switchStatus();
     }
@@ -635,7 +637,132 @@ public class GamesManager {
         event.getSubject().sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "你的鱼竿等级为%s级", rodLevel));
     }
 
-    public static AutomaticFish getAutomaticFish() {
-        return null;
+    public static AutomaticFish getAutomaticFish(User user,Group group) {
+        UserInfo userInfo = UserManager.getUserInfo(user);
+        //获取玩家钓鱼信息
+        FishInfo userFishInfo = userInfo.getFishInfo();
+
+        FishPond fishPond = userFishInfo.getFishPond();
+
+        double result =1 + Math.sqrt(userFishInfo.getRodLevel() * 14);
+        int difficultyMin = (int) result;
+        int difficultyMax = 131;
+        int rankMin = 1;
+        int rankMax = 1;
+        rankMin = Math.max((userFishInfo.getLevel() / 8) + 1, rankMin);
+        rankMax = Math.max(rankMin + 1, Math.min(userFishInfo.getLevel(), fishPond.getPondLevel()));
+
+        int rollIndex = RandomUtil.randomInt(0,3);
+        switch (rollIndex){
+            case 1:
+                int randomLeftInt = RandomUtil.randomInt(10, 50);
+                difficultyMin += randomLeftInt;
+                break;
+            case 2:
+                int randomRightInt = RandomUtil.randomInt(0, 20);
+                difficultyMin += randomRightInt;
+                // 计算rankMax
+                rankMax = Math.max(rankMin + 1, Math.min(userFishInfo.getLevel(), Math.min(fishPond.getPondLevel(), rankMax)));
+
+                int randomRankMaxRight = RandomUtil.randomInt(1, 4);
+                rankMax += randomRankMaxRight;
+                break;
+            case 0:
+                int randomPullInt = RandomUtil.randomInt(0, 30);
+                difficultyMin = difficultyMin + randomPullInt;
+
+                rankMax = rankMin;
+                break;
+        }
+        difficultyMax = Math.max(difficultyMin + 1, difficultyMax + userFishInfo.getRodLevel());
+        //roll等级
+        int rank = RandomUtil.randomInt(rankMin, rankMax + 1);
+        //彩蛋
+        boolean winning = false;
+        Fish fish;
+        while (true) {
+            if (rank == 0) {
+                return new AutomaticFish("[鱼呢]","切线了",0.0);
+            }
+            //roll难度
+            int difficulty;
+            if (difficultyMin > difficultyMax) {
+                difficulty = RandomUtil.randomInt(difficultyMax, difficultyMin);
+            } else if (difficultyMin == difficultyMax) {
+                difficulty = difficultyMin;
+            } else {
+                difficulty = RandomUtil.randomInt(difficultyMin, difficultyMax);
+            }
+            //在所有鱼中拿到对应的鱼等级
+            List<Fish> levelFishList = fishPond.getFishList(rank);
+            //过滤掉难度不够的鱼
+            List<Fish> collect;
+            collect = levelFishList.stream().filter(it -> it.getDifficulty() <= difficulty).collect(Collectors.toList());
+            //如果没有了
+            int size = collect.size();
+            if (size == 0) {
+                //降级重新roll难度处理
+                rank--;
+                continue;
+            }
+            //难度>=200 触发彩蛋
+            if (difficulty >= 200) {
+                winning = true;
+            }
+            fish = collect.get(RandomUtil.randomInt(size > 6 ? size - 6 : 0, size));
+            break;
+        }
+
+        AutomaticFish automaticFish;
+        //roll尺寸
+        int dimensions = fish.getDimensions(winning);
+        int money = fish.getPrice() * dimensions;
+        double v = money * (1 - fishPond.getRebate());
+
+        NormalMember normalMember = group.get(HuYanEconomy.config.getOwner());
+        if (Objects.nonNull(normalMember)) {
+            EconomyUtil.plusMoneyToUser(normalMember, money * fishPond.getRebate());
+        }
+        if (fish.isSpecial()) {
+            String propCode = PropsType.getCode(fish.getName());
+            PropsBase propsBase = PropsCardFactory.INSTANCE.getPropsBase(propCode);
+            if (Objects.isNull(propsBase)) {
+                automaticFish = getAutomaticFishInfo(user,fishPond, fish, dimensions, money, v);
+            } else {
+                UserBackpack userBackpack = new UserBackpack(userInfo, propsBase);
+                if (!userInfo.addPropToBackpack(userBackpack)) {
+                    Log.error("钓鱼系统:添加道具到用户背包失败!");
+                    automaticFish = getAutomaticFishInfo(user,fishPond, fish, dimensions, money, v);
+                } else {
+                    automaticFish = getAutomaticPropCard(fish, dimensions, money);
+                }
+            }
+        }else {
+            // 钓鱼
+            automaticFish = getAutomaticFishInfo(user,fishPond, fish, dimensions, money, v);
+        }
+        if(!fish.isSpecial()){
+            new FishRanking(userInfo.getQq(), userInfo.getName(), dimensions, money, userFishInfo.getRodLevel(), fish, fishPond).save();
+        }
+        return automaticFish;
+    }
+
+    private static AutomaticFish getAutomaticPropCard(Fish fish, int dimensions, int money) {
+        String message = String.format("[道具]%s|等级:%s|单价:%s|尺寸:%d总金额:%d",
+                fish.getName(),fish.getLevel(),fish.getPrice(), dimensions,money);
+        return new AutomaticFish(fish.getName(),message,money);
+    }
+
+    private static AutomaticFish getAutomaticFishInfo(User user, FishPond fishPond, Fish fish, int dimensions, int money, double v) {
+        if (EconomyUtil.plusMoneyToUser(user, v)
+                && EconomyUtil.plusMoneyToBankForId(fishPond.getCode(), fishPond.getDescription(),
+                money * fishPond.getRebate())) {
+            fishPond.addNumber();
+            String message = String.format("[鱼]%s|等级:%s|单价:%s|尺寸:%d总金额:%d",fish.getName(),fish.getLevel(),fish.getPrice(),
+                    dimensions,money);
+            return new AutomaticFish(fish.getName(),message,money);
+        } else {
+            return new AutomaticFish("[鱼]","鱼溜了",0.0);
+        }
     }
 }

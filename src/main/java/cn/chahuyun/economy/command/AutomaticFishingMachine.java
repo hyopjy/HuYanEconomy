@@ -20,8 +20,7 @@ import cn.hutool.cron.task.Task;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.User;
-import net.mamoe.mirai.message.data.MessageChainBuilder;
-import net.mamoe.mirai.message.data.QuoteReply;
+import net.mamoe.mirai.message.data.*;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -117,7 +116,7 @@ public class AutomaticFishingMachine extends AbstractPropUsage{
         //始终删除一次  用于防止刷新的时候 添加定时任务报错
         CronUtil.remove(minutesTaskId);
         //建立任务类
-        AutomaticFishTask minutesTask = new AutomaticFishTask(minutesTaskId, endTime, group, user);
+        AutomaticFishTask minutesTask = new AutomaticFishTask(minutesTaskId, endTime, group, user, subject);
         //添加定时任务到调度器
         // 3 10-23/2,0,2 * * *
         // [秒] [分] [时] [日] [月] [周] [年]
@@ -161,12 +160,14 @@ class AutomaticFishTask implements Task {
      Group group;
 
      User user;
+    Contact subject;
 
-    public AutomaticFishTask(String id,LocalDateTime endTime, Group group, User user) {
+    public AutomaticFishTask(String id, LocalDateTime endTime, Group group, User user, Contact subject) {
         this.id = id;
         this.endTime = endTime;
         this.group = group;
         this.user = user;
+        this.subject = subject;
     }
 
     @Override
@@ -183,20 +184,28 @@ class AutomaticFishTask implements Task {
 
         List<AutomaticFish> fish = automaticFishUser.getAutomaticFishList();
         // 添加字符串
-        AutomaticFish automaticFish = GamesManager.getAutomaticFish();
+        AutomaticFish automaticFish = GamesManager.getAutomaticFish(user,group);
         fish.add(automaticFish);
 
-        //usersList.add(new AutomaticFishUser(automaticFishUser.getFishUser(),automaticFish))
+        usersList.add(new AutomaticFishUser(automaticFishUser.getFishUser(),automaticFishUser.getOpenTime()
+                ,automaticFishUser.getEndTime(),automaticFishUser.getCron(),fish));
 
-        Optional.ofNullable(DriverCarEventConfig.INSTANCE.getDriverCar().get(group.getId())).orElse(new CopyOnWriteArrayList<>()).clear();
+        Optional.ofNullable(DriverCarEventConfig.INSTANCE.getDriverCar().get(group.getId()))
+                .orElse(new CopyOnWriteArrayList<>()).clear();
         AutomaticFishConfig.INSTANCE.getAutomaticFishUserList().put(group.getId(),usersList);
 
         if(LocalDateTime.now().equals(endTime) || LocalDateTime.now().isAfter(endTime)){
             // 输出鱼信息
-
+            Message m = new At(user.getId()).plus("\r\n");
+            m = m.plus("[岛岛全自动钓鱼机使用结束]").plus("\r\n");
+            StringBuilder message = new StringBuilder();
+            fish.forEach(f->{
+                message.append(f.getMessage()+"\r\n");
+            });
+            m = m.plus(message);
+            subject.sendMessage(m);
             // 删除缓存
             CacheUtils.removeAutomaticFishBuff(group.getId(), user.getId());
-
         }
         CronUtil.remove(id);
     }
