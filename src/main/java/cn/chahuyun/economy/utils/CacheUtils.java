@@ -260,4 +260,9 @@ public class CacheUtils {
         USER_USE_CARD.clear();
         MASK_COUNT.clear();
     }
+
+    public static void removeAutomaticFishBuff(long groupId, long qq) {
+        String buffKey = getAutomaticFishKey(groupId, qq);
+        AUTOMATIC_FISH_USER.remove(buffKey);
+    }
 }

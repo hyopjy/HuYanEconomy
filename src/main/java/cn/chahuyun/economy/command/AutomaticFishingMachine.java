@@ -1,33 +1,28 @@
 package cn.chahuyun.economy.command;
 
+import cn.chahuyun.config.AutomaticFish;
 import cn.chahuyun.config.AutomaticFishConfig;
 import cn.chahuyun.config.AutomaticFishUser;
-import cn.chahuyun.economy.HuYanEconomy;
-import cn.chahuyun.economy.entity.LotteryInfo;
+import cn.chahuyun.config.DriverCarEventConfig;
 import cn.chahuyun.economy.entity.UserInfo;
 import cn.chahuyun.economy.entity.fish.FishInfo;
 import cn.chahuyun.economy.entity.fish.FishPond;
 import cn.chahuyun.economy.factory.AbstractPropUsage;
-import cn.chahuyun.economy.manager.LotteryManager;
+import cn.chahuyun.economy.manager.GamesManager;
 import cn.chahuyun.economy.manager.UserManager;
 import cn.chahuyun.economy.plugin.PropsType;
 import cn.chahuyun.economy.utils.CacheUtils;
 import cn.chahuyun.economy.utils.Log;
 import cn.chahuyun.economy.utils.MessageUtil;
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.util.RandomUtil;
 import cn.hutool.cron.CronUtil;
 import cn.hutool.cron.task.Task;
-import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Group;
-import net.mamoe.mirai.contact.NormalMember;
 import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.message.data.MessageChainBuilder;
 import net.mamoe.mirai.message.data.QuoteReply;
 
-import javax.swing.text.DateFormatter;
-import java.text.DateFormat;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -178,19 +173,30 @@ class AutomaticFishTask implements Task {
     public void execute() {
         System.out.println("excute");
         ConcurrentHashMap<Long, List<AutomaticFishUser>> map = AutomaticFishConfig.INSTANCE.getAutomaticFishUserList();
-        List<AutomaticFishUser> users = map.get(group.getId());
-        Optional<AutomaticFishUser> automaticFishUserOptional = users.stream().filter(u->this.user.getId() == u.getFishUser()).findFirst();
+        List<AutomaticFishUser> usersList = map.get(group.getId());
+        Optional<AutomaticFishUser> automaticFishUserOptional = usersList.stream().filter(u->this.user.getId() == u.getFishUser()).findFirst();
         if(!automaticFishUserOptional.isPresent()){
             return;
         }
         AutomaticFishUser automaticFishUser = automaticFishUserOptional.get();
+        usersList.remove(automaticFishUser);
 
+        List<AutomaticFish> fish = automaticFishUser.getAutomaticFishList();
+        // 添加字符串
+        AutomaticFish automaticFish = GamesManager.getAutomaticFish();
+        fish.add(automaticFish);
 
+        //usersList.add(new AutomaticFishUser(automaticFishUser.getFishUser(),automaticFish))
+
+        Optional.ofNullable(DriverCarEventConfig.INSTANCE.getDriverCar().get(group.getId())).orElse(new CopyOnWriteArrayList<>()).clear();
+        AutomaticFishConfig.INSTANCE.getAutomaticFishUserList().put(group.getId(),usersList);
 
         if(LocalDateTime.now().equals(endTime) || LocalDateTime.now().isAfter(endTime)){
             // 输出鱼信息
 
             // 删除缓存
+            CacheUtils.removeAutomaticFishBuff(group.getId(), user.getId());
+
         }
         CronUtil.remove(id);
     }

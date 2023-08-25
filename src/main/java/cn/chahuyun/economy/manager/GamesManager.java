@@ -1,5 +1,6 @@
 package cn.chahuyun.economy.manager;
 
+import cn.chahuyun.config.AutomaticFish;
 import cn.chahuyun.economy.HuYanEconomy;
 import cn.chahuyun.economy.constant.BuffPropsEnum;
 import cn.chahuyun.economy.constant.Constant;
@@ -634,4 +635,7 @@ public class GamesManager {
         event.getSubject().sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "你的鱼竿等级为%s级", rodLevel));
     }
 
+    public static AutomaticFish getAutomaticFish() {
+        return null;
+    }
 }
