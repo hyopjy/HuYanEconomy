@@ -10,6 +10,6 @@ import java.util.concurrent.ConcurrentHashMap
 object SpecialTitleConfig : AutoSavePluginConfig("SpecialTitleConfig"){
     @ValueDescription("特殊标记")
     @Serializable
-    var specialTitleMap: ConcurrentHashMap<Long, List<SpecialTitle>> =  ConcurrentHashMap();
+    var specialTitleMap: ConcurrentHashMap<String, SpecialTitle> =  ConcurrentHashMap();
 
 }
