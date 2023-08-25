@@ -11,6 +11,7 @@ import cn.chahuyun.economy.entity.props.PropsFishCard;
 import cn.chahuyun.economy.entity.props.factory.PropsCardFactory;
 import cn.chahuyun.economy.plugin.PropsType;
 import cn.chahuyun.economy.utils.*;
+import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.Contact;
@@ -515,7 +516,8 @@ public class PropsManagerImpl implements PropsManager {
         PropsBase propsInfo = PropsType.getPropsInfo(propCode);
         deleteProp(userInfo, propsInfo,num);
 
-        int quantity = num * 10;
+        int price = RandomUtil.randomInt(10, 300);
+        int quantity = num * price;
         EconomyUtil.plusMoneyToUser(sender, quantity);
 
         double money = EconomyUtil.getMoneyByUser(sender);
