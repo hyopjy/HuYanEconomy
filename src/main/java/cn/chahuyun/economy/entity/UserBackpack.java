@@ -2,13 +2,12 @@ package cn.chahuyun.economy.entity;
 
 import cn.chahuyun.economy.entity.props.PropsBase;
 import cn.chahuyun.economy.utils.HibernateUtil;
+import cn.hutool.core.util.IdUtil;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.math3.stat.descriptive.summary.Product;
 
 import java.io.Serializable;
-import java.nio.file.attribute.UserPrincipal;
 
 /**
  * 用户背包
@@ -22,7 +21,6 @@ import java.nio.file.attribute.UserPrincipal;
 @Setter
 public class UserBackpack implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     /**
      * 用户id
@@ -52,6 +50,7 @@ public class UserBackpack implements Serializable {
     }
 
     public UserBackpack(UserInfo userInfo, PropsBase propsBase) {
+        this.id = IdUtil.getSnowflakeNextId();
         this.userId = userInfo.getId();
         this.propsCode = propsBase.getCode();
         this.propId = propsBase.getId();
