@@ -14,7 +14,6 @@ import cn.chahuyun.economy.utils.*;
 import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.RandomUtil;
-import cn.hutool.core.util.StrUtil;
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Group;
@@ -329,7 +328,6 @@ public class GamesManager {
                 UserBackpack userBackpack = new UserBackpack(userInfo, propsBase);
                 if (!userInfo.addPropToBackpack(userBackpack)) {
                     Log.error("钓鱼系统:添加道具到用户背包失败!");
-                    // subject.sendMessage("系统出错，请联系主人!");
                     // 折现-钓鱼
                     sendFishInfoMessage(userInfo, user, subject, fishPond, fish, dimensions, money, v);
                 } else {
