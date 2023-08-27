@@ -53,7 +53,7 @@ public class EconomyEventListener extends SimpleListenerHost {
         }
         Contact subject = event.getSubject();
         String code = event.getMessage().serializeToMiraiCode();
-        if("钓鱼".equals(code) || "抛竿".equals(code)){
+        if(("钓鱼".equals(code) || "抛竿".equals(code)) && event.getGroup().getId() == 758085692){
             // 周五22.00 周日 23.00
             if(DateUtil.checkDate()){
                 subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "休渔期"));
