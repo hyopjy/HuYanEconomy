@@ -43,8 +43,8 @@ dependencies {
     implementation 'org.apache.poi:poi-ooxml:4.1.2'
 //    implementation 'cglib:cglib:3.2.7'
     implementation 'net.bytebuddy:byte-buddy:1.14.2'
-    implementation 'org.redisson:redisson:3.13.4'
-   // implementation 'io.netty:netty-resolver-dns-native-macos:4.1.75.Final'
+    implementation 'org.redisson:redisson:3.20.1'
+
     //测试库
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.0'
 }
