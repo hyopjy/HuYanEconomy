@@ -4,7 +4,6 @@ import cn.chahuyun.config.EconomyConfig;
 import cn.chahuyun.economy.HuYanEconomy;
 import cn.chahuyun.economy.manager.*;
 import cn.chahuyun.economy.plugin.PluginManager;
-import cn.chahuyun.economy.redis.RedissonConfig;
 import cn.chahuyun.economy.utils.Log;
 import cn.chahuyun.economy.utils.MessageUtil;
 import kotlin.coroutines.CoroutineContext;
@@ -14,9 +13,6 @@ import net.mamoe.mirai.event.SimpleListenerHost;
 import net.mamoe.mirai.event.events.EventCancelledException;
 import net.mamoe.mirai.event.events.MessageEvent;
 import org.jetbrains.annotations.NotNull;
-import org.redisson.api.RLock;
-
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 /**
@@ -136,19 +132,19 @@ public class MessageEventListener extends SimpleListenerHost {
                 case "抛竿":
                     Log.info("游戏指令");
                     if (group != null && config.getFishGroup().contains(group.getId())) {
-                        RLock lock = RedissonConfig.REDISSON_CLIENT.getLock(group.getId() + "-" + sender.getId());
+//                        RLock lock = RedissonConfig.getRedisson().getLock(group.getId() + "-" + sender.getId());
                         try {
-                            boolean b = lock.tryLock(3, 20, TimeUnit.SECONDS);
-                            if(b){
+//                            boolean b = lock.tryLock(3, 20, TimeUnit.SECONDS);
+//                            if(b){
                                 GamesManager.fishing(event);
-                            }else {
-                                subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "正在钓鱼"));
-                                return;
-                            }
+//                            }else {
+//                                subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "正在钓鱼"));
+//                                return;
+//                            }
                         } catch (Exception e) {
                             Log.error("游戏指令-钓鱼error:" + e.getMessage());
                         }finally {
-                            lock.unlock();
+                          //  lock.unlock();
                         }
                     }
                     return;

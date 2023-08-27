@@ -1,19 +1,24 @@
-package cn.chahuyun.economy.redis;
-
-import org.redisson.Redisson;
-import org.redisson.api.RedissonClient;
-import org.redisson.config.Config;
-
-public class RedissonConfig {
-
-    public static final RedissonClient REDISSON_CLIENT = redissonClient();
-
-    public static RedissonClient redissonClient(){
-        String host = "127.0.0.1:6739";
-        int database = 1;
-        Config config = new Config();
-        config.useSingleServer().setAddress(host).setPassword("").setDatabase(database);
-        return Redisson.create(config);
-    }
-
-}
+//package cn.chahuyun.economy.redis;
+//
+//import org.redisson.Redisson;
+//import org.redisson.api.RedissonClient;
+//import org.redisson.config.Config;
+//
+//public class RedissonConfig {
+//    private static Config config = new Config();
+//
+//    //声明redisso对象
+//    private static Redisson redisson = null;
+//    static{
+//        config.useSingleServer().setAddress("redis://8.140.194.225:6739").setPingConnectionInterval(10000);
+//        //得到redisson对象
+//        redisson = (Redisson) Redisson.create(config);
+//
+//    }
+//    //获取redisson对象的方法
+//    public static Redisson getRedisson(){
+//        return redisson;
+//    }
+//
+//
+//}
