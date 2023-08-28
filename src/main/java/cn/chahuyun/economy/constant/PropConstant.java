@@ -26,4 +26,6 @@ public interface PropConstant {
     String FISH_TROUBLED_WATERS = "浑水摸鱼";
 
     String AUTOMATIC_FISH = "岛岛全自动钓鱼机";
+
+    String SPECIAL_TITLE_ONE_DAY = "自定义一日头衔";
 }

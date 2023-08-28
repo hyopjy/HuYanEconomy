@@ -3,7 +3,9 @@ package cn.chahuyun.economy.event;
 import cn.chahuyun.config.EconomyEventConfig;
 import cn.chahuyun.config.RegexConst;
 import cn.chahuyun.economy.manager.GamesManager;
+import cn.chahuyun.economy.redis.RedissonConfig;
 import cn.chahuyun.economy.utils.*;
+import cn.hutool.core.util.StrUtil;
 import kotlin.coroutines.CoroutineContext;
 import net.mamoe.mirai.console.command.CommandSender;
 import net.mamoe.mirai.console.permission.*;
@@ -18,6 +20,7 @@ import net.mamoe.mirai.message.data.MessageSource;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -63,6 +66,18 @@ public class EconomyEventListener extends SimpleListenerHost {
                 return ListeningStatus.LISTENING;
             }
         }
+        // 判断用户一日头衔是否过期
+        Set<Long> setOneDayKey = RedissonConfig.getRedisson().getSet("special:title:one:user:set:" + event.getGroup().getId());
+        if(setOneDayKey.contains(event.getSender().getId())){
+            String title =
+                    (String) RedissonConfig.getRedisson().getBucket("special:title:one:day:key" + event.getSender().getId() +
+                            ":" + event.getGroup().getId()).get();
+            if (StrUtil.isBlank(title)) {
+                NormalMember normalMember = event.getGroup().get(event.getSender().getId());
+                normalMember.setSpecialTitle(title);
+            }
+        }
+
 
 
         if (!EconomyEventConfig.INSTANCE.getEconomyCheckGroup().contains(event.getGroup().getId())
