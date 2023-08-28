@@ -17,6 +17,7 @@ import org.jetbrains.annotations.NotNull;
 
 import org.redisson.api.RLock;
 
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
@@ -143,8 +144,13 @@ public class MessageEventListener extends SimpleListenerHost {
                             if(b){
                                 GamesManager.fishing(event);
                             }else {
-                                subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "非法捕鱼！"));
-                                return;
+                                Double constMoney = GamesManager.userPay.get(sender.getId());
+                                Boolean checkUser = GamesManager.checkUserPay(event.getSender());
+                                if (checkUser) {
+                                    subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "你已经在钓鱼了,还你%s💰", Optional.ofNullable(constMoney).orElse(0.0)));
+                                } else {
+                                    subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "你已经在钓鱼了！"));
+                                }
                             }
                         } catch (Exception e) {
                             Log.error("游戏指令-钓鱼error:" + e.getMessage());
