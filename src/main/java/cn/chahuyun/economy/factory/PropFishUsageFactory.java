@@ -55,6 +55,9 @@ public class PropFishUsageFactory {
         return new SpecialTitleAlawys();
     }
 
+    public IPropUsage createSpecialTitleOneDay() {
+        return new SpecialTitleOneDay();
+    }
     public IPropUsage createFishOnTheBlade() {
         return new FishOnTheBlade();
     }
