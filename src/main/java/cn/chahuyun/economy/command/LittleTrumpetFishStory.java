@@ -41,7 +41,7 @@ public class LittleTrumpetFishStory extends AbstractPropUsage {
                 .build());
 
         Message m = new PlainText("开始讲述《小喇叭鱼的故事》的故事 \r\n");
-        m = m.plus(propsCard.getDescription());
+        m = m.plus(propsCard.getContent());
         subject.sendMessage(m);
     }
 }

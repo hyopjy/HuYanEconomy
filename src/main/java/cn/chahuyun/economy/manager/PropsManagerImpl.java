@@ -36,21 +36,21 @@ public class PropsManagerImpl implements PropsManager {
 
    private static final Map<String, List<String>> PROP_EXCHANGE = new HashMap<>(4);
    static {
-       List<String> pfpfkList = new ArrayList<>(5);
-       pfpfkList.add("FISH-5");
-       pfpfkList.add("FISH-3");
-       pfpfkList.add("FISH-4");
-       pfpfkList.add("FISH-5");
-       pfpfkList.add("FISH-6");
-       PROP_EXCHANGE.put("FISH-15",pfpfkList);
+       List<String> bfpfkList = new ArrayList<>(5);
+       bfpfkList.add("FISH-4");
+       bfpfkList.add("FISH-3");
+       bfpfkList.add("FISH-5");
+       bfpfkList.add("FISH-3");
+       bfpfkList.add("FISH-6");
+       PROP_EXCHANGE.put("FISH-15",bfpfkList);
 
-       List<String> pftnkList = new ArrayList<>(5);
-       pfpfkList.add("FISH-5");
-       pfpfkList.add("FISH-3");
-       pfpfkList.add("FISH-7");
-       pfpfkList.add("FISH-8");
-       pfpfkList.add("FISH-6");
-       PROP_EXCHANGE.put("FISH-16",pftnkList);
+       List<String> bftnkList = new ArrayList<>(5);
+       bftnkList.add("FISH-4");
+       bftnkList.add("FISH-3");
+       bftnkList.add("FISH-7");
+       bftnkList.add("FISH-8");
+       bftnkList.add("FISH-6");
+       PROP_EXCHANGE.put("FISH-16",bftnkList);
 
        List<String> hkList = new ArrayList<>(6);
        hkList.add("FISH-9");
@@ -390,7 +390,7 @@ public class PropsManagerImpl implements PropsManager {
                 return;
             }
             Optional<PropsFishCard> optionalPropsFishCard = propsByUserFromCode.stream()
-                    .filter(propsFishCard -> propCode.equals(propsFishCard.getCode()))
+                    .filter(propsFishCard -> Objects.nonNull(propsFishCard) && propCode.equals(propsFishCard.getCode()))
                     .findFirst();
 
             if (optionalPropsFishCard.isPresent()) {
@@ -634,15 +634,20 @@ public class PropsManagerImpl implements PropsManager {
         // 如果有这些道具
         if (checkUserBackPack(userBackpack, propsList)) {
             // 删除道具
-            propsList.stream().forEach(prop -> {
-                PropsBase propsEntity = PropsType.getPropsInfo(propCode);
+            propsList.forEach(prop -> {
+                PropsBase propsEntity = PropsType.getPropsInfo(prop);
                 deleteProp(userInfo, propsEntity);
             });
+            UserInfo newUserInfo = UserManager.getUserInfo(userInfo.getUser());
             // 新增道具
-            UserBackpack addPack = new UserBackpack(userInfo, propsInfo);
-            userInfo.addPropToBackpack(addPack);
+            UserBackpack userNewBackpack = new UserBackpack(newUserInfo, propsInfo);
+            if (!newUserInfo.addPropToBackpack(userNewBackpack)) {
+                Log.warning("道具系统:添加道具到用户背包失败!");
+                subject.sendMessage("系统出错，请联系主人!");
+                return;
+            }
 
-            messages.append(new PlainText("兑换成功！请到背包查看"));
+            messages.append(new PlainText(propsInfo.getName() + "兑换成功！请到背包查看"));
             subject.sendMessage(messages.build());
             return;
          }else {
@@ -656,20 +661,9 @@ public class PropsManagerImpl implements PropsManager {
         List<String> userBackpackCode = userBackpack.stream()
                 .map(UserBackpack::getPropsCode)
                 .collect(Collectors.toList());
-        List<String> finalList = new ArrayList<>(list);
-
-        Iterator<String> listIterator = finalList.listIterator();
-
-        while (listIterator.hasNext()) {
-            Iterator<String> userPackIterator = userBackpackCode.listIterator();
-            while (userPackIterator.hasNext()) {
-                if(listIterator.next().equals(userPackIterator.next())){
-                    listIterator.remove();
-                    userPackIterator.remove();
-                }
-            }
-        }
-        return finalList.size() == 0;
+        userBackpackCode.sort(Comparator.comparing(String::hashCode));
+        list.sort(Comparator.comparing(String::hashCode));
+        return userBackpackCode.containsAll(list);
     }
 
     public static Map<String, List<PropsBase>> sortMapByKey(Map<String, List<PropsBase>> map) {

@@ -29,7 +29,7 @@ public abstract class AbstractPropUsage implements IPropUsage{
 
     protected Long target;
 
-    protected Boolean isBuff;
+    protected Boolean isBuff = false;
     @Override
     public abstract boolean checkOrder();
 
