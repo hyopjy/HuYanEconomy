@@ -360,7 +360,7 @@ public class GamesManager {
         }
     }
 
-    private static Boolean checkUserPay(User user) {
+    public static Boolean checkUserPay(User user) {
         Double constMoney = userPay.get(user.getId());
         if (Objects.nonNull(constMoney)) {
             EconomyUtil.plusMoneyToUser(user, constMoney);
