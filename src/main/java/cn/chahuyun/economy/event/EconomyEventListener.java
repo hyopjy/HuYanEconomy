@@ -3,10 +3,7 @@ package cn.chahuyun.economy.event;
 import cn.chahuyun.config.EconomyEventConfig;
 import cn.chahuyun.config.RegexConst;
 import cn.chahuyun.economy.manager.GamesManager;
-import cn.chahuyun.economy.utils.CacheUtils;
-import cn.chahuyun.economy.utils.EconomyUtil;
-import cn.chahuyun.economy.utils.Log;
-import cn.chahuyun.economy.utils.MessageUtil;
+import cn.chahuyun.economy.utils.*;
 import kotlin.coroutines.CoroutineContext;
 import net.mamoe.mirai.console.command.CommandSender;
 import net.mamoe.mirai.console.permission.*;
@@ -56,6 +53,16 @@ public class EconomyEventListener extends SimpleListenerHost {
             }
             event.intercept();
         }
+        Contact subject = event.getSubject();
+        String code = event.getMessage().serializeToMiraiCode();
+        if(("钓鱼".equals(code) || "抛竿".equals(code)) && event.getGroup().getId() == 758085692){
+            // 周五22.00 周日 23.00
+            if(DateUtil.checkDate()){
+                subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "休渔期"));
+                event.intercept();
+                return ListeningStatus.LISTENING;
+            }
+        }
 
 
         if (!EconomyEventConfig.INSTANCE.getEconomyCheckGroup().contains(event.getGroup().getId())
@@ -63,8 +70,7 @@ public class EconomyEventListener extends SimpleListenerHost {
             return ListeningStatus.LISTENING;
         }
 
-        String code = event.getMessage().serializeToMiraiCode();
-        Contact subject = event.getSubject();
+
         // 权限判断的命令列表
         List<RegexConst> regexOrderConstList =  EconomyEventConfig.INSTANCE.getRegexOrderCheck();
         for(int i = 0; i < regexOrderConstList.size(); i++){
