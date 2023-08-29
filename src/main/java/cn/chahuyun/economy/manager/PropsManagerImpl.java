@@ -36,6 +36,7 @@ public class PropsManagerImpl implements PropsManager {
 
    private static final Map<String, List<String>> PROP_EXCHANGE = new HashMap<>(4);
    static {
+       // FBPFK
        List<String> bfpfkList = new ArrayList<>(5);
        bfpfkList.add("FISH-4");
        bfpfkList.add("FISH-3");
@@ -43,7 +44,7 @@ public class PropsManagerImpl implements PropsManager {
        bfpfkList.add("FISH-3");
        bfpfkList.add("FISH-6");
        PROP_EXCHANGE.put("FISH-15",bfpfkList);
-
+       // FBTNK
        List<String> bftnkList = new ArrayList<>(5);
        bftnkList.add("FISH-4");
        bftnkList.add("FISH-3");
