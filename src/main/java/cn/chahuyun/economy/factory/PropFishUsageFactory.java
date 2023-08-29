@@ -73,4 +73,16 @@ public class PropFishUsageFactory {
     public IPropUsage createAutomaticFish() {
         return new AutomaticFishingMachine();
     }
+
+    public IPropUsage createFBPFK() {
+        return new FBPFK();
+    }
+
+    public IPropUsage createFBTNK() {
+        return new FBTNK();
+    }
+
+    public IPropUsage createHKFB() {
+        return new HKFB();
+    }
 }

@@ -32,14 +32,23 @@ public class PropFishUsageContext {
             case PropConstant.SISTER_DOG:
                 iPropUsage = factory.createSisterDog();
                 break;
+            case PropConstant.FIVE_FLAVORED_FISH:
+                iPropUsage = factory.createFiveFlavoredFish();
+                break;
             case PropConstant.MASK:
                 iPropUsage = factory.createMask();
                 break;
-            // todo BFPFK
-            // todo BFTNK
+            // todo FBPFK
+            case PropConstant.FBPFK:
+                iPropUsage = factory.createFBPFK();
+                break;
+            // todo FBTNK
+            case PropConstant.FBTNK:
+                iPropUsage = factory.createFBTNK();
+                break;
             // todo HK警匪片——FreenBecky版
-            case PropConstant.FIVE_FLAVORED_FISH:
-                iPropUsage = factory.createFiveFlavoredFish();
+            case PropConstant.HKFB:
+                iPropUsage = factory.createHKFB();
                 break;
             case PropConstant.LITTLE_TRUMPET_FISH_STORY:
                 iPropUsage = factory.createLittleTrumpetFishStory();
