@@ -46,9 +46,11 @@ public class EconomyEventListener extends SimpleListenerHost {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public ListeningStatus onGroupMsg(GroupMessageEvent event) {
-        String key  = "sister:dog:" + event.getGroup().getId() + ":" + event.getSender().getId();
-        RBucket<Long> sisterDogRedis = RedissonConfig.getRedisson().getBucket(key);
-        sisterDogRedis.set(event.getSender().getId(),30, TimeUnit.MINUTES);
+        if(event.getSender().getId() != event.getBot().getId()){
+            String key  = "sister:dog:" + event.getGroup().getId() + ":" + event.getSender().getId();
+            RBucket<Long> sisterDogRedis = RedissonConfig.getRedisson().getBucket(key);
+            sisterDogRedis.set(event.getSender().getId(),30, TimeUnit.MINUTES);
+        }
 
         if(CacheUtils.checkTimeCacheKey(event.getGroup().getId(),event.getSender().getId())){
             try {
