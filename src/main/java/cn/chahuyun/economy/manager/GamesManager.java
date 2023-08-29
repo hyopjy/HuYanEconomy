@@ -167,7 +167,7 @@ public class GamesManager {
         int rankMin = 1;
         int rankMax = 1;
         rankMin = Math.max((userFishInfo.getLevel() / 8) + 1, rankMin);
-        rankMax = Math.max(rankMin + 1, Math.min(userFishInfo.getLevel(), fishPond.getPondLevel()));
+       //  rankMax = Math.max(rankMin + 1, Math.min(userFishInfo.getLevel(), fishPond.getPondLevel()));
 
         Log.info("start-->--------------------------->");
         Log.info("difficultyMin-->"+ difficultyMin);
@@ -206,10 +206,10 @@ public class GamesManager {
                     // 计算rankMax
                     rankMax = Math.max(rankMin + 1, Math.min(userFishInfo.getLevel(), Math.min(fishPond.getPondLevel(), rankMax)));
 
-                    int randomRankMaxRight = RandomUtil.randomInt(1, 4);
-                    rankMax += randomRankMaxRight;
+                    // int randomRankMaxRight = RandomUtil.randomInt(1, 4);
+                    rankMax += 1;
                     subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "\uD83E\uDD16你纵向拉动了鱼竿，最小难度%s，最大等级+%s",
-                            (randomRightInt<0 ?"-":"+")+randomRightInt, randomRankMaxRight));
+                            (randomRightInt<0 ?"-":"+")+randomRightInt, 1));
                     user_right.add(user.getId());
                     break;
                 case "放":

@@ -18,8 +18,10 @@ import net.mamoe.mirai.event.events.EventCancelledException;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.message.data.MessageSource;
 import org.jetbrains.annotations.NotNull;
+import org.redisson.api.RBucket;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -46,10 +48,13 @@ public class EconomyEventListener extends SimpleListenerHost {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public ListeningStatus onGroupMsg(GroupMessageEvent event) {
+        String key  = "sister:dog:" + event.getGroup().getId() + ":" + event.getSender().getId();
+        RBucket<Long> sisterDogRedis = RedissonConfig.getRedisson().getBucket(key);
+        sisterDogRedis.set(event.getSender().getId(),30, TimeUnit.MINUTES);
+
         if(CacheUtils.checkTimeCacheKey(event.getGroup().getId(),event.getSender().getId())
-         || CacheUtils.checkSchDingerFishKey(event.getGroup().getId(),event.getSender().getId())
-        ){
-            try {
+                || CacheUtils.checkSchDingerFishKey(event.getGroup().getId(),event.getSender().getId())
+        ){ try {
                 MessageSource.recall(event.getSource());
             }catch (Exception e){
                 e.printStackTrace();
