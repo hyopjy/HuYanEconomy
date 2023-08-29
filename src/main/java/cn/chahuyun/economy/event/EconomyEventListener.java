@@ -3,6 +3,7 @@ package cn.chahuyun.economy.event;
 import cn.chahuyun.config.EconomyEventConfig;
 import cn.chahuyun.config.RegexConst;
 import cn.chahuyun.economy.manager.GamesManager;
+import cn.chahuyun.economy.redis.RedissonConfig;
 import cn.chahuyun.economy.utils.*;
 import kotlin.coroutines.CoroutineContext;
 import net.mamoe.mirai.console.command.CommandSender;
@@ -16,8 +17,10 @@ import net.mamoe.mirai.event.events.EventCancelledException;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.message.data.MessageSource;
 import org.jetbrains.annotations.NotNull;
+import org.redisson.api.RBucket;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -43,6 +46,10 @@ public class EconomyEventListener extends SimpleListenerHost {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public ListeningStatus onGroupMsg(GroupMessageEvent event) {
+        String key  = "sister:dog:" + event.getGroup().getId() + ":" + event.getSender().getId();
+        RBucket<Long> sisterDogRedis = RedissonConfig.getRedisson().getBucket(key);
+        sisterDogRedis.set(event.getSender().getId(),30, TimeUnit.MINUTES);
+
         if(CacheUtils.checkTimeCacheKey(event.getGroup().getId(),event.getSender().getId())){
             try {
                 MessageSource.recall(event.getSource());
