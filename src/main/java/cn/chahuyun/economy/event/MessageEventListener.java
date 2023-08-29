@@ -139,8 +139,8 @@ public class MessageEventListener extends SimpleListenerHost {
                     Log.info("游戏指令");
                     if (group != null && config.getFishGroup().contains(group.getId())) {
                        RLock lock = RedissonConfig.getRedisson().getLock(group.getId() + "-" + sender.getId());
+                       boolean b = lock.tryLock(3, 60 * 60,  TimeUnit.SECONDS);
                        try {
-                            boolean b = lock.tryLock(3, 60 * 60,  TimeUnit.SECONDS);
                             if(b){
                                 GamesManager.fishing(event);
                             }else {
