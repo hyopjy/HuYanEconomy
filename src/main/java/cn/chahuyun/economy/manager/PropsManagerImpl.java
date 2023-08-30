@@ -22,6 +22,8 @@ import org.apache.commons.collections4.CollectionUtils;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -302,6 +304,19 @@ public class PropsManagerImpl implements PropsManager {
                 // 100*rodlevel+900
                 FishInfo userFishInfo = userInfo.getFishInfo();
                 propsInfo.setCost(100 * userFishInfo.getRodLevel() + 900);
+            }
+            // 判断是否是姐狗
+            if("FISH-2".equals(card.getCode())){
+                if(num != 1){
+                    messages.append(new PlainText("😣["  + propsInfo.getName() + "]每人每天限制领养1条"));
+                    subject.sendMessage(messages.build());
+                    return;
+                }
+                String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                String key = today + subject.getId() + sender.getId();
+                //
+
+
             }
         }
         //用户钱包现有余额
