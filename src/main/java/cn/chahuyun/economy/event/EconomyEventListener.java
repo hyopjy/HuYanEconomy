@@ -74,18 +74,16 @@ public class EconomyEventListener extends SimpleListenerHost {
             }
         }
         // 判断用户一日头衔是否过期
-        Set<Long> setOneDayKey = RedissonConfig.getRedisson().getSet("special:title:one:user:set:" + event.getGroup().getId());
-        if(setOneDayKey.contains(event.getSender().getId())){
-            String title =
-                    (String) RedissonConfig.getRedisson().getBucket("special:title:one:day:key" + event.getSender().getId() +
-                            ":" + event.getGroup().getId()).get();
-            if (StrUtil.isBlank(title)) {
-                NormalMember normalMember = event.getGroup().get(event.getSender().getId());
-                normalMember.setSpecialTitle(title);
-            }
-        }
-
-
+//        Set<Long> setOneDayKey = RedissonConfig.getRedisson().getSet("special:title:one:user:set:" + event.getGroup().getId());
+//        if(setOneDayKey.contains(event.getSender().getId())){
+//            String title =
+//                    (String) RedissonConfig.getRedisson().getBucket("special:title:one:day:key" + event.getSender().getId() +
+//                            ":" + event.getGroup().getId()).get();
+//            if (StrUtil.isBlank(title)) {
+//                NormalMember normalMember = event.getGroup().get(event.getSender().getId());
+//                normalMember.setSpecialTitle(title);
+//            }
+//        }
 
         if (!EconomyEventConfig.INSTANCE.getEconomyCheckGroup().contains(event.getGroup().getId())
                 || event.getBot().getId() == event.getSender().getId()) {

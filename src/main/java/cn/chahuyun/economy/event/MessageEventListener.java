@@ -154,6 +154,7 @@ public class MessageEventListener extends SimpleListenerHost {
                             }
                         } catch (Exception e) {
                             Log.error("游戏指令-钓鱼error:" + e.getMessage());
+                            e.printStackTrace();
                         }finally {
                            // 解锁前检查当前线程是否持有该锁
                            if (lock != null && lock.isHeldByCurrentThread()) {

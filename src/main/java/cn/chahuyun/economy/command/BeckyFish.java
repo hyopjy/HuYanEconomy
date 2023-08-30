@@ -40,7 +40,7 @@ public class BeckyFish extends AbstractPropUsage {
                 .build());
 
         Message m = new PlainText("开始讲述《阿慕壮》的故事 \r\n");
-        m = m.plus(propsCard.getDescription());
+        m = m.plus(propsCard.getContent());
         subject.sendMessage(m);
     }
 }

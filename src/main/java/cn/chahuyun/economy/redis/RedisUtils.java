@@ -1,8 +1,11 @@
 package cn.chahuyun.economy.redis;
 
+import cn.chahuyun.economy.utils.Log;
 import org.redisson.api.RBloomFilter;
 import org.redisson.api.RBucket;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.concurrent.TimeUnit;
 
 public class RedisUtils {
@@ -16,7 +19,9 @@ public class RedisUtils {
         return (String) RedissonConfig.getRedisson().getBucket(key).get();
     }
 
-    public static void setBloomFilter(String key, Long value) {
+    public static void setBloomFilter(Long groupId,Long value) {
+        String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        String key = "sister:prop:" + today + ":" + groupId;
         RBloomFilter rBloomFilter = RedissonConfig.getRedisson().getBloomFilter(key);
         // 初始化预期插入的数据量为10000和期望误差率为0.01
         rBloomFilter.tryInit(10000, 0.01);
@@ -24,10 +29,16 @@ public class RedisUtils {
         rBloomFilter.add(value);
     }
 
-    public static boolean checkBloomFilter(String key, Long value) {
+    public static boolean checkBloomFilter(Long groupId,Long value) {
+        // 判断是否是姐狗
+        String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        String key = "sister:prop:" + today + ":"+ groupId;
         RBloomFilter rBloomFilter = RedissonConfig.getRedisson().getBloomFilter(key);
-        // 初始化预期插入的数据量为10000和期望误差率为0.01
-        return rBloomFilter.contains(value);
+        try {
+            return rBloomFilter.contains(value);
+        }catch (IllegalStateException e){
+            Log.error(e.getMessage());
+            return false;
+        }
     }
-
 }

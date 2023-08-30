@@ -306,18 +306,15 @@ public class PropsManagerImpl implements PropsManager {
                 FishInfo userFishInfo = userInfo.getFishInfo();
                 propsInfo.setCost(100 * userFishInfo.getRodLevel() + 900);
             }
-            // 判断是否是姐狗
             if("FISH-2".equals(card.getCode())){
                 if(num != 1){
-                    messages.append(new PlainText("😣["  + propsInfo.getName() + "]每人每天限制领养1条"));
+                    messages.append(new PlainText("["  + propsInfo.getName() + "]每人每天限制领养1条"));
                     subject.sendMessage(messages.build());
                     return;
                 }
-                String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-                String key = today + subject.getId();
                 // 判断今天是否已经购买
-                if(RedisUtils.checkBloomFilter(key,sender.getId())){
-                    messages.append(new PlainText("😣["  + propsInfo.getName() + "]每人每天限制领养1条"));
+                if(RedisUtils.checkBloomFilter(subject.getId(),sender.getId())){
+                    messages.append(new PlainText("["  + propsInfo.getName() + "]每人每天限制领养1条"));
                     subject.sendMessage(messages.build());
                     return;
                 }
@@ -364,9 +361,7 @@ public class PropsManagerImpl implements PropsManager {
 
         // 判断是否是姐狗
         if("FISH-2".equals(propsInfo.getCode())){
-            String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-            String key = today + subject.getId();
-            RedisUtils.setBloomFilter(key,sender.getId());
+            RedisUtils.setBloomFilter(subject.getId(),sender.getId());
         }
         messages.append(String.format("成功购买 %s %d%s,你还有 %s 枚WDIT币币", propsInfo.getName(), num, propsInfo.getUnit(), money));
 
