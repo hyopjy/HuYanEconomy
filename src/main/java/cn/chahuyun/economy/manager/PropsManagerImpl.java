@@ -10,6 +10,7 @@ import cn.chahuyun.economy.entity.props.PropsCard;
 import cn.chahuyun.economy.entity.props.PropsFishCard;
 import cn.chahuyun.economy.entity.props.factory.PropsCardFactory;
 import cn.chahuyun.economy.plugin.PropsType;
+import cn.chahuyun.economy.redis.RedisUtils;
 import cn.chahuyun.economy.utils.*;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
@@ -266,10 +267,13 @@ public class PropsManagerImpl implements PropsManager {
                     return;
                 }
                 String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-                String key = today + subject.getId() + sender.getId();
-                //
-
-
+                String key = today + subject.getId();
+                // 判断今天是否已经购买
+                if(RedisUtils.checkBloomFilter(key,sender.getId())){
+                    messages.append(new PlainText("😣["  + propsInfo.getName() + "]每人每天限制领养1条"));
+                    subject.sendMessage(messages.build());
+                    return;
+                }
             }
         }
         //用户钱包现有余额
@@ -311,6 +315,12 @@ public class PropsManagerImpl implements PropsManager {
 
         money = EconomyUtil.getMoneyByUser(sender);
 
+        // 判断是否是姐狗
+        if("FISH-2".equals(propsInfo.getCode())){
+            String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            String key = today + subject.getId();
+            RedisUtils.setBloomFilter(key,sender.getId());
+        }
         messages.append(String.format("成功购买 %s %d%s,你还有 %s 枚WDIT币币", propsInfo.getName(), num, propsInfo.getUnit(), money));
 
         Log.info("道具系统:道具购买成功");
