@@ -40,7 +40,7 @@ public class FreenFish extends AbstractPropUsage {
                 .build());
 
         Message m = new PlainText("开始讲述《福丽恩》的故事 \r\n");
-        m = m.plus(propsCard.getDescription());
+        m = m.plus(propsCard.getContent());
         subject.sendMessage(m);
     }
 }
