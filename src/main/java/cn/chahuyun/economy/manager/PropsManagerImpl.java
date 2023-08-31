@@ -20,6 +20,7 @@ import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.message.data.*;
 import org.apache.commons.collections4.CollectionUtils;
+import org.redisson.api.RBloomFilter;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -309,11 +310,17 @@ public class PropsManagerImpl implements PropsManager {
                     return;
                 }
                 // 判断今天是否已经购买
-                if(RedisUtils.checkSisterPropBloomFilter(subject.getId(),sender.getId())){
-                    messages.append(new PlainText("["  + propsInfo.getName() + "]每人每天限制领养1条"));
+                RBloomFilter rBloomFilter = RedisUtils.initSisterPropBloomFilter(subject.getId());
+                if (rBloomFilter.contains(sender.getId())) {
+                    messages.append(new PlainText("[" + propsInfo.getName() + "]每人每天限制领养1条"));
                     subject.sendMessage(messages.build());
                     return;
                 }
+//                if(RedisUtils.checkSisterPropBloomFilter(subject.getId(),sender.getId())){
+//                    messages.append(new PlainText("["  + propsInfo.getName() + "]每人每天限制领养1条"));
+//                    subject.sendMessage(messages.build());
+//                    return;
+//                }
             }
         }
         //用户钱包现有余额
@@ -357,7 +364,9 @@ public class PropsManagerImpl implements PropsManager {
 
         // 判断是否是姐狗
         if("FISH-2".equals(propsInfo.getCode())){
-            RedisUtils.setSisterPropBloomFilter(subject.getId(),sender.getId());
+            RBloomFilter rBloomFilter = RedisUtils.initSisterPropBloomFilter(subject.getId());
+            rBloomFilter.add(sender.getId());
+            // RedisUtils.setSisterPropBloomFilter(subject.getId(),sender.getId());
         }
         messages.append(String.format("成功购买 %s %d%s,你还有 %s 枚WDIT币币", propsInfo.getName(), num, propsInfo.getUnit(), money));
 
