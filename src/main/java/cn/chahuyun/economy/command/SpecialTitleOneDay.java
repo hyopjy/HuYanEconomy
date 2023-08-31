@@ -1,7 +1,10 @@
 package cn.chahuyun.economy.command;
+import cn.chahuyun.economy.dto.SpecialTitleDto;
 import cn.chahuyun.economy.factory.AbstractPropUsage;
 import cn.chahuyun.economy.plugin.PropsType;
+import cn.chahuyun.economy.redis.RedisUtils;
 import cn.chahuyun.economy.redis.RedissonConfig;
+import cn.chahuyun.economy.redis.SpecialTitleOneDayExpirationListener;
 import cn.chahuyun.economy.utils.MessageUtil;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.MemberPermission;
@@ -51,7 +54,12 @@ public class SpecialTitleOneDay extends AbstractPropUsage {
         User sender = event.getSender();
         NormalMember normalMember = group.get(sender.getId());
         normalMember.setSpecialTitle(title);
-        // todo 延迟过期策略
+        // 延迟过期策略
+        SpecialTitleDto dto = new SpecialTitleDto();
+        dto.setGroup(group);
+        dto.setUserId(sender.getId());
+        RedisUtils.addQueueDays(dto, 1, SpecialTitleOneDayExpirationListener.class);
+
         subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"修改头衔成功！24小时后消失"));
     }
 }

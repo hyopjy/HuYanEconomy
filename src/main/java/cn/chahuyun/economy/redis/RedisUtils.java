@@ -1,11 +1,10 @@
 package cn.chahuyun.economy.redis;
 
 import cn.chahuyun.economy.constant.RedisKeyConstant;
+import cn.chahuyun.economy.dto.SpecialTitleDto;
 import cn.chahuyun.economy.utils.Log;
-import org.redisson.api.RBloomFilter;
-import org.redisson.api.RBucket;
-import org.redisson.api.RKeys;
-import org.redisson.api.RLock;
+import cn.hutool.json.JSONUtil;
+import org.redisson.api.*;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -89,5 +88,99 @@ public class RedisUtils {
      */
     public static RLock getFishLock(Long groupId,Long userId){
        return RedissonConfig.getRedisson().getLock(RedisKeyConstant.FISH_LOCK_KEY + groupId + RedisKeyConstant.COLON_SPILT + userId);
+    }
+
+    /**
+     * 添加对象进延时队列
+     * @param putInData 添加数据
+     * @param delay     延时时间
+     * @param timeUnit  时间单位
+     * @param queueName 队列名称
+     * @param <T>
+     */
+    private static  <T>  void addQueue(T putInData,long delay, TimeUnit timeUnit, String queueName){
+        Log.info("添加延迟队列,监听名称:"+queueName+",时间:"+delay+",时间单位:"+timeUnit+",内容:"+putInData+"");
+        RBlockingQueue<T> blockingFairQueue = RedissonConfig.getRedisson().getBlockingQueue(queueName);
+        RDelayedQueue<T> delayedQueue = RedissonConfig.getRedisson().getDelayedQueue(blockingFairQueue);
+        delayedQueue.offer(putInData, delay, timeUnit);
+    }
+
+    /**
+     * 添加队列-秒
+     *
+     * @param t     DTO传输类
+     * @param delay 时间数量
+     * @param <T>   泛型
+     */
+    public static  <T> void addQueueSeconds(T t, long delay, Class<? extends RedisDelayedQueueListener> clazz) {
+        addQueue(t, delay, TimeUnit.SECONDS, clazz.getName());
+    }
+
+    /**
+     * 添加队列-分
+     *
+     * @param t     DTO传输类
+     * @param delay 时间数量
+     * @param <T>   泛型
+     */
+    public static  <T> void addQueueMinutes(T t, long delay, Class<? extends RedisDelayedQueueListener> clazz) {
+        addQueue(t, delay, TimeUnit.MINUTES, clazz.getName());
+    }
+
+    /**
+     * 添加队列-时
+     *
+     * @param t     DTO传输类
+     * @param delay 时间数量
+     * @param <T>   泛型
+     */
+    public static  <T> void addQueueHours(T t, long delay, Class<? extends RedisDelayedQueueListener> clazz) {
+        addQueue(t, delay, TimeUnit.HOURS, clazz.getName());
+    }
+    /**
+     * 添加队列-天
+     *
+     * @param t     DTO传输类
+     * @param delay 时间数量
+     * @param <T>   泛型
+     */
+    public static  <T> void addQueueDays(T t, long delay, Class<? extends RedisDelayedQueueListener> clazz) {
+        addQueue(t, delay, TimeUnit.DAYS, clazz.getName());
+    }
+
+    public static void initDelayedQueueTask(){
+        // https://www.dianjilingqu.com/635557.html
+//        Map<String, RedisDelayedQueueListener> map = applicationContext.getBeansOfType(RedisDelayedQueueListener.class);
+//        for (Map.Entry<String, RedisDelayedQueueListener> taskEventListenerEntry : map.entrySet()) {
+//            String listenerName = taskEventListenerEntry.getValue().getClass().getName();
+//            startThread(listenerName, taskEventListenerEntry.getValue());
+//        }
+
+        String listenerName = SpecialTitleOneDayExpirationListener.class.getName();
+        startThread(listenerName, new SpecialTitleOneDayExpirationListener<SpecialTitleDto>());
+    }
+
+    /**
+     * 启动线程获取队列
+     * @param queueName 队列名称
+     * @param redisDelayedQueueListener 任务回调监听
+     */
+    private static <T> void startThread(String queueName, RedisDelayedQueueListener redisDelayedQueueListener) {
+        RBlockingQueue<T> blockingFairQueue = RedissonConfig.getRedisson().getBlockingQueue(queueName);
+        //由于此线程需要常驻，可以新建线程，不用交给线程池管理
+        Thread thread = new Thread(() -> {
+            Log.info("启动监听队列线程" + queueName);
+            while (true) {
+                try {
+                    T t = blockingFairQueue.take();
+                    Log.info("监听队列线程" + queueName + ",获取到值:" + JSONUtil.toJsonStr(t) + "");
+                    redisDelayedQueueListener.invoke(t);
+                } catch (Exception e) {
+                    Log.error("监听队列线程错误," + e);
+                }
+            }
+        });
+        thread.setName(queueName);
+        thread.start();
     }
 }
