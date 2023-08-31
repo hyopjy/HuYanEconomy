@@ -65,9 +65,9 @@ public class PropFishUsageContext {
             case PropConstant.SPECIAL_TITLE_ALAWYS:
                 iPropUsage = factory.createSpecialTitleAlawys();
                 break;
-//            case PropConstant.SPECIAL_TITLE_ONE_DAY:
-//                iPropUsage  = factory.createSpecialTitleOneDay();
-//                break;
+            case PropConstant.SPECIAL_TITLE_ONE_DAY:
+                iPropUsage  = factory.createSpecialTitleOneDay();
+                break;
 //            case PropConstant.AUTOMATIC_FISH:
 //                iPropUsage = factory.createAutomaticFish();
 //                break;
