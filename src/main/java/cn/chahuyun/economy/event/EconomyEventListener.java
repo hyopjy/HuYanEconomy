@@ -3,9 +3,8 @@ package cn.chahuyun.economy.event;
 import cn.chahuyun.config.EconomyEventConfig;
 import cn.chahuyun.config.RegexConst;
 import cn.chahuyun.economy.manager.GamesManager;
-import cn.chahuyun.economy.redis.RedissonConfig;
+import cn.chahuyun.economy.redis.RedisUtils;
 import cn.chahuyun.economy.utils.*;
-import cn.hutool.core.util.StrUtil;
 import kotlin.coroutines.CoroutineContext;
 import net.mamoe.mirai.console.command.CommandSender;
 import net.mamoe.mirai.console.permission.*;
@@ -48,11 +47,13 @@ public class EconomyEventListener extends SimpleListenerHost {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public ListeningStatus onGroupMsg(GroupMessageEvent event) {
-        if(event.getSender().getId() != event.getBot().getId()){
-            String key  = "sister:dog:" + event.getGroup().getId() + ":" + event.getSender().getId();
-            RBucket<Long> sisterDogRedis = RedissonConfig.getRedisson().getBucket(key);
-            sisterDogRedis.set(event.getSender().getId(),30, TimeUnit.MINUTES);
+        // 经济命令设置的群
+        if (!EconomyEventConfig.INSTANCE.getEconomyCheckGroup().contains(event.getGroup().getId())
+                || event.getBot().getId() == event.getSender().getId()) {
+            return ListeningStatus.LISTENING;
         }
+        // 设置30分钟发言缓存
+        RedisUtils.setSisterUserList(event.getGroup().getId(), event.getSender().getId());
 
         if(CacheUtils.checkTimeCacheKey(event.getGroup().getId(),event.getSender().getId())
                 || CacheUtils.checkSchDingerFishKey(event.getGroup().getId(),event.getSender().getId())
@@ -84,11 +85,6 @@ public class EconomyEventListener extends SimpleListenerHost {
 //                normalMember.setSpecialTitle(title);
 //            }
 //        }
-
-        if (!EconomyEventConfig.INSTANCE.getEconomyCheckGroup().contains(event.getGroup().getId())
-                || event.getBot().getId() == event.getSender().getId()) {
-            return ListeningStatus.LISTENING;
-        }
 
 
         // 权限判断的命令列表

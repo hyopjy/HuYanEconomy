@@ -21,10 +21,6 @@ import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.message.data.*;
 import org.apache.commons.collections4.CollectionUtils;
 
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -313,7 +309,7 @@ public class PropsManagerImpl implements PropsManager {
                     return;
                 }
                 // 判断今天是否已经购买
-                if(RedisUtils.checkBloomFilter(subject.getId(),sender.getId())){
+                if(RedisUtils.checkSisterPropBloomFilter(subject.getId(),sender.getId())){
                     messages.append(new PlainText("["  + propsInfo.getName() + "]每人每天限制领养1条"));
                     subject.sendMessage(messages.build());
                     return;
@@ -361,7 +357,7 @@ public class PropsManagerImpl implements PropsManager {
 
         // 判断是否是姐狗
         if("FISH-2".equals(propsInfo.getCode())){
-            RedisUtils.setBloomFilter(subject.getId(),sender.getId());
+            RedisUtils.setSisterPropBloomFilter(subject.getId(),sender.getId());
         }
         messages.append(String.format("成功购买 %s %d%s,你还有 %s 枚WDIT币币", propsInfo.getName(), num, propsInfo.getUnit(), money));
 

@@ -1,10 +1,9 @@
 package cn.chahuyun.economy.command;
 
-import cn.chahuyun.economy.entity.UserInfo;
+
 import cn.chahuyun.economy.factory.AbstractPropUsage;
-import cn.chahuyun.economy.manager.UserManager;
 import cn.chahuyun.economy.plugin.PropsType;
-import cn.chahuyun.economy.redis.RedissonConfig;
+import cn.chahuyun.economy.redis.RedisUtils;
 import cn.chahuyun.economy.utils.CacheUtils;
 import cn.chahuyun.economy.utils.EconomyUtil;
 import cn.chahuyun.economy.utils.Log;
@@ -44,22 +43,7 @@ public class SisterDog extends AbstractPropUsage {
     public void excute() {
         // 消耗品，对指定目标使用，使目标失去自我3分钟，并获得目标的币币（随机100-800）
         // 获取随机目标
-       // Map<EconomyAccount, Double> accountByBank = EconomyUtil.getAllAccount();
-//        List<EconomyAccount> economyAccount = accountByBank.keySet().stream()
-//                .filter(Objects::nonNull).collect(Collectors.toList());
-//        List<UserInfo> userInfoList = economyAccount.stream().map(UserManager::getUserInfo)
-//                .filter(user -> Objects.nonNull(user) && Objects.nonNull(group.get(user.getQq())))
-//                .collect(Collectors.toList());
-
-        String key  = "sister:dog:" + group.getId() + ":*";
-
-        List<Long> userInfoList = new ArrayList<>();
-        RKeys keys =  RedissonConfig.getRedisson().getKeys();
-        Iterable<String> keysByPattern = keys.getKeysByPattern(key);
-        for (String s : keysByPattern) {
-            Long value = (Long) RedissonConfig.getRedisson().getBucket(s).get();
-            userInfoList.add(value);
-        }
+        List<Long> userInfoList = RedisUtils.getSisterUserList(group.getId());
 
         int userIndex = RandomUtil.randomInt(0, userInfoList.size());
         Log.info("[SisterDog] - userList：" + userInfoList.size()  + ",userIndex: " + userIndex);
