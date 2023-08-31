@@ -4,7 +4,7 @@ import cn.chahuyun.config.EconomyConfig;
 import cn.chahuyun.economy.HuYanEconomy;
 import cn.chahuyun.economy.manager.*;
 import cn.chahuyun.economy.plugin.PluginManager;
-import cn.chahuyun.economy.redis.RedissonConfig;
+import cn.chahuyun.economy.redis.RedisUtils;
 import cn.chahuyun.economy.utils.Log;
 import cn.chahuyun.economy.utils.MessageUtil;
 import kotlin.coroutines.CoroutineContext;
@@ -138,16 +138,17 @@ public class MessageEventListener extends SimpleListenerHost {
                 case "抛竿":
                     Log.info("游戏指令");
                     if (group != null && config.getFishGroup().contains(group.getId())) {
-                       RLock lock = RedissonConfig.getRedisson().getLock(group.getId() + "-" + sender.getId());
-                       boolean b = lock.tryLock(3, 60 * 60,  TimeUnit.SECONDS);
-                       try {
-                            if(b){
+                        RLock lock = RedisUtils.getFishLock(group.getId(), sender.getId());
+                        boolean b = lock.tryLock(3, 60 * 60, TimeUnit.SECONDS);
+                        try {
+                            if (b) {
                                 GamesManager.fishing(event);
-                            }else {
+                            } else {
                                 Double constMoney = GamesManager.userPay.get(sender.getId());
                                 Boolean checkUser = GamesManager.checkUserPay(event.getSender());
                                 if (checkUser) {
-                                    subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "你已经在钓鱼了,还你%s💰", Optional.ofNullable(constMoney).orElse(0.0)));
+                                    subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "你已经在钓鱼了," +
+                                            "还你%s💰", Optional.ofNullable(constMoney).orElse(0.0)));
                                 } else {
                                     subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "你已经在钓鱼了！"));
                                 }
@@ -155,11 +156,11 @@ public class MessageEventListener extends SimpleListenerHost {
                         } catch (Exception e) {
                             Log.error("游戏指令-钓鱼error:" + e.getMessage());
                             e.printStackTrace();
-                        }finally {
-                           // 解锁前检查当前线程是否持有该锁
-                           if (lock != null && lock.isHeldByCurrentThread()) {
-                               lock.unlock();
-                           }
+                        } finally {
+                            // 解锁前检查当前线程是否持有该锁
+                            if (lock != null && lock.isHeldByCurrentThread()) {
+                                lock.unlock();
+                            }
                         }
                     }
                     return;
