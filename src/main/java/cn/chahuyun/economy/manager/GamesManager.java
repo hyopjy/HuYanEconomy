@@ -405,8 +405,9 @@ public class GamesManager {
                         sendFishInfoMessage(userInfo, user, subject, fishPond, fish, dimensions, money, v, buffDesc,messages);
                     }else {
                         String format = String.format("\r\n" + buffDesc + "起竿咯！获取道具 \r\n%s\r\n等级:%s\r\n单价:%s\r\n尺寸:%d\r\n" +
-                                        "总金额:%d\r\n%s\r\n",
-                                fish.getName(), fish.getLevel(), fish.getPrice(), dimensions, money, fish.getDescription());
+                                        "总金额:%d\r\n收益:%s\r\n%s\r\n",
+                                fish.getName(), fish.getLevel(), fish.getPrice(), dimensions, money,
+                                propsBase.getName(), fish.getDescription());
                         messages.append(new PlainText(format));
                         // subject.sendMessage(messages.build());
                         Log.info("钓鱼系统:添加道具到用户-Code " + propCode);
@@ -432,8 +433,9 @@ public class GamesManager {
                 && EconomyUtil.plusMoneyToBankForId(fishPond.getCode(), fishPond.getDescription(),
                 money * fishPond.getRebate())) {
             fishPond.addNumber();
-            String format = String.format("\r\n"+buffDesc+"起竿咯！\r\n%s\r\n等级:%s\r\n单价:%s\r\n尺寸:%d\r\n总金额:%d\r\n%s\r\n",
-                    fish.getName(), fish.getLevel(), fish.getPrice(), dimensions, money, fish.getDescription());
+            String format = String.format("\r\n" + buffDesc + "起竿咯！\r\n%s\r\n等级:%s\r\n单价:%s\r\n尺寸:%d\r\n总金额:%d\r\n" +
+                            "收益:%d\r\n%s\r\n",
+                    fish.getName(), fish.getLevel(), fish.getPrice(), dimensions, money, v, fish.getDescription());
 //            MessageChainBuilder messages = new MessageChainBuilder();
             messages.append(new PlainText(format));
           //  subject.sendMessage(messages.build());
