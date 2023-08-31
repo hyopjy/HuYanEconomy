@@ -58,6 +58,8 @@ public class SpecialTitleOneDay extends AbstractPropUsage {
         SpecialTitleDto dto = new SpecialTitleDto();
         dto.setGroup(group);
         dto.setUserId(sender.getId());
+        // 删除已经存在的--
+        // https://blog.csdn.net/qq_40250122/article/details/123111145
         RedisUtils.addQueueDays(dto, 1, SpecialTitleOneDayExpirationListener.class);
 
         subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"修改头衔成功！24小时后消失"));
