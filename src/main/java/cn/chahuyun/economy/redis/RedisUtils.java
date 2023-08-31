@@ -3,6 +3,7 @@ package cn.chahuyun.economy.redis;
 import cn.chahuyun.economy.constant.RedisKeyConstant;
 import cn.chahuyun.economy.dto.SpecialTitleDto;
 import cn.chahuyun.economy.utils.Log;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import org.redisson.api.*;
 
@@ -10,6 +11,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 public class RedisUtils {
@@ -156,6 +158,24 @@ public class RedisUtils {
     public static  <T> void addQueueDays(T t, long delay, Class<? extends RedisDelayedQueueListener> clazz) {
         addQueue(t, delay, TimeUnit.DAYS, clazz.getName());
     }
+
+    /**
+     * 删除指定队列中的消息
+     *
+     * @param o 指定删除的消息对象队列值(同队列需保证唯一性)
+     * @param queueCode 指定队列键
+     */
+    public static boolean removeDelayedQueue(Object putInData, String queueName) {
+        if (StrUtil.isBlank(queueName) || Objects.isNull(putInData)) {
+            return false;
+        }
+        RBlockingDeque<Object> blockingDeque = RedissonConfig.getRedisson().getBlockingDeque(queueName);
+        RDelayedQueue<Object> delayedQueue = RedissonConfig.getRedisson().getDelayedQueue(blockingDeque);
+        boolean flag = delayedQueue.remove(putInData);
+        //delayedQueue.destroy();
+        return flag;
+    }
+
 
     public static void initDelayedQueueTask(){
         // https://www.dianjilingqu.com/635557.html
