@@ -124,7 +124,7 @@ public class RedisUtils {
      * @param <T>   泛型
      */
     public static  <T> void addQueueSeconds(T t, long delay, Class<? extends RedisDelayedQueueListener> clazz) {
-        addQueue(t, delay, TimeUnit.SECONDS, clazz.getName());
+        addQueue(t, delay, TimeUnit.SECONDS, clazz.getName().replace(".", RedisKeyConstant.COLON_SPILT));
     }
 
     /**
@@ -135,7 +135,7 @@ public class RedisUtils {
      * @param <T>   泛型
      */
     public static  <T> void addQueueMinutes(T t, long delay, Class<? extends RedisDelayedQueueListener> clazz) {
-        addQueue(t, delay, TimeUnit.MINUTES, clazz.getName());
+        addQueue(t, delay, TimeUnit.MINUTES, clazz.getName().replace(".", RedisKeyConstant.COLON_SPILT));
     }
 
     /**
@@ -146,7 +146,7 @@ public class RedisUtils {
      * @param <T>   泛型
      */
     public static  <T> void addQueueHours(T t, long delay, Class<? extends RedisDelayedQueueListener> clazz) {
-        addQueue(t, delay, TimeUnit.HOURS, clazz.getName());
+        addQueue(t, delay, TimeUnit.HOURS, clazz.getName().replace(".", RedisKeyConstant.COLON_SPILT));
     }
     /**
      * 添加队列-天
@@ -156,7 +156,7 @@ public class RedisUtils {
      * @param <T>   泛型
      */
     public static  <T> void addQueueDays(T t, long delay, Class<? extends RedisDelayedQueueListener> clazz) {
-        addQueue(t, delay, TimeUnit.DAYS, clazz.getName());
+        addQueue(t, delay, TimeUnit.DAYS, clazz.getName().replace(".", RedisKeyConstant.COLON_SPILT));
     }
 
     /**
@@ -186,6 +186,7 @@ public class RedisUtils {
 //        }
 
         String listenerName = SpecialTitleOneDayExpirationListener.class.getName();
+        listenerName = listenerName.replace(".",RedisKeyConstant.COLON_SPILT);
         startThread(listenerName, new SpecialTitleOneDayExpirationListener<SpecialTitleDto>());
     }
 
