@@ -88,7 +88,7 @@ public final class HuYanEconomy extends JavaPlugin {
             FishManager.init();
             BankManager.init();
             // 延迟队列init
-            RedisUtils.initDelayedQueueTask();
+           // RedisUtils.initDelayedQueueTask();
             eventEventChannel.registerListenerHost(new EconomyEventListener());
             eventEventChannel.registerListenerHost(new BotOnlineEventListener());
             eventEventChannel.registerListenerHost(new MessageEventListener());
