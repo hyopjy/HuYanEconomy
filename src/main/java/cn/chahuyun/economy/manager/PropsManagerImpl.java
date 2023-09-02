@@ -1,7 +1,9 @@
 package cn.chahuyun.economy.manager;
 
 
+import cn.chahuyun.config.FishSignPluginConfig;
 import cn.chahuyun.economy.aop.PropUtils;
+import cn.chahuyun.economy.constant.FishSignConstant;
 import cn.chahuyun.economy.entity.UserBackpack;
 import cn.chahuyun.economy.entity.UserInfo;
 import cn.chahuyun.economy.entity.fish.FishInfo;
@@ -23,6 +25,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.redisson.api.RBloomFilter;
 
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 
 /**
@@ -672,7 +675,16 @@ public class PropsManagerImpl implements PropsManager {
                 subject.sendMessage("系统出错，请联系主人!");
                 return;
             }
-
+            // 兑换成功 加入徽章信息
+            String signCode = propCode.toUpperCase(Locale.ROOT);
+            if (FishSignConstant.getSignPropCode().contains(signCode)) {
+                Set<Long> userList = FishSignPluginConfig.INSTANCE.getFishSignMap().get(signCode);
+                if (CollectionUtils.isEmpty(userList)) {
+                    userList = new CopyOnWriteArraySet<>();
+                }
+                userList.add(userInfo.getQq());
+                FishSignPluginConfig.INSTANCE.getFishSignMap().put(signCode, userList);
+            }
             messages.append(new PlainText(propsInfo.getName() + "兑换成功！请到背包查看"));
             subject.sendMessage(messages.build());
             return;

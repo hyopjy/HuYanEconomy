@@ -1,6 +1,8 @@
 package cn.chahuyun.economy.manager;
 
+import cn.chahuyun.config.FishSignPluginConfig;
 import cn.chahuyun.economy.HuYanEconomy;
+import cn.chahuyun.economy.constant.FishSignConstant;
 import cn.chahuyun.economy.entity.UserInfo;
 import cn.chahuyun.economy.utils.CacheUtils;
 import cn.chahuyun.economy.utils.EconomyUtil;
@@ -19,8 +21,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
-import java.util.Objects;
+
+import java.util.*;
 
 public class FbUserManager  {
 
@@ -91,12 +93,10 @@ public class FbUserManager  {
     public static BufferedImage getUserInfoImageBaseFb(UserInfo userInfo,Group group) {
 
         User user = userInfo.getUser();
-        String special = "";
         String groupUserName = "";
         if (Objects.nonNull(group)) {
             NormalMember normalMember = group.get(userInfo.getUser().getId());
             if (Objects.nonNull(normalMember)) {
-                special = normalMember.getSpecialTitle();
                 groupUserName = normalMember.getNameCard();
                 if (groupUserName.length() > 11) {
                     groupUserName = groupUserName.substring(0, 11) + "...";
@@ -105,7 +105,7 @@ public class FbUserManager  {
         }
 
         try {
-            int index = RandomUtil.randomInt(4) +1;
+            int index = RandomUtil.randomInt(6) +1;
             InputStream asStream = HuYanEconomy.INPUT_STREAM_MAP.get(index);
             //验证
             if (asStream == null) {
@@ -171,10 +171,6 @@ public class FbUserManager  {
                 pen.drawString(userInfoName, 174, 408);
             }
             // 设置画笔字体样式为黑体，粗体
-
-
-//            pen.setColor(); todo 称号预留
-
             pen.setColor(Color.white);
             fontSize = 20;
             pen.setFont(new Font("黑体", Font.PLAIN, fontSize));
@@ -230,15 +226,65 @@ public class FbUserManager  {
             //写入银行收益金币
             pen.drawString(String.valueOf(bankEarnings), 320, 740);
 
-
-            // 设置特殊称号
-            // special
-            if(!StrUtil.isBlank(special)){
-                fontSize = 20;
-                pen.setFont(new Font("黑体", Font.BOLD, fontSize));
-                pen.drawString(special, 220, 957);
+            // 设置徽章
+            Long fish31 = Optional.ofNullable(userInfo.getBackpacks()).orElse(new ArrayList<>()).stream()
+                    .filter(userBackpack -> Objects.nonNull(userBackpack) &&
+                            FishSignConstant.FISH_31.equals(userBackpack.getPropsCode().toUpperCase(Locale.ROOT))).count();
+            if (fish31 > 0) {
+                drawFishSign(pen, FishSignConstant.FISH_31, fish31, 58, 938, 142, 1000);
+            } else {
+                pen.setFont(new Font("黑体", Font.BOLD, 20));
+                //写入数量
+                pen.drawString(0 + "", 142, 1000);
             }
 
+            Long fish32 = Optional.ofNullable(userInfo.getBackpacks()).orElse(new ArrayList<>()).stream()
+                    .filter(userBackpack -> Objects.nonNull(userBackpack) &&
+                            FishSignConstant.FISH_32.equals(userBackpack.getPropsCode().toUpperCase(Locale.ROOT))).count();
+            if (fish32 > 0) {
+                drawFishSign(pen, FishSignConstant.FISH_32, fish32, 193, 935, 271, 1000);
+            } else {
+                pen.setFont(new Font("黑体", Font.BOLD, 20));
+                //写入数量
+                pen.drawString(0 + "", 271, 1000);
+            }
+            Long fish33 = Optional.ofNullable(userInfo.getBackpacks())
+                    .orElse(new ArrayList<>()).stream()
+                    .filter(userBackpack -> Objects.nonNull(userBackpack) &&
+                            FishSignConstant.FISH_33.equals(userBackpack.getPropsCode().
+                                    toUpperCase(Locale.ROOT))).count();
+            if (fish33 > 0) {
+                drawFishSign(pen, FishSignConstant.FISH_33, fish33, 320, 935, 390, 1000);
+            } else {
+                pen.setFont(new Font("黑体", Font.BOLD, 20));
+                //写入数量
+                pen.drawString(0 + "", 390, 1000);
+            }
+
+            if(Optional.ofNullable(FishSignPluginConfig.INSTANCE.getFishSignMap().get(FishSignConstant.FISH_17))
+                    .orElse(new HashSet<>())
+                    .contains(userInfo.getQq())){
+                drawFishSign(pen, FishSignConstant.FISH_17, null, 56, 1067, 0, 0);
+            }
+
+            if(Optional.ofNullable(FishSignPluginConfig.INSTANCE.getFishSignMap().get(FishSignConstant.FISH_15))
+                    .orElse(new HashSet<>())
+                    .contains(userInfo.getQq())){
+                drawFishSign(pen, FishSignConstant.FISH_15, null, 136, 1056, 0, 0);
+            }
+
+            if(Optional.ofNullable(FishSignPluginConfig.INSTANCE.getFishSignMap().get(FishSignConstant.FISH_16))
+                    .orElse(new HashSet<>())
+                    .contains(userInfo.getQq())){
+                drawFishSign(pen, FishSignConstant.FISH_16, null, 237, 1057, 0, 0);
+            }
+
+            if(Optional.ofNullable(FishSignPluginConfig.INSTANCE.getFishSignMap().get(FishSignConstant.FISH_20))
+                    .orElse(new HashSet<>())
+                    .contains(userInfo.getQq())){
+                drawFishSign(pen, FishSignConstant.FISH_20, null, 352, 1074, 0, 0);
+
+            }
             //关闭窗体，释放部分资源
             pen.dispose();
             return image;
@@ -247,4 +293,30 @@ public class FbUserManager  {
             return null;
         }
     }
+
+    private static void drawFishSign(Graphics2D pen,String key, Long count, int mainX, int mainY,int countX,int countY) {
+        InputStream fishSignStream = HuYanEconomy.SIGN_STREAM_MAP.get(key.toUpperCase(Locale.ROOT));
+        //验证
+        if (fishSignStream == null) {
+            Log.error("徽章管理:获取sign错误!" + key);
+            return;
+        }
+        try {
+            BufferedImage fishImage = ImageIO.read(fishSignStream);
+            fishSignStream.reset();
+            //写入头像
+            pen.drawImage(fishImage, mainX, mainY, null);
+            if(Objects.nonNull(count)){
+                pen.setFont(new Font("黑体", Font.BOLD, 20));
+                //写入数量
+                pen.drawString(count +"", countX, countY);
+            }
+        } catch (IOException e) {
+            Log.error("徽章管理:获取sign错误!" + key);
+            return;
+        }
+
+    }
+
+
 }

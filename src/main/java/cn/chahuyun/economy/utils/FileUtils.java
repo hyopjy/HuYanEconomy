@@ -47,4 +47,27 @@ public class FileUtils {
         return null;
     }
 
+    public static void getSignFishStream() {
+        HuYanEconomy.SIGN_STREAM_MAP.put("FISH-15", getByteArrayInputStream("FISH-15.png"));
+        HuYanEconomy.SIGN_STREAM_MAP.put("FISH-16", getByteArrayInputStream("FISH-16.png"));
+        HuYanEconomy.SIGN_STREAM_MAP.put("FISH-17", getByteArrayInputStream("FISH-17.png"));
+        HuYanEconomy.SIGN_STREAM_MAP.put("FISH-20", getByteArrayInputStream("FISH-20.png"));
+        HuYanEconomy.SIGN_STREAM_MAP.put("FISH-31", getByteArrayInputStream("FISH-31.png"));
+        HuYanEconomy.SIGN_STREAM_MAP.put("FISH-32", getByteArrayInputStream("FISH-32.png"));
+        HuYanEconomy.SIGN_STREAM_MAP.put("FISH-33", getByteArrayInputStream("FISH-33.png"));
+    }
+
+    public static ByteArrayInputStream getByteArrayInputStream(String key) {
+        try {
+            InputStream in = HuYanEconomy.INSTANCE.getResourceAsStream(key);
+            if (Objects.isNull(in)) {
+                return null;
+            }
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(in.readAllBytes());
+            return inputStream;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }
