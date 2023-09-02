@@ -434,8 +434,8 @@ public class GamesManager {
                 money * fishPond.getRebate())) {
             fishPond.addNumber();
             String format = String.format("\r\n" + buffDesc + "起竿咯！\r\n%s\r\n等级:%s\r\n单价:%s\r\n尺寸:%d\r\n总金额:%d\r\n" +
-                            "收益:%d\r\n%s\r\n",
-                    fish.getName(), fish.getLevel(), fish.getPrice(), dimensions, money, v, fish.getDescription());
+                            "收益:%s\r\n%s\r\n",
+                    fish.getName(), fish.getLevel(), fish.getPrice(), dimensions, money, v+"", fish.getDescription());
 //            MessageChainBuilder messages = new MessageChainBuilder();
             messages.append(new PlainText(format));
           //  subject.sendMessage(messages.build());
