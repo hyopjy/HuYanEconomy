@@ -112,7 +112,8 @@ public class LotteryManager {
             CronUtil.remove(hoursTaskId);
             LotteryHoursTask hoursTask = new LotteryHoursTask(hoursTaskId, UNION_LOTTO.values());
             //CronUtil.schedule(hoursTaskId, "0 0 * * * ?", hoursTask);
-            CronUtil.schedule(hoursTaskId, "0 0 20 ? * 2,4,5", hoursTask);
+            // 缺德球改成2467的20
+            CronUtil.schedule(hoursTaskId, "0 0 20 ? * 3,5,7,1", hoursTask);
 
         }
 //        if (dayLottery.size() > 0) {
