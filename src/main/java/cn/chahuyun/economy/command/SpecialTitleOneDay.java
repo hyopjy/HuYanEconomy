@@ -63,11 +63,11 @@ public class SpecialTitleOneDay extends AbstractPropUsage {
         // https://blog.csdn.net/qq_40250122/article/details/123111145
         // https://www.cnblogs.com/better-farther-world2099/articles/15216447.html
         // https://www.bookstack.cn/read/redisson-wiki-zh/4.-%E6%95%B0%E6%8D%AE%E5%BA%8F%E5%88%97%E5%8C%96.md
-       String key = SpecialTitleOneDayExpirationListener.class.getName().replace(".", RedisKeyConstant.COLON_SPILT);
-
-        RedisUtils.removeDelayedQueue(dto, key);
-
-        RedisUtils.addQueueDays(dto, 1, SpecialTitleOneDayExpirationListener.class);
+//       String key = SpecialTitleOneDayExpirationListener.class.getName().replace(".", RedisKeyConstant.COLON_SPILT);
+//
+//        RedisUtils.removeDelayedQueue(dto, key);
+//
+//        RedisUtils.addQueueDays(dto, 1, SpecialTitleOneDayExpirationListener.class);
 
         subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"修改头衔成功！24小时后消失"));
     }

@@ -162,8 +162,6 @@ public class RedisUtils {
     /**
      * 删除指定队列中的消息
      *
-     * @param o 指定删除的消息对象队列值(同队列需保证唯一性)
-     * @param queueCode 指定队列键
      */
     public static boolean removeDelayedQueue(Object putInData, String queueName) {
         if (StrUtil.isBlank(queueName) || Objects.isNull(putInData)) {
