@@ -40,6 +40,8 @@ public final class HuYanEconomy extends JavaPlugin {
 
     public static final ConcurrentHashMap<Integer, InputStream> INPUT_STREAM_MAP = new ConcurrentHashMap<>();
 
+    public static final ConcurrentHashMap<String, InputStream> SIGN_STREAM_MAP = new ConcurrentHashMap<>();
+
     /**
      * 插件所属bot
      */
@@ -69,13 +71,15 @@ public final class HuYanEconomy extends JavaPlugin {
         reloadPluginConfig(EconomyPluginConfig.INSTANCE);
         reloadPluginConfig(EconomyEventConfig.INSTANCE);
         reloadPluginConfig(DriverCarEventConfig.INSTANCE);
-        //
+        // 自动钓鱼机
         reloadPluginConfig(AutomaticFishConfig.INSTANCE);
-
+        // 用户徽章信息
+        reloadPluginConfig(FishSignPluginConfig.INSTANCE);
         // 加载文件流
-        for (int i = 1; i < 5; i++) {
+        for (int i = 1; i < 7; i++) {
             FileUtils.getInputStream(i);
         }
+        FileUtils.getSignFishStream();
         config = EconomyConfig.INSTANCE;
         //插件功能初始化
         PluginManager.init();

@@ -56,8 +56,8 @@ public class CacheUtils {
                 url2g = new URL(avatarUrl);
                 //设置连接超时的时间
                 urlCon2g = (HttpURLConnection) url2g.openConnection();
-                urlCon2g.setConnectTimeout(3000);
-                urlCon2g.setReadTimeout(5000);
+                urlCon2g.setConnectTimeout(1000);
+                urlCon2g.setReadTimeout(2000);
 
                 InputStream inputStream = null;
                 inputStream = urlCon2g.getInputStream();
