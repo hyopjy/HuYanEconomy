@@ -45,19 +45,31 @@ public class Mask extends AbstractPropUsage {
     @Override
     public void excute() {
         User sender = event.getSender();
-        int money = RandomUtil.randomInt(501, 1500);
-        NormalMember member = group.get(target);
-        // 自己获得
-        EconomyUtil.plusMoneyToUser(sender, money);
+        //被bobo正义执行，抢劫失败并且罚款2000币币
+        int random = RandomUtil.randomInt(1, 21);
+        int luck = 10;
+        if (random == luck) {
+            EconomyUtil.minusMoneyToUser(sender, 2000);
+            subject.sendMessage(new MessageChainBuilder().append(new QuoteReply(event.getMessage()))
+                    .append(propsCard.getName() + " [正义执行]抢劫失败").append("\r\n")
+                    .append("罚款2000币币").append("\r\n")
+                    .build());
+        } else {
+            int money = RandomUtil.randomInt(501, 1500);
+            // 自己获得
+            EconomyUtil.plusMoneyToUser(sender, money);
+            // 减去目标用户
+            NormalMember member = group.get(target);
+            EconomyUtil.minusMoneyToUser(member, money);
 
-        // 减去目标用户
-        EconomyUtil.minusMoneyToUser(member, money);
+            CacheUtils.addUserMaskCountKey(group.getId(), sender.getId());
+            subject.sendMessage(new MessageChainBuilder().append(new QuoteReply(event.getMessage()))
+                    .append(propsCard.getName() + "使用成功").append("\r\n")
+                    .append("成功获得").append(new At(target).getDisplay(group))
+                    .append("的" + money + "币币")
+                    .build());
+        }
 
-        CacheUtils.addUserMaskCountKey(group.getId(), sender.getId());
-        subject.sendMessage(new MessageChainBuilder().append(new QuoteReply(event.getMessage()))
-                .append(propsCard.getName() + "使用成功").append("\r\n")
-                .append("成功获得").append(new At(target).getDisplay(group))
-                .append("的" + money + "币币")
-                .build());
+
     }
 }
