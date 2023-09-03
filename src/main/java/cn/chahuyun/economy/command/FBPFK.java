@@ -54,11 +54,11 @@ public class FBPFK extends AbstractPropUsage {
         CacheUtils.addBuff(group.getId(), sender.getId(), buff);
 
         // 自己获得
-        EconomyUtil.plusMoneyToUser(sender, 9802);
+        EconomyUtil.plusMoneyToUser(sender, 98020);
 
         subject.sendMessage(new MessageChainBuilder().append(new QuoteReply(event.getMessage()))
                 .append(propsCard.getName() + "使用成功").append("\r\n")
-                .append("成功获得9802币币").append("\r\n")
+                .append("成功获得98020币币").append("\r\n")
                 .append(propsCard.getContent())
                 .build());
     }
