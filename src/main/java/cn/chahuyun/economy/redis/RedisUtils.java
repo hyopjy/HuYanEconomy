@@ -25,6 +25,14 @@ public class RedisUtils {
         return (String) RedissonConfig.getRedisson().getBucket(key).get();
     }
 
+    public static RBloomFilter<Long> getFishSignBloomFilter(Long groupId,String prop) {
+        String key = "fish:sign:" + prop + RedisKeyConstant.COLON_SPILT + groupId;
+        RBloomFilter<Long> rBloomFilter = RedissonConfig.getRedisson().getBloomFilter(key);
+        // 初始化预期插入的数据量为10000和期望误差率为0.01
+        rBloomFilter.tryInit(100, 0.01);
+        return rBloomFilter;
+    }
+
     public static RBloomFilter initSisterPropBloomFilter(Long groupId){
         String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         String key = RedisKeyConstant.SISTER_PROP + today + RedisKeyConstant.COLON_SPILT + groupId;
@@ -34,41 +42,7 @@ public class RedisUtils {
         rBloomFilter.expire(24, TimeUnit.HOURS);
         return rBloomFilter;
     }
-    /**
-     * 设置购买姐狗布隆过滤器
-     *
-     * @param groupId
-     * @param value
-     */
-//    public static void setSisterPropBloomFilter(Long groupId, Long value) {
-//        String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-//        String key = RedisKeyConstant.SISTER_PROP + today + RedisKeyConstant.COLON_SPILT + groupId;
-//        RBloomFilter rBloomFilter = RedissonConfig.getRedisson().getBloomFilter(key);
-//        // 初始化预期插入的数据量为10000和期望误差率为0.01
-//        rBloomFilter.tryInit(100, 0.01);
-//        rBloomFilter.expire(24, TimeUnit.HOURS);
-//        rBloomFilter.add(value);
-//    }
 
-    /**
-     * 判断姐狗布隆过滤器是否存在
-     *
-     * @param groupId
-     * @param value
-     * @return
-     */
-//    public static boolean checkSisterPropBloomFilter(Long groupId, Long value) {
-//        // 判断是否是姐狗
-//        String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-//        String key = RedisKeyConstant.SISTER_PROP + today + RedisKeyConstant.COLON_SPILT + groupId;
-//        RBloomFilter rBloomFilter = RedissonConfig.getRedisson().getBloomFilter(key);
-//        try {
-//            return rBloomFilter.contains(value);
-//        }catch (IllegalStateException e){
-//            Log.error(e.getMessage());
-//            return false;
-//        }
-//    }
 
     /**
      * 获取30分钟内发言的uesrid

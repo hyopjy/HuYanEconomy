@@ -1,7 +1,5 @@
 package cn.chahuyun.economy.manager;
 
-
-import cn.chahuyun.config.FishSignPluginConfig;
 import cn.chahuyun.economy.aop.PropUtils;
 import cn.chahuyun.economy.constant.FishSignConstant;
 import cn.chahuyun.economy.entity.UserBackpack;
@@ -678,12 +676,7 @@ public class PropsManagerImpl implements PropsManager {
             // 兑换成功 加入徽章信息
             String signCode = propCode.toUpperCase(Locale.ROOT);
             if (FishSignConstant.getSignPropCode().contains(signCode)) {
-                Set<Long> userList = FishSignPluginConfig.INSTANCE.getFishSignMap().get(signCode);
-                if (CollectionUtils.isEmpty(userList)) {
-                    userList = new CopyOnWriteArraySet<>();
-                }
-                userList.add(userInfo.getQq());
-                FishSignPluginConfig.INSTANCE.getFishSignMap().put(signCode, userList);
+                RedisUtils.getFishSignBloomFilter(subject.getId(), signCode).add(userInfo.getQq());
             }
             messages.append(new PlainText(propsInfo.getName() + "兑换成功！请到背包查看"));
             subject.sendMessage(messages.build());

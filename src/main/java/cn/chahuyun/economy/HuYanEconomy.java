@@ -7,13 +7,13 @@ import cn.chahuyun.economy.manager.LotteryManager;
 import cn.chahuyun.economy.plugin.FishManager;
 import cn.chahuyun.economy.plugin.PluginManager;
 import cn.chahuyun.economy.power.PowerManager;
-import cn.chahuyun.economy.redis.RedisUtils;
 import cn.chahuyun.economy.utils.EconomyUtil;
 import cn.chahuyun.economy.utils.FileUtils;
 import cn.chahuyun.economy.utils.HibernateUtil;
 import cn.chahuyun.economy.utils.Log;
 import cn.hutool.cron.CronUtil;
 import net.mamoe.mirai.Bot;
+import net.mamoe.mirai.console.data.*;
 import net.mamoe.mirai.console.plugin.jvm.JavaPlugin;
 import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescriptionBuilder;
 import net.mamoe.mirai.event.Event;
@@ -73,8 +73,7 @@ public final class HuYanEconomy extends JavaPlugin {
         reloadPluginConfig(DriverCarEventConfig.INSTANCE);
         // 自动钓鱼机
         reloadPluginConfig(AutomaticFishConfig.INSTANCE);
-        // 用户徽章信息
-        reloadPluginConfig(FishSignPluginConfig.INSTANCE);
+
         // 加载文件流
         for (int i = 1; i < 7; i++) {
             FileUtils.getInputStream(i);

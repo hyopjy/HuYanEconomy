@@ -1,9 +1,9 @@
 package cn.chahuyun.economy.manager;
 
-import cn.chahuyun.config.FishSignPluginConfig;
 import cn.chahuyun.economy.HuYanEconomy;
 import cn.chahuyun.economy.constant.FishSignConstant;
 import cn.chahuyun.economy.entity.UserInfo;
+import cn.chahuyun.economy.redis.RedisUtils;
 import cn.chahuyun.economy.utils.CacheUtils;
 import cn.chahuyun.economy.utils.EconomyUtil;
 import cn.chahuyun.economy.utils.Log;
@@ -260,30 +260,21 @@ public class FbUserManager  {
                 //写入数量
                 pen.drawString(0 + "", 390, 1000);
             }
-
-            if(Optional.ofNullable(FishSignPluginConfig.INSTANCE.getFishSignMap().get(FishSignConstant.FISH_17))
-                    .orElse(new HashSet<>())
-                    .contains(userInfo.getQq())){
+            //  RedisUtils.getFishSignBloomFilter(subject.getId(), signCode).add(userInfo.getQq());
+            if (RedisUtils.getFishSignBloomFilter(group.getId(), FishSignConstant.FISH_17).contains(userInfo.getQq())) {
                 drawFishSign(pen, FishSignConstant.FISH_17, null, 56, 1067, 0, 0);
             }
 
-            if(Optional.ofNullable(FishSignPluginConfig.INSTANCE.getFishSignMap().get(FishSignConstant.FISH_15))
-                    .orElse(new HashSet<>())
-                    .contains(userInfo.getQq())){
+            if (RedisUtils.getFishSignBloomFilter(group.getId(), FishSignConstant.FISH_15).contains(userInfo.getQq())) {
                 drawFishSign(pen, FishSignConstant.FISH_15, null, 136, 1056, 0, 0);
             }
 
-            if(Optional.ofNullable(FishSignPluginConfig.INSTANCE.getFishSignMap().get(FishSignConstant.FISH_16))
-                    .orElse(new HashSet<>())
-                    .contains(userInfo.getQq())){
+            if (RedisUtils.getFishSignBloomFilter(group.getId(), FishSignConstant.FISH_16).contains(userInfo.getQq())) {
                 drawFishSign(pen, FishSignConstant.FISH_16, null, 237, 1057, 0, 0);
             }
 
-            if(Optional.ofNullable(FishSignPluginConfig.INSTANCE.getFishSignMap().get(FishSignConstant.FISH_20))
-                    .orElse(new HashSet<>())
-                    .contains(userInfo.getQq())){
+            if (RedisUtils.getFishSignBloomFilter(group.getId(), FishSignConstant.FISH_20).contains(userInfo.getQq())) {
                 drawFishSign(pen, FishSignConstant.FISH_20, null, 352, 1074, 0, 0);
-
             }
             //关闭窗体，释放部分资源
             pen.dispose();
