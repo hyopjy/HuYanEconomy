@@ -29,7 +29,7 @@ public class AutomaticFishingMachineManager {
         for (int i = 0; i < list.size(); i++) {
             AutomaticFishUser automaticFishUser = list.get(i);
             Long groupId = automaticFishUser.getGroupId();
-            Long userId = automaticFishUser.getId();
+            Long userId = automaticFishUser.getFishUser();
             CacheUtils.addAutomaticFishBuff(groupId, userId, AutomaticFishTask.getAutomaticFishTaskId(groupId, userId));
             String autoTaskId =  AutomaticFishTask.getAutomaticFishTaskId(groupId, userId);
             CronUtil.remove(autoTaskId);

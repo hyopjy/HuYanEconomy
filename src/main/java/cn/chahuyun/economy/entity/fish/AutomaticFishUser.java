@@ -60,8 +60,7 @@ public class AutomaticFishUser {
         this(IdUtil.getSnowflakeNextId(),groupId,fishUser,openTime,endTime,cron,automaticFishStr);
     }
 
-    public static AutomaticFishUser getAutomaticFishUser(Long groupId, Long fishUser) {
-        AutomaticFishUser automaticFishUser = null;
+    public static  List<AutomaticFishUser>  getAutomaticFishUser(Long groupId, Long fishUser) {
         try {
             List<AutomaticFishUser> list = HibernateUtil.factory.fromSession(session -> {
                 HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
@@ -72,13 +71,11 @@ public class AutomaticFishUser {
                         builder.equal(from.get("fishUser"), fishUser));
                 return session.createQuery(query).list();
             });
-            if (!CollectionUtil.isEmpty(list) && list.size() > 1) {
-                return list.get(0);
-            }
+            return list;
         } catch (Exception ignored) {
             ignored.printStackTrace();
         }
-        return automaticFishUser;
+        return null;
     }
 
     public boolean saveOrUpdate() {

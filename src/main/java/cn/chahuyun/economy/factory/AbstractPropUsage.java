@@ -52,7 +52,7 @@ public abstract class AbstractPropUsage implements IPropUsage{
             return false;
         }
         if(CacheUtils.checkAutomaticFishBuff(group.getId(),sender.getId())){
-            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), propsCard.getDescription()));
+            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "正在使用[" + propsCard.getName() + "]buff"));
             return false;
         }
         return true;

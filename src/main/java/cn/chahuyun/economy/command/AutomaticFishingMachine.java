@@ -16,6 +16,7 @@ import cn.hutool.cron.CronUtil;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.message.data.*;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -36,6 +37,7 @@ public class AutomaticFishingMachine extends AbstractPropUsage {
      */
     @Override
     public boolean checkOrder() {
+        this.isBuff = true;
         String no = PropsType.getNo(propsCard.getCode());
         String match = "使用 (" + propsCard.getName() + "|" + no + ")( )*";
         String code = event.getMessage().serializeToMiraiCode();
@@ -52,10 +54,6 @@ public class AutomaticFishingMachine extends AbstractPropUsage {
         //能否钓鱼
         if (!userFishInfo.isFishRod()) {
             subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "没有鱼竿，bobo也帮不了你🥹"));
-            return false;
-        }
-        if (userFishInfo.isStatus()) {
-            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "你已经在钓鱼了！"));
             return false;
         }
         FishPond fishPond = userFishInfo.getFishPond();
@@ -77,18 +75,18 @@ public class AutomaticFishingMachine extends AbstractPropUsage {
     public void excute() {
         User user = event.getSender();
         // add auto machine cache
-        AutomaticFishUser automaticFishUser = AutomaticFishUser.getAutomaticFishUser(group.getId(), user.getId());
-        if (Objects.nonNull(automaticFishUser)) {
-            automaticFishUser.remove();
+        List<AutomaticFishUser> automaticFishUserList = AutomaticFishUser.getAutomaticFishUser(group.getId(), user.getId());
+        if (!CollectionUtils.isEmpty(automaticFishUserList)) {
+            automaticFishUserList.stream().forEach(AutomaticFishUser::remove);
         }
         // 获取当前时间
         LocalDateTime now = LocalDateTime.now();
         // 按小时
-//        LocalDateTime endTime = now.plus(Duration.ofHours(8L)).minus(Duration.ofSeconds(30L));
-//        String cron = getCronStringHour(now);
+        LocalDateTime endTime = now.plus(Duration.ofHours(8L)).withMinute(0).withSecond(0);
+        String cron = getCronStringHour(now);
         // 按分钟demo
-        LocalDateTime endTime = now.plus(Duration.ofMinutes(8L)).minus(Duration.ofSeconds(30L));
-        String cron = getCronStringMinutes(now);
+//        LocalDateTime endTime = now.plus(Duration.ofMinutes(8L)).withSecond(0);
+//        String cron = getCronStringMinutes(now);
         List<AutomaticFish> automaticFishStr = new ArrayList<>();
 
         // 存入数据库
