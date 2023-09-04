@@ -228,7 +228,7 @@ public class MessageEventListener extends SimpleListenerHost {
                 return;
             }
 
-            String buyLotteryRegex = "猜签 (\\d+)( \\d+)|lottery (\\d+)( \\d+)";
+            String buyLotteryRegex = "猜签 (\\d+|\\S+)( \\d+)|lottery (\\d+|\\S+)( \\d+)";
             if (Pattern.matches(buyLotteryRegex, code)) {
                 Log.info("彩票指令");
                 if (group != null && config.getLotteryGroup().contains(group.getId())) {
