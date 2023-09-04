@@ -7,6 +7,7 @@ import cn.chahuyun.economy.manager.LotteryManager;
 import cn.chahuyun.economy.plugin.FishManager;
 import cn.chahuyun.economy.plugin.PluginManager;
 import cn.chahuyun.economy.power.PowerManager;
+import cn.chahuyun.economy.redis.RedisUtils;
 import cn.chahuyun.economy.utils.EconomyUtil;
 import cn.chahuyun.economy.utils.FileUtils;
 import cn.chahuyun.economy.utils.HibernateUtil;
@@ -91,7 +92,7 @@ public final class HuYanEconomy extends JavaPlugin {
             FishManager.init();
             BankManager.init();
             // 延迟队列init
-           // RedisUtils.initDelayedQueueTask();
+            RedisUtils.initDelay();
             eventEventChannel.registerListenerHost(new EconomyEventListener());
             eventEventChannel.registerListenerHost(new BotOnlineEventListener());
             eventEventChannel.registerListenerHost(new MessageEventListener());
