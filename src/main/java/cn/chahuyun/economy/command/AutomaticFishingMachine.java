@@ -1,45 +1,36 @@
 package cn.chahuyun.economy.command;
 
-import cn.chahuyun.config.AutomaticFish;
-import cn.chahuyun.config.AutomaticFishConfig;
-import cn.chahuyun.config.AutomaticFishUser;
-import cn.chahuyun.config.DriverCarEventConfig;
+import cn.chahuyun.economy.dto.AutomaticFish;
 import cn.chahuyun.economy.entity.UserInfo;
+import cn.chahuyun.economy.entity.fish.AutomaticFishUser;
 import cn.chahuyun.economy.entity.fish.FishInfo;
 import cn.chahuyun.economy.entity.fish.FishPond;
 import cn.chahuyun.economy.factory.AbstractPropUsage;
-import cn.chahuyun.economy.manager.GamesManager;
 import cn.chahuyun.economy.manager.UserManager;
 import cn.chahuyun.economy.plugin.PropsType;
 import cn.chahuyun.economy.utils.CacheUtils;
 import cn.chahuyun.economy.utils.Log;
 import cn.chahuyun.economy.utils.MessageUtil;
-import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.cron.CronUtil;
-import cn.hutool.cron.task.Task;
 import net.mamoe.mirai.contact.Contact;
-import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.message.data.*;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.regex.Pattern;
 
 /**
  * 岛岛全自动钓鱼机
  */
-public class AutomaticFishingMachine extends AbstractPropUsage{
+public class AutomaticFishingMachine extends AbstractPropUsage {
 
-    String machineUserKey;
     /**
      * 创建配置文件
      * 启动定时任务
      * init
+     *
      * @return
      */
     @Override
@@ -48,8 +39,9 @@ public class AutomaticFishingMachine extends AbstractPropUsage{
         String match = "使用 (" + propsCard.getName() + "|" + no + ")( )*";
         String code = event.getMessage().serializeToMiraiCode();
         Contact subject = event.getSubject();
-        if(!Pattern.matches(match, code)){
-            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "请输入正确的命令[使用 " + propsCard.getName() + "或者" + no + "]"));
+        if (!Pattern.matches(match, code)) {
+            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),
+                    "请输入正确的命令[使用 " + propsCard.getName() + "或者" + no + "]"));
             return false;
         }
 
@@ -73,48 +65,40 @@ public class AutomaticFishingMachine extends AbstractPropUsage{
         //获取鱼塘限制鱼竿最低等级
         int minLevel = fishPond.getMinLevel();
         if (userFishInfo.getRodLevel() < minLevel) {
-            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "鱼竿等级太低，bobo拒绝你在这里钓鱼\uD83D\uDE45\u200D♀️"));
+            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "鱼竿等级太低，bobo拒绝你在这里钓鱼\uD83D\uDE45" +
+                    "\u200D♀️"));
             return false;
         }
-        this.machineUserKey = "machine" + group.getId() + "-" + event.getSender().getId();
         return true;
     }
 
     @Override
     public void excute() {
-        String machineKey = "machine";
         User user = event.getSender();
         // add auto machine cache
-        ConcurrentHashMap<String, AutomaticFishUser> map = AutomaticFishConfig.INSTANCE.getAutomaticFishUserMap();
-        AutomaticFishUser automaticFishUser = map.get(machineUserKey);
-        if(!Objects.isNull(automaticFishUser)){
-            AutomaticFishConfig.INSTANCE.getAutomaticFishUserMap().remove(machineKey);
+        AutomaticFishUser automaticFishUser = AutomaticFishUser.getAutomaticFishUser(group.getId(), user.getId());
+        if (Objects.nonNull(automaticFishUser)) {
+            automaticFishUser.remove();
         }
         // 获取当前时间
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime endTime = now.plus(Duration.ofHours(9L));
-        String cron = getCronString(now,endTime);
+        String cron = getCronString(now, endTime);
+        List<AutomaticFish> automaticFishStr = new ArrayList<>();
 
-        AutomaticFishUser saveUser = new AutomaticFishUser(user.getId(),
-                now.format(DateTimeFormatter.BASIC_ISO_DATE),
-                endTime.format(DateTimeFormatter.BASIC_ISO_DATE),
-                cron,
-                new CopyOnWriteArrayList<>());
-        AutomaticFishConfig.INSTANCE.getAutomaticFishUserMap().put(machineUserKey, saveUser);
+        // 存入数据库
+        AutomaticFishUser saveAuto = new AutomaticFishUser(group.getId(), user.getId(), now, endTime, cron,
+                automaticFishStr);
+        saveAuto.saveOrUpdate();
 
+        CacheUtils.addAutomaticFishBuff(group.getId(), user.getId(), AutomaticFishTask.getAutomaticFishTaskId(group.getId(), user.getId()));
 
-        CacheUtils.addAutomaticFishBuff(group.getId(), user.getId(), machineKey);
-        //  open time
-        //  cron
-        //  endtime
-        //  List<fish>
-        //  sendmessage
         //唯一id
-        String minutesTaskId = machineKey + user.getId() + group.getId();
+        String autoTaskId = AutomaticFishTask.getAutomaticFishTaskId(group.getId(), user.getId());
         //始终删除一次  用于防止刷新的时候 添加定时任务报错
-        CronUtil.remove(minutesTaskId);
+        CronUtil.remove(autoTaskId);
         //建立任务类
-        AutomaticFishTask minutesTask = new AutomaticFishTask(minutesTaskId, endTime, group, user, subject,machineUserKey);
+        AutomaticFishTask automaticFishTask = new AutomaticFishTask(autoTaskId, endTime, group.getId(), user.getId());
         //添加定时任务到调度器
         // 3 10-23/2,0,2 * * *
         // [秒] [分] [时] [日] [月] [周] [年]
@@ -129,14 +113,15 @@ public class AutomaticFishingMachine extends AbstractPropUsage{
 
         Log.info("自动钓鱼机-定时:" + cron);
 
-        CronUtil.schedule(minutesTaskId, cron, minutesTask);
+        CronUtil.schedule(autoTaskId, cron, automaticFishTask);
 
         subject.sendMessage(new MessageChainBuilder().append(new QuoteReply(event.getMessage()))
                 .append(propsCard.getName() + "使用成功").append("\r\n")
                 .append(propsCard.getDescription())
                 .build());
     }
-    static String getCronString(LocalDateTime now, LocalDateTime endTime){
+
+    public static String getCronString(LocalDateTime now, LocalDateTime endTime) {
         String sp = " ";
 
         // 获取小时数
@@ -147,67 +132,6 @@ public class AutomaticFishingMachine extends AbstractPropUsage{
         int hour8 = endTime.getHour();
         // [秒] [分] [时] [日] [月] [周] [年]
         return seconds + sp + minus + sp + hour + "-" + hour8 + "/1" + sp + "*" + sp + "*" + sp + "*";
-    }
-}
-
-class AutomaticFishTask implements Task {
-    String id;
-
-    LocalDateTime endTime;
-
-     Group group;
-
-     User user;
-    Contact subject;
-    String machineUserKey;
-
-    public AutomaticFishTask(String id, LocalDateTime endTime, Group group, User user, Contact subject,  String machineUserKey) {
-        this.id = id;
-        this.endTime = endTime;
-        this.group = group;
-        this.user = user;
-        this.subject = subject;
-        this.machineUserKey = machineUserKey;
-    }
-
-    @Override
-    public void execute() {
-        System.out.println("excute");
-        ConcurrentHashMap<String, AutomaticFishUser> map = AutomaticFishConfig.INSTANCE.getAutomaticFishUserMap();
-        AutomaticFishUser automaticFishUser = map.get(machineUserKey);
-        if(Objects.isNull(automaticFishUser)){
-           return;
-        }
-        List<AutomaticFish> fish = Optional.of(automaticFishUser.getAutomaticFishList()).orElse(new ArrayList<>());
-        // 添加字符串
-        AutomaticFish automaticFish = GamesManager.getAutomaticFish(user,group);
-        fish.add(automaticFish);
-
-
-        AutomaticFishConfig.INSTANCE.getAutomaticFishUserMap().remove(machineUserKey);
-
-        AutomaticFishUser updateUser = new AutomaticFishUser(automaticFishUser.getFishUser(),
-                automaticFishUser.getOpenTime(),
-                automaticFishUser.getEndTime(),
-                automaticFishUser.getCron(),
-                fish);
-        AutomaticFishConfig.INSTANCE.getAutomaticFishUserMap().put(machineUserKey, updateUser);
-        if(LocalDateTime.now().equals(endTime) || LocalDateTime.now().isAfter(endTime)){
-            // 输出鱼信息
-            Message m = new At(user.getId()).plus("\r\n");
-            m = m.plus("[岛岛全自动钓鱼机使用结束]").plus("\r\n");
-            StringBuilder message = new StringBuilder();
-            fish.forEach(f->{
-                message.append(f.getMessage()+"\r\n");
-            });
-            m = m.plus(message);
-            subject.sendMessage(m);
-            // 删除缓存
-            CacheUtils.removeAutomaticFishBuff(group.getId(), user.getId());
-            // 删除存储的
-            AutomaticFishConfig.INSTANCE.getAutomaticFishUserMap().remove(machineUserKey);
-        }
-        CronUtil.remove(id);
     }
 }
 
