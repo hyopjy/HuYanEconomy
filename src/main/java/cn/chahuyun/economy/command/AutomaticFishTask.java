@@ -5,6 +5,7 @@ import cn.chahuyun.economy.dto.AutomaticFish;
 import cn.chahuyun.economy.entity.fish.AutomaticFishUser;
 import cn.chahuyun.economy.manager.GamesManager;
 import cn.chahuyun.economy.utils.CacheUtils;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.cron.CronUtil;
 import cn.hutool.cron.task.Task;
 import cn.hutool.json.JSONUtil;
@@ -72,6 +73,10 @@ public class AutomaticFishTask implements Task {
             StringBuilder message = new StringBuilder();
             automaticFishList.forEach(f -> {
                 message.append(f.getMessage() + "\r\n");
+                if(StrUtil.isNotBlank(f.getOtherMessage())){
+                    message.append(f.getOtherMessage() + "\r\n");
+                }
+                message.append("-----🐟-----\r\n");
             });
             m = m.plus(message);
             group.sendMessage(m);

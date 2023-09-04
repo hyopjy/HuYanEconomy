@@ -173,6 +173,12 @@ public class FishInfo implements Serializable {
         save();
     }
 
+    public void downFishRod() {
+        int upRod = getRodLevel();
+        this.setRodLevel(upRod - 2 < 0 ? 1 : upRod - 2);
+        save();
+    }
+
     /**
      * 相同的升级
      *
