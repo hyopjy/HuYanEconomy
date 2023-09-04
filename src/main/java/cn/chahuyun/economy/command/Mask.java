@@ -50,8 +50,7 @@ public class Mask extends AbstractPropUsage {
         if (RandomHelperUtil.checkRandomLuck1_20()) {
             EconomyUtil.minusMoneyToUser(sender, 2000);
             subject.sendMessage(new MessageChainBuilder().append(new QuoteReply(event.getMessage()))
-                    .append(propsCard.getName() + " [正义执行]抢劫失败").append("\r\n")
-                    .append("罚款2000币币").append("\r\n")
+                    .append("触发币币回收计划之：被bobo正义执行，抢劫失败并且罚款2000币币").append("\r\n")
                     .build());
         } else {
             int money = RandomUtil.randomInt(501, 1500);
