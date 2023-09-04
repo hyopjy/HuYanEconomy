@@ -9,12 +9,11 @@ import cn.chahuyun.economy.plugin.PropsType;
 import cn.chahuyun.economy.utils.CacheUtils;
 import cn.chahuyun.economy.utils.MessageUtil;
 import net.mamoe.mirai.contact.Contact;
-import net.mamoe.mirai.contact.User;
-import net.mamoe.mirai.message.data.MessageChainBuilder;
-import net.mamoe.mirai.message.data.QuoteReply;
+import net.mamoe.mirai.message.data.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 /**
@@ -27,11 +26,23 @@ public class FishTroubledWaters extends AbstractPropUsage {
         this.isBuff = Boolean.TRUE;
 
         String no = PropsType.getNo(propsCard.getCode());
-        String match = "使用 (" + propsCard.getName() + "|" + no + ")( )*";
+        String match = "使用 (" + propsCard.getName() + "|" + no + ")(\\[mirai:at:\\d+]( )*)";
         String code = event.getMessage().serializeToMiraiCode();
         Contact subject = event.getSubject();
         if(!Pattern.matches(match, code)){
-            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "请输入正确的命令[使用 " + propsCard.getName() + "或者" + no + "]"));
+            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "请输入正确的命令[使用 " + propsCard.getName() + "或者" + no + "@指定对象]"));
+            return false;
+        }
+        MessageChain message = event.getMessage();
+        for (SingleMessage singleMessage : message) {
+            if (singleMessage instanceof At) {
+                At at = (At) singleMessage;
+                this.target = at.getTarget();
+            }
+        }
+        Buff buff = CacheUtils.getBuff(group.getId(), target);
+        if (isBuff && Objects.nonNull(buff)) {
+            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "目标用户正在使用[" + buff.getBuffName() + "]buff"));
             return false;
         }
         return true;
@@ -39,10 +50,9 @@ public class FishTroubledWaters extends AbstractPropUsage {
 
     @Override
     public void excute() {
-        User sender = event.getSender();
         Buff buff = new Buff();
         buff.setGroupId(group.getId());
-        buff.setQq(sender.getId());
+        buff.setQq(target);
         buff.setBuffName(propsCard.getName());
         buff.setBuffType(Constant.BUFF_BACK);
         buff.setCount(2);
@@ -53,11 +63,11 @@ public class FishTroubledWaters extends AbstractPropUsage {
         properties.add(property2);
         buff.setProperties(properties);
 
-        CacheUtils.addBuff(group.getId(), sender.getId(), buff);
+        CacheUtils.addBuff(group.getId(), target, buff);
 
         subject.sendMessage(new MessageChainBuilder().append(new QuoteReply(event.getMessage()))
                 .append(propsCard.getName() + "使用成功").append("\r\n")
-                .append("之后的2次钓鱼都只会上钩[摸鱼]")
+                .append(new At(target).getDisplay(group)).append("之后的2次钓鱼都只会上钩[摸鱼]")
                 .build());
     }
 }

@@ -33,9 +33,9 @@ public class RedisUtils {
         return rBloomFilter;
     }
 
-    public static RBloomFilter initSisterPropBloomFilter(Long groupId){
+    public static RBloomFilter initOneDayPropBloomFilter(Long groupId, String propKey) {
         String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        String key = RedisKeyConstant.SISTER_PROP + today + RedisKeyConstant.COLON_SPILT + groupId;
+        String key = propKey + today + RedisKeyConstant.COLON_SPILT + groupId;
         RBloomFilter rBloomFilter = RedissonConfig.getRedisson().getBloomFilter(key);
         // 初始化预期插入的数据量为10000和期望误差率为0.01
         rBloomFilter.tryInit(100, 0.01);
