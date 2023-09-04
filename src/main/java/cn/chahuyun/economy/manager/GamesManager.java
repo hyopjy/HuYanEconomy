@@ -17,6 +17,7 @@ import cn.chahuyun.economy.plugin.PropsType;
 import cn.chahuyun.economy.utils.*;
 import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import net.mamoe.mirai.Bot;
@@ -167,7 +168,7 @@ public class GamesManager {
         int rankMin = 1;
         int rankMax = 1;
         rankMin = Math.max((userFishInfo.getLevel() / 8) + 1, rankMin);
-       //  rankMax = Math.max(rankMin + 1, Math.min(userFishInfo.getLevel(), fishPond.getPondLevel()));
+        rankMax = Math.max(rankMin + 1, Math.min(userFishInfo.getLevel(), fishPond.getPondLevel()));
 
         Log.info("start-->--------------------------->");
         Log.info("difficultyMin-->"+ difficultyMin);
@@ -429,6 +430,7 @@ public class GamesManager {
 
     private static void sendFishInfoMessage(UserInfo userInfo, User user, Contact subject, FishPond fishPond,
                                             Fish fish, int dimensions, int money, double v,String buffDesc, MessageChainBuilder messages ) {
+        v = NumberUtil.round(v, 2).doubleValue();
         if (EconomyUtil.plusMoneyToUser(user, v)
                 && EconomyUtil.plusMoneyToBankForId(fishPond.getCode(), fishPond.getDescription(),
                 money * fishPond.getRebate())) {
