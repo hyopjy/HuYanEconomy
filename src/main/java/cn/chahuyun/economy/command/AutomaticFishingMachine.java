@@ -83,8 +83,12 @@ public class AutomaticFishingMachine extends AbstractPropUsage {
         }
         // 获取当前时间
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime endTime = now.plus(Duration.ofHours(8L)).minus(Duration.ofSeconds(30L));
-        String cron = getCronString(now);
+        // 按小时
+//        LocalDateTime endTime = now.plus(Duration.ofHours(8L)).minus(Duration.ofSeconds(30L));
+//        String cron = getCronStringHour(now);
+        // 按分钟demo
+        LocalDateTime endTime = now.plus(Duration.ofMinutes(8L)).minus(Duration.ofSeconds(30L));
+        String cron = getCronStringMinutes(now);
         List<AutomaticFish> automaticFishStr = new ArrayList<>();
 
         // 存入数据库
@@ -113,7 +117,20 @@ public class AutomaticFishingMachine extends AbstractPropUsage {
                 .build());
     }
 
-    public static String getCronString(LocalDateTime now) {
+    private String getCronStringMinutes(LocalDateTime now) {
+        String sp = " ";
+        int seconds = now.getSecond();
+
+        List<Integer> minutesList = new ArrayList<>();
+        for (int i = 0; i < 8; i++) {
+            minutesList.add(now.plus(Duration.ofMinutes(i+1)).getMinute());
+        }
+        String minuteStr = CollUtil.join(minutesList, ",");
+        // [秒] [分] [时] [日] [月] [周] [年]
+        return seconds + sp + minuteStr + sp + "*" + sp + "*" + sp + "*" + sp + "?";
+    }
+
+    public static String getCronStringHour(LocalDateTime now) {
         String sp = " ";
         int minus = now.getMinute();
         int seconds = now.getSecond();
