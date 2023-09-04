@@ -115,9 +115,6 @@ public class AutomaticFishingMachine extends AbstractPropUsage {
 
     public static String getCronString(LocalDateTime now) {
         String sp = " ";
-
-        // 获取小时数
-        int hour = now.getHour();
         int minus = now.getMinute();
         int seconds = now.getSecond();
 
