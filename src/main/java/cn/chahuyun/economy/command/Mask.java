@@ -5,6 +5,7 @@ import cn.chahuyun.economy.plugin.PropsType;
 import cn.chahuyun.economy.utils.CacheUtils;
 import cn.chahuyun.economy.utils.EconomyUtil;
 import cn.chahuyun.economy.utils.MessageUtil;
+import cn.chahuyun.economy.utils.RandomHelperUtil;
 import cn.hutool.core.util.RandomUtil;
 import net.mamoe.mirai.contact.NormalMember;
 import net.mamoe.mirai.contact.User;
@@ -46,9 +47,7 @@ public class Mask extends AbstractPropUsage {
     public void excute() {
         User sender = event.getSender();
         //被bobo正义执行，抢劫失败并且罚款2000币币
-        int random = RandomUtil.randomInt(1, 21);
-        int luck = 10;
-        if (random == luck) {
+        if (RandomHelperUtil.checkRandomLuck1_20()) {
             EconomyUtil.minusMoneyToUser(sender, 2000);
             subject.sendMessage(new MessageChainBuilder().append(new QuoteReply(event.getMessage()))
                     .append(propsCard.getName() + " [正义执行]抢劫失败").append("\r\n")

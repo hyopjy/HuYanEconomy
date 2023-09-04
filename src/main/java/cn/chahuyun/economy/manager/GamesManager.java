@@ -424,6 +424,12 @@ public class GamesManager {
 
             messages.append("-----🐟-----\r\n");
         });
+
+        if(RandomHelperUtil.checkRandomLuck1_100()){
+            userFishInfo.downFishRod();
+            messages.append("触发币币回收计划之：每次上钩都有0.1%的概率鱼竿折断，掉两级\r\n");
+        }
+
         subject.sendMessage(messages.build());
         userFishInfo.switchStatus();
     }
@@ -695,7 +701,7 @@ public class GamesManager {
         Fish fish;
         while (true) {
             if (rank == 0) {
-                return new AutomaticFish("[鱼呢]", "切线了", 0, 0);
+                return new AutomaticFish("[鱼呢]", "切线了", 0, 0,"");
             }
             //roll难度
             int difficulty;
@@ -757,13 +763,17 @@ public class GamesManager {
         if(!fish.isSpecial()){
             new FishRanking(userInfo.getQq(), userInfo.getName(), dimensions, money, userFishInfo.getRodLevel(), fish, fishPond).save();
         }
+        if (RandomHelperUtil.checkRandomLuck1_100()) {
+            userFishInfo.downFishRod();
+            automaticFish.setOtherMessage("触发币币回收计划之：每次上钩都有0.1%的概率鱼竿折断，掉两级\r\n");
+        }
         return automaticFish;
     }
 
     private static AutomaticFish getAutomaticPropCard(Fish fish, int dimensions, int money) {
         String message = String.format("[道具]%s|等级:%s|单价:%s|尺寸:%d总金额:%d",
                 fish.getName(), fish.getLevel(), fish.getPrice(), dimensions, money);
-        return new AutomaticFish(fish.getName(), message, money, 0);
+        return new AutomaticFish(fish.getName(), message, money, 0,"");
     }
 
     private static AutomaticFish getAutomaticFishInfo(User user, FishPond fishPond, Fish fish, int dimensions,
@@ -776,9 +786,9 @@ public class GamesManager {
             String message = String.format("[鱼]%s|等级:%s|单价:%s|尺寸:%d|总金额:%d|收益:%s", fish.getName(), fish.getLevel(),
                     fish.getPrice(),
                     dimensions, money, v + "");
-            return new AutomaticFish(fish.getName(), message, money, v);
+            return new AutomaticFish(fish.getName(), message, money, v,"");
         } else {
-            return new AutomaticFish("[鱼]", "鱼溜了", 0, 0);
+            return new AutomaticFish("[鱼呢]", "鱼溜了", 0, 0,"");
         }
     }
 }

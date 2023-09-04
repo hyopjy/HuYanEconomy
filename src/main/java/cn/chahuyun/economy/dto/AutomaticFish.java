@@ -11,11 +11,12 @@ import lombok.NoArgsConstructor;
 public class AutomaticFish {
     String name;
 
-
     String message;
-
 
     int money;
 
     double price;
+
+    String otherMessage;
+
 }
