@@ -310,7 +310,7 @@ public class PropsManagerImpl implements PropsManager {
                     return;
                 }
                 // 判断今天是否已经购买
-                RBloomFilter rBloomFilter = RedisUtils.initOneDayPropBloomFilter(subject.getId(), card.getCode());
+                RBloomFilter<Long> rBloomFilter = RedisUtils.initOneDayPropBloomFilter(subject.getId(), card.getCode());
                 if (rBloomFilter.contains(sender.getId())) {
                     messages.append(new PlainText("[" + propsInfo.getName() + "]每人每天限制领养1条"));
                     subject.sendMessage(messages.build());
@@ -366,7 +366,6 @@ public class PropsManagerImpl implements PropsManager {
         if("FISH-2".equals(propsInfo.getCode()) || "FISH-30".equals(propsInfo.getCode())){
             RBloomFilter rBloomFilter = RedisUtils.initOneDayPropBloomFilter(subject.getId(), propsInfo.getCode());
             rBloomFilter.add(sender.getId());
-            // RedisUtils.setSisterPropBloomFilter(subject.getId(),sender.getId());
         }
         messages.append(String.format("成功购买 %s %d%s,你还有 %s 枚WDIT币币", propsInfo.getName(), num, propsInfo.getUnit(), money));
 
