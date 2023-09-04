@@ -1,9 +1,9 @@
 package cn.chahuyun.economy.manager;
 
-import cn.chahuyun.config.AutomaticFish;
 import cn.chahuyun.economy.HuYanEconomy;
 import cn.chahuyun.economy.constant.BuffPropsEnum;
 import cn.chahuyun.economy.constant.Constant;
+import cn.chahuyun.economy.dto.AutomaticFish;
 import cn.chahuyun.economy.dto.Buff;
 import cn.chahuyun.economy.entity.UserBackpack;
 import cn.chahuyun.economy.entity.UserInfo;
@@ -650,7 +650,7 @@ public class GamesManager {
         event.getSubject().sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "你的鱼竿等级为%s级", rodLevel));
     }
 
-    public static AutomaticFish getAutomaticFish(User user,Group group) {
+    public static AutomaticFish getAutomaticFish(User user, Group group) {
         UserInfo userInfo = UserManager.getUserInfo(user);
         //获取玩家钓鱼信息
         FishInfo userFishInfo = userInfo.getFishInfo();
@@ -677,8 +677,8 @@ public class GamesManager {
                 // 计算rankMax
                 rankMax = Math.max(rankMin + 1, Math.min(userFishInfo.getLevel(), Math.min(fishPond.getPondLevel(), rankMax)));
 
-                int randomRankMaxRight = RandomUtil.randomInt(1, 4);
-                rankMax += randomRankMaxRight;
+                // int randomRankMaxRight = RandomUtil.randomInt(1, 4);
+                rankMax += 1;
                 break;
             case 0:
                 int randomPullInt = RandomUtil.randomInt(0, 30);
@@ -695,7 +695,7 @@ public class GamesManager {
         Fish fish;
         while (true) {
             if (rank == 0) {
-                return new AutomaticFish("[鱼呢]","切线了",0.0);
+                return new AutomaticFish("[鱼呢]", "切线了", 0, 0);
             }
             //roll难度
             int difficulty;
@@ -762,20 +762,23 @@ public class GamesManager {
 
     private static AutomaticFish getAutomaticPropCard(Fish fish, int dimensions, int money) {
         String message = String.format("[道具]%s|等级:%s|单价:%s|尺寸:%d总金额:%d",
-                fish.getName(),fish.getLevel(),fish.getPrice(), dimensions,money);
-        return new AutomaticFish(fish.getName(),message,money);
+                fish.getName(), fish.getLevel(), fish.getPrice(), dimensions, money);
+        return new AutomaticFish(fish.getName(), message, money, 0);
     }
 
-    private static AutomaticFish getAutomaticFishInfo(User user, FishPond fishPond, Fish fish, int dimensions, int money, double v) {
+    private static AutomaticFish getAutomaticFishInfo(User user, FishPond fishPond, Fish fish, int dimensions,
+                                                      int money, double v) {
+        v = NumberUtil.round(v, 2).doubleValue();
         if (EconomyUtil.plusMoneyToUser(user, v)
                 && EconomyUtil.plusMoneyToBankForId(fishPond.getCode(), fishPond.getDescription(),
                 money * fishPond.getRebate())) {
             fishPond.addNumber();
-            String message = String.format("[鱼]%s|等级:%s|单价:%s|尺寸:%d总金额:%d",fish.getName(),fish.getLevel(),fish.getPrice(),
-                    dimensions,money);
-            return new AutomaticFish(fish.getName(),message,money);
+            String message = String.format("[鱼]%s|等级:%s|单价:%s|尺寸:%d|总金额:%d|收益:%s", fish.getName(), fish.getLevel(),
+                    fish.getPrice(),
+                    dimensions, money, v + "");
+            return new AutomaticFish(fish.getName(), message, money, v);
         } else {
-            return new AutomaticFish("[鱼]","鱼溜了",0.0);
+            return new AutomaticFish("[鱼]", "鱼溜了", 0, 0);
         }
     }
 }

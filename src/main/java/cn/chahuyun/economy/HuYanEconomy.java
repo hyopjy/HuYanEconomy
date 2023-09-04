@@ -2,6 +2,7 @@ package cn.chahuyun.economy;
 
 import cn.chahuyun.config.*;
 import cn.chahuyun.economy.event.*;
+import cn.chahuyun.economy.manager.AutomaticFishingMachineManager;
 import cn.chahuyun.economy.manager.BankManager;
 import cn.chahuyun.economy.manager.LotteryManager;
 import cn.chahuyun.economy.plugin.FishManager;
@@ -73,7 +74,7 @@ public final class HuYanEconomy extends JavaPlugin {
         reloadPluginConfig(EconomyEventConfig.INSTANCE);
         reloadPluginConfig(DriverCarEventConfig.INSTANCE);
         // 自动钓鱼机
-        reloadPluginConfig(AutomaticFishConfig.INSTANCE);
+        AutomaticFishingMachineManager.init();
 
         // 加载文件流
         for (int i = 1; i < 7; i++) {
