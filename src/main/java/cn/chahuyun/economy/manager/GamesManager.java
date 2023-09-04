@@ -695,7 +695,14 @@ public class GamesManager {
         }
         difficultyMax = Math.max(difficultyMin + 1, difficultyMax + userFishInfo.getRodLevel());
         //roll等级
-        int rank = RandomUtil.randomInt(rankMin, rankMax + 1);
+        int rank = rankMin;
+        if (rankMin > rankMax + 1) {
+            rank = RandomUtil.randomInt(rankMax + 1, rankMin);
+        }
+        if (rankMin < rankMax + 1) {
+            rank = RandomUtil.randomInt(rankMin, rankMax + 1);
+        }
+
         //彩蛋
         boolean winning = false;
         Fish fish;
