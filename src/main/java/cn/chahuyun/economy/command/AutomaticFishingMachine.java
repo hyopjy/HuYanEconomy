@@ -11,6 +11,7 @@ import cn.chahuyun.economy.plugin.PropsType;
 import cn.chahuyun.economy.utils.CacheUtils;
 import cn.chahuyun.economy.utils.Log;
 import cn.chahuyun.economy.utils.MessageUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.cron.CronUtil;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.User;
@@ -82,8 +83,8 @@ public class AutomaticFishingMachine extends AbstractPropUsage {
         }
         // 获取当前时间
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime endTime = now.plus(Duration.ofHours(9L));
-        String cron = getCronString(now, endTime);
+        LocalDateTime endTime = now.plus(Duration.ofHours(8L)).minus(Duration.ofSeconds(30L));
+        String cron = getCronString(now);
         List<AutomaticFish> automaticFishStr = new ArrayList<>();
 
         // 存入数据库
@@ -101,15 +102,6 @@ public class AutomaticFishingMachine extends AbstractPropUsage {
         AutomaticFishTask automaticFishTask = new AutomaticFishTask(autoTaskId, endTime, group.getId(), user.getId());
         //添加定时任务到调度器
         // 3 10-23/2,0,2 * * *
-        // [秒] [分] [时] [日] [月] [周] [年]
-        //　　*：代表整个时间段
-        //　　？：用在日和周中，表示某一天或者某一周
-        //　　/：表示增量，意思是每隔
-        //　　L：用于月日和周，表示最后
-        //　　W：用于指定最近给定日期的工作日
-        //　　#：用于指定本月的第n个工作日
-        //　　-：表示一个段
-        //　　，：多个值之间通过逗号隔开
 
         Log.info("自动钓鱼机-定时:" + cron);
 
@@ -121,7 +113,7 @@ public class AutomaticFishingMachine extends AbstractPropUsage {
                 .build());
     }
 
-    public static String getCronString(LocalDateTime now, LocalDateTime endTime) {
+    public static String getCronString(LocalDateTime now) {
         String sp = " ";
 
         // 获取小时数
@@ -129,9 +121,13 @@ public class AutomaticFishingMachine extends AbstractPropUsage {
         int minus = now.getMinute();
         int seconds = now.getSecond();
 
-        int hour8 = endTime.getHour();
+        List<Integer> hourList = new ArrayList<>();
+        for (int i = 0; i < 8; i++) {
+            hourList.add(now.plus(Duration.ofHours(i+1)).getHour());
+        }
+        String hourStr = CollUtil.join(hourList, ",");
         // [秒] [分] [时] [日] [月] [周] [年]
-        return seconds + sp + minus + sp + hour + "-" + hour8 + "/1" + sp + "*" + sp + "*" + sp + "*";
+        return seconds + sp + minus + sp + hourStr + sp + "*" + sp + "*" + sp + "?";
     }
 }
 
