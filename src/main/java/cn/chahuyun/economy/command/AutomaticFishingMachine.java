@@ -111,7 +111,7 @@ public class AutomaticFishingMachine extends AbstractPropUsage {
         //添加定时任务到调度器
         Log.info("[自动钓鱼机]-任务id：" + autoTaskId + "定时:" + cron + "结束时间:" + endTime.format(Constant.FORMATTER));
 
-        CronUtil.setMatchSecond(true);
+        // CronUtil.setMatchSecond(true);
         CronUtil.schedule(autoTaskId, cron, automaticFishTask);
 
         subject.sendMessage(new MessageChainBuilder().append(new QuoteReply(event.getMessage()))
@@ -122,7 +122,7 @@ public class AutomaticFishingMachine extends AbstractPropUsage {
 
     private String getCronStringMinutes(LocalDateTime now) {
         String sp = " ";
-        now = now.plus(Duration.ofMinutes(2));
+        now = now.plus(Duration.ofSeconds(30)).withSecond(0);
 
         int seconds = now.getSecond();
         Set<Integer> minutesList = new TreeSet<>();
@@ -149,11 +149,12 @@ public class AutomaticFishingMachine extends AbstractPropUsage {
 
         // [秒] [分] [时] [日] [月] [周] [年]
         return seconds + sp + minuteStr + sp + hourStr + sp + dayStr + sp + monthStr + sp + "?";
+       // return seconds + sp + minuteStr + sp + "*" + sp + "*" + sp + "*" + sp + "?";
     }
 
     public static String getCronStringHour(LocalDateTime now) {
         String sp = " ";
-        now = now.plus(Duration.ofMinutes(5));
+        now = now.plus(Duration.ofMinutes(15)).withSecond(0);
         // 获取小时数
         int hour = now.getHour();
         int minus = now.getMinute();

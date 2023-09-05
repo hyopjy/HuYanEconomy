@@ -140,7 +140,14 @@ public class MessageEventListener extends SimpleListenerHost {
                     Log.info("游戏指令");
                     if (group != null && config.getFishGroup().contains(group.getId())) {
                         if(CacheUtils.checkAutomaticFishBuff(group.getId(),sender.getId())){
-                            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "岛岛全自动钓鱼机生效中，手动钓鱼失效！"));
+                            Double constMoney = GamesManager.userPay.get(sender.getId());
+                            Boolean checkUser = GamesManager.checkUserPay(event.getSender());
+                            if (checkUser) {
+                                subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "岛岛全自动钓鱼机生效中，手动钓鱼失效！," +
+                                        "还你%s💰", Optional.ofNullable(constMoney).orElse(0.0)));
+                            } else {
+                                subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "岛岛全自动钓鱼机生效中，手动钓鱼失效！"));
+                            }
                             return;
                         }
                         RLock lock = RedisUtils.getFishLock(group.getId(), sender.getId());
