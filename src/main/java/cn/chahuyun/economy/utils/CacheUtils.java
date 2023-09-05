@@ -1,10 +1,12 @@
 package cn.chahuyun.economy.utils;
 
+import cn.chahuyun.economy.command.AutomaticFishTask;
 import cn.chahuyun.economy.dto.Buff;
 import cn.hutool.cache.Cache;
 import cn.hutool.cache.CacheUtil;
 import cn.hutool.cache.impl.TimedCache;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.cron.CronUtil;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -46,7 +48,7 @@ public class CacheUtils {
      */
     public static Cache<String, Buff> BUFF_CACHE = CacheUtil.newLFUCache(250);
 
-    public static Cache<String, String> AUTOMATIC_FISH_USER = CacheUtil.newLFUCache(250,8 * 60 * 60 * 1000);
+    public static Cache<String, String> AUTOMATIC_FISH_USER = CacheUtil.newLFUCache(250, 9 * 60 * 60 * 1000);
 
     public static  InputStream getAvatarUrlInputStream(Long qq, String avatarUrl) {
         if (Objects.isNull(fifoCache.get(qq))) {
@@ -249,6 +251,11 @@ public class CacheUtils {
 
     public static Boolean checkAutomaticFishBuff(Long groupId, Long qq) {
         String buffKey = getAutomaticFishKey(groupId, qq);
+        // 如果buff不存在或者过期删除定时任务,防止启动很多定时任务死掉
+        if (StrUtil.isBlank(AUTOMATIC_FISH_USER.get(buffKey))) {
+            String autoTaskId = AutomaticFishTask.getAutomaticFishTaskId(groupId, qq);
+            CronUtil.remove(autoTaskId);
+        }
         return !StrUtil.isBlank(AUTOMATIC_FISH_USER.get(buffKey));
     }
 
