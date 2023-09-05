@@ -56,6 +56,11 @@ public class AutomaticFishingMachine extends AbstractPropUsage {
             subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "没有鱼竿，bobo也帮不了你🥹"));
             return false;
         }
+
+        if(userFishInfo.getStatus()){
+            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "正在钓鱼无法使用道具"));
+            return false;
+        }
         FishPond fishPond = userFishInfo.getFishPond();
         if (fishPond == null) {
             subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "默认鱼塘不存在!"));
