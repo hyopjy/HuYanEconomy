@@ -40,6 +40,7 @@ public class AutomaticFishingMachineManager {
             String autoTaskId =  AutomaticFishTask.getAutomaticFishTaskId(groupId, userId);
             CronUtil.remove(autoTaskId);
             AutomaticFishTask minutesTask = new AutomaticFishTask(autoTaskId, automaticFishUser.getEndTime(), groupId, userId);
+            // CronUtil.setMatchSecond(true);
             CronUtil.schedule(autoTaskId, automaticFishUser.getCron(), minutesTask);
         }
     }
