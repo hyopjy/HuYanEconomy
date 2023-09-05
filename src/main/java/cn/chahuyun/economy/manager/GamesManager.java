@@ -411,10 +411,10 @@ public class GamesManager {
         });
 
         if (RandomHelperUtil.checkRandomLuck1_100()) {
-            int level = userFishInfo.getLevel();
+            int level = userFishInfo.getRodLevel();
             userFishInfo.downFishRod();
             messages.append("触发币币回收计划之：每次上钩都有0.1%的概率鱼竿折断，掉两级\r\n");
-            messages.append(String.format("哇！你的鱼竿更强了!\uD83D\uDE01\uD83D\uDE01%s->%s\r\n", level, userFishInfo.getRodLevel()));
+            messages.append(String.format("哇！你的鱼竿更强了! %s->%s\r\n", level, userFishInfo.getRodLevel()));
         }
 
         subject.sendMessage(messages.build());
