@@ -312,7 +312,7 @@ public class PropsManagerImpl implements PropsManager {
                 // 判断今天是否已经购买
                 RBloomFilter<Long> rBloomFilter = RedisUtils.initOneDayPropBloomFilter(subject.getId(), card.getCode());
                 if (rBloomFilter.contains(sender.getId())) {
-                    messages.append(new PlainText("[" + propsInfo.getName() + "]每人每天限制领养1条"));
+                    messages.append(new PlainText("[" + propsInfo.getName() + "]每人每天限制购买1个"));
                     subject.sendMessage(messages.build());
                     return;
                 }
