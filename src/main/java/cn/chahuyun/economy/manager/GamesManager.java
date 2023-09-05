@@ -162,19 +162,21 @@ public class GamesManager {
         boolean theRod = false;
         // 困难度
         // 溜鱼增加difficultymin，之前的difficultymin=1+根号(14*RodLevel)
-        double result =1 + Math.sqrt(userFishInfo.getRodLevel() * 14);
-        int difficultyMin = (int) result;
-        int difficultyMax = 131;
+        double result = 1 + Math.sqrt(userFishInfo.getRodLevel() * 14);
+        int difficultyMin = 1;
+        int difficultyMax = (int) result;
         int rankMin = 1;
         int rankMax = 1;
-        rankMin = Math.max((userFishInfo.getLevel() / 8) + 1, rankMin);
-        rankMax = Math.max(rankMin + 1, Math.min(userFishInfo.getLevel(), fishPond.getPondLevel()));
+//        rankMin = Math.max((userFishInfo.getLevel() / 8) + 1, rankMin);
+//        rankMax = Math.max(rankMin + 1, Math.min(userFishInfo.getLevel(), fishPond.getPondLevel()));
+        int userFishLevel = (userFishInfo.getLevel() / 8) + 1;
+        rankMax = Math.max(Math.max(userFishLevel, rankMin), Math.min(userFishLevel, fishPond.getPondLevel()));
 
-        Log.info("start-->--------------------------->");
-        Log.info("difficultyMin-->"+ difficultyMin);
-        Log.info("difficultyMax-->"+ difficultyMax);
-        Log.info("rankMin-->"+ rankMin);
-        Log.info("rankMax-->"+ rankMax);
+        Log.info("[fishing-start]" +
+                ",difficultyMin:" + difficultyMin +
+                ",difficultyMax:" + difficultyMax +
+                ",rankMin:" + rankMin +
+                ",rankMax:" + rankMax);
         subject.sendMessage(MessageUtils.newChain(new At(user.getId()), new PlainText("有动静了，快来！")));
         //开始拉扯
         boolean rankStatus = true;
@@ -191,7 +193,7 @@ public class GamesManager {
                     }
                     pull = pull + 1;
                     int randomLeftInt = RandomUtil.randomInt(10, 50);
-                    difficultyMin += randomLeftInt;
+                    difficultyMax += randomLeftInt;
                     subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "\uD83E\uDD16你横向拉动了鱼竿，最小难度%s", (randomLeftInt < 0 ? "-" : "+") + randomLeftInt));
                     user_left.add(user.getId());
                     break;
@@ -203,10 +205,8 @@ public class GamesManager {
                     }
                     pull = pull + 1;
                     int randomRightInt = RandomUtil.randomInt(0, 20);
-                    difficultyMin += randomRightInt;
+                    difficultyMax += randomRightInt;
                     // 计算rankMax
-                    rankMax = Math.max(rankMin + 1, Math.min(userFishInfo.getLevel(), Math.min(fishPond.getPondLevel(), rankMax)));
-
                     // int randomRankMaxRight = RandomUtil.randomInt(1, 4);
                     rankMax += 1;
                     subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "\uD83E\uDD16你纵向拉动了鱼竿，最小难度%s，最大等级+%s",
@@ -223,7 +223,7 @@ public class GamesManager {
                     }
                     pull++;
                     int randomPullInt = RandomUtil.randomInt(0, 30);
-                    difficultyMin = difficultyMin + randomPullInt;
+                    difficultyMax = difficultyMax + randomPullInt;
 
                     rankMax = rankMin;
                     subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "\uD83E\uDD16你把收回的线又放出去了！最小难度%s,最大等级=%s", (randomPullInt < 0 ? "-" : "+") + randomPullInt, rankMin));
@@ -271,8 +271,7 @@ public class GamesManager {
             // 减去
             BuffUtils.reduceBuffCount(group.getId(), userInfo.getQq());
         }
-        Log.info("[buff]-addDifficultyMin:" + addDifficultyMin);
-        Log.info("[buff]-addRankMin:" + addRankMin);
+        Log.info("[buff]-addDifficultyMin:" + addDifficultyMin + ",addRankMin:" + addRankMin);
 
         /*
         最小钓鱼等级 = max((钓鱼竿支持最大等级/5)+1,基础最小等级）
@@ -288,22 +287,14 @@ public class GamesManager {
         difficultyMin = difficultyMin + addDifficultyMin;
         difficultyMax = Math.max(difficultyMin + 1, difficultyMax + userFishInfo.getRodLevel());
         //roll等级
-        int rank = rankMin;
-        if (rankMin > rankMax + 1) {
-            rank = RandomUtil.randomInt(rankMax + 1, rankMin);
-        }
-        if (rankMin < rankMax + 1) {
-            rank = RandomUtil.randomInt(rankMin, rankMax + 1);
-        }
+        int rank = RandomUtil.randomInt(rankMin, rankMax + 1);
 
-
-
-        Log.info("difficultyMin-->"+ difficultyMin);
-        Log.info("difficultyMax-->"+ difficultyMax);
-        Log.info("rankMin-->"+ rankMin);
-        Log.info("rankMax-->"+ rankMax);
-        Log.info("rank-->"+ rank);
-        Log.info("end-->--------------------------->");
+        Log.info("[fishing-end]" +
+                ",difficultyMin:" + difficultyMin +
+                ",difficultyMax:" + difficultyMax +
+                ",rankMin:" + rankMin +
+                ",rankMax:" + rankMax +
+                ",rank:" + rank);
         List<Fish> fishList = new ArrayList<>();
         //彩蛋
         boolean winning = false;
@@ -340,14 +331,8 @@ public class GamesManager {
                 return;
             }
             //roll难度
-            int difficulty;
-            if (difficultyMin > difficultyMax) {
-                difficulty = RandomUtil.randomInt(difficultyMax, difficultyMin);
-            } else if (difficultyMin == difficultyMax) {
-                difficulty = difficultyMin;
-            } else {
-                difficulty = RandomUtil.randomInt(difficultyMin, difficultyMax);
-            }
+            int difficulty = RandomUtil.randomInt(difficultyMin, difficultyMax + 1);
+
             //在所有鱼中拿到对应的鱼等级
             List<Fish> levelFishList = fishPond.getFishList(rank);
             //过滤掉难度不够的鱼
@@ -657,52 +642,57 @@ public class GamesManager {
     }
 
     public static AutomaticFish getAutomaticFish(User user, Group group) {
+        Log.info("[自动钓鱼机-自动钓鱼] 开始：" + user.getId() + "," + group.getId());
         UserInfo userInfo = UserManager.getUserInfo(user);
         //获取玩家钓鱼信息
         FishInfo userFishInfo = userInfo.getFishInfo();
-
+        // 鱼池信息
         FishPond fishPond = userFishInfo.getFishPond();
-
-        double result =1 + Math.sqrt(userFishInfo.getRodLevel() * 14);
-        int difficultyMin = (int) result;
-        int difficultyMax = 131;
+        double result = 1 + Math.sqrt(userFishInfo.getRodLevel() * 14);
+        int difficultyMin = 1;
+        int difficultyMax = (int) result;
         int rankMin = 1;
         int rankMax = 1;
-        rankMin = Math.max((userFishInfo.getLevel() / 8) + 1, rankMin);
-        rankMax = Math.max(rankMin + 1, Math.min(userFishInfo.getLevel(), fishPond.getPondLevel()));
+//        rankMin = Math.max((userFishInfo.getLevel() / 8) + 1, rankMin);
+//        rankMax = Math.max(rankMin + 1, Math.min(userFishInfo.getLevel(), fishPond.getPondLevel()));
+        int userFishLevel = (userFishInfo.getLevel() / 8) + 1;
+        rankMax = Math.max(Math.max(userFishLevel, rankMin), Math.min(userFishLevel, fishPond.getPondLevel()));
+        Log.info("[自动钓鱼机-自动钓鱼-start] "
+                +",difficultyMin:" + difficultyMin
+                +",difficultyMax:" + difficultyMax
+                +",rankMin:" + rankMin
+                +",rankMax:" + rankMax);
 
         int rollIndex = RandomUtil.randomInt(0,3);
+        Log.info("[自动钓鱼机-自动钓鱼] 随机-rollIndex:" + rollIndex);
         switch (rollIndex){
             case 1:
                 int randomLeftInt = RandomUtil.randomInt(10, 50);
-                difficultyMin += randomLeftInt;
+                difficultyMax += randomLeftInt;
                 break;
             case 2:
                 int randomRightInt = RandomUtil.randomInt(0, 20);
-                difficultyMin += randomRightInt;
-                // 计算rankMax
-                rankMax = Math.max(rankMin + 1, Math.min(userFishInfo.getLevel(), Math.min(fishPond.getPondLevel(), rankMax)));
-
+                difficultyMax += randomRightInt;
                 // int randomRankMaxRight = RandomUtil.randomInt(1, 4);
                 rankMax += 1;
                 break;
             case 0:
                 int randomPullInt = RandomUtil.randomInt(0, 30);
-                difficultyMin = difficultyMin + randomPullInt;
+                difficultyMax = difficultyMax + randomPullInt;
 
                 rankMax = rankMin;
                 break;
         }
         difficultyMax = Math.max(difficultyMin + 1, difficultyMax + userFishInfo.getRodLevel());
         //roll等级
-        int rank = rankMin;
-        if (rankMin > rankMax + 1) {
-            rank = RandomUtil.randomInt(rankMax + 1, rankMin);
-        }
-        if (rankMin < rankMax + 1) {
-            rank = RandomUtil.randomInt(rankMin, rankMax + 1);
-        }
+        int rank = RandomUtil.randomInt(rankMin, rankMax + 1);
 
+        Log.info("[自动钓鱼机-自动钓鱼-end]" +
+                ",difficultyMin:" + difficultyMin +
+                ",difficultyMax:" + difficultyMax +
+                ",rankMin:" + rankMin +
+                ",rankMax:" + rankMax +
+                ",rank:" + rank);
         //彩蛋
         boolean winning = false;
         Fish fish;
@@ -711,14 +701,8 @@ public class GamesManager {
                 return new AutomaticFish("[鱼呢]", "切线了", 0, 0,"");
             }
             //roll难度
-            int difficulty;
-            if (difficultyMin > difficultyMax) {
-                difficulty = RandomUtil.randomInt(difficultyMax, difficultyMin);
-            } else if (difficultyMin == difficultyMax) {
-                difficulty = difficultyMin;
-            } else {
-                difficulty = RandomUtil.randomInt(difficultyMin, difficultyMax);
-            }
+            int difficulty = RandomUtil.randomInt(difficultyMin, difficultyMax + 1);
+
             //在所有鱼中拿到对应的鱼等级
             List<Fish> levelFishList = fishPond.getFishList(rank);
             //过滤掉难度不够的鱼
@@ -757,7 +741,7 @@ public class GamesManager {
             } else {
                 UserBackpack userBackpack = new UserBackpack(userInfo, propsBase);
                 if (!userInfo.addPropToBackpack(userBackpack)) {
-                    Log.error("钓鱼系统:添加道具到用户背包失败!");
+                    Log.error("自动钓鱼机:添加道具到用户背包失败!");
                     automaticFish = getAutomaticFishInfo(user,fishPond, fish, dimensions, money, v);
                 } else {
                     automaticFish = getAutomaticPropCard(fish, dimensions, money);
@@ -774,6 +758,7 @@ public class GamesManager {
             userFishInfo.downFishRod();
             automaticFish.setOtherMessage("触发币币回收计划之：每次上钩都有0.1%的概率鱼竿折断，掉两级\r\n");
         }
+        Log.info("[自动钓鱼机-自动钓鱼-结束]");
         return automaticFish;
     }
 

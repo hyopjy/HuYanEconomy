@@ -1,5 +1,6 @@
 package cn.chahuyun.economy.command;
 
+import cn.chahuyun.economy.constant.Constant;
 import cn.chahuyun.economy.dto.AutomaticFish;
 import cn.chahuyun.economy.entity.UserInfo;
 import cn.chahuyun.economy.entity.fish.AutomaticFishUser;
@@ -87,7 +88,7 @@ public class AutomaticFishingMachine extends AbstractPropUsage {
         // 获取当前时间
         LocalDateTime now = LocalDateTime.now();
         // 按小时
-        LocalDateTime endTime = now.plus(Duration.ofHours(8L)).withMinute(0).withSecond(0);
+        LocalDateTime endTime = now.plus(Duration.ofHours(8L)).withSecond(0);
         String cron = getCronStringHour(now);
         // 按分钟demo
 //        LocalDateTime endTime = now.plus(Duration.ofMinutes(8L)).withSecond(0);
@@ -108,10 +109,9 @@ public class AutomaticFishingMachine extends AbstractPropUsage {
         //建立任务类
         AutomaticFishTask automaticFishTask = new AutomaticFishTask(autoTaskId, endTime, group.getId(), user.getId());
         //添加定时任务到调度器
-        // 3 10-23/2,0,2 * * *
+        Log.info("[自动钓鱼机]-任务id：" + autoTaskId + "定时:" + cron + "结束时间:" + endTime.format(Constant.FORMATTER));
 
-        Log.info("自动钓鱼机-定时:" + cron);
-
+        CronUtil.setMatchSecond(true);
         CronUtil.schedule(autoTaskId, cron, automaticFishTask);
 
         subject.sendMessage(new MessageChainBuilder().append(new QuoteReply(event.getMessage()))
@@ -122,29 +122,60 @@ public class AutomaticFishingMachine extends AbstractPropUsage {
 
     private String getCronStringMinutes(LocalDateTime now) {
         String sp = " ";
-        int seconds = now.getSecond();
+        now = now.plus(Duration.ofMinutes(2));
 
-        List<Integer> minutesList = new ArrayList<>();
+        int seconds = now.getSecond();
+        Set<Integer> minutesList = new TreeSet<>();
+        Set<Integer> hourList = new TreeSet<>();
+        Set<Integer> dayList = new TreeSet<>();
+        Set<Integer> monthList = new TreeSet<>();
+
+        minutesList.add(now.getMinute());
+        hourList.add(now.getHour());
+        dayList.add(now.getDayOfMonth());
+        monthList.add(now.getMonthValue());
+
         for (int i = 0; i < 8; i++) {
-            minutesList.add(now.plus(Duration.ofMinutes(i+1)).getMinute());
+            LocalDateTime addOneMinutes = now.plus(Duration.ofMinutes(i + 1));
+            minutesList.add(addOneMinutes.getMinute());
+            hourList.add(addOneMinutes.getHour());
+            dayList.add(addOneMinutes.getDayOfMonth());
+            monthList.add(addOneMinutes.getMonthValue());
         }
         String minuteStr = CollUtil.join(minutesList, ",");
+        String hourStr = CollUtil.join(hourList, ",");
+        String dayStr = CollUtil.join(dayList, ",");
+        String monthStr = CollUtil.join(monthList,",");
+
         // [秒] [分] [时] [日] [月] [周] [年]
-        return seconds + sp + minuteStr + sp + "*" + sp + "*" + sp + "*" + sp + "?";
+        return seconds + sp + minuteStr + sp + hourStr + sp + dayStr + sp + monthStr + sp + "?";
     }
 
     public static String getCronStringHour(LocalDateTime now) {
         String sp = " ";
+        now = now.plus(Duration.ofMinutes(5));
+        // 获取小时数
+        int hour = now.getHour();
         int minus = now.getMinute();
         int seconds = now.getSecond();
 
-        List<Integer> hourList = new ArrayList<>();
+        Set<Integer> hourList = new TreeSet<>();
+        Set<Integer> dayList = new TreeSet<>();
+        Set<Integer> monthList = new TreeSet<>();
+        hourList.add(now.getHour());
+        dayList.add(now.getDayOfMonth());
+        monthList.add(now.getMonthValue());
         for (int i = 0; i < 8; i++) {
-            hourList.add(now.plus(Duration.ofHours(i+1)).getHour());
+            LocalDateTime addOneHour = now.plus(Duration.ofHours(i + 1));
+            hourList.add(addOneHour.getHour());
+            dayList.add(addOneHour.getDayOfMonth());
+            monthList.add(addOneHour.getMonthValue());
         }
         String hourStr = CollUtil.join(hourList, ",");
+        String dayStr = CollUtil.join(dayList, ",");
+        String monthStr = CollUtil.join(monthList, ",");
         // [秒] [分] [时] [日] [月] [周] [年]
-        return seconds + sp + minus + sp + hourStr + sp + "*" + sp + "*" + sp + "?";
+        return seconds + sp + minus + sp + hourStr + sp + dayStr + sp + monthStr + sp + "?";
     }
 }
 
