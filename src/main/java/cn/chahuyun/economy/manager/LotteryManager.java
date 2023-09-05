@@ -75,7 +75,7 @@ public class LotteryManager {
 
 
         for (LotteryInfo lotteryInfo : lotteryInfos) {
-            String key = lotteryInfo.getQq() + "-" + lotteryInfo.getGroup() + "-" + lotteryInfo.getNumber();
+            String key = lotteryInfo.getId() + "-" + lotteryInfo.getQq() + "-" + lotteryInfo.getGroup() + "-" + lotteryInfo.getNumber();
             switch (lotteryInfo.getType()) {
 //                case 1:
 //                    GRAND_LOTTO_LOTTERY.put(key, lotteryInfo);
@@ -84,7 +84,7 @@ public class LotteryManager {
                     UNION_LOTTO.put(key, lotteryInfo);
                     continue;
                 case 3:
-                    THREE_QIU.put(lotteryInfo.getNumber(), lotteryInfo);
+                    THREE_QIU.put(key, lotteryInfo);
                     continue;
             }
         }
@@ -115,6 +115,7 @@ public class LotteryManager {
             CronUtil.remove(dayTaskId);
             var dayTask = new LotteryDayTask(dayTaskId, THREE_QIU.values());
             CronUtil.schedule(dayTaskId, "0 0 22 * * ?", dayTask);
+            // CronUtil.schedule(dayTaskId, "0 * * * * ?", dayTask);
         }
     }
 
@@ -163,7 +164,7 @@ public class LotteryManager {
                 type = 2;
                 typeString = "缺德球";
                 break;
-            case 5:
+            case 2:
                 type = 3;
                 typeString = "强制透";
                 break;
@@ -220,7 +221,7 @@ public class LotteryManager {
      * @date 2022/12/6 16:52
      */
     public static void result(int type, int location, LotteryInfo lotteryInfo) {
-        String key = lotteryInfo.getQq() + "-" + lotteryInfo.getGroup() + "-" + lotteryInfo.getNumber();
+        String key = lotteryInfo.getId() + "-" + lotteryInfo.getQq() + "-" + lotteryInfo.getGroup() + "-" + lotteryInfo.getNumber();
         switch (type) {
             case 1:
                 GRAND_LOTTO_LOTTERY.remove(key);
@@ -332,7 +333,7 @@ class LotteryMinutesTask implements Task {
             }
             lotteryInfo.setBonus(bonus);
             lotteryInfo.setCurrent(currentString.toString());
-            lotteryInfo.save();
+            lotteryInfo = lotteryInfo.save();
             LotteryManager.result(1, location, lotteryInfo);
             Log.info("LotteryMinutesTask-->lotteryInfo->"+lotteryInfo.getQq() +"-->location"+location);
             // 获取中奖者
@@ -358,7 +359,7 @@ class LotteryMinutesTask implements Task {
     }
 
     private void sendTextMessae(StringBuilder currentString, Map<Long, List<LotteryLocationInfo>> longListConcurrentHashMap, Long group, Bot bot) {
-        Message m = new PlainText(String.format("本期强制透开签啦！\n开签号码%s", currentString) + "\r\n");
+        Message m = new PlainText(String.format("本期强制透开签啦！\n开签: %s", currentString) + "\r\n");
         List<LotteryLocationInfo> list = Optional.ofNullable(longListConcurrentHashMap.get(group)).orElse(new CopyOnWriteArrayList<>());
         for(int i = 0 ; i <list.size() ; i ++ ){
             LotteryLocationInfo l = list.get(i);
@@ -458,7 +459,7 @@ class LotteryHoursTask implements Task {
 
             lotteryInfo.setBonus(bonus);
             lotteryInfo.setCurrent(currentString.toString());
-            lotteryInfo.save();
+            lotteryInfo = lotteryInfo.save();
             // 转账操作
             LotteryManager.result(2, location, lotteryInfo);
             Log.info("LotteryMinutesTask-->lotteryInfo->"+lotteryInfo.getQq() +"-->location"+location);
@@ -538,6 +539,20 @@ class LotteryDayTask implements Task {
         listResult.add("互攻");
         String current = RandomUtil.randomEle(listResult);
 
+        Map<String, Set<String>> otherName = new HashMap<>(3);
+        Set<String> j1 = new HashSet<>(2);
+        j1.add("姐一");
+        j1.add("姐1");
+        otherName.put("姐一", j1);
+        Set<String> m1 = new HashSet<>(2);
+        m1.add("妹一");
+        m1.add("妹1");
+        otherName.put("妹一", m1);
+        Set<String> m2 = new HashSet<>(1);
+        m2.add("互攻");
+        otherName.put("互攻", m2);
+
+        Set<String> currentSet = otherName.get(current);
         Set<Long> groups = new HashSet<>();
         Map<Long,List<LotteryLocationInfo>> longListConcurrentHashMap = new ConcurrentHashMap<>();
         for (LotteryInfo lotteryInfo : lotteryInfos) {
@@ -547,13 +562,13 @@ class LotteryDayTask implements Task {
             //计算奖金
             double bonus = 0;
             String number = lotteryInfo.getNumber();
-            if(number.equals(current)){
+            if(currentSet.contains(number)){
                 location = 1;
                 bonus = NumberUtil.round(NumberUtil.mul(lotteryInfo.getMoney(),2),2).doubleValue();
             }
             lotteryInfo.setBonus(bonus);
             lotteryInfo.setCurrent(current);
-            lotteryInfo.save();
+            lotteryInfo = lotteryInfo.save();
             LotteryManager.result(3, location, lotteryInfo);
             Log.info("LotteryDayTask-->lotteryInfo->"+lotteryInfo.getQq() +"-->location"+location);
             // 获取中奖者
@@ -577,7 +592,7 @@ class LotteryDayTask implements Task {
     }
     private void sendTextMessae(StringBuilder currentString,
                                 Map<Long, List<LotteryLocationInfo>> longListConcurrentHashMap, Long group, Bot bot) {
-        Message m = new PlainText(String.format("本期强制透开签啦！\n开签号码%s", currentString) + "\r\n");
+        Message m = new PlainText(String.format("本期强制透开签啦！\n开签号码:%s", currentString) + "\r\n");
         List<LotteryLocationInfo> list =
                 Optional.ofNullable(longListConcurrentHashMap.get(group)).orElse(new CopyOnWriteArrayList<>());
         if (!CollectionUtil.isEmpty(list)) {

@@ -78,8 +78,8 @@ public class LotteryInfo implements Serializable {
     /**
      * 保存
      */
-    public void save() {
-        HibernateUtil.factory.fromTransaction(session -> session.merge(this));
+    public LotteryInfo save() {
+        return HibernateUtil.factory.fromTransaction(session -> session.merge(this));
     }
 
     /**
