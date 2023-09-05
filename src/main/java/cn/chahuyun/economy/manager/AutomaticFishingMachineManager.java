@@ -10,6 +10,7 @@ import org.hibernate.query.criteria.HibernateCriteriaBuilder;
 import org.hibernate.query.criteria.JpaCriteriaQuery;
 import org.hibernate.query.criteria.JpaRoot;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class AutomaticFishingMachineManager {
@@ -28,6 +29,11 @@ public class AutomaticFishingMachineManager {
         }
         for (int i = 0; i < list.size(); i++) {
             AutomaticFishUser automaticFishUser = list.get(i);
+            if(!LocalDateTime.now().isBefore(automaticFishUser.getEndTime())){
+                automaticFishUser.remove();
+                continue;
+            }
+
             Long groupId = automaticFishUser.getGroupId();
             Long userId = automaticFishUser.getFishUser();
             CacheUtils.addAutomaticFishBuff(groupId, userId, AutomaticFishTask.getAutomaticFishTaskId(groupId, userId));

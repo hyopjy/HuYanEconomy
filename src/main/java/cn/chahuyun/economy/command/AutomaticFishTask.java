@@ -5,7 +5,6 @@ import cn.chahuyun.economy.dto.AutomaticFish;
 import cn.chahuyun.economy.entity.fish.AutomaticFishUser;
 import cn.chahuyun.economy.manager.GamesManager;
 import cn.chahuyun.economy.utils.CacheUtils;
-import cn.chahuyun.economy.utils.Log;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.cron.CronUtil;
 import cn.hutool.cron.task.Task;
@@ -71,13 +70,12 @@ public class AutomaticFishTask implements Task {
         automaticFishUser.setAutomaticFishStr(JSONUtil.toJsonStr(automaticFishList));
         // 更新数据库
         automaticFishUser.saveOrUpdate();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
-        if (excuteTime.format(formatter).equals(endTime.format(formatter)) || excuteTime.isAfter(endTime) ) {
+        // DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        if (!excuteTime.isBefore(endTime)) {
             // 输出鱼信息
             Message m = new At(user.getId()).plus("\r\n");
             m = m.plus("[岛岛全自动钓鱼机使用结束]").plus("\r\n");
-            m = m.plus("-----🐟-----\r\n");
+            m = m.plus("=============\r\n");
             StringBuilder message = new StringBuilder();
             automaticFishList.forEach(f -> {
                 message.append(f.getMessage() + "\r\n");

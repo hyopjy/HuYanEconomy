@@ -422,7 +422,7 @@ public class GamesManager {
                 new FishRanking(userInfo.getQq(), userInfo.getName(), dimensions, money, userFishInfo.getRodLevel(), fish, fishPond).save();
             }
 
-            messages.append("-----🐟-----\r\n");
+            messages.append("-----------\r\n");
         });
 
         if(RandomHelperUtil.checkRandomLuck1_100()){
@@ -778,7 +778,7 @@ public class GamesManager {
     }
 
     private static AutomaticFish getAutomaticPropCard(Fish fish, int dimensions, int money) {
-        String message = String.format("[道具]%s|等级:%s|单价:%s|尺寸:%d总金额:%d",
+        String message = String.format("[道具]%s|等级:%s|单价:%s|尺寸:%d|总金额:%d",
                 fish.getName(), fish.getLevel(), fish.getPrice(), dimensions, money);
         return new AutomaticFish(fish.getName(), message, money, 0,"");
     }
