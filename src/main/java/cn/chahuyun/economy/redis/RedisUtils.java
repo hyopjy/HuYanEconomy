@@ -1,13 +1,16 @@
 package cn.chahuyun.economy.redis;
 
+import cn.chahuyun.config.EconomyConfig;
 import cn.chahuyun.economy.HuYanEconomy;
 import cn.chahuyun.economy.constant.RedisKeyConstant;
 import cn.chahuyun.economy.utils.Log;
 import cn.hutool.core.util.StrUtil;
+import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.NormalMember;
 import net.mamoe.mirai.message.data.At;
 import net.mamoe.mirai.message.data.Message;
+import org.apache.commons.collections4.CollectionUtils;
 import org.redisson.api.*;
 
 import java.time.LocalDate;
@@ -112,6 +115,11 @@ public class RedisUtils {
             String[] orderIds = orderId.split("-");
             Long groupId = Long.valueOf(orderIds[0]);
             Long userId  = Long.valueOf(orderIds[1]);
+            Bot bot = HuYanEconomy.INSTANCE.getBotInstance();
+            if (bot == null) {
+                Log.info("[延时队列收到-发生异常]-获取bot为空：" + groupId);
+                return;
+            }
             Group group = HuYanEconomy.INSTANCE.bot.getGroup(groupId);
             if(Objects.isNull(group)){
                 continue;

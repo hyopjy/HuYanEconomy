@@ -84,12 +84,12 @@ public class RandomMoneyListener extends SimpleListenerHost {
             }else {
                 Message m = new PlainText("");
                 // 强制透
-                List<LotteryInfo> grandLotto = list.stream().filter(lotteryInfo -> lotteryInfo.getType() == 1).collect(Collectors.toList());
+                List<LotteryInfo> grandLotto = list.stream().filter(lotteryInfo -> lotteryInfo.getType() == 3).collect(Collectors.toList());
                 // 缺德球
                 List<LotteryInfo> union = list.stream().filter(lotteryInfo -> lotteryInfo.getType() == 2).collect(Collectors.toList());
 
                 if(!CollectionUtils.isEmpty(grandLotto)){
-                    m = m.plus("强制透签：").plus("\r\n");
+                    m = m.plus("强制一签：").plus("\r\n");
                    for(int i = 0 ; i < grandLotto.size(); i++ ) {
                        m = m.plus("号码：" ).plus(grandLotto.get(i).getNumber()).plus(" 币币：" + grandLotto.get(i).getMoney()).plus("\r\n");
                    }

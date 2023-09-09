@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.message.data.PlainText;
@@ -144,7 +145,11 @@ public class FishInfo implements Serializable {
         //如果为2 -> 群默认鱼塘格式  g-(群号)
         if (split.length == 2) {
             long group = Long.parseLong(split[1]);
-            Group botGroup = HuYanEconomy.INSTANCE.bot.getGroup(group);
+            Bot bot = HuYanEconomy.INSTANCE.getBotInstance();
+            if (bot == null) {
+                return null;
+            }
+            Group botGroup = bot.getGroup(group);
             assert botGroup != null;
             //注册新鱼塘
             FishPond finalFishPond = new FishPond(1, group, HuYanEconomy.config.getOwner(), botGroup.getName() + "鱼塘", "「纯天然湖泊，鱼情优秀，又大又多」，但据内部人士爆料，这是黑心土著挖的人工湖");
