@@ -21,9 +21,11 @@ import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescriptionBuilder;
 import net.mamoe.mirai.event.Event;
 import net.mamoe.mirai.event.EventChannel;
 import net.mamoe.mirai.event.GlobalEventChannel;
+import org.apache.commons.collections4.CollectionUtils;
 import xyz.cssxsh.mirai.hibernate.MiraiHibernateConfiguration;
 
 import java.io.InputStream;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class HuYanEconomy extends JavaPlugin {
@@ -48,6 +50,18 @@ public final class HuYanEconomy extends JavaPlugin {
      * 插件所属bot
      */
     public Bot bot;
+
+    public Bot getBotInstance() {
+        if (bot == null) {
+            List<Bot> botList = Bot.getInstances();
+            if (CollectionUtils.isEmpty(botList)) {
+                Log.info("getBotInstance 获取bot为空");
+                return bot;
+            }
+            return botList.get(0);
+        }
+        return bot;
+    }
 
     private HuYanEconomy() {
         super(new JvmPluginDescriptionBuilder("cn.chahuyun.HuYanEconomy", version)

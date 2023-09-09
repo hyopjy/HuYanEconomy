@@ -1,5 +1,6 @@
 package cn.chahuyun.economy.command;
 
+import cn.chahuyun.config.EconomyConfig;
 import cn.chahuyun.economy.HuYanEconomy;
 import cn.chahuyun.economy.constant.Constant;
 import cn.chahuyun.economy.dto.AutomaticFish;
@@ -12,6 +13,7 @@ import cn.hutool.cron.CronUtil;
 import cn.hutool.cron.task.Task;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSONArray;
+import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.message.data.At;
@@ -49,8 +51,12 @@ public class AutomaticFishTask implements Task {
     public void execute() {
         LocalDateTime excuteTime = LocalDateTime.now();
         Log.info("[自动钓鱼机-开始执行]-任务id" + id + "执行时间:" + excuteTime.format(Constant.FORMATTER));
-
-        Group group = HuYanEconomy.INSTANCE.bot.getGroup(groupId);
+        Bot bot = HuYanEconomy.INSTANCE.getBotInstance();
+        if(bot == null){
+            Log.info("[自动钓鱼机-发生异常]-获取bot为空：" + groupId);
+            return;
+        }
+        Group group = bot.getGroup(groupId);
         if (Objects.isNull(group)) {
             Log.info("[自动钓鱼机-发生异常]-获取群组为空：" + groupId);
             return;

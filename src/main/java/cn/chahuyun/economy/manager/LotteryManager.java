@@ -166,7 +166,7 @@ public class LotteryManager {
                 break;
             case 2:
                 type = 3;
-                typeString = "强制透";
+                typeString = "强制一";
                 break;
             default:
                 subject.sendMessage(MessageUtil.formatMessageChain(message,"猜签类型错误!"));
@@ -221,6 +221,11 @@ public class LotteryManager {
      * @date 2022/12/6 16:52
      */
     public static void result(int type, int location, LotteryInfo lotteryInfo) {
+        Bot bot = HuYanEconomy.INSTANCE.getBotInstance();
+        if(bot == null){
+            Log.info("[猜签-发生异常]-获取bot为空");
+            return;
+        }
         String key = lotteryInfo.getId() + "-" + lotteryInfo.getQq() + "-" + lotteryInfo.getGroup() + "-" + lotteryInfo.getNumber();
         switch (type) {
             case 1:
@@ -234,10 +239,6 @@ public class LotteryManager {
         }
         lotteryInfo.remove();
         if (location == 0) {
-            return;
-        }
-        Bot bot = HuYanEconomy.INSTANCE.bot;
-        if(bot == null){
             return;
         }
         Group group = bot.getGroup(lotteryInfo.getGroup());
@@ -289,7 +290,11 @@ class LotteryMinutesTask implements Task {
     @Override
     public void execute() {
         Log.info("LotteryMinutesTask-->open-->强制透");
-        Bot bot = HuYanEconomy.INSTANCE.bot;
+        Bot bot = HuYanEconomy.INSTANCE.getBotInstance();
+        if(bot == null){
+            Log.info("[猜签-发生异常]-获取bot为空");
+            return;
+        }
         String[] current = {
                 String.valueOf(RandomUtil.randomInt(0, 9)),
                 String.valueOf(RandomUtil.randomInt(0, 9)),
@@ -400,8 +405,11 @@ class LotteryHoursTask implements Task {
     @Override
     public void execute() {
         Log.info("LotteryHoursTask-->open-->缺德球");
-
-        Bot bot = HuYanEconomy.INSTANCE.bot;
+        Bot bot = HuYanEconomy.INSTANCE.getBotInstance();
+        if(bot == null){
+            Log.info("[猜签-发生异常]-获取bot为空");
+            return;
+        }
         String[] current = {
                 String.valueOf(RandomUtil.randomInt(0, 10)),
                 String.valueOf(RandomUtil.randomInt(0, 10)),
@@ -531,7 +539,11 @@ class LotteryDayTask implements Task {
     @Override
     public void execute() {
         Log.info("LotteryDayTask-->open-->三色球");
-        Bot bot = HuYanEconomy.INSTANCE.bot;
+        Bot bot = HuYanEconomy.INSTANCE.getBotInstance();
+        if(bot == null){
+            Log.info("[猜签-发生异常]-获取bot为空");
+            return;
+        }
         List<String> listResult = new ArrayList<>(3);
         // 姐一妹一互攻
         listResult.add("姐一");
@@ -592,7 +604,7 @@ class LotteryDayTask implements Task {
     }
     private void sendTextMessae(StringBuilder currentString,
                                 Map<Long, List<LotteryLocationInfo>> longListConcurrentHashMap, Long group, Bot bot) {
-        Message m = new PlainText(String.format("本期强制透开签啦！\n开签号码:%s", currentString) + "\r\n");
+        Message m = new PlainText(String.format("本期强制一开签啦！\n开签号码:%s", currentString) + "\r\n");
         List<LotteryLocationInfo> list =
                 Optional.ofNullable(longListConcurrentHashMap.get(group)).orElse(new CopyOnWriteArrayList<>());
         if (!CollectionUtil.isEmpty(list)) {

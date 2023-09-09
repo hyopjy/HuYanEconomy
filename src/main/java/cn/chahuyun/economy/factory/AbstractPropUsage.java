@@ -1,5 +1,6 @@
 package cn.chahuyun.economy.factory;
 
+import cn.chahuyun.economy.constant.PropConstant;
 import cn.chahuyun.economy.dto.Buff;
 import cn.chahuyun.economy.entity.UserInfo;
 import cn.chahuyun.economy.entity.props.PropsFishCard;
@@ -46,14 +47,17 @@ public abstract class AbstractPropUsage implements IPropUsage{
         // 校验是否正在使用BUff -- 执行结束后删除
         // 判断命令执行者是否在使用其他buff
         User sender = event.getSender();
-        Buff buff = CacheUtils.getBuff(group.getId(), sender.getId());
-        if (isBuff && Objects.nonNull(buff)) {
-            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "正在使用[" + buff.getBuffName() + "]buff"));
-            return false;
-        }
-        if(CacheUtils.checkAutomaticFishBuff(group.getId(),sender.getId())){
-            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "正在使用[" + propsCard.getName() + "]buff"));
-            return false;
+        if (PropConstant.AUTOMATIC_FISH.equals(propsCard.getName())) {
+            if (CacheUtils.checkAutomaticFishBuff(group.getId(), sender.getId())) {
+                subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "正在使用[" + propsCard.getName() + "]buff"));
+                return false;
+            }
+        } else {
+            Buff buff = CacheUtils.getBuff(group.getId(), sender.getId());
+            if (isBuff && Objects.nonNull(buff)) {
+                subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "正在使用[" + buff.getBuffName() + "]buff"));
+                return false;
+            }
         }
         return true;
     }
