@@ -154,6 +154,7 @@ public class RandomMoneyListener extends SimpleListenerHost {
             // 休渔期 1,2,3,4 10-11
             // 1,2,3,4,5 0-5,10-23
             // 6,7 9-15,20-23
+            message = message.replace("\\","");
             String[] arr = message.split(" ");
             String weekDay = arr[1];
             String time = arr[2];
@@ -170,12 +171,14 @@ public class RandomMoneyListener extends SimpleListenerHost {
                 timeRange.save();
             }
 
-            Message m = new PlainText("=====配置信息====").plus("\r\n");
+            Message m = new PlainText("=====配置信息=====").plus("\r\n");
+           StringBuffer stringBuffer = new StringBuffer();
             List<TimeRange> list = TimeRangeManager.getTimeRangeList();
-            list.stream().filter(Objects::nonNull).forEach(timeRange->{
+            list.forEach(timeRange->{
                 TimeRangeManager.WEEK_TIME_RANGE_CACHE.put(timeRange.getWeekDay(), timeRange);
-                m.plus(timeRange.getDesc());
+                stringBuffer.append(timeRange.getDesc());
             });
+            m = m.plus(stringBuffer);
             subject.sendMessage(MessageUtil.formatMessageChain(m.contentToString()));
          }
 //        if (message.equals("刷新道具") &&

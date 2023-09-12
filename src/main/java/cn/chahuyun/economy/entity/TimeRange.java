@@ -33,6 +33,6 @@ public class TimeRange {
     }
 
     public String getDesc(){
-        return "当前配置：---" + weekDay + ":" + time +"\r\n";
+        return "星期：" + weekDay + "时间区间：" + time +"\r\n";
     }
 }
