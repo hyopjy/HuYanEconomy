@@ -3,10 +3,11 @@ package cn.chahuyun.economy.event;
 import cn.chahuyun.config.EconomyEventConfig;
 import cn.chahuyun.economy.entity.LotteryInfo;
 
+import cn.chahuyun.economy.entity.TimeRange;
 import cn.chahuyun.economy.entity.fish.Fish;
 import cn.chahuyun.economy.entity.fish.FishRanking;
-import cn.chahuyun.economy.manager.BackpackManager;
 import cn.chahuyun.economy.manager.GamesManager;
+import cn.chahuyun.economy.manager.TimeRangeManager;
 import cn.chahuyun.economy.plugin.FishManager;
 import cn.chahuyun.economy.plugin.FishPondManager;
 import cn.chahuyun.economy.utils.EconomyUtil;
@@ -151,10 +152,33 @@ public class RandomMoneyListener extends SimpleListenerHost {
             subject.sendMessage(MessageUtil.formatMessageChain("重新加载完成"));
         }
 
-        if (message.equals("重置鱼塘") && EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
+        if (message.startsWith("休渔期") && EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
+            // 休渔期 1,2,3,4 10-11
+            // 1,2,3,4,5 0-5,10-23
+            // 6,7 9-15,20-23
+            String[] arr = message.split(" ");
+            String weekDay = arr[1];
+            String time = arr[2];
+            String[] weekDayArr = weekDay.split(",");
+            for(String week : weekDayArr){
+                int weekNum = 0;
+                try{
+                    weekNum = Integer.parseInt(week);
+                }catch (Exception e){
+                    subject.sendMessage(MessageUtil.formatMessageChain("week输入数字"));
+                    return ListeningStatus.LISTENING;
+                }
+                TimeRange timeRange = new TimeRange(weekNum, time);
+                timeRange.save();
+            }
 
-
-        }
+            Message m = new PlainText("=====配置信息====").plus("\r\n");
+            List<TimeRange> list = TimeRangeManager.getTimeRangeList();
+            list.forEach(l->{
+                m.plus(l.getDesc());
+            });
+            subject.sendMessage(MessageUtil.formatMessageChain(m.contentToString()));
+         }
 //        if (message.equals("刷新道具") &&
 //                EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
 //            PluginManager.refreshPropsFishCard();
