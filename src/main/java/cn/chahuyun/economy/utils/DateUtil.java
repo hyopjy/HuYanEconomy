@@ -21,7 +21,7 @@ public class DateUtil {
                 String[] hourArrTime = hour.split("-");
                 int hourOpen = Integer.parseInt(hourArrTime[0]);
                 int hourEnd = Integer.parseInt(hourArrTime[1]);
-                if (now.getHour() >= hourOpen || now.getHour() < hourEnd) {
+                if (now.getHour() >= hourOpen && now.getHour() < hourEnd) {
                     return true;
                 }
             }

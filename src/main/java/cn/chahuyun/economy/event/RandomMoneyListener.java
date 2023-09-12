@@ -10,10 +10,7 @@ import cn.chahuyun.economy.manager.GamesManager;
 import cn.chahuyun.economy.manager.TimeRangeManager;
 import cn.chahuyun.economy.plugin.FishManager;
 import cn.chahuyun.economy.plugin.FishPondManager;
-import cn.chahuyun.economy.utils.EconomyUtil;
-import cn.chahuyun.economy.utils.HibernateUtil;
-import cn.chahuyun.economy.utils.Log;
-import cn.chahuyun.economy.utils.MessageUtil;
+import cn.chahuyun.economy.utils.*;
 import cn.hutool.core.util.RandomUtil;
 import kotlin.coroutines.CoroutineContext;
 import net.mamoe.mirai.contact.*;
@@ -34,6 +31,7 @@ import org.hibernate.query.criteria.JpaRoot;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 
@@ -174,8 +172,9 @@ public class RandomMoneyListener extends SimpleListenerHost {
 
             Message m = new PlainText("=====配置信息====").plus("\r\n");
             List<TimeRange> list = TimeRangeManager.getTimeRangeList();
-            list.forEach(l->{
-                m.plus(l.getDesc());
+            list.stream().filter(Objects::nonNull).forEach(timeRange->{
+                TimeRangeManager.WEEK_TIME_RANGE_CACHE.put(timeRange.getWeekDay(), timeRange);
+                m.plus(timeRange.getDesc());
             });
             subject.sendMessage(MessageUtil.formatMessageChain(m.contentToString()));
          }
