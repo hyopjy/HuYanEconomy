@@ -369,8 +369,6 @@ class LotteryMinutesTask implements Task {
         for(int i = 0 ; i <list.size() ; i ++ ){
             LotteryLocationInfo l = list.get(i);
             m = m.plus("\r\n");
-            Group group1 = bot.getGroup(group);
-            NormalMember member = group1.get(l.getLotteryInfo().getQq());
             m = m.plus(new At(l.getLotteryInfo().getQq())
                     .plus("购买号码：" + l.getLotteryInfo().getNumber()+" "+"中奖金额："+ l.getLotteryInfo().getBonus() +"💰" + "\r\n"));
         }
@@ -498,12 +496,8 @@ class LotteryHoursTask implements Task {
             for (int i = 0; i < list.size(); i++) {
                 LotteryLocationInfo l = list.get(i);
                 m = m.plus("\r\n");
-                Group group1 = bot.getGroup(group);
-                NormalMember member = group1.get(l.getLotteryInfo().getQq());
                 m = m.plus(new At(l.getLotteryInfo().getQq())
-                        .plus("中奖人：" + (StrUtil.isBlank(member.getNameCard()) ? member.getNick() :
-                                member.getNameCard()))
-                        .plus("购买号码：" + l.getLotteryInfo().getNumber() + " " + "中奖金额：" + l.getLotteryInfo().getBonus() + "💰" + "\r\n"));
+                        .plus("购买号码：" + l.getLotteryInfo().getNumber()+" "+"中奖金额："+ l.getLotteryInfo().getBonus() +"💰" + "\r\n"));
             }
         }else {
             m = m.plus("根本没有人中奖！\uD83E\uDD7A"+  "\r\n");
@@ -611,8 +605,6 @@ class LotteryDayTask implements Task {
             for (int i = 0; i < list.size(); i++) {
                 LotteryLocationInfo l = list.get(i);
                 m = m.plus("\r\n");
-                Group group1 = bot.getGroup(group);
-                NormalMember member = group1.get(l.getLotteryInfo().getQq());
                 m = m.plus(new At(l.getLotteryInfo().getQq())
                         .plus("购买号码：" + l.getLotteryInfo().getNumber() + " " + "中奖金额：" + l.getLotteryInfo().getBonus() +
                                 "💰" + "\r\n"));
