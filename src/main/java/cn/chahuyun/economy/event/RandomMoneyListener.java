@@ -142,26 +142,25 @@ public class RandomMoneyListener extends SimpleListenerHost {
                      return null;
                  });
             });
-
+            FishManager.fishMap.clear();
             FishManager.init();
             GamesManager.playerCooling.clear();
-            FishManager.fishMap.clear();
             GamesManager.refresh(event);
             FishPondManager.refresh(event);
             Log.info("重新加载完成！");
             subject.sendMessage(MessageUtil.formatMessageChain("重新加载完成"));
         }
 
+        if (message.equals("重置鱼塘") && EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
+
+
+        }
 //        if (message.equals("刷新道具") &&
 //                EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
 //            PluginManager.refreshPropsFishCard();
 //            subject.sendMessage(MessageUtil.formatMessageChain("刷新道具完成"));
 //        }
 
-        // 清理用户背包自动钓鱼机
-        if (message.equals("自动钓鱼机") && EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
-            BackpackManager.clearFishMachine(event);
-        }
 
 
         return ListeningStatus.LISTENING;

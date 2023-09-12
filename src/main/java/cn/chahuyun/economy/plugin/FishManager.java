@@ -41,9 +41,14 @@ public class FishManager {
         });
         if (fishList == null || fishList.size() == 0) {
             reloadFish();
-            return;
         }
-        for (Fish fish : fishList) {
+        List<Fish> finalList = HibernateUtil.factory.fromSession(session -> {
+            HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
+            JpaCriteriaQuery<Fish> query = builder.createQuery(Fish.class);
+            query.select(query.from(Fish.class));
+            return session.createQuery(query).list();
+        });
+        for (Fish fish : finalList) {
             int level = fish.getLevel();
             if (fishMap.containsKey(level)) {
                 fishMap.get(level).add(fish);
@@ -90,16 +95,6 @@ public class FishManager {
         List<Fish> fishList = reader.setHeaderAlias(map).readAll(Fish.class);
         for (Fish fish : fishList) {
             HibernateUtil.factory.fromTransaction(session -> session.merge(fish));
-        }
-        for (Fish fish : fishList) {
-            int level = fish.getLevel();
-            if (fishMap.containsKey(level)) {
-                fishMap.get(level).add(fish);
-            } else {
-                fishMap.put(level, new ArrayList<>() {{
-                    add(fish);
-                }});
-            }
         }
     }
 }
