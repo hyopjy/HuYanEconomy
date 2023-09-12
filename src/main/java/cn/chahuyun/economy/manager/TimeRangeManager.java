@@ -9,10 +9,17 @@ import org.hibernate.query.criteria.JpaCriteriaQuery;
 import org.hibernate.query.criteria.JpaRoot;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class TimeRangeManager {
 
+    public static ConcurrentHashMap<Integer, TimeRange> WEEK_TIME_RANGE_CACHE = new ConcurrentHashMap<>(7);
+
     public static TimeRange getByWeekDay(int weekDay) {
+        if (Objects.nonNull(WEEK_TIME_RANGE_CACHE.get(weekDay))) {
+            return WEEK_TIME_RANGE_CACHE.get(weekDay);
+        }
         List<TimeRange> list = HibernateUtil.factory.fromSession(session -> {
             HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
             JpaCriteriaQuery<TimeRange> query = builder.createQuery(TimeRange.class);
@@ -21,10 +28,12 @@ public class TimeRangeManager {
             query.where(builder.equal(from.get("weekDay"), weekDay));
             return session.createQuery(query).list();
         });
-        if(CollectionUtils.isEmpty(list)){
+        if (CollectionUtils.isEmpty(list)) {
             return null;
         }
-        return list.get(0);
+        TimeRange range = list.get(0);
+        WEEK_TIME_RANGE_CACHE.put(weekDay, range);
+        return range;
     }
 
     public static List<TimeRange> getTimeRangeList() {
