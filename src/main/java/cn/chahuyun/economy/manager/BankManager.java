@@ -200,7 +200,9 @@ class BankInterestTask implements Task {
             Log.info("bankInfo-id:"+ bankInfo.getId());
             if (bankInfo.getId() == 1) {
                 int interest = bankInfo.getInterest();
-                Map<EconomyAccount, Double> accountByBank = EconomyUtil.getAccountByBank();
+                // 更改为获取余额
+                Map<EconomyAccount, Double> accountByBank = EconomyUtil.getAllAccount();
+
                 for (Map.Entry<EconomyAccount, Double> entry : accountByBank.entrySet()) {
                     UserInfo userInfo = UserManager.getUserInfo(entry.getKey());
                     if (userInfo == null) {
@@ -209,12 +211,14 @@ class BankInterestTask implements Task {
                     double dd = interest / 100.00;
                     BigDecimal vB = NumberUtil.round(NumberUtil.mul(entry.getValue().doubleValue(),dd),2);
                     double v = vB.doubleValue();
-                    if (EconomyUtil.plusMoneyToBankForAccount(entry.getKey(), v)) {
-                        Log.info("用户："+ userInfo.getQq() + "银行收入：" + v);
+
+                    if (EconomyUtil.plusMoneyToWalletForAccount(entry.getKey(), v)) {
+                    // if (EconomyUtil.plusMoneyToBankForAccount(entry.getKey(), v)) {
+                        Log.info("用户："+ userInfo.getQq() + "获得收入：" + v);
                         userInfo.setBankEarnings(v);
                         userInfo.save();
                     } else {
-                        Log.error("银行利息管理:" + id + "添加利息出错");
+                        Log.error("利息管理:" + id + "添加利息出错");
                     }
                 }
             }
