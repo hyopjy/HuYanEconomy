@@ -255,13 +255,14 @@ public class MessageEventListener extends SimpleListenerHost {
                 return;
             }
 
-            String walletToBankRegex = "存款 (\\d+(\\d+|\\.\\d)*)?|deposit (\\d+(\\d+|\\.\\d)*)?";
+            //String walletToBankRegex = "存款 (\\d+(\\d+|\\.\\d)*)?|deposit (\\d+(\\d+|\\.\\d)*)?";
             String bankToWalletRegex = "取款 (\\d+(\\d+|\\.\\d)*)?|withdraw (\\d+(\\d+|\\.\\d)*)?";
-            if (Pattern.matches(walletToBankRegex, code)) {
-                Log.info("银行指令");
-                BankManager.deposit(event);
-                return;
-            } else if (Pattern.matches(bankToWalletRegex, code)) {
+           // if (Pattern.matches(walletToBankRegex, code)) {
+//                Log.info("银行指令");
+//                BankManager.deposit(event);
+//                return;
+//            } else
+            if (Pattern.matches(bankToWalletRegex, code)) {
                 Log.info("银行指令");
                 BankManager.withdrawal(event);
                 return;
