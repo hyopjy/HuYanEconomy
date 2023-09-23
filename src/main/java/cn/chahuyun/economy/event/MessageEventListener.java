@@ -18,6 +18,8 @@ import org.jetbrains.annotations.NotNull;
 
 import org.redisson.api.RLock;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -206,18 +208,36 @@ public class MessageEventListener extends SimpleListenerHost {
                     return;
 
             }
+            LocalDate now = LocalDate.now();
 
+            // 工作日全天，所有购买道具和使用道具（27除外）指令都失效
             String buyPropRegex = "购买 (\\S+)( \\S+)?|buy (\\S+)( \\S+)?";
             if (Pattern.matches(buyPropRegex, code)) {
                 Log.info("购买指令");
-                propsManager.buyPropFromStore(event);
+                if (now.getDayOfWeek() == DayOfWeek.SUNDAY || now.getDayOfWeek() == DayOfWeek.SATURDAY) {
+                    propsManager.buyPropFromStore(event);
+                } else {
+                    if (code.contains("岛岛全自动钓鱼机") || code.contains("27")) {
+                        propsManager.buyPropFromStore(event);
+                    } else {
+                        Log.info("购买指令: 工作日失效");
+                    }
+                }
                 return;
             }
 
             String exchangePropRegex = "兑换 (\\S+)( \\S+)?|buy (\\S+)( \\S+)?";
             if (Pattern.matches(exchangePropRegex, code)) {
                 Log.info("兑换指令");
-                propsManager.exchangePropFromStore(event);
+                if (now.getDayOfWeek() == DayOfWeek.SUNDAY || now.getDayOfWeek() == DayOfWeek.SATURDAY) {
+                    propsManager.exchangePropFromStore(event);
+                } else {
+                    if (code.contains("岛岛全自动钓鱼机") || code.contains("27")) {
+                        propsManager.buyPropFromStore(event);
+                    } else {
+                        Log.info("购买指令: 工作日失效");
+                    }
+                }
                 return;
             }
 
