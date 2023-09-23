@@ -8,8 +8,9 @@ public class RedissonConfig {
     private static Redisson redisson = null;
     static{
         config.useSingleServer()
-                .setAddress("redis://39.106.18.60:6379")
-                .setPassword("zyjy110.");
+                .setAddress("redis://127.0.0.1:6379")
+               // .setPassword("zyjy110.")
+                ;
         //得到redisson对象
         redisson = (Redisson) Redisson.create(config);
 
