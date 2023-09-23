@@ -145,7 +145,7 @@ public class GamesManager {
         //开始钓鱼
         String start = String.format("%s开始钓鱼\n鱼塘:%s\n等级:%s\n最低鱼竿等级:%s\n%s", userName, fishPond.getName(), fishPond.getPondLevel(), fishPond.getMinLevel(), fishPond.getDescription());
         subject.sendMessage(start);
-        Log.info(String.format("%s开始钓鱼", userInfo.getName()));
+        Log.info(String.format("%s消耗%s币币开始钓鱼", userInfo.getName(), Optional.ofNullable(userPay.get(user.getId())).orElse(0.0)));
 
         String[] errorMessages = new String[]{"钓鱼失败:哎呀，风吹的……", "钓鱼失败:哎呀，眼花了……", "钓鱼失败:bobo摇头", "钓鱼失败:呀！切线了！", "钓鱼失败:什么都没有钓上来！"};
 

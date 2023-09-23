@@ -214,30 +214,27 @@ public class MessageEventListener extends SimpleListenerHost {
             String buyPropRegex = "购买 (\\S+)( \\S+)?|buy (\\S+)( \\S+)?";
             if (Pattern.matches(buyPropRegex, code)) {
                 Log.info("购买指令");
-                if (now.getDayOfWeek() == DayOfWeek.SUNDAY || now.getDayOfWeek() == DayOfWeek.SATURDAY) {
-                    propsManager.buyPropFromStore(event);
-                } else {
-                    if (code.contains("岛岛全自动钓鱼机") || code.contains("27")) {
+                try {
+                    if (now.getDayOfWeek() == DayOfWeek.SUNDAY || now.getDayOfWeek() == DayOfWeek.SATURDAY) {
                         propsManager.buyPropFromStore(event);
                     } else {
-                        Log.info("购买指令: 工作日失效");
+                        if (code.contains("岛岛全自动钓鱼机") || code.contains("27")) {
+                            propsManager.buyPropFromStore(event);
+                        } else {
+                            Log.info("购买指令: 工作日失效");
+                        }
                     }
+                    return;
+                } catch (Exception e) {
+                    Log.error("[购买指令]发生异常：" + e.getMessage());
                 }
-                return;
+
             }
 
             String exchangePropRegex = "兑换 (\\S+)( \\S+)?|buy (\\S+)( \\S+)?";
             if (Pattern.matches(exchangePropRegex, code)) {
                 Log.info("兑换指令");
-                if (now.getDayOfWeek() == DayOfWeek.SUNDAY || now.getDayOfWeek() == DayOfWeek.SATURDAY) {
-                    propsManager.exchangePropFromStore(event);
-                } else {
-                    if (code.contains("岛岛全自动钓鱼机") || code.contains("27")) {
-                        propsManager.buyPropFromStore(event);
-                    } else {
-                        Log.info("购买指令: 工作日失效");
-                    }
-                }
+                propsManager.exchangePropFromStore(event);
                 return;
             }
 
@@ -245,11 +242,18 @@ public class MessageEventListener extends SimpleListenerHost {
             if (Pattern.matches(userPropRegex, code)) {
                 Log.info("使用指令");
                 try {
-                    propsManager.userProp(event);
+                    if (now.getDayOfWeek() == DayOfWeek.SUNDAY || now.getDayOfWeek() == DayOfWeek.SATURDAY) {
+                        propsManager.userProp(event);
+                    } else {
+                        if (code.contains("岛岛全自动钓鱼机") || code.contains("27")) {
+                            propsManager.userProp(event);
+                        } else {
+                            Log.info("使用指令: 工作日失效");
+                        }
+                    }
                 }catch (Exception e){
                     Log.error("[使用指令]发生异常：" + e.getMessage());
                 }
-
                 return;
             }
 
