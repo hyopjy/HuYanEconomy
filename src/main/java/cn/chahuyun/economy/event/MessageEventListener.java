@@ -218,7 +218,9 @@ public class MessageEventListener extends SimpleListenerHost {
                     if (now.getDayOfWeek() == DayOfWeek.SUNDAY || now.getDayOfWeek() == DayOfWeek.SATURDAY) {
                         propsManager.buyPropFromStore(event);
                     } else {
-                        if (code.contains("岛岛全自动钓鱼机") || code.contains("27")) {
+                        if (code.contains("岛岛全自动钓鱼机") || code.contains("27") ||
+                        code.contains("面罩") || code.contains("34")
+                        ) {
                             propsManager.buyPropFromStore(event);
                         } else {
                             Log.info("购买指令: 工作日失效");
@@ -245,7 +247,9 @@ public class MessageEventListener extends SimpleListenerHost {
                     if (now.getDayOfWeek() == DayOfWeek.SUNDAY || now.getDayOfWeek() == DayOfWeek.SATURDAY) {
                         propsManager.userProp(event);
                     } else {
-                        if (code.contains("岛岛全自动钓鱼机") || code.contains("27")) {
+                        if (code.contains("岛岛全自动钓鱼机") || code.contains("27") ||
+                                code.contains("面罩") || code.contains("34")
+                        ) {
                             propsManager.userProp(event);
                         } else {
                             Log.info("使用指令: 工作日失效");
@@ -272,10 +276,19 @@ public class MessageEventListener extends SimpleListenerHost {
                 }
                 return;
             }
-            String userToUserTransferRegex = "转账(\\[mirai:at:\\d+])? (\\d+(\\d+|\\.\\d)*)?";
+            String bankTobankTransferRegex = "转账(\\[mirai:at:\\d+])? (\\d+(\\d+|\\.\\d)*)?";
+            if (Pattern.matches(bankTobankTransferRegex, code)) {
+                Log.info("转账-银行指令");
+                TransferManager.bankTobank(event);
+                return;
+            }
+            String userToUserTransferRegex = "转账币币(\\[mirai:at:\\d+])? (\\d+(\\d+|\\.\\d)*)?";
             if (Pattern.matches(userToUserTransferRegex, code)) {
-                Log.info("转账指令");
-                TransferManager.userToUser(event);
+                if(event.getSender().getId() == EconomyConfig.INSTANCE.getOwner()){
+                    Log.info("转账币币指令");
+                    TransferManager.userToUser(event);
+                }
+
                 return;
             }
 

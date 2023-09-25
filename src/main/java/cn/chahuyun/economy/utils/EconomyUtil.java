@@ -228,6 +228,28 @@ public class EconomyUtil {
         return turnUserToBank(user, quantity, Constant.CURRENCY_GOLD);
     }
 
+    public static boolean turnBankToBank(User user,User toUser, double quantity) {
+        return turnBankToBank(user, toUser, quantity, Constant.CURRENCY_GOLD);
+    }
+
+    public static boolean turnBankToBank(User user, User toUser, double quantity, EconomyCurrency currency) {
+        try (EconomyContext context = economyService.custom(HuYanEconomy.INSTANCE);
+             GlobalEconomyContext global = economyService.global()) {
+            UserEconomyAccount account = economyService.account(user);
+            UserEconomyAccount toUserAccount = economyService.account(toUser);
+            double money = context.get(account, currency);
+            if (money - quantity < 0) {
+                return false;
+            }
+            global.minusAssign(account, currency, quantity);
+            global.plusAssign(toUserAccount, currency, quantity);
+            return true;
+        } catch (Exception e) {
+            Log.error("经济转移出错:用户->银行", e);
+            return false;
+        }
+    }
+
     /**
      * 转账<p>
      * 从 用户 [钱包] 到 [银行]<p>
@@ -377,6 +399,32 @@ public class EconomyUtil {
         }
     }
 
+    public static boolean minusMoneyToBank(User user, double quantity) {
+        return minusMoneyToBank(user, quantity, Constant.CURRENCY_GOLD);
+    }
+
+
+    /**
+     * 给 [用户] [银行] 添加余额<p>
+     * 货币自定义<p>
+     *
+     * @param user     用户
+     * @param quantity 数量
+     * @param currency 货币
+     * @return boolean  true 成功
+     * @author Moyuyanli
+     * @date 2022年12月12日09:14:32
+     */
+    public static boolean minusMoneyToBank(User user, double quantity, EconomyCurrency currency) {
+        try (GlobalEconomyContext context = economyService.global()) {
+            UserEconomyAccount account = economyService.account(user);
+            context.minusAssign(account, currency, quantity);
+            return true;
+        } catch (Exception e) {
+            Log.error("经济转移出错:添加用户经济", e);
+            return false;
+        }
+    }
 
     /**
      * 给 [用户] [钱包] 减少余额<p>
