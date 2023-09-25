@@ -656,42 +656,61 @@ public class PropsManagerImpl implements PropsManager {
                 return;
             }
         }
-        // 道具背包
-        List<UserBackpack> userBackpack = userInfo.getBackpacks();
-
-        // 获取组成的道具
-        List<String> propsList = PROP_EXCHANGE.get(propsInfo.getCode());
-        userBackpack = userBackpack.stream().filter(user ->
-                        propsList.contains(user.getPropsCode()))
-                .collect(Collectors.toList());
-        // 如果有这些道具
-        if (checkUserBackPack(userBackpack, propsList)) {
-            // 删除道具
-            propsList.forEach(prop -> {
-                PropsBase propsEntity = PropsType.getPropsInfo(prop);
-                deleteProp(userInfo, propsEntity);
-            });
-            UserInfo newUserInfo = UserManager.getUserInfo(userInfo.getUser());
-            // 新增道具
-            UserBackpack userNewBackpack = new UserBackpack(newUserInfo, propsInfo);
-            if (!newUserInfo.addPropToBackpack(userNewBackpack)) {
-                Log.warning("道具系统:添加道具到用户背包失败!");
-                subject.sendMessage("系统出错，请联系主人!");
+        // 如果是兑换赛季币
+        if ("赛季币".equals(propsInfo.getName())) {
+            double moneyByUser = EconomyUtil.getMoneyByUser(sender);
+            if (moneyByUser - num < 0) {
+                messages.append(String.format("你的币币不够%s了", num));
+                subject.sendMessage(messages.build());
                 return;
             }
-            // 兑换成功 加入徽章信息
-            String signCode = propCode.toUpperCase(Locale.ROOT);
-            if (FishSignConstant.getSignPropCode().contains(signCode)) {
-                RedisUtils.getFishSignBloomFilter(subject.getId(), signCode).add(userInfo.getQq());
+            if (EconomyUtil.turnUserToBank(sender, num)) {
+                messages.append("成功兑换"+ num +"赛季币");
+                subject.sendMessage(messages.build());
+            } else {
+                messages.append("兑换失败!");
+                subject.sendMessage(messages.build());
+                Log.error("兑换管理:存款失败!");
             }
-            messages.append(new PlainText(propsInfo.getName() + "兑换成功！请到背包查看"));
-            subject.sendMessage(messages.build());
-            return;
-         }else {
-             messages.append(new PlainText("😣 请集齐道具再来兑换"));
-             subject.sendMessage(messages.build());
-             return;
-         }
+        } else {
+
+            // 道具背包
+            List<UserBackpack> userBackpack = userInfo.getBackpacks();
+
+            // 获取组成的道具
+            List<String> propsList = PROP_EXCHANGE.get(propsInfo.getCode());
+            userBackpack = userBackpack.stream().filter(user ->
+                            propsList.contains(user.getPropsCode()))
+                    .collect(Collectors.toList());
+            // 如果有这些道具
+            if (checkUserBackPack(userBackpack, propsList)) {
+                // 删除道具
+                propsList.forEach(prop -> {
+                    PropsBase propsEntity = PropsType.getPropsInfo(prop);
+                    deleteProp(userInfo, propsEntity);
+                });
+                UserInfo newUserInfo = UserManager.getUserInfo(userInfo.getUser());
+                // 新增道具
+                UserBackpack userNewBackpack = new UserBackpack(newUserInfo, propsInfo);
+                if (!newUserInfo.addPropToBackpack(userNewBackpack)) {
+                    Log.warning("道具系统:添加道具到用户背包失败!");
+                    subject.sendMessage("系统出错，请联系主人!");
+                    return;
+                }
+                // 兑换成功 加入徽章信息
+                String signCode = propCode.toUpperCase(Locale.ROOT);
+                if (FishSignConstant.getSignPropCode().contains(signCode)) {
+                    RedisUtils.getFishSignBloomFilter(subject.getId(), signCode).add(userInfo.getQq());
+                }
+                messages.append(new PlainText(propsInfo.getName() + "兑换成功！请到背包查看"));
+                subject.sendMessage(messages.build());
+                return;
+            } else {
+                messages.append(new PlainText("😣 请集齐道具再来兑换"));
+                subject.sendMessage(messages.build());
+                return;
+            }
+        }
     }
 
     private boolean checkUserBackPack(List<UserBackpack> userBackpack, List<String> list) {
