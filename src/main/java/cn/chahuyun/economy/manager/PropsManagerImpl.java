@@ -324,7 +324,9 @@ public class PropsManagerImpl implements PropsManager {
             }
         }
         //用户钱包现有余额
-        double money = EconomyUtil.getMoneyByUser(sender);
+        //double money = EconomyUtil.getMoneyByUser(sender);
+        // new 赛季币
+        double money = EconomyUtil.getMoneyByBank(sender);
         //购买道具合计金额
         int total = propsInfo.getCost() * num;
 
@@ -338,7 +340,9 @@ public class PropsManagerImpl implements PropsManager {
             return;
         }
 
-        if (!EconomyUtil.minusMoneyToUser(sender, total)) {
+       // if (!EconomyUtil.minusMoneyToUser(sender, total)) {
+        // new 赛季币
+        if (!EconomyUtil.minusMoneyToBank(sender, total)) {
             Log.warning("道具系统:减少余额失败!");
             subject.sendMessage("系统出错，请联系主人!");
             return;
@@ -596,10 +600,14 @@ public class PropsManagerImpl implements PropsManager {
 
         int price = RandomUtil.randomInt(10, 300);
         int quantity = num * price;
-        EconomyUtil.plusMoneyToUser(sender, quantity);
+       // EconomyUtil.plusMoneyToUser(sender, quantity);
+        // new 赛季币
+        EconomyUtil.plusMoneyToBank(sender, quantity);
 
-        double money = EconomyUtil.getMoneyByUser(sender);
-        messages.append(String.format("成功出售 %s %d%s,获得 %s 币币,你还有 %s 枚WDIT币币", propsInfo.getName(), num, propsInfo.getUnit(),quantity, money));
+       // double money = EconomyUtil.getMoneyByUser(sender);
+        // new 赛季币
+        double money = EconomyUtil.getMoneyByBank(sender);
+        messages.append(String.format("成功出售 %s %d%s,获得 %s 赛季币,你还有 %s 枚WDIT赛季币", propsInfo.getName(), num, propsInfo.getUnit(),quantity, money));
         subject.sendMessage(messages.build());
     }
 
