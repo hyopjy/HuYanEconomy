@@ -106,6 +106,7 @@ public final class HuYanEconomy extends JavaPlugin {
             LotteryManager.init(true);
             FishManager.init();
             BankManager.init();
+            BankManager.cronInit();
             // 延迟队列init
             RedisUtils.initDelay();
             eventEventChannel.registerListenerHost(new EconomyEventListener());

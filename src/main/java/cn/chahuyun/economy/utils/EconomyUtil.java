@@ -130,6 +130,17 @@ public class EconomyUtil {
         }
     }
 
+    public static double getMoneyByBankEconomyAccount(EconomyAccount account) {
+        try (GlobalEconomyContext global = economyService.global()) {
+            DecimalFormat format = new DecimalFormat("#.0");
+            String str = format.format(global.get(account, Constant.CURRENCY_GOLD));
+            return Double.parseDouble(str);
+        } catch (Exception e) {
+            Log.error("经济获取出错:获取用户银行余额", e);
+            return 0;
+        }
+    }
+
     /**
      * 从 [银行] 获取余额<p>
      * 默认货币 [金币] <p>
@@ -401,6 +412,16 @@ public class EconomyUtil {
 
     public static boolean minusMoneyToBank(User user, double quantity) {
         return minusMoneyToBank(user, quantity, Constant.CURRENCY_GOLD);
+    }
+
+    public static boolean minusMoneyToBankEconomyAccount(EconomyAccount account, double quantity) {
+        try (GlobalEconomyContext context = economyService.global()) {
+            context.minusAssign(account, Constant.CURRENCY_GOLD, quantity);
+            return true;
+        } catch (Exception e) {
+            Log.error("经济转移出错:添加用户经济", e);
+            return false;
+        }
     }
 
 
