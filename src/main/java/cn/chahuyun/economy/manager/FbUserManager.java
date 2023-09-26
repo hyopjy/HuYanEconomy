@@ -261,19 +261,26 @@ public class FbUserManager  {
                 pen.drawString(0 + "", 390, 1000);
             }
             //  RedisUtils.getFishSignBloomFilter(subject.getId(), signCode).add(userInfo.getQq());
-            if (RedisUtils.getFishSignBloomFilter(group.getId(), FishSignConstant.FISH_17).contains(userInfo.getQq())) {
+           // if (RedisUtils.getFishSignBloomFilter(group.getId(), FishSignConstant.FISH_17).contains(userInfo.getQq())) {
+            if (BadgeInfoManager.getCount(group.getId(), userInfo.getQq(), FishSignConstant.FISH_17) > 0) {
                 drawFishSign(pen, FishSignConstant.FISH_17, null, 56, 1067, 0, 0);
             }
 
-            if (RedisUtils.getFishSignBloomFilter(group.getId(), FishSignConstant.FISH_15).contains(userInfo.getQq())) {
+            // if (RedisUtils.getFishSignBloomFilter(group.getId(), FishSignConstant.FISH_15).contains(userInfo.getQq
+            // ())) {
+            if (BadgeInfoManager.getCount(group.getId(), userInfo.getQq(), FishSignConstant.FISH_15) > 0) {
                 drawFishSign(pen, FishSignConstant.FISH_15, null, 136, 1056, 0, 0);
             }
 
-            if (RedisUtils.getFishSignBloomFilter(group.getId(), FishSignConstant.FISH_16).contains(userInfo.getQq())) {
+            if (BadgeInfoManager.getCount(group.getId(), userInfo.getQq(), FishSignConstant.FISH_16) > 0) {
+                // if (RedisUtils.getFishSignBloomFilter(group.getId(), FishSignConstant.FISH_16).contains(userInfo
+                // .getQq())) {
                 drawFishSign(pen, FishSignConstant.FISH_16, null, 237, 1057, 0, 0);
             }
 
-            if (RedisUtils.getFishSignBloomFilter(group.getId(), FishSignConstant.FISH_20).contains(userInfo.getQq())) {
+            if (BadgeInfoManager.getCount(group.getId(), userInfo.getQq(), FishSignConstant.FISH_20) > 0) {
+                //if (RedisUtils.getFishSignBloomFilter(group.getId(), FishSignConstant.FISH_20).contains(userInfo
+                // .getQq())) {
                 drawFishSign(pen, FishSignConstant.FISH_20, null, 352, 1074, 0, 0);
             }
             //关闭窗体，释放部分资源
