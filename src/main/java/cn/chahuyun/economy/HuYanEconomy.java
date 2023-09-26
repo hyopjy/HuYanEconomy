@@ -4,6 +4,7 @@ import cn.chahuyun.config.*;
 import cn.chahuyun.economy.event.*;
 import cn.chahuyun.economy.manager.AutomaticFishingMachineManager;
 import cn.chahuyun.economy.manager.BankManager;
+import cn.chahuyun.economy.manager.CompetitionSeasonManager;
 import cn.chahuyun.economy.manager.LotteryManager;
 import cn.chahuyun.economy.plugin.FishManager;
 import cn.chahuyun.economy.plugin.PluginManager;
@@ -15,7 +16,6 @@ import cn.chahuyun.economy.utils.HibernateUtil;
 import cn.chahuyun.economy.utils.Log;
 import cn.hutool.cron.CronUtil;
 import net.mamoe.mirai.Bot;
-import net.mamoe.mirai.console.data.*;
 import net.mamoe.mirai.console.plugin.jvm.JavaPlugin;
 import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescriptionBuilder;
 import net.mamoe.mirai.event.Event;
@@ -106,7 +106,7 @@ public final class HuYanEconomy extends JavaPlugin {
             LotteryManager.init(true);
             FishManager.init();
             BankManager.init();
-            BankManager.cronInit();
+            CompetitionSeasonManager.seasonInit();
             // 延迟队列init
             RedisUtils.initDelay();
             eventEventChannel.registerListenerHost(new EconomyEventListener());

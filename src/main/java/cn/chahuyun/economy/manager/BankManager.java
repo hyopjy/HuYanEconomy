@@ -69,11 +69,7 @@ public class BankManager {
         // CronUtil.schedule("bank", "*/30 * * * * *", bankInterestTask);
     }
 
-    public static void cronInit(){
-        CronUtil.remove("cron-bank");
-        BankCronInitTask task = new BankCronInitTask("cron-bank");
-        CronUtil.schedule("cron-bank", "0 0 2 * * ?", task);
-    }
+
 
     /**
      * 存款<p>
@@ -233,34 +229,3 @@ class BankInterestTask implements Task {
     }
 }
 
-
-class BankCronInitTask implements Task {
-
-    private final String id;
-
-    public BankCronInitTask(String id) {
-        this.id = id;
-    }
-    /**
-     * 执行作业
-     * <p>
-     * 作业的具体实现需考虑异常情况，默认情况下任务异常在监听中统一监听处理，如果不加入监听，异常会被忽略<br>
-     * 因此最好自行捕获异常后处理
-     */
-    @Override
-    public void execute() {
-        Map<EconomyAccount, Double> accountByBank = EconomyUtil.getAccountByBank();
-        for (Map.Entry<EconomyAccount, Double> entry : accountByBank.entrySet()) {
-            UserInfo userInfo = UserManager.getUserInfo(entry.getKey());
-            if (userInfo == null) {
-                continue;
-            }
-
-            if (EconomyUtil.minusMoneyToBankEconomyAccount(entry.getKey(),EconomyUtil.getMoneyByBankEconomyAccount(entry.getKey()))) {
-                Log.error("赛季币管理:清理成功");
-            } else {
-                Log.error("赛季币管理:清零失败");
-            }
-        }
-    }
-}
