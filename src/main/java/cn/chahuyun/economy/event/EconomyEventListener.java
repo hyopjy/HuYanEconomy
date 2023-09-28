@@ -74,18 +74,6 @@ public class EconomyEventListener extends SimpleListenerHost {
                 return ListeningStatus.LISTENING;
             }
         }
-        // 判断用户一日头衔是否过期
-//        Set<Long> setOneDayKey = RedissonConfig.getRedisson().getSet("special:title:one:user:set:" + event.getGroup().getId());
-//        if(setOneDayKey.contains(event.getSender().getId())){
-//            String title =
-//                    (String) RedissonConfig.getRedisson().getBucket("special:title:one:day:key" + event.getSender().getId() +
-//                            ":" + event.getGroup().getId()).get();
-//            if (StrUtil.isBlank(title)) {
-//                NormalMember normalMember = event.getGroup().get(event.getSender().getId());
-//                normalMember.setSpecialTitle(title);
-//            }
-//        }
-
 
         // 权限判断的命令列表
         List<RegexConst> regexOrderConstList =  EconomyEventConfig.INSTANCE.getRegexOrderCheck();
