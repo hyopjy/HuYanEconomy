@@ -32,6 +32,12 @@ public class CompetitionSeason {
      */
     private LocalDateTime endTime;
 
+    /**
+     * cron
+     */
+    private String cron;
+
+
     public CompetitionSeason save() {
         return HibernateUtil.factory.fromTransaction(session -> session.merge(this));
     }

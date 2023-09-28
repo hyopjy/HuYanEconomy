@@ -3,6 +3,7 @@ package cn.chahuyun.economy.manager;
 import cn.chahuyun.economy.entity.UserInfo;
 import cn.chahuyun.economy.entity.badge.BadgeInfo;
 import cn.chahuyun.economy.entity.badge.CompetitionSeason;
+import cn.chahuyun.economy.utils.DateUtil;
 import cn.chahuyun.economy.utils.EconomyUtil;
 import cn.chahuyun.economy.utils.HibernateUtil;
 import cn.chahuyun.economy.utils.Log;
@@ -43,7 +44,8 @@ public class CompetitionSeasonManager {
         }
         LocalDateTime start = LocalDateTime.now();
         LocalDateTime end = start.plusMonths(3L);
-        CompetitionSeason newBadgeInfo = new CompetitionSeason(1L, start, end);
+        String cron = DateUtil.getCron(end);
+        CompetitionSeason newBadgeInfo = new CompetitionSeason(1L, start, end, cron);
         return newBadgeInfo.save();
     }
 
@@ -52,7 +54,8 @@ public class CompetitionSeasonManager {
 
         CronUtil.remove("competition-season");
         CompetitionSeasonTask task = new CompetitionSeasonTask("competition-season");
-        CronUtil.schedule("competition-season", "0 0 2 * * ?", task);
+
+        CronUtil.schedule("competition-season", competitionSeason.getCron(), task);
     }
 }
 
@@ -102,6 +105,7 @@ class CompetitionSeasonTask implements Task {
         LocalDateTime end = start.plusMonths(3L);
         competitionSeason.setStartTime(start);
         competitionSeason.setEndTime(end);
+        competitionSeason.setCron(DateUtil.getCron(end));
         competitionSeason.save();
     }
 }
