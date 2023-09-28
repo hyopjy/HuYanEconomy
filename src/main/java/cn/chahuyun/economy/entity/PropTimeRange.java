@@ -1,27 +1,30 @@
 package cn.chahuyun.economy.entity;
+
 import cn.chahuyun.economy.utils.HibernateUtil;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-@Entity(name = "TimeRange")
+@Entity(name = "PropTimeRange")
 @Table
 @NoArgsConstructor
-public class TimeRange {
+public class PropTimeRange {
     @Id
     private int weekDay;
 
     private String time;
 
-    public TimeRange(int weekDay, String time) {
+    public PropTimeRange(int weekDay, String time) {
         this.weekDay = weekDay;
         this.time = time;
     }
 
-    public TimeRange save() {
+    public PropTimeRange save() {
         return HibernateUtil.factory.fromTransaction(session -> session.merge(this));
     }
 
@@ -33,6 +36,6 @@ public class TimeRange {
     }
 
     public String getDesc(){
-        return "fish-[星期：" + weekDay + "时间区间：" + time +"] \r\n";
+        return "Prop-[星期：" + weekDay + "时间区间：" + time +"] \r\n";
     }
 }

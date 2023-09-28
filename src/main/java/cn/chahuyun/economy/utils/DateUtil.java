@@ -1,6 +1,8 @@
 package cn.chahuyun.economy.utils;
 
+import cn.chahuyun.economy.entity.PropTimeRange;
 import cn.chahuyun.economy.entity.TimeRange;
+import cn.chahuyun.economy.manager.PropTimeRangeManager;
 import cn.chahuyun.economy.manager.TimeRangeManager;;
 
 import java.time.LocalDateTime;
@@ -12,18 +14,19 @@ public class DateUtil {
         try {
             LocalDateTime now = LocalDateTime.now();
             TimeRange timeRange = TimeRangeManager.getByWeekDay(now.getDayOfWeek().getValue());
-            if (Objects.nonNull(timeRange)) {
-                String hourRange = timeRange.getTime();
-                // 1,2,3,4,5 0-5,10-23
-                // 6,7 9-15,20-23
-                String[] hourArr = hourRange.split(",");
-                for (String hour : hourArr) {
-                    String[] hourArrTime = hour.split("-");
-                    int hourOpen = Integer.parseInt(hourArrTime[0]);
-                    int hourEnd = Integer.parseInt(hourArrTime[1]);
-                    if (now.getHour() >= hourOpen && now.getHour() < hourEnd) {
-                        return true;
-                    }
+            if (Objects.isNull(timeRange)) {
+                return true;
+            }
+            String hourRange = timeRange.getTime();
+            // 1,2,3,4,5 0-5,10-23
+            // 6,7 9-15,20-23
+            String[] hourArr = hourRange.split(",");
+            for (String hour : hourArr) {
+                String[] hourArrTime = hour.split("-");
+                int hourOpen = Integer.parseInt(hourArrTime[0]);
+                int hourEnd = Integer.parseInt(hourArrTime[1]);
+                if (now.getHour() >= hourOpen && now.getHour() < hourEnd) {
+                    return true;
                 }
             }
         } catch (Exception e) {
@@ -34,6 +37,39 @@ public class DateUtil {
         return false;
     }
 
+    public static Boolean checkPropDate(String code) {
+        String dd = "岛岛全自动钓鱼机";
+        String ddCode = "27";
+        String mask = "面罩";
+        String maskCode = "34";
+        if (code.contains(dd) || code.contains(ddCode) || code.contains(mask) || code.contains(maskCode)) {
+            return true;
+        }
+        try {
+            LocalDateTime now = LocalDateTime.now();
+            PropTimeRange propTimeRange = PropTimeRangeManager.getByWeekDay(now.getDayOfWeek().getValue());
+            if (Objects.isNull(propTimeRange)) {
+                return true;
+            }
+            String hourRange = propTimeRange.getTime();
+            // 1,2,3,4,5 0-5,10-23
+            // 6,7 9-15,20-23
+            String[] hourArr = hourRange.split(",");
+            for (String hour : hourArr) {
+                String[] hourArrTime = hour.split("-");
+                int hourOpen = Integer.parseInt(hourArrTime[0]);
+                int hourEnd = Integer.parseInt(hourArrTime[1]);
+                if (now.getHour() >= hourOpen && now.getHour() < hourEnd) {
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            Log.error("date util error");
+            Log.error(e);
+            return true;
+        }
+        return false;
+    }
     public static String getCron(LocalDateTime end){
 
         LocalDateTime end5Minutes = end.minusMinutes(5L);

@@ -3,10 +3,12 @@ package cn.chahuyun.economy.event;
 import cn.chahuyun.config.EconomyEventConfig;
 import cn.chahuyun.economy.entity.LotteryInfo;
 
+import cn.chahuyun.economy.entity.PropTimeRange;
 import cn.chahuyun.economy.entity.TimeRange;
 import cn.chahuyun.economy.entity.fish.Fish;
 import cn.chahuyun.economy.entity.fish.FishRanking;
 import cn.chahuyun.economy.manager.GamesManager;
+import cn.chahuyun.economy.manager.PropTimeRangeManager;
 import cn.chahuyun.economy.manager.TimeRangeManager;
 import cn.chahuyun.economy.plugin.FishManager;
 import cn.chahuyun.economy.plugin.FishPondManager;
@@ -172,7 +174,7 @@ public class RandomMoneyListener extends SimpleListenerHost {
             }
 
             Message m = new PlainText("=====配置信息=====").plus("\r\n");
-           StringBuffer stringBuffer = new StringBuffer();
+            StringBuffer stringBuffer = new StringBuffer();
             List<TimeRange> list = TimeRangeManager.getTimeRangeList();
             list.forEach(timeRange->{
                 TimeRangeManager.WEEK_TIME_RANGE_CACHE.put(timeRange.getWeekDay(), timeRange);
@@ -181,6 +183,40 @@ public class RandomMoneyListener extends SimpleListenerHost {
             m = m.plus(stringBuffer);
             subject.sendMessage(MessageUtil.formatMessageChain(m.contentToString()));
          }
+
+        if (message.startsWith("下班时间") && EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
+            // 休渔期 1,2,3,4 10-11
+            // 1,2,3,4,5 0-5,10-23
+            // 6,7 9-15,20-23
+            message = message.replace("\\","");
+            String[] arr = message.split(" ");
+            String weekDay = arr[1];
+            String time = arr[2];
+            String[] weekDayArr = weekDay.split(",");
+            for(String week : weekDayArr){
+                int weekNum = 0;
+                try{
+                    weekNum = Integer.parseInt(week);
+                }catch (Exception e){
+                    subject.sendMessage(MessageUtil.formatMessageChain("week输入数字"));
+                    return ListeningStatus.LISTENING;
+                }
+                PropTimeRange propTimeRange = new PropTimeRange(weekNum, time);
+                propTimeRange.save();
+            }
+
+            Message m = new PlainText("=====配置信息=====").plus("\r\n");
+            StringBuffer stringBuffer = new StringBuffer();
+            List<PropTimeRange> list = PropTimeRangeManager.getPropTimeRangeList();
+            list.forEach(propTimeRange->{
+                PropTimeRangeManager.PROP_TIME_RANGE_CACHE.put(propTimeRange.getWeekDay(), propTimeRange);
+                stringBuffer.append(propTimeRange.getDesc());
+            });
+            m = m.plus(stringBuffer);
+            subject.sendMessage(MessageUtil.formatMessageChain(m.contentToString()));
+        }
+
+
 //        if (message.equals("刷新道具") &&
 //                EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
 //            PluginManager.refreshPropsFishCard();

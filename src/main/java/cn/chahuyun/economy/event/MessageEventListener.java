@@ -6,6 +6,7 @@ import cn.chahuyun.economy.manager.*;
 import cn.chahuyun.economy.plugin.PluginManager;
 import cn.chahuyun.economy.redis.RedisUtils;
 import cn.chahuyun.economy.utils.CacheUtils;
+import cn.chahuyun.economy.utils.DateUtil;
 import cn.chahuyun.economy.utils.Log;
 import cn.chahuyun.economy.utils.MessageUtil;
 import kotlin.coroutines.CoroutineContext;
@@ -215,22 +216,15 @@ public class MessageEventListener extends SimpleListenerHost {
             if (Pattern.matches(buyPropRegex, code)) {
                 Log.info("购买指令");
                 try {
-                    if (now.getDayOfWeek() == DayOfWeek.SUNDAY || now.getDayOfWeek() == DayOfWeek.SATURDAY) {
+                    if (DateUtil.checkPropDate(code)) {
                         propsManager.buyPropFromStore(event);
                     } else {
-                        if (code.contains("岛岛全自动钓鱼机") || code.contains("27") ||
-                        code.contains("面罩") || code.contains("34")
-                        ) {
-                            propsManager.buyPropFromStore(event);
-                        } else {
-                            Log.info("购买指令: 工作日失效");
-                        }
+                        Log.info("购买指令: 工作日失效");
                     }
                     return;
                 } catch (Exception e) {
                     Log.error("[购买指令]发生异常：" + e.getMessage());
                 }
-
             }
 
             String exchangePropRegex = "兑换 (\\S+)( \\S+)?|buy (\\S+)( \\S+)?";
@@ -244,16 +238,10 @@ public class MessageEventListener extends SimpleListenerHost {
             if (Pattern.matches(userPropRegex, code)) {
                 Log.info("使用指令");
                 try {
-                    if (now.getDayOfWeek() == DayOfWeek.SUNDAY || now.getDayOfWeek() == DayOfWeek.SATURDAY) {
+                    if (DateUtil.checkPropDate(code)) {
                         propsManager.userProp(event);
                     } else {
-                        if (code.contains("岛岛全自动钓鱼机") || code.contains("27") ||
-                                code.contains("面罩") || code.contains("34")
-                        ) {
-                            propsManager.userProp(event);
-                        } else {
-                            Log.info("使用指令: 工作日失效");
-                        }
+                        Log.info("使用指令: 工作日失效");
                     }
                 }catch (Exception e){
                     Log.error("[使用指令]发生异常：" + e.getMessage());
