@@ -209,7 +209,6 @@ public class MessageEventListener extends SimpleListenerHost {
                     return;
 
             }
-            LocalDate now = LocalDate.now();
 
             // 工作日全天，所有购买道具和使用道具（27除外）指令都失效
             String buyPropRegex = "购买 (\\S+)( \\S+)?|buy (\\S+)( \\S+)?";
@@ -221,10 +220,10 @@ public class MessageEventListener extends SimpleListenerHost {
                     } else {
                         Log.info("购买指令: 工作日失效");
                     }
-                    return;
                 } catch (Exception e) {
                     Log.error("[购买指令]发生异常：" + e.getMessage());
                 }
+                return;
             }
 
             String exchangePropRegex = "兑换 (\\S+)( \\S+)?|buy (\\S+)( \\S+)?";
@@ -243,7 +242,7 @@ public class MessageEventListener extends SimpleListenerHost {
                     } else {
                         Log.info("使用指令: 工作日失效");
                     }
-                }catch (Exception e){
+                } catch (Exception e) {
                     Log.error("[使用指令]发生异常：" + e.getMessage());
                 }
                 return;
