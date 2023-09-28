@@ -1,7 +1,7 @@
 package cn.chahuyun.economy.utils;
 
 import cn.chahuyun.economy.entity.TimeRange;
-import cn.chahuyun.economy.manager.TimeRangeManager;
+import cn.chahuyun.economy.manager.TimeRangeManager;;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -33,4 +33,23 @@ public class DateUtil {
         }
         return false;
     }
+
+    public static String getCron(LocalDateTime end){
+
+        LocalDateTime end5Minutes = end.minusMinutes(5L);
+        String sp = " ";
+        // [minute] [hour] [day of month] [month] [day of week]
+        // [minte] 表示分钟。取值范围 0 到 59
+        // [hour] 表示小时。取值范围 0 到 23
+        // [day of month] 表示几号。取值范围 1 到 23
+        // [month] 表示几月。取值范围 1 到 12，也可以是用名称简写（从 Jan 到 Dec）
+        // [day of week] 表示周几。取值范围 0 到 6，也可以是用名称简写（从 Sun 到 Sat）
+        Integer second = end5Minutes.getSecond();
+        Integer minute = end5Minutes.getMinute();
+        Integer hour = end5Minutes.getHour();
+        Integer day = end5Minutes.getDayOfMonth();
+        Integer month = end5Minutes.getMonthValue();
+        return  second + sp + minute + sp + hour + sp + day + sp + month + sp + "?";
+    }
+
 }
