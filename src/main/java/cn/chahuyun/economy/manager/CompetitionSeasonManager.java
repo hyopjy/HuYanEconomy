@@ -8,6 +8,7 @@ import cn.chahuyun.economy.utils.EconomyUtil;
 import cn.chahuyun.economy.utils.HibernateUtil;
 import cn.chahuyun.economy.utils.Log;
 import cn.hutool.cron.CronUtil;
+import cn.hutool.cron.pattern.CronPattern;
 import cn.hutool.cron.task.Task;
 import org.hibernate.query.criteria.HibernateCriteriaBuilder;
 import org.hibernate.query.criteria.JpaCriteriaQuery;
@@ -51,10 +52,8 @@ public class CompetitionSeasonManager {
 
     public static void seasonInit(){
         CompetitionSeason competitionSeason = initCompetitionSeason();
-
         CronUtil.remove("competition-season");
         CompetitionSeasonTask task = new CompetitionSeasonTask("competition-season");
-
         CronUtil.schedule("competition-season", competitionSeason.getCron(), task);
     }
 }
@@ -107,5 +106,7 @@ class CompetitionSeasonTask implements Task {
         competitionSeason.setEndTime(end);
         competitionSeason.setCron(DateUtil.getCron(end));
         competitionSeason.save();
+        // 更新执行规则
+        CronUtil.updatePattern(id, CronPattern.of(competitionSeason.getCron()));
     }
 }
