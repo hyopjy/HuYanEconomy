@@ -325,7 +325,7 @@ public class PropsManagerImpl implements PropsManager {
         }
         //用户钱包现有余额
         //double money = EconomyUtil.getMoneyByUser(sender);
-        // new 赛季币
+        // new 枫叶
         double money = EconomyUtil.getMoneyByBank(sender);
         //购买道具合计金额
         int total = propsInfo.getCost() * num;
@@ -341,7 +341,7 @@ public class PropsManagerImpl implements PropsManager {
         }
 
        // if (!EconomyUtil.minusMoneyToUser(sender, total)) {
-        // new 赛季币
+        // new 枫叶
         if (!EconomyUtil.minusMoneyToBank(sender, total)) {
             Log.warning("道具系统:减少余额失败!");
             subject.sendMessage("系统出错，请联系主人!");
@@ -601,13 +601,13 @@ public class PropsManagerImpl implements PropsManager {
         int price = RandomUtil.randomInt(10, 300);
         int quantity = num * price;
        // EconomyUtil.plusMoneyToUser(sender, quantity);
-        // new 赛季币
+        // new 枫叶
         EconomyUtil.plusMoneyToBank(sender, quantity);
 
        // double money = EconomyUtil.getMoneyByUser(sender);
-        // new 赛季币
+        // new 枫叶
         double money = EconomyUtil.getMoneyByBank(sender);
-        messages.append(String.format("成功出售 %s %d%s,获得 %s 赛季币,你还有 %s 枚WDIT赛季币", propsInfo.getName(), num, propsInfo.getUnit(),quantity, money));
+        messages.append(String.format("成功出售 %s %d%s,获得 %s 枫叶,你还有 %s 枚枫叶", propsInfo.getName(), num, propsInfo.getUnit(),quantity, money));
         subject.sendMessage(messages.build());
     }
 
@@ -656,8 +656,8 @@ public class PropsManagerImpl implements PropsManager {
                 return;
             }
         }
-        // 如果是兑换赛季币
-        if ("赛季币".equals(propsInfo.getName())) {
+        // 如果是兑换枫叶
+        if ("枫叶".equals(propsInfo.getName())) {
             double moneyByUser = EconomyUtil.getMoneyByUser(sender);
             if (moneyByUser - num < 0) {
                 messages.append(String.format("你的币币不够%s了", num));
@@ -665,7 +665,7 @@ public class PropsManagerImpl implements PropsManager {
                 return;
             }
             if (EconomyUtil.turnUserToBank(sender, num)) {
-                messages.append("成功兑换"+ num +"赛季币");
+                messages.append("成功兑换"+ num +"枫叶");
                 subject.sendMessage(messages.build());
             } else {
                 messages.append("兑换失败!");

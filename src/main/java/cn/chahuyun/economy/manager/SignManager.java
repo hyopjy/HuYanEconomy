@@ -74,17 +74,17 @@ public class SignManager {
             randomNumber = RandomUtil.randomInt(0, 10);
             if (randomNumber > 8) {
                 goldNumber = RandomUtil.randomInt(200, 501);
-                plainText = new PlainText(String.format("今天的你运气爆棚,获得了%s赛季币", goldNumber));
+                plainText = new PlainText(String.format("今天的你运气爆棚,获得了%s枫叶", goldNumber));
             } else {
                 goldNumber = RandomUtil.randomInt(100, 200);
-                plainText = new PlainText(String.format("好耶,获得%s赛季币", goldNumber));
+                plainText = new PlainText(String.format("好耶,获得%s枫叶", goldNumber));
             }
         } else {
             goldNumber = RandomUtil.randomInt(50, 100);
         }
 
        // if (!EconomyUtil.plusMoneyToUser(userInfo.getUser(), goldNumber)) {
-        // new 赛季币
+        // new 枫叶
         if (!EconomyUtil.plusMoneyToBank(userInfo.getUser(), goldNumber)) {
             subject.sendMessage("签到失败!");
             //todo 签到失败回滚
@@ -95,7 +95,7 @@ public class SignManager {
        // double moneyBytUser = EconomyUtil.getMoneyByUser(userInfo.getUser());
         double moneyBytUser = EconomyUtil.getMoneyByBank(userInfo.getUser());
         messages.append(new PlainText("签到成功!"));
-        messages.append(new PlainText(String.format("赛季币:%s(+%s)", moneyBytUser, goldNumber)));
+        messages.append(new PlainText(String.format("枫叶:%s(+%s)", moneyBytUser, goldNumber)));
         if (userInfo.getOldSignNumber() != 0) {
             messages.append(String.format("你的连签线断在了%d天,可惜~", userInfo.getOldSignNumber()));
         }
