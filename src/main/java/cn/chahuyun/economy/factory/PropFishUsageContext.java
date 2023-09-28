@@ -80,6 +80,18 @@ public class PropFishUsageContext {
             case PropConstant.FISH_TROUBLED_WATERS:
                 iPropUsage = factory.createFishTroubledWaters();
                 break;
+            case PropConstant.FISHING_ROD:
+                iPropUsage = factory.createFishingRod();
+                break;
+            case PropConstant.THE_SHELL_TRUMPET:
+                iPropUsage = factory.createTheShellTrumpet();
+                break;
+            case PropConstant.CLICKER:
+                iPropUsage = factory.createClicker();
+                break;
+            case PropConstant.SPORTS_AND_ART_STUDENTS:
+                iPropUsage = factory.createSportsAndArtStudents();
+                break;
             default:
                 event.getSubject().sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "道具暂未开放～"));
                 break;

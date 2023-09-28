@@ -42,12 +42,19 @@ public class SisterDog extends AbstractPropUsage {
     @Override
     public void excute() {
         // 消耗品，对指定目标使用，使目标失去自我3分钟，并获得目标的币币（随机100-800）
-        // 获取随机目标
-        List<Long> userInfoList = RedisUtils.getSisterUserList(group.getId());
-
-        int userIndex = RandomUtil.randomInt(0, userInfoList.size());
-        Log.info("[SisterDog] - userList：" + userInfoList.size()  + ",userIndex: " + userIndex);
-        Long userId = userInfoList.get(userIndex);
+        Long userId;
+        String key = "clicker:" + group.getId();
+        Object clicker =  RedisUtils.getKeyObject(key);
+        if(Objects.isNull(clicker)){
+            // 获取随机目标
+            List<Long> userInfoList = RedisUtils.getSisterUserList(group.getId());
+            int userIndex = RandomUtil.randomInt(0, userInfoList.size());
+            Log.info("[SisterDog] - userList：" + userInfoList.size()  + ",userIndex: " + userIndex);
+            userId = userInfoList.get(userIndex);
+        }else {
+            userId = (Long) clicker;
+            RedisUtils.deleteKeyString(key);
+        }
         if(Objects.nonNull(userId)){
             int money = RandomUtil.randomInt(100, 800);
             // 减去目标用户

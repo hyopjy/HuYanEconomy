@@ -16,8 +16,8 @@ public class RandomHelperUtil {
      * 1%的概率
      * @return
      */
-    public static boolean checkRandomLuck1_100(){
-        int random = RandomUtil.randomInt(1, 100);
+    public static boolean checkRandomLuck1_1000(){
+        int random = RandomUtil.randomInt(1, 1000);
         int luck = 55;
         return random == luck;
     }

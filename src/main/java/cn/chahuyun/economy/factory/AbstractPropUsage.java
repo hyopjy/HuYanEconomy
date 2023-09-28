@@ -4,6 +4,7 @@ import cn.chahuyun.economy.constant.PropConstant;
 import cn.chahuyun.economy.dto.Buff;
 import cn.chahuyun.economy.entity.UserInfo;
 import cn.chahuyun.economy.entity.props.PropsFishCard;
+import cn.chahuyun.economy.plugin.PropsType;
 import cn.chahuyun.economy.utils.CacheUtils;
 import cn.chahuyun.economy.utils.MessageUtil;
 import lombok.Getter;
@@ -14,6 +15,7 @@ import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.event.events.MessageEvent;
 
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 @Getter
 @Setter
@@ -62,4 +64,20 @@ public abstract class AbstractPropUsage implements IPropUsage{
         return true;
     }
 
+    /**
+     * 单纯校验 使用
+     * @return
+     */
+    protected boolean checkOrderDefault(){
+        String no = PropsType.getNo(propsCard.getCode());
+        String match = "使用 (" + propsCard.getName() + "|" + no + ")( )*";
+        String code = event.getMessage().serializeToMiraiCode();
+        Contact subject = event.getSubject();
+        if (!Pattern.matches(match, code)) {
+            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),
+                    "请输入正确的命令[使用 " + propsCard.getName() + "或者" + no + "]"));
+            return false;
+        }
+        return true;
+    }
 }

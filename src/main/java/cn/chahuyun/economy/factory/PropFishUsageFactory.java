@@ -85,4 +85,18 @@ public class PropFishUsageFactory {
     public IPropUsage createHKFB() {
         return new HKFB();
     }
+
+    public IPropUsage createFishingRod() {return new FishingRod();}
+
+    public IPropUsage createTheShellTrumpet() {
+        return new TheShellTrumpet();
+    }
+
+    public IPropUsage createClicker() {
+        return new Clicker();
+    }
+
+    public IPropUsage createSportsAndArtStudents() {
+        return new SportsAndArtStudents();
+    }
 }

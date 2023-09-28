@@ -1,5 +1,7 @@
 package cn.chahuyun.economy.constant;
 
+import org.h2.tools.Shell;
+
 public interface PropConstant {
     String GLASS_BEAD = "玻璃珠";
 
@@ -34,4 +36,12 @@ public interface PropConstant {
     String AUTOMATIC_FISH = "岛岛全自动钓鱼机";
 
     String SPECIAL_TITLE_ONE_DAY = "自定义一日头衔";
+
+    String FISHING_ROD = "鱼竿";
+
+    String THE_SHELL_TRUMPET = "小螺号";
+
+    String CLICKER = "响片";
+
+    String SPORTS_AND_ART_STUDENTS = "《体育生与艺术生》";
 }
