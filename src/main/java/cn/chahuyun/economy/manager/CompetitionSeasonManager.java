@@ -92,12 +92,12 @@ class CompetitionSeasonTask implements Task {
                 Log.error("枫叶管理:清零失败");
             }
         }
-        // 清理道具信息
+
+        // 清理徽章道具信息
         List<BadgeInfo> badgeInfoList = BadgeInfoManager.getBadgeList();
         badgeInfoList.stream().filter(badgeInfo -> Objects.nonNull(badgeInfo.getTime())
                 && !LocalDateTime.now().isAfter(badgeInfo.getTime()))
                 .forEach(BadgeInfo::remove);
-
 
         // 更新赛季
         LocalDateTime start = LocalDateTime.now();
