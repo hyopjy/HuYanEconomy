@@ -204,7 +204,7 @@ class BankInterestTask implements Task {
                 int interest = bankInfo.getInterest();
                 // 更改为获取余额
                 // Map<EconomyAccount, Double> accountByBank = EconomyUtil.getAllAccount();
-                // 赛季币账户
+                // 枫叶账户
                 Map<EconomyAccount, Double> accountByBank = EconomyUtil.getAccountByBank();
                 for (Map.Entry<EconomyAccount, Double> entry : accountByBank.entrySet()) {
                     UserInfo userInfo = UserManager.getUserInfo(entry.getKey());
@@ -217,11 +217,11 @@ class BankInterestTask implements Task {
 
                     // if (EconomyUtil.plusMoneyToWalletForAccount(entry.getKey(), v)) {
                      if (EconomyUtil.plusMoneyToBankForAccount(entry.getKey(), v)) {
-                        Log.info("用户："+ userInfo.getQq() + "获得赛季币：" + v);
+                        Log.info("用户："+ userInfo.getQq() + "获得枫叶：" + v);
                         userInfo.setBankEarnings(v);
                         userInfo.save();
                     } else {
-                        Log.error("赛季币管理:" + id + "添加利息出错");
+                        Log.error("枫叶管理:" + id + "添加利息出错");
                     }
                 }
             }
