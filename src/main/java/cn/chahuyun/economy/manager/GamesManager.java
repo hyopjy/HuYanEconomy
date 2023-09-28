@@ -412,7 +412,7 @@ public class GamesManager {
             messages.append("-----------\r\n");
         });
 
-        if (RandomHelperUtil.checkRandomLuck1_100()) {
+        if (RandomHelperUtil.checkRandomLuck1_1000()) {
             int level = userFishInfo.getRodLevel();
             userFishInfo.downFishRod();
             messages.append("触发币币回收计划之：每次上钩都有0.1%的概率鱼竿折断，掉两级\r\n");
@@ -764,7 +764,7 @@ public class GamesManager {
         if(!fish.isSpecial()){
             new FishRanking(userInfo.getQq(), userInfo.getName(), dimensions, money, userFishInfo.getRodLevel(), fish, fishPond).save();
         }
-        if (RandomHelperUtil.checkRandomLuck1_100()) {
+        if (RandomHelperUtil.checkRandomLuck1_1000()) {
             userFishInfo.downFishRod();
             automaticFish.setOtherMessage("触发币币回收计划之：每次上钩都有0.1%的概率鱼竿折断，掉两级\r\n");
         }

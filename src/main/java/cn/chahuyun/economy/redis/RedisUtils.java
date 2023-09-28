@@ -11,6 +11,7 @@ import net.mamoe.mirai.contact.NormalMember;
 import net.mamoe.mirai.message.data.At;
 import net.mamoe.mirai.message.data.Message;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.poi.ss.formula.functions.T;
 import org.redisson.api.*;
 
 import java.time.LocalDate;
@@ -26,13 +27,21 @@ public class RedisUtils {
 
     private static String SPECIAL_TITLE_ONE_DAY_QUEUE = "SpecialTitleOneDayQueue";
 
-    public static void setKeyString(String key, String value) {
+    public static void setKeyString(String key, String value, Long time, TimeUnit timeUnit) {
         RBucket<String> bucket = RedissonConfig.getRedisson().getBucket(key);
+        bucket.set(value, time, timeUnit);
+    }
+    public static void setKeyObject(String key, Object value) {
+        RBucket<Object> bucket = RedissonConfig.getRedisson().getBucket(key);
         bucket.set(value);
     }
 
-    public static String getKeyString(String key) {
-        return (String) RedissonConfig.getRedisson().getBucket(key).get();
+    public static Object getKeyObject(String key) {
+        return RedissonConfig.getRedisson().getBucket(key).get();
+    }
+
+    public static void deleteKeyString(String key) {
+        RedissonConfig.getRedisson().getBucket(key).delete();
     }
 
 
