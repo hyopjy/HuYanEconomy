@@ -22,6 +22,7 @@ import net.mamoe.mirai.message.data.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.redisson.api.RBloomFilter;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -34,7 +35,7 @@ import java.util.stream.Collectors;
 public class PropsManagerImpl implements PropsManager {
 
 
-   private static final Map<String, List<String>> PROP_EXCHANGE = new HashMap<>(4);
+   private static final Map<String, List<String>> PROP_EXCHANGE = new HashMap<>(6);
    static {
        // FBPFK
        List<String> bfpfkList = new ArrayList<>(5);
@@ -66,6 +67,23 @@ public class PropsManagerImpl implements PropsManager {
        storyList.add("FISH-18");
        storyList.add("FISH-19");
        PROP_EXCHANGE.put("FISH-20",storyList);
+
+
+       List<String> wditBBList = new ArrayList<>(4);
+       wditBBList.add("FISH-35");
+       wditBBList.add("FISH-36");
+       wditBBList.add("FISH-37");
+       wditBBList.add("FISH-38");
+       PROP_EXCHANGE.put("FISH-39", wditBBList);
+
+       List<String> physicalList = new ArrayList<>(6);
+       physicalList.add("FISH-43");
+       physicalList.add("FISH-44");
+       physicalList.add("FISH-45");
+       physicalList.add("FISH-46");
+       physicalList.add("FISH-47");
+       physicalList.add("FISH-48");
+       PROP_EXCHANGE.put("FISH-49", physicalList);
 
    }
 
@@ -699,9 +717,15 @@ public class PropsManagerImpl implements PropsManager {
                 }
                 // 兑换成功 加入徽章信息
                 String signCode = propCode.toUpperCase(Locale.ROOT);
+                // 通用成就
                 if (FishSignConstant.getSignPropCode().contains(signCode)) {
                     BadgeInfoManager.updateOrInsertBadgeInfo(subject.getId(), userInfo.getQq(), signCode, null);
-                   // RedisUtils.getFishSignBloomFilter(subject.getId(), signCode).add(userInfo.getQq());
+                    // RedisUtils.getFishSignBloomFilter(subject.getId(), signCode).add(userInfo.getQq());
+                }
+                // 赛季成就
+                if (FishSignConstant.getSeasonPropCode().contains(signCode)) {
+                    LocalDateTime expireTime = CompetitionSeasonManager.initCompetitionSeason().getEndTime();
+                    BadgeInfoManager.updateOrInsertBadgeInfo(subject.getId(), userInfo.getQq(), signCode, expireTime);
                 }
                 messages.append(new PlainText(propsInfo.getName() + "兑换成功！请到背包查看"));
                 subject.sendMessage(messages.build());
