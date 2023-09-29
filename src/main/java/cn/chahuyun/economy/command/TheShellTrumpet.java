@@ -23,11 +23,10 @@ public class TheShellTrumpet extends AbstractPropUsage {
 
         subject.sendMessage(new MessageChainBuilder().append(new QuoteReply(event.getMessage()))
                 .append(propsCard.getName() + "使用成功").append("\r\n")
-                .append("成功获得666币币")
+                .append("成功获得666币币").append("\r\n")
+                .append("----------")
+                .append("开始吹响一段贼难听的《小螺号》🎵🎵 \r\n")
+                .append(propsCard.getContent())
                 .build());
-
-        Message m = new PlainText("开始吹响一段贼难听的《小螺号》🎵🎵 \r\n");
-        m = m.plus(propsCard.getContent());
-        subject.sendMessage(m);
     }
 }

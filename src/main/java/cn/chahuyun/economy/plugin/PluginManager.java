@@ -2,8 +2,6 @@ package cn.chahuyun.economy.plugin;
 
 import cn.chahuyun.config.ConfigData;
 import cn.chahuyun.economy.HuYanEconomy;
-import cn.chahuyun.economy.constant.Constant;
-import cn.chahuyun.economy.entity.props.PropsCard;
 import cn.chahuyun.economy.entity.props.PropsFishCard;
 import cn.chahuyun.economy.manager.PropsManager;
 import cn.chahuyun.economy.manager.PropsManagerImpl;
@@ -191,7 +189,8 @@ public class PluginManager {
         map.put("是否可以购买", "buy");
         map.put("价格描述","priceDesc");
         map.put("是否兑换","exchange");
-        map.put("是否下架","delete");
+        // 无使用效果 直接兑换
+        map.put("是否直接兑换","delete");
         List<PropsFishCard> list = reader.setHeaderAlias(map).readAll(PropsFishCard.class);
         reader.close();
         return list;

@@ -23,7 +23,7 @@ public class FishingRod extends AbstractPropUsage {
 
         subject.sendMessage(new MessageChainBuilder().append(new QuoteReply(event.getMessage()))
                 .append(propsCard.getName() + "使用成功").append("\r\n")
-                .append("升级成功!你的鱼竿更强了!\n%s->%s",  userFishInfo.getRodLevel() - 1, userFishInfo.getRodLevel())
+                .append("升级成功!你的鱼竿更强了!"+(userFishInfo.getRodLevel() - 1)+"->" + userFishInfo.getRodLevel())
                 .build());
     }
 }

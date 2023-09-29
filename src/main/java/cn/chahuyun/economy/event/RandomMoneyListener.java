@@ -12,6 +12,7 @@ import cn.chahuyun.economy.manager.PropTimeRangeManager;
 import cn.chahuyun.economy.manager.TimeRangeManager;
 import cn.chahuyun.economy.plugin.FishManager;
 import cn.chahuyun.economy.plugin.FishPondManager;
+import cn.chahuyun.economy.plugin.PluginManager;
 import cn.chahuyun.economy.utils.*;
 import cn.hutool.core.util.RandomUtil;
 import kotlin.coroutines.CoroutineContext;
@@ -69,7 +70,7 @@ public class RandomMoneyListener extends SimpleListenerHost {
         if(message.equals("余额")){
             double money = EconomyUtil.getMoneyByUser(sender);
             double bankMoney = EconomyUtil.getMoneyByBank(sender);
-            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "当前WDIT 币币余额%s;当前银行存款%s", money, bankMoney));
+            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "当前WDIT 币币余额%s;枫叶%s", money, bankMoney));
         }
         if(message.equals("查看签签")){
             List<LotteryInfo> list = HibernateUtil.factory.fromSession(session -> {
@@ -217,11 +218,11 @@ public class RandomMoneyListener extends SimpleListenerHost {
         }
 
 
-//        if (message.equals("刷新道具") &&
-//                EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
-//            PluginManager.refreshPropsFishCard();
-//            subject.sendMessage(MessageUtil.formatMessageChain("刷新道具完成"));
-//        }
+        if (message.equals("刷新道具") &&
+                EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
+            PluginManager.refreshPropsFishCard();
+            subject.sendMessage(MessageUtil.formatMessageChain("刷新道具完成"));
+        }
 
 
 
