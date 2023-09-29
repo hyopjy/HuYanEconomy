@@ -38,10 +38,10 @@ public class LittleTrumpetFishStory extends AbstractPropUsage {
         subject.sendMessage(new MessageChainBuilder().append(new QuoteReply(event.getMessage()))
                 .append(propsCard.getName() + "使用成功").append("\r\n")
                 .append("成功获得13140币币")
+                .append("----------")
+                .append("开始讲述《小喇叭鱼的故事》的故事 \r\n")
+                .append(propsCard.getContent())
                 .build());
 
-        Message m = new PlainText("开始讲述《小喇叭鱼的故事》的故事 \r\n");
-        m = m.plus(propsCard.getContent());
-        subject.sendMessage(m);
     }
 }

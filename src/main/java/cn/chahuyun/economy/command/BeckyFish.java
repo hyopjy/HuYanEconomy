@@ -36,11 +36,11 @@ public class BeckyFish extends AbstractPropUsage {
 
         subject.sendMessage(new MessageChainBuilder().append(new QuoteReply(event.getMessage()))
                 .append(propsCard.getName() + "使用成功").append("\r\n")
-                .append("成功获得1205币币")
+                .append("成功获得1205币币").append("\r\n")
+                .append("----------")
+                .append("开始讲述《阿慕壮》的故事 \r\n")
+                .append(propsCard.getContent())
                 .build());
 
-        Message m = new PlainText("开始讲述《阿慕壮》的故事 \r\n");
-        m = m.plus(propsCard.getContent());
-        subject.sendMessage(m);
     }
 }
