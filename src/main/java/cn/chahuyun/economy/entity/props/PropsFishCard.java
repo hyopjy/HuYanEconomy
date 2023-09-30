@@ -75,4 +75,8 @@ public class PropsFishCard extends PropsBase implements Serializable {
     public Boolean getExchange() {
         return Optional.ofNullable(exchange).orElse(false);
     }
+
+    public Boolean getDelete() {
+        return Optional.ofNullable(delete).orElse(false);
+    }
 }
