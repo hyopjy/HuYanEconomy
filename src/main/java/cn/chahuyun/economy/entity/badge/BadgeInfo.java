@@ -54,10 +54,10 @@ public class BadgeInfo {
         this.time = time;
     }
 
-    public BadgeInfo(Long groupId, Long qq, String propCode, LocalDateTime time) {
+    public static BadgeInfo getBadgeInfo(Long groupId, Long qq, String propCode, LocalDateTime time) {
         Long nextId = IdUtil.getSnowflakeNextId();
         // int countNew = BadgeInfoManager.getCount(groupId, qq, propCode);
-        new BadgeInfo(nextId, groupId, qq, propCode, 1, time);
+        return new BadgeInfo(nextId, groupId, qq, propCode, 1, time);
     }
 
     public BadgeInfo save() {

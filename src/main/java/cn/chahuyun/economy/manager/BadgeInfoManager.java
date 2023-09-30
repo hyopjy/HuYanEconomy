@@ -12,16 +12,16 @@ import java.util.List;
 public class BadgeInfoManager {
 
     public static int getCount(Long groupId, Long qq, String propCode) {
-        int count = HibernateUtil.factory.fromTransaction(session -> {
+        Long count = HibernateUtil.factory.fromTransaction(session -> {
             HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
             JpaCriteriaQuery<BadgeInfo> query = builder.createQuery(BadgeInfo.class);
             JpaRoot<BadgeInfo> from = query.from(BadgeInfo.class);
             query.select(from);
             query.where(builder.equal(from.get("groupId"), groupId), builder.equal(from.get("qq"), qq),
                     builder.equal(from.get("propCode"), propCode));
-            return session.createQuery(query).getMaxResults();
+            return session.createQuery(query).stream().count();
         });
-        return count;
+        return Math.toIntExact(count);
     }
 
     public static List<BadgeInfo> getBadgeList() {
@@ -50,12 +50,14 @@ public class BadgeInfoManager {
             if (badgeInfo != null) {
                 badgeInfo.setCount(badgeInfo.getCount() + 1);
                 // return badgeInfo;
+                badgeInfo.save();
                 return;
             }
+            BadgeInfo newBadgeInfo = BadgeInfo.getBadgeInfo(groupId, qq, signCode, time);
+            newBadgeInfo.save();
         } catch (Exception ignored) {
+            ignored.printStackTrace();
         }
-        BadgeInfo newBadgeInfo = new BadgeInfo(groupId, qq, signCode, time);
-        newBadgeInfo.save();
-        return;
+
     }
 }
