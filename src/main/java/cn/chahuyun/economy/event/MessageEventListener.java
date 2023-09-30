@@ -292,6 +292,13 @@ public class MessageEventListener extends SimpleListenerHost {
                 return;
             }
 
+            String setSpecialAchievements = "特殊成就(\\[mirai:at:\\d+])? (\\S+)?";
+            if (Pattern.matches(setSpecialAchievements, code)) {
+                Log.info("特殊成就");
+                BadgeInfoManager.setSpecialAchievements(event);
+                return;
+            }
+
 
         } catch (Exception exception) {
             Log.error("发生异常！！！:" + exception.getMessage());

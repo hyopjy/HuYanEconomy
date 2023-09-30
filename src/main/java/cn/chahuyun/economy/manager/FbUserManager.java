@@ -3,6 +3,7 @@ package cn.chahuyun.economy.manager;
 import cn.chahuyun.economy.HuYanEconomy;
 import cn.chahuyun.economy.constant.FishSignConstant;
 import cn.chahuyun.economy.entity.UserInfo;
+import cn.chahuyun.economy.entity.badge.BadgeInfo;
 import cn.chahuyun.economy.redis.RedisUtils;
 import cn.chahuyun.economy.utils.CacheUtils;
 import cn.chahuyun.economy.utils.EconomyUtil;
@@ -260,6 +261,15 @@ public class FbUserManager  {
                 //写入数量
                 pen.drawString(0 + "", 390, 1085);
             }
+
+            if (BadgeInfoManager.getCount(group.getId(), userInfo.getQq(), FishSignConstant.FISH_SPECIAL) > 0) {
+                BadgeInfo badgeInfo = BadgeInfoManager.getBadgeInfo(group.getId(), userInfo.getQq(),  FishSignConstant.FISH_SPECIAL);
+                if(Objects.nonNull(badgeInfo)){
+                    pen.setFont(new Font("黑体", Font.BOLD, 20));
+                    pen.drawString(badgeInfo.getContent(), 183, 964);
+                }
+            }
+
             // 90 85
             if (BadgeInfoManager.getCount(group.getId(), userInfo.getQq(), FishSignConstant.FISH_17) > 0) {
                 drawFishSign(pen, FishSignConstant.FISH_17, null, 56, 1154, 0, 0);

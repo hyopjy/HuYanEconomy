@@ -185,7 +185,7 @@ public class RandomMoneyListener extends SimpleListenerHost {
             subject.sendMessage(MessageUtil.formatMessageChain(m.contentToString()));
          }
 
-        if (message.startsWith("下班时间") && EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
+        if (message.startsWith("营业时间") && EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
             // 休渔期 1,2,3,4 10-11
             // 1,2,3,4,5 0-5,10-23
             // 6,7 9-15,20-23

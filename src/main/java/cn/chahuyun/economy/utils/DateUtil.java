@@ -73,6 +73,7 @@ public class DateUtil {
     public static String getCron(LocalDateTime end){
 
         LocalDateTime end5Minutes = end.minusMinutes(5L);
+        // LocalDateTime end5Minutes = end.minusMinutes(2L);
         String sp = " ";
         // [minute] [hour] [day of month] [month] [day of week]
         // [minte] 表示分钟。取值范围 0 到 59

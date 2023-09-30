@@ -5,6 +5,7 @@ import cn.chahuyun.economy.entity.fish.Fish;
 import cn.chahuyun.economy.manager.BadgeInfoManager;
 import cn.chahuyun.economy.utils.HibernateUtil;
 import cn.hutool.core.util.IdUtil;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -44,20 +45,23 @@ public class BadgeInfo {
      */
     private LocalDateTime time;
 
+    @Column(columnDefinition = "text")
+    private String content;
 
-    public BadgeInfo(Long id, Long groupId, Long qq, String propCode, Integer count, LocalDateTime time) {
+    public BadgeInfo(Long id, Long groupId, Long qq, String propCode, Integer count, LocalDateTime time, String content) {
         this.id = id;
         this.groupId = groupId;
         this.qq = qq;
         this.propCode = propCode;
         this.count = count;
         this.time = time;
+        this.content = content;
     }
 
-    public static BadgeInfo getBadgeInfo(Long groupId, Long qq, String propCode, LocalDateTime time) {
+    public static BadgeInfo getBadgeInfo(Long groupId, Long qq, String propCode, LocalDateTime time,String content) {
         Long nextId = IdUtil.getSnowflakeNextId();
         // int countNew = BadgeInfoManager.getCount(groupId, qq, propCode);
-        return new BadgeInfo(nextId, groupId, qq, propCode, 1, time);
+        return new BadgeInfo(nextId, groupId, qq, propCode, 1, time, content);
     }
 
     public BadgeInfo save() {
