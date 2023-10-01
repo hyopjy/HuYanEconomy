@@ -57,6 +57,7 @@ public class FishTroubledWaters extends AbstractPropUsage {
         buff.setBuffName(propsCard.getName());
         buff.setBuffType(Constant.BUFF_BACK);
         buff.setCount(2);
+        buff.setNum(2);
         List<BuffProperty> properties = new ArrayList<>(1);
         BuffProperty property1 = new BuffProperty(BuffPropsEnum.SPECIAL_FISH.getName(), "摸鱼");
         BuffProperty property2 = new BuffProperty(BuffPropsEnum.SPECIAL_LEVEL.getName(), "3");
