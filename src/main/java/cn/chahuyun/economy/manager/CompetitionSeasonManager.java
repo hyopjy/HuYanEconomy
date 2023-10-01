@@ -115,12 +115,6 @@ class CompetitionSeasonTask implements Task {
             }
         }
 
-        // 清理徽章道具信息
-        List<BadgeInfo> badgeInfoList = BadgeInfoManager.getBadgeList();
-        badgeInfoList.stream().filter(badgeInfo -> Objects.nonNull(badgeInfo.getTime())
-                && !LocalDateTime.now().isAfter(badgeInfo.getTime()))
-                .forEach(BadgeInfo::remove);
-
         // 更新赛季
         LocalDateTime start = LocalDateTime.now();
         LocalDateTime end = start.plusMonths(3L);
