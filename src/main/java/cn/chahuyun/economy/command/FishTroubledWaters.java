@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
 public class FishTroubledWaters extends AbstractPropUsage {
     @Override
     public boolean checkOrder() {
-        this.isBuff = Boolean.TRUE;
+      //  this.isBuff = Boolean.TRUE;
 
         String no = PropsType.getNo(propsCard.getCode());
         String match = "使用 (" + propsCard.getName() + "|" + no + ")(\\[mirai:at:\\d+]( )*)";
@@ -41,7 +41,8 @@ public class FishTroubledWaters extends AbstractPropUsage {
             }
         }
         Buff buff = CacheUtils.getBuff(group.getId(), target);
-        if (isBuff && Objects.nonNull(buff)) {
+      //  if (isBuff && Objects.nonNull(buff)) {
+        if (Objects.nonNull(buff)) {
             subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "目标用户正在使用[" + buff.getBuffName() + "]buff"));
             return false;
         }
