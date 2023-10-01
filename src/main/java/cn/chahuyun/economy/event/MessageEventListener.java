@@ -280,17 +280,17 @@ public class MessageEventListener extends SimpleListenerHost {
             }
 
             //String walletToBankRegex = "存款 (\\d+(\\d+|\\.\\d)*)?|deposit (\\d+(\\d+|\\.\\d)*)?";
-            String bankToWalletRegex = "取款 (\\d+(\\d+|\\.\\d)*)?|withdraw (\\d+(\\d+|\\.\\d)*)?";
+//            String bankToWalletRegex = "取款 (\\d+(\\d+|\\.\\d)*)?|withdraw (\\d+(\\d+|\\.\\d)*)?";
            // if (Pattern.matches(walletToBankRegex, code)) {
 //                Log.info("银行指令");
 //                BankManager.deposit(event);
 //                return;
 //            } else
-            if (Pattern.matches(bankToWalletRegex, code)) {
-                Log.info("银行指令");
-                BankManager.withdrawal(event);
-                return;
-            }
+//            if (Pattern.matches(bankToWalletRegex, code)) {
+//                Log.info("银行指令");
+//                BankManager.withdrawal(event);
+//                return;
+//            }
 
             String setSpecialAchievements = "特殊成就(\\[mirai:at:\\d+])? (\\S+)?";
             if (Pattern.matches(setSpecialAchievements, code)) {
