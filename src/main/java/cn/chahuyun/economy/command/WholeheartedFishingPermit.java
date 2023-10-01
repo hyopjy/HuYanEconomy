@@ -46,6 +46,7 @@ public class WholeheartedFishingPermit extends AbstractPropUsage {
         buff.setBuffName(propsCard.getName());
         buff.setBuffType(Constant.BUFF_BACK);
         buff.setCount(5);
+        buff.setNum(5);
         List<BuffProperty> properties = new ArrayList<>(1);
         BuffProperty property1 = new BuffProperty(BuffPropsEnum.OTHER_FISH.getName(), "other");
         properties.add(property1);

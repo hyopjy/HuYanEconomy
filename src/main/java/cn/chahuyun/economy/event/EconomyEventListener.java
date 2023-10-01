@@ -17,11 +17,8 @@ import net.mamoe.mirai.event.events.EventCancelledException;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.message.data.MessageSource;
 import org.jetbrains.annotations.NotNull;
-import org.redisson.api.RBucket;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

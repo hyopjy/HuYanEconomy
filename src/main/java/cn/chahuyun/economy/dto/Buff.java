@@ -24,6 +24,11 @@ public class Buff implements Serializable {
     private int count = 0;
 
     /**
+     *
+     */
+    private int num = 0;
+
+    /**
      * bufftype
      */
     private Integer buffType;

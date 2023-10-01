@@ -45,6 +45,7 @@ public class FishOnTheBlade extends AbstractPropUsage {
         buff.setBuffName(propsCard.getName());
         buff.setBuffType(Constant.BUFF_FRONT);
         buff.setCount(5);
+        buff.setNum(5);
         List<BuffProperty> properties = new ArrayList<>(2);
         BuffProperty property1 = new BuffProperty(BuffPropsEnum.DIFFICULTY_MIN.getName(), 30);
         BuffProperty property2 = new BuffProperty(BuffPropsEnum.RANK_MIN.getName(), 2);
