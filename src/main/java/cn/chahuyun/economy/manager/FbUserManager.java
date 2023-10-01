@@ -265,8 +265,13 @@ public class FbUserManager  {
             if (BadgeInfoManager.getCount(group.getId(), userInfo.getQq(), FishSignConstant.FISH_SPECIAL) > 0) {
                 BadgeInfo badgeInfo = BadgeInfoManager.getBadgeInfo(group.getId(), userInfo.getQq(),  FishSignConstant.FISH_SPECIAL);
                 if(Objects.nonNull(badgeInfo)){
-                    pen.setFont(new Font("黑体", Font.BOLD, 20));
-                    pen.drawString(badgeInfo.getContent(), 183, 964);
+                    if(badgeInfo.getContent().length() > 6){
+                        pen.setFont(new Font("黑体", Font.BOLD, 15));
+                        pen.drawString(badgeInfo.getContent().substring(0,6) +"...", 183, 964);
+                    }else {
+                        pen.setFont(new Font("黑体", Font.BOLD, 20));
+                        pen.drawString(badgeInfo.getContent(), 183, 964);
+                    }
                 }
             }
 
