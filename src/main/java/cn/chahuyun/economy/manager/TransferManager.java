@@ -118,7 +118,7 @@ public class TransferManager {
             // 给管理员转账
 //            NormalMember admin = group.get(EconomyConfig.INSTANCE.getOwner());
 //            if (Objects.nonNull(admin)) {
-//                if (EconomyUtil.turnUserToUser(user, admin, 2 * amount)) {
+//                if (EconomyUtil.turnUserToUser(user, admin, amount)) {
 //                    Log.info("转账管理:管理员转账成功");
 //                }
 //            }
@@ -156,7 +156,7 @@ public class TransferManager {
             // 给管理员转账
             NormalMember admin = group.get(EconomyConfig.INSTANCE.getOwner());
             if (Objects.nonNull(admin)) {
-                if (EconomyUtil.turnBankToBank(user, admin, 2 * amount)) {
+                if (EconomyUtil.turnBankToBank(user, admin, amount)) {
                     Log.info("转账管理:管理员转账成功");
                 }
             }
