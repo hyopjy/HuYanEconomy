@@ -265,7 +265,7 @@ public class GamesManager {
          * 后置buff: 如 5次钓鱼都会额外上钩一条鱼   2次钓鱼都只会上钩[摸鱼]
          */
         if(Objects.nonNull(buff) && Constant.BUFF_FRONT.equals(buff.getBuffType())){
-            buffName = buff.getBuffName();
+            buffName = buff.getBuffName() + "-" + buff.getCount();
             addDifficultyMin = BuffUtils.getIntegerPropValue(buff, BuffPropsEnum.DIFFICULTY_MIN.getName());
             addRankMin = BuffUtils.getIntegerPropValue(buff, BuffPropsEnum.RANK_MIN.getName());
             // 减去
@@ -303,11 +303,16 @@ public class GamesManager {
         // 判断是否有buff
         // 后置buff
         while (true) {
+            if (rank == 0) {
+                subject.sendMessage("切线了我去！");
+                userFishInfo.switchStatus();
+                return;
+            }
             boolean otherFishB = false;
             // 后置钓鱼buff
             Buff buffBack = CacheUtils.getBuff(group.getId(), userInfo.getQq());
             if(Objects.nonNull(buffBack) && Constant.BUFF_BACK.equals(buff.getBuffType())){
-                buffName = buffBack.getBuffName();
+                buffName = buffBack.getBuffName() + "-" + buffBack.getCount();
                 String specialFish = BuffUtils.getBooleanPropType(buffBack,BuffPropsEnum.SPECIAL_FISH.getName());
                 if(!StrUtil.isBlank(specialFish)){
                     Integer specialLevel = Integer.valueOf(BuffUtils.getBooleanPropType(buffBack, BuffPropsEnum.SPECIAL_LEVEL.getName()));
@@ -321,16 +326,11 @@ public class GamesManager {
 
                 String otherFish = BuffUtils.getBooleanPropType(buffBack, BuffPropsEnum.OTHER_FISH.getName());
                 if(!StrUtil.isBlank(otherFish)){
+                    Log.info("otherFishB");
                     otherFishB = true;
                     // 减去
                     BuffUtils.reduceBuffCount(group.getId(), userInfo.getQq());
                 }
-            }
-
-            if (rank == 0) {
-                subject.sendMessage("切线了我去！");
-                userFishInfo.switchStatus();
-                return;
             }
             //roll难度
             int difficulty = RandomUtil.randomInt(difficultyMin, difficultyMax + 1);
@@ -354,6 +354,7 @@ public class GamesManager {
             fishList.add(collect.get(RandomUtil.randomInt(size > 6 ? size - 6 : 0, size)));
             // 额外增加一条鱼
             if (otherFishB) {
+                Log.info("额外增加一条鱼");
                 fishList.add(collect.get(RandomUtil.randomInt(size > 6 ? size - 6 : 0, size)));
             }
             break;
