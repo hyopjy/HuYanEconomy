@@ -29,19 +29,11 @@ public class FishSignConstant {
      * @return
      */
     public static Set<String> getSignPropCode(){
-        HashSet<String> strings = new HashSet<>(4);
+        HashSet<String> strings = new HashSet<>(6);
         strings.add(FISH_17);
         strings.add(FISH_15);
         strings.add(FISH_16);
         strings.add(FISH_20);
-        return strings;
-    }
-
-    /**
-     * 赛季成就
-     */
-    public static Set<String> getSeasonPropCode(){
-        HashSet<String> strings = new HashSet<>(2);
         strings.add(FISH_39);
         strings.add(FISH_49);
         return strings;

@@ -721,15 +721,10 @@ public class PropsManagerImpl implements PropsManager {
             }
             // 兑换成功 加入徽章信息
             String signCode = propCode.toUpperCase(Locale.ROOT);
-            // 通用成就
+            // 成就
             if (FishSignConstant.getSignPropCode().contains(signCode)) {
                 BadgeInfoManager.updateOrInsertBadgeInfo(subject.getId(), userInfo.getQq(), signCode, null, null);
                 // RedisUtils.getFishSignBloomFilter(subject.getId(), signCode).add(userInfo.getQq());
-            }
-            // 赛季成就
-            if (FishSignConstant.getSeasonPropCode().contains(signCode)) {
-                LocalDateTime expireTime = CompetitionSeasonManager.initCompetitionSeason().getEndTime();
-                BadgeInfoManager.updateOrInsertBadgeInfo(subject.getId(), userInfo.getQq(), signCode, expireTime,  null);
             }
             messages.append(new PlainText(propsInfo.getName() + "兑换成功！请到背包查看"));
             subject.sendMessage(messages.build());
