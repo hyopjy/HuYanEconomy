@@ -147,7 +147,7 @@ public class GamesManager {
         subject.sendMessage(start);
         Log.info(String.format("%s消耗%s币币开始钓鱼", userInfo.getName(), Optional.ofNullable(userPay.get(user.getId())).orElse(0.0)));
 
-        String[] errorMessages = new String[]{"钓鱼失败:哎呀，风吹的……", "钓鱼失败:哎呀，眼花了……", "钓鱼失败:bobo摇头", "钓鱼失败:呀！切线了！", "钓鱼失败:什么都没有钓上来！"};
+      //  String[] errorMessages = new String[]{"钓鱼失败:哎呀，风吹的……", "钓鱼失败:哎呀，眼花了……", "钓鱼失败:bobo摇头", "钓鱼失败:呀！切线了！", "钓鱼失败:什么都没有钓上来！"};
 
         //随机睡眠
         try {
@@ -157,20 +157,12 @@ public class GamesManager {
             Log.debug(e);
         }
 
-
-        //初始钓鱼信息
-        boolean theRod = false;
         // 困难度
         // 溜鱼增加difficultymin，之前的difficultymin=1+根号(14*RodLevel)
-        double result = 1 + Math.sqrt(userFishInfo.getRodLevel() * 14);
-        int difficultyMin =(int) result;
-        int difficultyMax = 131;
-        int rankMin = (int) (userFishInfo.getLevel() + 20) / 20;
-        int rankMax = 1;
-//        rankMin = Math.max((userFishInfo.getLevel() / 8) + 1, rankMin);
-        rankMax = Math.max(rankMin + 1, Math.min(userFishInfo.getLevel(), fishPond.getPondLevel()));
-       // int userFishLevel = (userFishInfo.getLevel() / 8) + 1;
-       // rankMax = Math.max(Math.max(userFishLevel, rankMin), Math.min(userFishLevel, fishPond.getPondLevel()));
+        int difficultyMin = (int) (1 + Math.sqrt(userFishInfo.getRodLevel() * 14));
+        int difficultyMax = 99 + userFishInfo.getRodLevel();
+        int rankMin = 1;
+        int rankMax = userFishInfo.getLevel() / 5  + 2;
 
         Log.info("[fishing-start]" +
                 ",difficultyMin:" + difficultyMin +
@@ -179,79 +171,17 @@ public class GamesManager {
                 ",rankMax:" + rankMax);
         subject.sendMessage(MessageUtils.newChain(new At(user.getId()), new PlainText("有动静了，快来！")));
         //开始拉扯
-        boolean rankStatus = true;
-        int pull = 0;
-        while (rankStatus) {
+        while (true) {
             MessageEvent newMessage = ShareUtils.getNextMessageEventFromUser(user, subject, false);
             String nextMessageCode = newMessage.getMessage().serializeToMiraiCode();
-            switch (nextMessageCode) {
-                case "向左拉":
-                case "左":
-                case "1":
-                    if(user_right.contains(user.getId()) || user_left.contains(user.getId())){
-                        break;
-                    }
-                    pull = pull + 1;
-                    int randomLeftInt = RandomUtil.randomInt(10, 50);
-                    difficultyMin += randomLeftInt;
-                    subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "\uD83E\uDD16你横向拉动了鱼竿，最小难度%s", (randomLeftInt < 0 ? "-" : "+") + randomLeftInt));
-                    user_left.add(user.getId());
-                    break;
-                case "向右拉":
-                case "右":
-                case "2":
-                    if(user_left.contains(user.getId()) || user_right.contains(user.getId())){
-                        break;
-                    }
-                    pull = pull + 1;
-                    int randomRightInt = RandomUtil.randomInt(0, 20);
-                    difficultyMin += randomRightInt;
-                    // 计算rankMax
-                    // int randomRankMaxRight = RandomUtil.randomInt(1, 4);
-                    rankMax += 1;
-                    subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "\uD83E\uDD16你纵向拉动了鱼竿，最小难度%s，最大等级+%s",
-                            (randomRightInt<0 ?"-":"+")+randomRightInt, 1));
-                    user_right.add(user.getId());
-                    break;
-                case "放":
-                case "0":
-                    if(!(user_left.contains(user.getId()) || user_right.contains(user.getId()))){
-                        break;
-                    }
-                    if(user_pull.contains(user.getId())){
-                        break;
-                    }
-                    pull++;
-                    int randomPullInt = RandomUtil.randomInt(0, 30);
-                    difficultyMin = difficultyMin + randomPullInt;
-
-                    rankMax = rankMin;
-                    subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "\uD83E\uDD16你把收回的线又放出去了！最小难度%s,最大等级=%s", (randomPullInt < 0 ? "-" : "+") + randomPullInt, rankMin));
-
-                    user_pull.add(user.getId());
-                    break;
-                default:
-                    if (Pattern.matches("[!！收起提竿杆]{1,2}", nextMessageCode)) {
-                        if (pull == 0) {
-                            theRod = true;
-                        }
-                        user_pull.remove(user.getId());
-                        user_right.remove(user.getId());
-                        user_left.remove(user.getId());
-                        rankStatus = false;
-                    }
-                    break;
+            if (Pattern.matches("[!！收起提竿杆]{1,2}", nextMessageCode)) {
+                user_pull.remove(user.getId());
+                user_right.remove(user.getId());
+                user_left.remove(user.getId());
+                break;
             }
         }
 
-        //空军
-        if (theRod) {
-            if (RandomUtil.randomInt(0, 101) >= 50) {
-                subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), errorMessages[RandomUtil.randomInt(0, 5)]));
-                userFishInfo.switchStatus();
-                return;
-            }
-        }
         /**
          * 收杆时- 增加buff
          */
@@ -265,7 +195,7 @@ public class GamesManager {
          * 后置buff: 如 5次钓鱼都会额外上钩一条鱼   2次钓鱼都只会上钩[摸鱼]
          */
         if(Objects.nonNull(buff) && Constant.BUFF_FRONT.equals(buff.getBuffType())){
-            buffName = buff.getBuffName() + "-" + buff.getCount();
+            buffName = buff.getBuffName() + "-第" + ((buff.getNum() - buff.getCount() + 1)) + "杆";
             addDifficultyMin = BuffUtils.getIntegerPropValue(buff, BuffPropsEnum.DIFFICULTY_MIN.getName());
             addRankMin = BuffUtils.getIntegerPropValue(buff, BuffPropsEnum.RANK_MIN.getName());
             // 减去
@@ -310,12 +240,12 @@ public class GamesManager {
             }
             boolean otherFishB = false;
             // 后置钓鱼buff
-            Buff buffBack = CacheUtils.getBuff(group.getId(), userInfo.getQq());
-            if(Objects.nonNull(buffBack) && Constant.BUFF_BACK.equals(buff.getBuffType())){
-                buffName = buffBack.getBuffName() + "-" + buffBack.getCount();
-                String specialFish = BuffUtils.getBooleanPropType(buffBack,BuffPropsEnum.SPECIAL_FISH.getName());
+//            Buff buffBack = CacheUtils.getBuff(group.getId(), userInfo.getQq());
+            if(Objects.nonNull(buff) && Constant.BUFF_BACK.equals(buff.getBuffType())){
+                buffName = buff.getBuffName() + "-第" + ((buff.getNum() - buff.getCount() + 1)) + "杆";
+                String specialFish = BuffUtils.getBooleanPropType(buff,BuffPropsEnum.SPECIAL_FISH.getName());
                 if(!StrUtil.isBlank(specialFish)){
-                    Integer specialLevel = Integer.valueOf(BuffUtils.getBooleanPropType(buffBack, BuffPropsEnum.SPECIAL_LEVEL.getName()));
+                    Integer specialLevel = Integer.valueOf(BuffUtils.getBooleanPropType(buff, BuffPropsEnum.SPECIAL_LEVEL.getName()));
                     List<Fish> levelFishList = fishPond.getFishList(specialLevel);
                     Fish special = levelFishList.stream().filter(fish -> specialFish.equals(fish.getName())).findFirst().get();
                     fishList.add(special);
@@ -324,7 +254,7 @@ public class GamesManager {
                     break;
                 }
 
-                String otherFish = BuffUtils.getBooleanPropType(buffBack, BuffPropsEnum.OTHER_FISH.getName());
+                String otherFish = BuffUtils.getBooleanPropType(buff, BuffPropsEnum.OTHER_FISH.getName());
                 if(!StrUtil.isBlank(otherFish)){
                     Log.info("otherFishB");
                     otherFishB = true;
