@@ -230,37 +230,38 @@ public class GamesManager {
         List<Fish> fishList = new ArrayList<>();
         //彩蛋
         boolean winning = false;
-        // 判断是否有buff
-        // 后置buff
-        while (true) {
+        // 拉扯
+        boolean rankStatus = true;
+        // 后置钓鱼buff
+        boolean otherFishB = false;
+//            Buff buffBack = CacheUtils.getBuff(group.getId(), userInfo.getQq());
+        if (Objects.nonNull(buff) && Constant.BUFF_BACK.equals(buff.getBuffType())) {
+            buffName = buff.getBuffName() + "-第" + ((buff.getNum() - buff.getCount() + 1)) + "杆";
+            String specialFish = BuffUtils.getBooleanPropType(buff, BuffPropsEnum.SPECIAL_FISH.getName());
+            if (!StrUtil.isBlank(specialFish)) {
+                int specialLevel = Integer.parseInt(BuffUtils.getBooleanPropType(buff, BuffPropsEnum.SPECIAL_LEVEL.getName()));
+                List<Fish> levelFishList = fishPond.getFishList(specialLevel);
+                Fish special = levelFishList.stream().filter(fish -> specialFish.equals(fish.getName())).findFirst().get();
+                fishList.add(special);
+                // 减去
+                BuffUtils.reduceBuffCount(group.getId(), userInfo.getQq());
+                rankStatus = false;
+            }
+
+            String otherFish = BuffUtils.getBooleanPropType(buff, BuffPropsEnum.OTHER_FISH.getName());
+            if(!StrUtil.isBlank(otherFish)){
+                Log.info("otherFishB");
+                otherFishB = true;
+                // 减去
+                BuffUtils.reduceBuffCount(group.getId(), userInfo.getQq());
+            }
+        }
+
+        while (rankStatus) {
             if (rank == 0) {
                 subject.sendMessage("切线了我去！");
                 userFishInfo.switchStatus();
                 return;
-            }
-            boolean otherFishB = false;
-            // 后置钓鱼buff
-//            Buff buffBack = CacheUtils.getBuff(group.getId(), userInfo.getQq());
-            if(Objects.nonNull(buff) && Constant.BUFF_BACK.equals(buff.getBuffType())){
-                buffName = buff.getBuffName() + "-第" + ((buff.getNum() - buff.getCount() + 1)) + "杆";
-                String specialFish = BuffUtils.getBooleanPropType(buff,BuffPropsEnum.SPECIAL_FISH.getName());
-                if(!StrUtil.isBlank(specialFish)){
-                    Integer specialLevel = Integer.valueOf(BuffUtils.getBooleanPropType(buff, BuffPropsEnum.SPECIAL_LEVEL.getName()));
-                    List<Fish> levelFishList = fishPond.getFishList(specialLevel);
-                    Fish special = levelFishList.stream().filter(fish -> specialFish.equals(fish.getName())).findFirst().get();
-                    fishList.add(special);
-                    // 减去
-                    BuffUtils.reduceBuffCount(group.getId(), userInfo.getQq());
-                    break;
-                }
-
-                String otherFish = BuffUtils.getBooleanPropType(buff, BuffPropsEnum.OTHER_FISH.getName());
-                if(!StrUtil.isBlank(otherFish)){
-                    Log.info("otherFishB");
-                    otherFishB = true;
-                    // 减去
-                    BuffUtils.reduceBuffCount(group.getId(), userInfo.getQq());
-                }
             }
             //roll难度
             int difficulty = RandomUtil.randomInt(difficultyMin, difficultyMax + 1);
@@ -287,7 +288,8 @@ public class GamesManager {
                 Log.info("额外增加一条鱼");
                 fishList.add(collect.get(RandomUtil.randomInt(size > 6 ? size - 6 : 0, size)));
             }
-            break;
+            rankStatus = false;
+            // break;
         }
         String finalBuffName = buffName;
         boolean finalWinning = winning;
