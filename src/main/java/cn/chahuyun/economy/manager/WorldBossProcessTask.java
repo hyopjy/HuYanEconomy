@@ -13,11 +13,11 @@ import net.mamoe.mirai.message.data.PlainText;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class WorldBossProcessTask implements WorldBossTask {
+public class WorldBossProcessTask implements Task {
     @Override
     public void execute() {
         WorldBossConfig worldBossStatusConfig =  WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.BOSS_STATUS);
-        if(!Boolean.getBoolean(worldBossStatusConfig.getConfigInfo())){
+        if(!Boolean.parseBoolean(worldBossStatusConfig.getConfigInfo())){
             return;
         }
         // 定时播报
@@ -27,7 +27,7 @@ public class WorldBossProcessTask implements WorldBossTask {
             return;
         }
         Integer fishSize = Integer.parseInt(worldBossConfig.getConfigInfo());
-        Bot  bot = HuYanEconomy.INSTANCE.getBotInstance();
+        Bot bot = HuYanEconomy.INSTANCE.getBotInstance();
 
         // 获取当前钓鱼所有尺寸
         List<WorldBossUserLog> userLogs = WorldBossConfigManager.getWorldBossUserLog();
@@ -35,8 +35,8 @@ public class WorldBossProcessTask implements WorldBossTask {
         for (Map.Entry<Long, List<WorldBossUserLog>> m : userLogMap.entrySet()) {
             Long groupId = m.getKey();
             List<WorldBossUserLog> groupWorldBossUserLog =  m.getValue();
-            double userFishSize = NumberUtil.round(groupWorldBossUserLog.stream().mapToDouble(WorldBossUserLog::getSize).sum(),2).doubleValue();
-            Message messgae = new PlainText(String.format("当前进度：\r\n%s/%s", userFishSize, fishSize) + "\r\n");
+            int userFishSize = NumberUtil.round(groupWorldBossUserLog.stream().mapToInt(WorldBossUserLog::getSize).sum(),2).intValue();
+            Message messgae = new PlainText(String.format("Boss当前进度：\r\n%s/%s", userFishSize, fishSize) + "\r\n");
             Objects.requireNonNull(bot.getGroup(groupId)).sendMessage(messgae);
         }
     }

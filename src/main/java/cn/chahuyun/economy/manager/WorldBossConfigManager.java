@@ -48,14 +48,12 @@ public class WorldBossConfigManager {
         for (int i = 0; i < cronList.size(); i++) {
             String cronKey = worldBossCornDay.getKeyId() + "-" + worldBossCornDay.getKeyString() + "-" + (i + 1);
             CronUtil.remove(cronKey);
-            WorldBossTask task = null;
             if (WorldBossEnum.CORN_PROGRESS.getKeyId() == worldBossCornDay.getKeyId()) {
-                task = new WorldBossProcessTask();
+                WorldBossProcessTask task = new WorldBossProcessTask();
+                CronUtil.schedule(cronKey, cronList.get(i), task);
             }
             if (WorldBossEnum.CORN_GOAL.getKeyId() == worldBossCornDay.getKeyId()) {
-                task = new WorldBossGoalTask();
-            }
-            if(Objects.nonNull(task)){
+                WorldBossGoalTask  task = new WorldBossGoalTask();
                 CronUtil.schedule(cronKey, cronList.get(i), task);
             }
         }
@@ -82,7 +80,7 @@ public class WorldBossConfigManager {
             JpaRoot<WorldBossConfig> from = query.from(WorldBossConfig.class);
             query.where(builder.equal(from.get("keyId"), keyId),builder.equal(from.get("keyString"), keyString));
             query.select(from);
-            return session.createQuery(query).getSingleResult();
+            return session.createQuery(query).getSingleResultOrNull();
         });
     }
 
@@ -90,23 +88,31 @@ public class WorldBossConfigManager {
      * 用户钓鱼尺寸记录
      * @return
      */
-    public static List<WorldBossUserLog> getWorldBossUserLog(){
+    public static List<WorldBossUserLog> getWorldBossUserLog(Long groupId){
         return HibernateUtil.factory.fromSession(session -> {
             HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
             JpaCriteriaQuery<WorldBossUserLog> query = builder.createQuery(WorldBossUserLog.class);
             JpaRoot<WorldBossUserLog> from = query.from(WorldBossUserLog.class);
+            if(Objects.nonNull(groupId)){
+                query.where(builder.equal(from.get("groupId"), groupId));
+            }
+
             query.select(from);
             return session.createQuery(query).list();
         });
     }
 
-    public static void deleteAllWorldBossUserLog() {
-        getWorldBossUserLog().forEach(WorldBossUserLog::remove);
+    public static List<WorldBossUserLog> getWorldBossUserLog() {
+        return getWorldBossUserLog(null);
     }
 
-    public static void saveWorldBossUserLog(Long groupId, Long userId, double size) {
+    public static void deleteAllWorldBossUserLog(Long groupId) {
+        getWorldBossUserLog(groupId).forEach(WorldBossUserLog::remove);
+    }
+
+    public static void saveWorldBossUserLog(Long groupId, Long userId, int size) {
         WorldBossConfig worldBossStatusConfig =  WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.BOSS_STATUS);
-        if(!Boolean.getBoolean(worldBossStatusConfig.getConfigInfo())){
+        if(!Boolean.parseBoolean(worldBossStatusConfig.getConfigInfo())){
             return;
         }
         // 判断时间
