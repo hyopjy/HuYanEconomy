@@ -44,6 +44,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -242,30 +243,35 @@ public class RandomMoneyListener extends SimpleListenerHost {
                 WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.BOSS_STATUS);
                 worldBossStatusConfig.setConfigInfo("true");
                 worldBossStatusConfig.save();
-                subject.sendMessage(MessageUtil.formatMessageChain("世界boss模式已开启"));
             }
             if("关闭".equals(codeArr[1])){
                 WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.BOSS_STATUS);
                 worldBossStatusConfig.setConfigInfo("false");
                 worldBossStatusConfig.save();
-                subject.sendMessage(MessageUtil.formatMessageChain("世界boss模式已关闭"));
             }
 
             if("目标尺寸".equals(codeArr[1])){
                 int size = Integer.parseInt(codeArr[2]);
                 WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.FISH_SIZE);
                 worldBossStatusConfig.setConfigInfo(size +"");
-                WorldBossConfig save =  worldBossStatusConfig.save();
-                subject.sendMessage(MessageUtil.formatMessageChain("目标尺寸更改为" + save.getConfigInfo()));
-
+                worldBossStatusConfig.save();
             }
             if("奖励金额".equals(codeArr[1])){
                 double bb = Double.parseDouble(codeArr[2]);
                 WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.WDIT_BB);
                 worldBossStatusConfig.setConfigInfo(bb +"");
-                WorldBossConfig save = worldBossStatusConfig.save();
-                subject.sendMessage(MessageUtil.formatMessageChain("奖励金额更改为" + save.getConfigInfo()));
+                worldBossStatusConfig.save();
             }
+
+            StringBuilder sb = new StringBuilder("世界模式配置如下:\r\n");
+            List<WorldBossConfig> list = WorldBossConfigManager.getWorldBossConfigList();
+            List<WorldBossEnum> worldBossEnumList = WorldBossEnum.getWorldBossEnumList();
+            worldBossEnumList.forEach(worldBossEnum -> {
+                Optional<WorldBossConfig> bossStatusConfig = list.stream().filter(keyConfig -> worldBossEnum.getKeyId() == keyConfig.getKeyId()).findFirst();
+                bossStatusConfig.ifPresent(worldBossConfig -> sb.append(worldBossEnum.getKeyDesc()).append(":").append(worldBossConfig.getConfigInfo()).append("\r\n"));
+            });
+            subject.sendMessage(sb.toString());
+            return ListeningStatus.LISTENING;
         }
         if (message.startsWith("boss奖励") &&
                 EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {

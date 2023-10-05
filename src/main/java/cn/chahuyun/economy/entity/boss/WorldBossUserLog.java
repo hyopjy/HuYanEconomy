@@ -27,7 +27,7 @@ public class WorldBossUserLog implements Serializable {
 
     private Long userId;
 
-    private double size;
+    private int size;
 
     private LocalDateTime dateTime;
 
