@@ -35,4 +35,16 @@ public interface Constant {
 
     DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
+
+   int BOSS_TYPE_INT = 1;
+
+   int BOSS_TYPE_BOOLEAN = 0;
+
+   int BOSS_TYPE_STRING = 2;
+
+    int BOSS_TYPE_DOUBLE = 3;
+
+    String BOSS_PROP_PROBABILITY_TYPE = "1";
+
+    String BOSS_PROP_COUNT_TYPE = "2";
 }
