@@ -1,19 +1,28 @@
 package cn.chahuyun.economy.event;
 
 import cn.chahuyun.config.EconomyEventConfig;
+import cn.chahuyun.economy.constant.Constant;
+import cn.chahuyun.economy.constant.WorldBossEnum;
 import cn.chahuyun.economy.entity.LotteryInfo;
 
 import cn.chahuyun.economy.entity.PropTimeRange;
 import cn.chahuyun.economy.entity.TimeRange;
+import cn.chahuyun.economy.entity.boss.WorldBossConfig;
+import cn.chahuyun.economy.entity.boss.WorldPropConfig;
 import cn.chahuyun.economy.entity.fish.Fish;
 import cn.chahuyun.economy.entity.fish.FishRanking;
+import cn.chahuyun.economy.entity.props.PropsBase;
+import cn.chahuyun.economy.entity.props.PropsFishCard;
 import cn.chahuyun.economy.manager.GamesManager;
 import cn.chahuyun.economy.manager.PropTimeRangeManager;
 import cn.chahuyun.economy.manager.TimeRangeManager;
+import cn.chahuyun.economy.manager.WorldBossConfigManager;
 import cn.chahuyun.economy.plugin.FishManager;
 import cn.chahuyun.economy.plugin.FishPondManager;
 import cn.chahuyun.economy.plugin.PluginManager;
+import cn.chahuyun.economy.plugin.PropsType;
 import cn.chahuyun.economy.utils.*;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.RandomUtil;
 import kotlin.coroutines.CoroutineContext;
 import net.mamoe.mirai.contact.*;
@@ -224,8 +233,138 @@ public class RandomMoneyListener extends SimpleListenerHost {
             subject.sendMessage(MessageUtil.formatMessageChain("刷新道具完成"));
         }
 
+        if (message.startsWith("世界boss") &&
+                EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
+            //  开启
+            String code = event.getMessage().serializeToMiraiCode();
+            String[] codeArr = code.split(" ");
+            if("开启".equals(codeArr[1])){
+                WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.BOSS_STATUS);
+                worldBossStatusConfig.setConfigInfo("true");
+                worldBossStatusConfig.save();
+                subject.sendMessage(MessageUtil.formatMessageChain("世界boss模式已开启"));
+            }
+            if("关闭".equals(codeArr[1])){
+                WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.BOSS_STATUS);
+                worldBossStatusConfig.setConfigInfo("false");
+                worldBossStatusConfig.save();
+                subject.sendMessage(MessageUtil.formatMessageChain("世界boss模式已关闭"));
+            }
 
+            if("目标尺寸".equals(codeArr[1])){
+                int size = Integer.parseInt(codeArr[2]);
+                WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.FISH_SIZE);
+                worldBossStatusConfig.setConfigInfo(size +"");
+                WorldBossConfig save =  worldBossStatusConfig.save();
+                subject.sendMessage(MessageUtil.formatMessageChain("目标尺寸更改为" + save.getConfigInfo()));
+
+            }
+            if("奖励金额".equals(codeArr[1])){
+                double bb = Double.parseDouble(codeArr[2]);
+                WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.WDIT_BB);
+                worldBossStatusConfig.setConfigInfo(bb +"");
+                WorldBossConfig save = worldBossStatusConfig.save();
+                subject.sendMessage(MessageUtil.formatMessageChain("奖励金额更改为" + save.getConfigInfo()));
+            }
+        }
+        if (message.startsWith("boss奖励") &&
+                EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
+            //  开启
+            String code = event.getMessage().serializeToMiraiCode();
+            String[] codeArr = code.split(" ");
+
+            // 设置奖励
+            // boss奖励 code/name 概率 50
+            // boss奖励 code/name 数量 5
+            String no = codeArr[1];
+            String type = codeArr[2];
+            Integer num = Integer.parseInt(codeArr[3]);
+            String propCode = PropsType.getCode(no);
+            if (propCode == null) {
+                Log.warning("道具系统:购买道具为空");
+                subject.sendMessage("道具不存在");
+                return ListeningStatus.LISTENING;
+            }
+            // PropsBase propsInfo = PropsType.getPropsInfo(propCode);
+            String typeCode = "";
+            if("概率".equals(type)){
+                typeCode = Constant.BOSS_PROP_PROBABILITY_TYPE;
+            }else if("数量".equals(type)){
+                typeCode = Constant.BOSS_PROP_COUNT_TYPE;
+            }else {
+                subject.sendMessage("类型错误");
+                return ListeningStatus.LISTENING;
+            }
+
+            WorldPropConfig worldPropConfig = WorldBossConfigManager.getWorldPropConfigByTypeAndCode(typeCode, propCode);
+            if(Objects.isNull(worldPropConfig)){
+                worldPropConfig = new WorldPropConfig(IdUtil.getSnowflakeNextId(), propCode, typeCode, num);
+            }else {
+                worldPropConfig.setConfigInfo(num);
+            }
+            worldPropConfig.save();
+
+            StringBuilder sb = getWorldPropInfoString();
+            subject.sendMessage(sb.toString());
+        }
+
+        if (message.startsWith("删除奖励") &&
+                EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
+            //  开启
+            String code = event.getMessage().serializeToMiraiCode();
+            String[] codeArr = code.split(" ");
+
+            // 设置奖励
+            // 删除奖励 概率 code/name
+            // 删除奖励 数量 code/name
+            String type = codeArr[1];
+            String no = codeArr[2];
+            String propCode = PropsType.getCode(no);
+            if (propCode == null) {
+                Log.warning("道具系统:购买道具为空");
+                subject.sendMessage("道具不存在");
+                return ListeningStatus.LISTENING;
+            }
+            // PropsBase propsInfo = PropsType.getPropsInfo(propCode);
+            String typeCode = "";
+            if("概率".equals(type)){
+                typeCode = Constant.BOSS_PROP_PROBABILITY_TYPE;
+            }else if("数量".equals(type)){
+                typeCode = Constant.BOSS_PROP_COUNT_TYPE;
+            }else {
+                subject.sendMessage("类型错误");
+                return ListeningStatus.LISTENING;
+            }
+
+            WorldPropConfig worldPropConfig = WorldBossConfigManager.getWorldPropConfigByTypeAndCode(typeCode, propCode);
+            if(Objects.nonNull(worldPropConfig)){
+                worldPropConfig.remove();
+            }
+
+            StringBuilder sb = getWorldPropInfoString();
+            subject.sendMessage(sb.toString());
+        }
 
         return ListeningStatus.LISTENING;
+    }
+
+    @NotNull
+    private static StringBuilder getWorldPropInfoString() {
+        List<WorldPropConfig> propConfigList = WorldBossConfigManager.getWorldPropConfigList();
+        StringBuilder sb = new StringBuilder("boss奖励如下:\r\n");
+        List<WorldPropConfig> propList = propConfigList.stream().filter(prop ->
+                Constant.BOSS_PROP_PROBABILITY_TYPE.equals(prop.getType())).collect(Collectors.toList());
+
+        propList.forEach(prop->{
+            PropsBase propsInfo = PropsType.getPropsInfo(prop.getPropCode());
+            sb.append("道具编码：" + prop.getPropCode().replace("FISH-","")).append(" 名称：").append(propsInfo.getName()).append("｜概率：").append(prop.getConfigInfo()).append("%\r\n");
+        });
+        List<WorldPropConfig> countList = propConfigList.stream().filter(prop ->
+                Constant.BOSS_PROP_COUNT_TYPE.equals(prop.getType())).collect(Collectors.toList());
+        countList.forEach(count->{
+            PropsBase propsInfo = PropsType.getPropsInfo(count.getPropCode());
+            sb.append("道具编码：" + count.getPropCode().replace("FISH-","")).append(" 名称：").append(propsInfo.getName()).append("｜数量：").append(count.getConfigInfo()).append("\r\n");
+        });
+        return sb;
     }
 }

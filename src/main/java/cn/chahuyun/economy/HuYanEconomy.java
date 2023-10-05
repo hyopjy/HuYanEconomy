@@ -2,10 +2,7 @@ package cn.chahuyun.economy;
 
 import cn.chahuyun.config.*;
 import cn.chahuyun.economy.event.*;
-import cn.chahuyun.economy.manager.AutomaticFishingMachineManager;
-import cn.chahuyun.economy.manager.BankManager;
-import cn.chahuyun.economy.manager.CompetitionSeasonManager;
-import cn.chahuyun.economy.manager.LotteryManager;
+import cn.chahuyun.economy.manager.*;
 import cn.chahuyun.economy.plugin.FishManager;
 import cn.chahuyun.economy.plugin.PluginManager;
 import cn.chahuyun.economy.power.PowerManager;
@@ -107,6 +104,7 @@ public final class HuYanEconomy extends JavaPlugin {
             FishManager.init();
             BankManager.init();
             CompetitionSeasonManager.seasonInit();
+            WorldBossConfigManager.init();
             // 延迟队列init
             RedisUtils.initDelay();
             eventEventChannel.registerListenerHost(new EconomyEventListener());

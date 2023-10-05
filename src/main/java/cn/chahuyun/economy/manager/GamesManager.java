@@ -69,9 +69,11 @@ public class GamesManager {
         UserInfo userInfo = UserManager.getUserInfo(event.getSender());
         User user = userInfo.getUser();
         Contact subject = event.getSubject();
-        Group group = null;
+        Group group;
         if (subject instanceof Group) {
             group = (Group) subject;
+        } else {
+            group = null;
         }
         //获取玩家钓鱼信息
         FishInfo userFishInfo = userInfo.getFishInfo();
@@ -162,7 +164,7 @@ public class GamesManager {
         int difficultyMin = (int) (1 + Math.sqrt(userFishInfo.getRodLevel() * 14));
         int difficultyMax = 99 + userFishInfo.getRodLevel();
         int rankMin = 1;
-        int rankMax = userFishInfo.getLevel() / 5  + 2;
+        int rankMax = userFishInfo.getRodLevel()/ 8  + 2;
 
         Log.info("[fishing-start]" +
                 ",difficultyMin:" + difficultyMin +
@@ -341,7 +343,8 @@ public class GamesManager {
             if(!fish.isSpecial()){
                 new FishRanking(userInfo.getQq(), userInfo.getName(), dimensions, money, userFishInfo.getRodLevel(), fish, fishPond).save();
             }
-
+            // 存入日志
+            WorldBossConfigManager.saveWorldBossUserLog(group.getId(), userInfo.getQq(), dimensions);
             messages.append("-----------\r\n");
         });
 
@@ -697,6 +700,9 @@ public class GamesManager {
         if(!fish.isSpecial()){
             new FishRanking(userInfo.getQq(), userInfo.getName(), dimensions, money, userFishInfo.getRodLevel(), fish, fishPond).save();
         }
+        // 存入世界boss战日志
+        WorldBossConfigManager.saveWorldBossUserLog(group.getId(), userInfo.getQq(), dimensions);
+
         if (RandomHelperUtil.checkRandomLuck1_1000()) {
             userFishInfo.downFishRod();
             automaticFish.setOtherMessage("触发币币回收计划之：每次上钩都有0.1%的概率鱼竿折断，掉两级\r\n");
