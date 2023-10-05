@@ -78,7 +78,7 @@ public class WorldBossGoalTask implements Task {
                     if (!EconomyUtil.plusMoneyToUser(member, bb)) {
                         member.sendMessage("奖金添加失败，请联系管理员!");
                     }else {
-                        sb.append(new At(userId).getDisplay(group)).append("：").append(bb).append("\r\n");
+                        sb.append(new At(userId).getDisplay(group)).append(" ").append(bb).append("\r\n");
                     }
                 });
                 sb.append("-------").append("\r\n");
@@ -136,7 +136,7 @@ public class WorldBossGoalTask implements Task {
                 Log.warning("道具系统:添加道具到用户背包失败!");
                 member.sendMessage("系统出错，请联系主人!");
             }else {
-                sb.append(new At(userId).getDisplay(group)).append(" ：").append(propsInfo.getName()).append("\r\n");
+                sb.append(new At(userId).getDisplay(group)).append(" ").append(propsInfo.getName()).append("\r\n");
             }
         });
     }
