@@ -29,20 +29,27 @@ import java.util.stream.Collectors;
 public class WorldBossGoalTask implements Task {
     @Override
     public void execute() {
+        Log.info("WorldBossGoalTask-open");
         WorldBossConfig worldBossStatusConfig =  WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.BOSS_STATUS);
         if(!Boolean.parseBoolean(worldBossStatusConfig.getConfigInfo())){
+            Log.info("WorldBossGoalTask-end. boss战开关未打开");
             return;
         }
         // 达成成就播报
         // 定时播报
         Bot bot = HuYanEconomy.INSTANCE.getBotInstance();
+        if(Objects.isNull(bot)){
+            Log.info("WorldBossGoalTask-end. bot为空");
+            return;
+        }
         // 获取目标值
         WorldBossConfig worldBossFishSizeConfig =  WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.FISH_SIZE);
         if(Objects.isNull(worldBossFishSizeConfig)){
+            Log.info("WorldBossGoalTask-end. FISH_SIZE 设定为空");
             return;
         }
         int fishSize = Integer.parseInt(worldBossFishSizeConfig.getConfigInfo());
-
+        Log.info("WorldBossGoalTask-fishSize设定值：" + fishSize);
         double bb;
         WorldBossConfig worldBossWditBBConfig =  WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.WDIT_BB);
         if(Objects.nonNull(worldBossWditBBConfig)){
@@ -50,23 +57,32 @@ public class WorldBossGoalTask implements Task {
         } else {
             bb = 0.0;
         }
+        Log.info("WorldBossGoalTask-bb数量：" + bb);
+
         List<WorldPropConfig> worldPropConfigList = WorldBossConfigManager.getWorldPropConfigList();
+        Log.info("WorldBossGoalTask-获取道具列表长度：" + worldPropConfigList.size());
 
         // 获取当前钓鱼所有尺寸
         List<WorldBossUserLog> userLogs = WorldBossConfigManager.getWorldBossUserLog();
+        Log.info("WorldBossGoalTask-获取钓鱼记录：" + userLogs.size());
         Map<Long, List<WorldBossUserLog>> userLogMap = userLogs.stream().collect(Collectors.groupingBy(WorldBossUserLog::getGroupId));
         for (Map.Entry<Long, List<WorldBossUserLog>> m : userLogMap.entrySet()) {
-            Message messgae = new PlainText("Boss战结束，战况如下：\r\n");
-
             Long groupId = m.getKey();
             Group group = bot.getGroup(groupId);
             List<WorldBossUserLog> groupWorldBossUserLog = m.getValue();
+            Log.info("----------------");
+            Log.info("WorldBossGoalTask-群id：" + groupId);
+            Log.info("WorldBossGoalTask-群记录数：" + groupWorldBossUserLog.size());
+
             double userFishSize = NumberUtil.round(groupWorldBossUserLog.stream().mapToDouble(WorldBossUserLog::getSize).sum(), 2).doubleValue();
             if (userFishSize < fishSize) {
+                Log.info("WorldBossGoalTask-end：目标尺寸:" + fishSize + "当前尺寸：" + userFishSize);
+                Log.info("----------------");
                 continue;
             }
 
             Set<Long> userIdList = groupWorldBossUserLog.stream().map(WorldBossUserLog::getUserId).collect(Collectors.toSet());
+            Log.info("WorldBossGoalTask-参与人数：" + userIdList.size());
             // 转账wditBB
             StringBuilder sb = new StringBuilder();
             if (bb > 0) {
@@ -74,9 +90,13 @@ public class WorldBossGoalTask implements Task {
                 sb.append("获取wdit bb Boss奖金" + bb + "如下：").append("\r\n");
                 userIdList.forEach(userId -> {
                     NormalMember member = group.get(userId);
-                    assert member != null;
+                    if(Objects.isNull(member)){
+                        Log.error("WorldBossGoalTask-发放奖金用户为空：" + userId);
+                        return;
+                    }
                     if (!EconomyUtil.plusMoneyToUser(member, bb)) {
                         member.sendMessage("奖金添加失败，请联系管理员!");
+                        Log.error("WorldBossGoalTask-发放奖金失败：" + userId);
                     }else {
                         sb.append(new At(userId).getDisplay(group)).append(" ").append(bb).append("\r\n");
                     }
@@ -89,6 +109,7 @@ public class WorldBossGoalTask implements Task {
             // 概率开奖列表
             List<WorldPropConfig> propProbabilityList = worldPropConfigList.stream().filter(worldPropConfig ->
                     Constant.BOSS_PROP_PROBABILITY_TYPE.equals(worldPropConfig.getType())).collect(Collectors.toList());
+            Log.info("WorldBossGoalTask：概率道具开奖，概率道具数量：" + propProbabilityList.size());
             propProbabilityList.forEach(probabilityBo -> {
                 // 计算百分比
                 int num;
@@ -99,23 +120,37 @@ public class WorldBossGoalTask implements Task {
                     double value = NumberUtil.round((double) probabilityBo.getConfigInfo() / 100,2).doubleValue();
                     num = (int) (userIdList.size() * value);
                 }
+                Log.info("----------------");
+                Log.info("WorldBossGoalTask-概率-道具code：" + probabilityBo.getPropCode() + "道具概率：" + probabilityBo.getConfigInfo());
+                Log.info("WorldBossGoalTask-概率-参与人数：" + userIdList.size() + "道具获得人数：" + num);
+                Log.info("----------------");
                 getWorldPropInfo(group, userIdList, sb, probabilityBo.getPropCode(), num);
             });
+
             // 数量开奖列表
             List<WorldPropConfig> propCountList = worldPropConfigList.stream().filter(worldPropConfig ->
                     Constant.BOSS_PROP_COUNT_TYPE.equals(worldPropConfig.getType())).collect(Collectors.toList());
-            propCountList.stream().forEach(probabilityBo -> {
+            Log.info("WorldBossGoalTask：数量道具开奖，数量道具个数：" + propCountList.size());
+            propCountList.forEach(probabilityBo -> {
                 // 获取数量
                 int num = probabilityBo.getConfigInfo();
                 if(userIdList.size() <= num){
                     num = userIdList.size();
                 }
+                Log.info("----------------");
+                Log.info("WorldBossGoalTask-数量-道具code：" + probabilityBo.getPropCode() + "道具个数：" + probabilityBo.getConfigInfo());
+                Log.info("WorldBossGoalTask-数量-参与人数：" + userIdList.size() + "数量获得人数：" + num);
+                Log.info("----------------");
                 getWorldPropInfo(group, userIdList, sb, probabilityBo.getPropCode(), num);
             });
+
             sb.append("-------").append("\r\n");
            // WorldBossConfigManager.deleteAllWorldBossUserLog(groupId);
             // 删除日志
             groupWorldBossUserLog.forEach(WorldBossUserLog::remove);
+            Log.info("----------------");
+
+            Message messgae = new PlainText("Boss战结束，战况如下：\r\n");
             messgae = messgae.plus(sb.toString());
             Objects.requireNonNull(bot.getGroup(groupId)).sendMessage(messgae);
         }
@@ -124,6 +159,7 @@ public class WorldBossGoalTask implements Task {
     private void getWorldPropInfo(Group group, Set<Long> userIdList, StringBuilder sb, String propCode, int num) {
         num = Math.min(userIdList.size(), num);
         List<Long> propProbabilityUserId = RandomUtil.randomEles(new ArrayList<>(userIdList), num);
+        Log.info("WorldBossGoalTask-getWorldPropInfo：参与人：" + userIdList.size() + "数量：" + num + "最终数量：" + propProbabilityUserId.size());
         PropsBase propsInfo = PropsType.getPropsInfo(propCode);
         if(Objects.isNull(propsInfo)){
             return;
@@ -139,6 +175,8 @@ public class WorldBossGoalTask implements Task {
                 sb.append(new At(userId).getDisplay(group)).append(" ").append(propsInfo.getName()).append("\r\n");
             }
         });
+        Log.info("WorldBossGoalTask-end");
+
     }
 
 
