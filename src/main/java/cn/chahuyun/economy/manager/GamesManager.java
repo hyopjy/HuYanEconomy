@@ -164,7 +164,7 @@ public class GamesManager {
         int difficultyMin = (int) (1 + Math.sqrt(userFishInfo.getRodLevel() * 14));
         int difficultyMax = 99 + userFishInfo.getRodLevel();
         int rankMin = 1;
-        int rankMax = userFishInfo.getRodLevel()/ 8  + 2;
+        int rankMax = userFishInfo.getRodLevel() / 8 + 2;
 
         Log.info("[fishing-start]" +
                 ",difficultyMin:" + difficultyMin +
@@ -187,77 +187,58 @@ public class GamesManager {
         /**
          * 收杆时- 增加buff
          */
-        int addDifficultyMin = 0;
-        int addRankMin = 0;
-        String buffName = "";
-        // 判断是否正在使用buff
-        Buff buff = CacheUtils.getBuff(group.getId(), userInfo.getQq());
-        /**
-         * 前置 buff:如 difficultymin52，rankmin5
-         * 后置buff: 如 5次钓鱼都会额外上钩一条鱼   2次钓鱼都只会上钩[摸鱼]
-         */
-        if(Objects.nonNull(buff) && Constant.BUFF_FRONT.equals(buff.getBuffType())){
-            buffName = buff.getBuffName() + "-第" + ((buff.getNum() - buff.getCount() + 1)) + "杆";
-            addDifficultyMin = BuffUtils.getIntegerPropValue(buff, BuffPropsEnum.DIFFICULTY_MIN.getName());
-            addRankMin = BuffUtils.getIntegerPropValue(buff, BuffPropsEnum.RANK_MIN.getName());
-            // 减去
-            BuffUtils.reduceBuffCount(group.getId(), userInfo.getQq());
-        }
-        Log.info("[buff]-addDifficultyMin:" + addDifficultyMin + ",addRankMin:" + addRankMin);
-
-        /*
-        最小钓鱼等级 = max((钓鱼竿支持最大等级/5)+1,基础最小等级）
-        最大钓鱼等级 = max(最小钓鱼等级+1,min(钓鱼竿支持最大等级,鱼塘支持最大等级,拉扯的等级))
-        */
-        // rankMin = Math.max((userFishInfo.getLevel() / 8) + 1, rankMin);
-        // rankMax = Math.max(rankMin + 1, Math.min(userFishInfo.getLevel(), Math.min(fishPond.getPondLevel(), rankMax)));
-        /*
-        最小难度 = 拉扯最小难度
-        最大难度 = max(拉扯最小难度,基本最大难度+鱼竿等级)
-         */
-
-        difficultyMin = difficultyMin + addDifficultyMin;
-        difficultyMax = Math.max(difficultyMin + 1, difficultyMax + userFishInfo.getRodLevel());
-        //roll等级
-        int rank = rankMin;
-        if (rankMin != rankMax + 1) {
-            rank = RandomUtil.randomInt(Math.min(rankMin, rankMax + 1), Math.max(rankMin, rankMax + 1));
-        }
-        Log.info("[fishing-end]" +
-                ",difficultyMin:" + difficultyMin +
-                ",difficultyMax:" + difficultyMax +
-                ",rankMin:" + rankMin +
-                ",rankMax:" + rankMax +
-                ",rank:" + rank);
         List<Fish> fishList = new ArrayList<>();
         //彩蛋
         boolean winning = false;
         // 拉扯
         boolean rankStatus = true;
-        // 后置钓鱼buff
+        // 钓鱼buff
         boolean otherFishB = false;
-//            Buff buffBack = CacheUtils.getBuff(group.getId(), userInfo.getQq());
-        if (Objects.nonNull(buff) && Constant.BUFF_BACK.equals(buff.getBuffType())) {
+        int addDifficultyMin = 0;
+        int addRankMin = 0;
+        String buffName = "";
+        Buff buff = CacheUtils.getBuff(group.getId(), userInfo.getQq());
+        if (Objects.nonNull(buff)) {
             buffName = buff.getBuffName() + "-第" + ((buff.getNum() - buff.getCount() + 1)) + "杆";
+            // 增加difficult
+            addDifficultyMin = BuffUtils.getIntegerPropValue(buff, BuffPropsEnum.DIFFICULTY_MIN.getName());
+            // 增加rankMin
+            addRankMin = BuffUtils.getIntegerPropValue(buff, BuffPropsEnum.RANK_MIN.getName());
+            // 上钩指定的鱼
             String specialFish = BuffUtils.getBooleanPropType(buff, BuffPropsEnum.SPECIAL_FISH.getName());
             if (!StrUtil.isBlank(specialFish)) {
                 int specialLevel = Integer.parseInt(BuffUtils.getBooleanPropType(buff, BuffPropsEnum.SPECIAL_LEVEL.getName()));
                 List<Fish> levelFishList = fishPond.getFishList(specialLevel);
                 Fish special = levelFishList.stream().filter(fish -> specialFish.equals(fish.getName())).findFirst().get();
                 fishList.add(special);
-                // 减去
-                BuffUtils.reduceBuffCount(group.getId(), userInfo.getQq());
                 rankStatus = false;
             }
-
+            // 额外增加一条鱼
             String otherFish = BuffUtils.getBooleanPropType(buff, BuffPropsEnum.OTHER_FISH.getName());
             if(!StrUtil.isBlank(otherFish)){
                 Log.info("otherFishB");
                 otherFishB = true;
-                // 减去
-                BuffUtils.reduceBuffCount(group.getId(), userInfo.getQq());
             }
+            // 减去buff
+            BuffUtils.reduceBuffCount(group.getId(), userInfo.getQq());
         }
+
+        // 结束时 计算buff
+        difficultyMin = difficultyMin + addDifficultyMin;
+        difficultyMax = Math.max(difficultyMin, difficultyMax + 1);
+        //roll等级
+        int rank = rankMin + addRankMin;
+        if (rankMin != rankMax + 1) {
+            rank = RandomUtil.randomInt(Math.min(rankMin, rankMax + 1), Math.max(rankMin, rankMax + 1));
+        }
+        Log.info("[buff]-addDifficultyMin:" + addDifficultyMin + ",addRankMin:" + addRankMin);
+        Log.info("[fishing-end]" +
+                ",difficultyMin:" + difficultyMin +
+                ",difficultyMax:" + difficultyMax +
+                ",rankMin:" + rankMin +
+                ",rankMax:" + rankMax +
+                ",rank:" + rank);
+
 
         while (rankStatus) {
             if (rank == 0) {
