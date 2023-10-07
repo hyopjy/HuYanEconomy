@@ -47,8 +47,8 @@ public class FishOnTheBlade extends AbstractPropUsage {
         buff.setCount(5);
         buff.setNum(5);
         List<BuffProperty> properties = new ArrayList<>(2);
-        BuffProperty property1 = new BuffProperty(BuffPropsEnum.DIFFICULTY_MIN.getName(), 30);
-        BuffProperty property2 = new BuffProperty(BuffPropsEnum.RANK_MIN.getName(), 2);
+        BuffProperty property1 = new BuffProperty(BuffPropsEnum.DIFFICULTY_MIN.getName(), 50);
+        BuffProperty property2 = new BuffProperty(BuffPropsEnum.RANK_MIN.getName(), 5);
         properties.add(property1);
         properties.add(property2);
         buff.setProperties(properties);
@@ -57,7 +57,7 @@ public class FishOnTheBlade extends AbstractPropUsage {
 
         subject.sendMessage(new MessageChainBuilder().append(new QuoteReply(event.getMessage()))
                 .append(propsCard.getName() + "使用成功").append("\r\n")
-                .append("之后5次钓鱼都会difficultymin增加30，rankmin增加2")
+                .append("之后5次钓鱼都会difficultymin增加50，rankmin增加5")
                 .build());
     }
 }
