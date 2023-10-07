@@ -308,6 +308,7 @@ public class PropsManagerImpl implements PropsManager {
         }
 
         PropsBase propsInfo = PropsType.getPropsInfo(propCode);
+        Integer cost = propsInfo.getCost();
         if(propsInfo instanceof PropsFishCard){
             PropsFishCard card = (PropsFishCard) propsInfo;
             if(!card.getBuy()){
@@ -316,10 +317,10 @@ public class PropsManagerImpl implements PropsManager {
                 return;
             }
             //购买道具合计金额
-            if (card.getCost() < 0) {
+            if (cost < 0) {
                 // 100*rodlevel+900
                 FishInfo userFishInfo = userInfo.getFishInfo();
-                propsInfo.setCost(100 * userFishInfo.getRodLevel() + 900);
+                cost = 60 * userFishInfo.getRodLevel() + 200;
             }
             if ("FISH-2".equals(card.getCode()) || "FISH-30".equals(card.getCode())) {
                 if(num != 1){
@@ -334,11 +335,6 @@ public class PropsManagerImpl implements PropsManager {
                     subject.sendMessage(messages.build());
                     return;
                 }
-//                if(RedisUtils.checkSisterPropBloomFilter(subject.getId(),sender.getId())){
-//                    messages.append(new PlainText("["  + propsInfo.getName() + "]每人每天限制领养1条"));
-//                    subject.sendMessage(messages.build());
-//                    return;
-//                }
             }
         }
         //用户钱包现有余额
@@ -346,9 +342,9 @@ public class PropsManagerImpl implements PropsManager {
         // new 枫叶
         double money = EconomyUtil.getMoneyByBank(sender);
         //购买道具合计金额
-        int total = propsInfo.getCost() * num;
+        int total = cost * num;
 
-        if (money - total < -propsInfo.getCost() * 5) {
+        if (money - total < -cost * 5) {
             messages.append(new PlainText("😣"  + propsInfo.getName() + "可不能卖给你！"));
             subject.sendMessage(messages.build());
             return;
