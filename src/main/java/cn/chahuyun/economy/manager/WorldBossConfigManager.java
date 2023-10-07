@@ -117,9 +117,17 @@ public class WorldBossConfigManager {
         }
         // 判断时间
         WorldBossConfig openHourConfig = getWorldBossConfigByKey(WorldBossEnum.OPEN_HOUR);
+        WorldBossConfig openHourMinuteConfig = getWorldBossConfigByKey(WorldBossEnum.OPEN_HOUR_MINUTE);
         WorldBossConfig endHourConfig = getWorldBossConfigByKey(WorldBossEnum.END_HOUR);
-        if (LocalDateTime.now().getHour() >= Integer.parseInt(openHourConfig.getConfigInfo()) && LocalDateTime.now().getHour() <= Integer.parseInt(endHourConfig.getConfigInfo())) {
-            WorldBossUserLog worldBossUserLog = new WorldBossUserLog(IdUtil.getSnowflakeNextId(), groupId, userId, size, LocalDateTime.now());
+
+        LocalDateTime now = LocalDateTime.now();
+        Boolean checkOpenTime = now.getHour() >= Integer.parseInt(openHourConfig.getConfigInfo())
+                && now.getMinute() >= Integer.parseInt(openHourMinuteConfig.getConfigInfo());
+        Boolean checkEndTime = now.getHour() <= Integer.parseInt(endHourConfig.getConfigInfo());
+
+        if (checkOpenTime && checkEndTime) {
+            WorldBossUserLog worldBossUserLog = new WorldBossUserLog(IdUtil.getSnowflakeNextId(), groupId, userId,
+                    size, now);
             worldBossUserLog.save();
         }
     }
