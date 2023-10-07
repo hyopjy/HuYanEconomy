@@ -8,6 +8,7 @@ import cn.chahuyun.economy.utils.HibernateUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.cron.CronUtil;
 import jakarta.persistence.Id;
+import org.apache.commons.compress.utils.Lists;
 import org.hibernate.query.criteria.HibernateCriteriaBuilder;
 import org.hibernate.query.criteria.JpaCriteriaQuery;
 import org.hibernate.query.criteria.JpaRoot;
@@ -103,11 +104,7 @@ public class WorldBossConfigManager {
     }
 
     public static List<WorldBossUserLog> getWorldBossUserLog() {
-        return getWorldBossUserLog(null);
-    }
-
-    public static void deleteAllWorldBossUserLog(Long groupId) {
-        getWorldBossUserLog(groupId).forEach(WorldBossUserLog::remove);
+        return Optional.ofNullable(getWorldBossUserLog(null)).orElse(Lists.newArrayList());
     }
 
     public static void saveWorldBossUserLog(Long groupId, Long userId, int size) {
@@ -137,13 +134,13 @@ public class WorldBossConfigManager {
      */
 
     public static List<WorldPropConfig> getWorldPropConfigList(){
-        return HibernateUtil.factory.fromSession(session -> {
+        return Optional.ofNullable(HibernateUtil.factory.fromSession(session -> {
             HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
             JpaCriteriaQuery<WorldPropConfig> query = builder.createQuery(WorldPropConfig.class);
             JpaRoot<WorldPropConfig> from = query.from(WorldPropConfig.class);
             query.select(from);
             return session.createQuery(query).list();
-        });
+        })).orElse(Lists.newArrayList());
     }
 
     public static WorldPropConfig getWorldPropConfigByTypeAndCode(String type, String propCode) {
