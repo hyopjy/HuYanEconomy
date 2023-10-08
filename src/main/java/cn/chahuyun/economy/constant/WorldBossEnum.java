@@ -20,6 +20,10 @@ public enum WorldBossEnum {
 
     OPEN_HOUR_MINUTE(8,"open_hour_minute", "开始时间小时分钟",  Constant.BOSS_TYPE_INT, "30"),
 
+    WDIT_BB_PROP(9,"wdit_bb_prop", "币币数量奖励金额",  Constant.BOSS_TYPE_DOUBLE, "300"),
+
+    WDIT_BB_COUNT(10,"wdit_bb_count", "币币概率奖励金额",  Constant.BOSS_TYPE_DOUBLE, "600"),
+
 //    OPEN_HOUR(4,"open_hour", "开始时间小时",  Constant.BOSS_TYPE_INT, "0"),
 //    END_HOUR(5,"end_hour", "结束时间小时",  Constant.BOSS_TYPE_INT, "23"),
 //    CORN_GOAL(6,"world_boss_corn_goal", "达成播报",  Constant.BOSS_TYPE_STRING, "0 0/3 * * * ?"),
@@ -40,7 +44,7 @@ public enum WorldBossEnum {
     final String value;
 
     public  static List<WorldBossEnum> getWorldBossEnumList(){
-        List<WorldBossEnum> list = new ArrayList<>(8);
+        List<WorldBossEnum> list = new ArrayList<>(10);
         list.add(BOSS_STATUS);
         list.add(FISH_SIZE);
         list.add(WDIT_BB);
@@ -49,6 +53,8 @@ public enum WorldBossEnum {
         list.add(CORN_GOAL);
         list.add(CORN_PROGRESS);
         list.add(OPEN_HOUR_MINUTE);
+        list.add(WDIT_BB_PROP);
+        list.add(WDIT_BB_COUNT);
         return list;
     }
 }

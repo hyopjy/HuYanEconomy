@@ -4,6 +4,8 @@ import cn.chahuyun.economy.entity.currency.GoldEconomyCurrency;
 import xyz.cssxsh.mirai.economy.service.EconomyCurrency;
 
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.List;
 
 
 /**
@@ -47,4 +49,7 @@ public interface Constant {
     String BOSS_PROP_PROBABILITY_TYPE = "1";
 
     String BOSS_PROP_COUNT_TYPE = "2";
+
+    List<String> FISH_NAME_BB_LIST = Arrays.asList(new String[]{"币币", "bb"});
+    String FISH_CODE_BB = "FISH-bb";
 }
