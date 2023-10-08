@@ -118,8 +118,12 @@ public class WorldBossConfigManager {
         WorldBossConfig endHourConfig = getWorldBossConfigByKey(WorldBossEnum.END_HOUR);
 
         LocalDateTime now = LocalDateTime.now();
-        Boolean checkOpenTime = now.getHour() >= Integer.parseInt(openHourConfig.getConfigInfo())
-                && now.getMinute() >= Integer.parseInt(openHourMinuteConfig.getConfigInfo());
+        Boolean checkOpenTime;
+        if (now.getHour() == Integer.parseInt(openHourConfig.getConfigInfo())) {
+            checkOpenTime = now.getMinute() >= Integer.parseInt(openHourMinuteConfig.getConfigInfo());
+        } else {
+            checkOpenTime = now.getHour() >= Integer.parseInt(openHourConfig.getConfigInfo());
+        }
         Boolean checkEndTime = now.getHour() <= Integer.parseInt(endHourConfig.getConfigInfo());
 
         if (checkOpenTime && checkEndTime) {
