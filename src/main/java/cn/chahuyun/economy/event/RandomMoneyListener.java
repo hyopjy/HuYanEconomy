@@ -259,6 +259,18 @@ public class RandomMoneyListener extends SimpleListenerHost {
                 worldBossStatusConfig.setConfigInfo(bb +"");
                 worldBossStatusConfig.save();
             }
+            if("币币数量奖励金额".equals(codeArr[1])){
+                double bb = Double.parseDouble(codeArr[2]);
+                WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.WDIT_BB_COUNT);
+                worldBossStatusConfig.setConfigInfo(bb +"");
+                worldBossStatusConfig.save();
+            }
+            if("币币概率奖励金额".equals(codeArr[1])){
+                double bb = Double.parseDouble(codeArr[2]);
+                WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.WDIT_BB_PROP);
+                worldBossStatusConfig.setConfigInfo(bb +"");
+                worldBossStatusConfig.save();
+            }
 
             StringBuilder sb = new StringBuilder("世界模式配置如下:\r\n");
             List<WorldBossConfig> list = WorldBossConfigManager.getWorldBossConfigList();
@@ -282,11 +294,16 @@ public class RandomMoneyListener extends SimpleListenerHost {
             String no = codeArr[1];
             String type = codeArr[2];
             Integer num = Integer.parseInt(codeArr[3]);
-            String propCode = PropsType.getCode(no);
-            if (propCode == null) {
-                Log.warning("道具系统:购买道具为空");
-                subject.sendMessage("道具不存在");
-                return ListeningStatus.LISTENING;
+            String propCode = "";
+            if (Constant.FISH_NAME_BB_LIST.contains(no)) {
+                propCode = Constant.FISH_CODE_BB;
+            } else {
+                propCode = PropsType.getCode(no);
+                if (propCode == null) {
+                    Log.warning("道具系统:购买道具为空");
+                    subject.sendMessage("道具不存在");
+                    return ListeningStatus.LISTENING;
+                }
             }
             // PropsBase propsInfo = PropsType.getPropsInfo(propCode);
             String typeCode = "";
@@ -322,11 +339,16 @@ public class RandomMoneyListener extends SimpleListenerHost {
             // 删除奖励 数量 code/name
             String type = codeArr[1];
             String no = codeArr[2];
-            String propCode = PropsType.getCode(no);
-            if (propCode == null) {
-                Log.warning("道具系统:购买道具为空");
-                subject.sendMessage("道具不存在");
-                return ListeningStatus.LISTENING;
+            String propCode = "";
+            if (Constant.FISH_NAME_BB_LIST.contains(no)) {
+                propCode = Constant.FISH_CODE_BB;
+            } else {
+                propCode = PropsType.getCode(no);
+                if (propCode == null) {
+                    Log.warning("道具系统:购买道具为空");
+                    subject.sendMessage("道具不存在");
+                    return ListeningStatus.LISTENING;
+                }
             }
             // PropsBase propsInfo = PropsType.getPropsInfo(propCode);
             String typeCode = "";
