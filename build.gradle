@@ -47,6 +47,7 @@ dependencies {
     implementation 'com.alibaba:fastjson:2.0.28'
     //测试库
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.0'
+    implementation 'org.apache.commons:commons-lang3:3.8.1'
 }
 
 // hibernate 6 和 HikariCP 5 需要 jdk11

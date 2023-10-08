@@ -3,10 +3,11 @@ package cn.chahuyun.economy.utils;
 import cn.chahuyun.economy.entity.PropTimeRange;
 import cn.chahuyun.economy.entity.TimeRange;
 import cn.chahuyun.economy.manager.PropTimeRangeManager;
-import cn.chahuyun.economy.manager.TimeRangeManager;;
+import cn.chahuyun.economy.manager.TimeRangeManager;
+import org.apache.commons.lang3.RandomUtils;;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
+import java.util.*;
 
 public class DateUtil {
 
@@ -89,4 +90,29 @@ public class DateUtil {
         return  second + sp + minute + sp + hour + sp + day + sp + month + sp + "?";
     }
 
+
+//    public static void main(String[] args) {
+//        Set<Long> awardUserIds = new HashSet<>();
+//        List<Long> userIdList = new ArrayList<>();
+//        userIdList.add(4L);
+//        userIdList.add(5L);
+//        userIdList.add(6L);
+//        userIdList.add(9L);
+//        userIdList.add(7L);
+//
+//        for (int i = 0; i < 5; i++) {
+//            addUserIds(awardUserIds, userIdList);
+//        }
+//        System.out.println(awardUserIds);
+//    }
+//
+//    public static void addUserIds(Set<Long> awardUserIds,List<Long> userIdList) {
+//        int rand = RandomUtils.nextInt(0, userIdList.size());
+//        Long userId = userIdList.get(rand);
+//        if(!awardUserIds.contains(userId)){
+//            awardUserIds.add(userId);
+//        }else {
+//            addUserIds(awardUserIds,userIdList);
+//        }
+//    }
 }
