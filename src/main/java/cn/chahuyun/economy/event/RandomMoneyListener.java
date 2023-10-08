@@ -71,43 +71,43 @@ public class RandomMoneyListener extends SimpleListenerHost {
         if (message.equals("WDIT") && EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
             int money = RandomUtil.randomInt(100, 800);
             EconomyUtil.plusMoneyToUser(sender, money);
-            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "恭喜你获得" +money +"WDIT 币币"));
+            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "恭喜你获得" + money + "WDIT 币币"));
         }
 
-        if(message.equals("余额")){
+        if (message.equals("余额")) {
             double money = EconomyUtil.getMoneyByUser(sender);
             double bankMoney = EconomyUtil.getMoneyByBank(sender);
             subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "当前WDIT 币币余额%s;枫叶%s", money, bankMoney));
         }
-        if(message.equals("查看签签")){
+        if (message.equals("查看签签")) {
             List<LotteryInfo> list = HibernateUtil.factory.fromSession(session -> {
                 HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
                 JpaCriteriaQuery<LotteryInfo> query = builder.createQuery(LotteryInfo.class);
                 JpaRoot<LotteryInfo> from = query.from(LotteryInfo.class);
                 query.select(from);
-                query.where(builder.equal(from.get("qq"), sender.getId()),builder.equal(from.get("group"), sender.getGroup().getId()));
+                query.where(builder.equal(from.get("qq"), sender.getId()), builder.equal(from.get("group"), sender.getGroup().getId()));
                 return session.createQuery(query).list();
             });
-            if(CollectionUtils.isEmpty(list)){
+            if (CollectionUtils.isEmpty(list)) {
                 subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "暂时没有签"));
-            }else {
+            } else {
                 Message m = new PlainText("");
                 // 强制透
                 List<LotteryInfo> grandLotto = list.stream().filter(lotteryInfo -> lotteryInfo.getType() == 3).collect(Collectors.toList());
                 // 缺德球
                 List<LotteryInfo> union = list.stream().filter(lotteryInfo -> lotteryInfo.getType() == 2).collect(Collectors.toList());
 
-                if(!CollectionUtils.isEmpty(grandLotto)){
+                if (!CollectionUtils.isEmpty(grandLotto)) {
                     m = m.plus("强制一签：").plus("\r\n");
-                   for(int i = 0 ; i < grandLotto.size(); i++ ) {
-                       m = m.plus("号码：" ).plus(grandLotto.get(i).getNumber()).plus(" 币币：" + grandLotto.get(i).getMoney()).plus("\r\n");
-                   }
+                    for (int i = 0; i < grandLotto.size(); i++) {
+                        m = m.plus("号码：").plus(grandLotto.get(i).getNumber()).plus(" 币币：" + grandLotto.get(i).getMoney()).plus("\r\n");
+                    }
                 }
 
-                if(!CollectionUtils.isEmpty(union)){
+                if (!CollectionUtils.isEmpty(union)) {
                     m = m.plus("缺德球签：").plus("\r\n");
-                    for(int i = 0 ; i < union.size(); i++ ) {
-                        m = m.plus("号码：" ).plus(union.get(i).getNumber()).plus(" 币币：" + union.get(i).getMoney()).plus("\r\n");
+                    for (int i = 0; i < union.size(); i++) {
+                        m = m.plus("号码：").plus(union.get(i).getNumber()).plus(" 币币：" + union.get(i).getMoney()).plus("\r\n");
                     }
                 }
                 subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), m.contentToString()));
@@ -146,10 +146,10 @@ public class RandomMoneyListener extends SimpleListenerHost {
                 return session.createQuery(query).list();
             });
             fishList.stream().forEach(fish -> {
-                 HibernateUtil.factory.fromTransaction(session -> {
-                     session.remove(fish);
-                     return null;
-                 });
+                HibernateUtil.factory.fromTransaction(session -> {
+                    session.remove(fish);
+                    return null;
+                });
             });
             FishManager.fishMap.clear();
             FishManager.init();
@@ -164,16 +164,16 @@ public class RandomMoneyListener extends SimpleListenerHost {
             // 休渔期 1,2,3,4 10-11
             // 1,2,3,4,5 0-5,10-23
             // 6,7 9-15,20-23
-            message = message.replace("\\","");
+            message = message.replace("\\", "");
             String[] arr = message.split(" ");
             String weekDay = arr[1];
             String time = arr[2];
             String[] weekDayArr = weekDay.split(",");
-            for(String week : weekDayArr){
+            for (String week : weekDayArr) {
                 int weekNum = 0;
-                try{
+                try {
                     weekNum = Integer.parseInt(week);
-                }catch (Exception e){
+                } catch (Exception e) {
                     subject.sendMessage(MessageUtil.formatMessageChain("week输入数字"));
                     return ListeningStatus.LISTENING;
                 }
@@ -184,28 +184,28 @@ public class RandomMoneyListener extends SimpleListenerHost {
             Message m = new PlainText("=====配置信息=====").plus("\r\n");
             StringBuffer stringBuffer = new StringBuffer();
             List<TimeRange> list = TimeRangeManager.getTimeRangeList();
-            list.forEach(timeRange->{
+            list.forEach(timeRange -> {
                 TimeRangeManager.WEEK_TIME_RANGE_CACHE.put(timeRange.getWeekDay(), timeRange);
                 stringBuffer.append(timeRange.getDesc());
             });
             m = m.plus(stringBuffer);
             subject.sendMessage(MessageUtil.formatMessageChain(m.contentToString()));
-         }
+        }
 
         if (message.startsWith("营业时间") && EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
             // 休渔期 1,2,3,4 10-11
             // 1,2,3,4,5 0-5,10-23
             // 6,7 9-15,20-23
-            message = message.replace("\\","");
+            message = message.replace("\\", "");
             String[] arr = message.split(" ");
             String weekDay = arr[1];
             String time = arr[2];
             String[] weekDayArr = weekDay.split(",");
-            for(String week : weekDayArr){
+            for (String week : weekDayArr) {
                 int weekNum = 0;
-                try{
+                try {
                     weekNum = Integer.parseInt(week);
-                }catch (Exception e){
+                } catch (Exception e) {
                     subject.sendMessage(MessageUtil.formatMessageChain("week输入数字"));
                     return ListeningStatus.LISTENING;
                 }
@@ -216,7 +216,7 @@ public class RandomMoneyListener extends SimpleListenerHost {
             Message m = new PlainText("=====配置信息=====").plus("\r\n");
             StringBuffer stringBuffer = new StringBuffer();
             List<PropTimeRange> list = PropTimeRangeManager.getPropTimeRangeList();
-            list.forEach(propTimeRange->{
+            list.forEach(propTimeRange -> {
                 PropTimeRangeManager.PROP_TIME_RANGE_CACHE.put(propTimeRange.getWeekDay(), propTimeRange);
                 stringBuffer.append(propTimeRange.getDesc());
             });
@@ -236,39 +236,39 @@ public class RandomMoneyListener extends SimpleListenerHost {
             //  开启
             String code = event.getMessage().serializeToMiraiCode();
             String[] codeArr = code.split(" ");
-            if("开启".equals(codeArr[1])){
+            if ("开启".equals(codeArr[1])) {
                 WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.BOSS_STATUS);
                 worldBossStatusConfig.setConfigInfo("true");
                 worldBossStatusConfig.save();
             }
-            if("关闭".equals(codeArr[1])){
+            if ("关闭".equals(codeArr[1])) {
                 WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.BOSS_STATUS);
                 worldBossStatusConfig.setConfigInfo("false");
                 worldBossStatusConfig.save();
             }
 
-            if("目标尺寸".equals(codeArr[1])){
+            if ("目标尺寸".equals(codeArr[1])) {
                 int size = Integer.parseInt(codeArr[2]);
                 WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.FISH_SIZE);
-                worldBossStatusConfig.setConfigInfo(size +"");
+                worldBossStatusConfig.setConfigInfo(size + "");
                 worldBossStatusConfig.save();
             }
-            if("奖励金额".equals(codeArr[1])){
+            if ("奖励金额".equals(codeArr[1])) {
                 double bb = Double.parseDouble(codeArr[2]);
                 WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.WDIT_BB);
-                worldBossStatusConfig.setConfigInfo(bb +"");
+                worldBossStatusConfig.setConfigInfo(bb + "");
                 worldBossStatusConfig.save();
             }
-            if("币币数量奖励金额".equals(codeArr[1])){
+            if ("币币数量奖励金额".equals(codeArr[1])) {
                 double bb = Double.parseDouble(codeArr[2]);
                 WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.WDIT_BB_COUNT);
-                worldBossStatusConfig.setConfigInfo(bb +"");
+                worldBossStatusConfig.setConfigInfo(bb + "");
                 worldBossStatusConfig.save();
             }
-            if("币币概率奖励金额".equals(codeArr[1])){
+            if ("币币概率奖励金额".equals(codeArr[1])) {
                 double bb = Double.parseDouble(codeArr[2]);
                 WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.WDIT_BB_PROP);
-                worldBossStatusConfig.setConfigInfo(bb +"");
+                worldBossStatusConfig.setConfigInfo(bb + "");
                 worldBossStatusConfig.save();
             }
 
@@ -307,19 +307,19 @@ public class RandomMoneyListener extends SimpleListenerHost {
             }
             // PropsBase propsInfo = PropsType.getPropsInfo(propCode);
             String typeCode = "";
-            if("概率".equals(type)){
+            if ("概率".equals(type)) {
                 typeCode = Constant.BOSS_PROP_PROBABILITY_TYPE;
-            }else if("数量".equals(type)){
+            } else if ("数量".equals(type)) {
                 typeCode = Constant.BOSS_PROP_COUNT_TYPE;
-            }else {
+            } else {
                 subject.sendMessage("类型错误");
                 return ListeningStatus.LISTENING;
             }
 
             WorldPropConfig worldPropConfig = WorldBossConfigManager.getWorldPropConfigByTypeAndCode(typeCode, propCode);
-            if(Objects.isNull(worldPropConfig)){
+            if (Objects.isNull(worldPropConfig)) {
                 worldPropConfig = new WorldPropConfig(IdUtil.getSnowflakeNextId(), propCode, typeCode, num);
-            }else {
+            } else {
                 worldPropConfig.setConfigInfo(num);
             }
             worldPropConfig.save();
@@ -339,7 +339,7 @@ public class RandomMoneyListener extends SimpleListenerHost {
             // 删除奖励 数量 code/name
             String type = codeArr[1];
             String no = codeArr[2];
-            String propCode = "";
+            String propCode;
             if (Constant.FISH_NAME_BB_LIST.contains(no)) {
                 propCode = Constant.FISH_CODE_BB;
             } else {
@@ -352,17 +352,17 @@ public class RandomMoneyListener extends SimpleListenerHost {
             }
             // PropsBase propsInfo = PropsType.getPropsInfo(propCode);
             String typeCode = "";
-            if("概率".equals(type)){
+            if ("概率".equals(type)) {
                 typeCode = Constant.BOSS_PROP_PROBABILITY_TYPE;
-            }else if("数量".equals(type)){
+            } else if ("数量".equals(type)) {
                 typeCode = Constant.BOSS_PROP_COUNT_TYPE;
-            }else {
+            } else {
                 subject.sendMessage("类型错误");
                 return ListeningStatus.LISTENING;
             }
 
             WorldPropConfig worldPropConfig = WorldBossConfigManager.getWorldPropConfigByTypeAndCode(typeCode, propCode);
-            if(Objects.nonNull(worldPropConfig)){
+            if (Objects.nonNull(worldPropConfig)) {
                 worldPropConfig.remove();
             }
 
@@ -380,16 +380,27 @@ public class RandomMoneyListener extends SimpleListenerHost {
         List<WorldPropConfig> propList = propConfigList.stream().filter(prop ->
                 Constant.BOSS_PROP_PROBABILITY_TYPE.equals(prop.getType())).collect(Collectors.toList());
 
-        propList.forEach(prop->{
-            PropsBase propsInfo = PropsType.getPropsInfo(prop.getPropCode());
-            sb.append("道具编码：" + prop.getPropCode().replace("FISH-","")).append(" 名称：").append(propsInfo.getName()).append("｜概率：").append(prop.getConfigInfo()).append("%\r\n");
+        propList.forEach(prop -> {
+            getSbString(prop, sb,"概率(%)");
         });
         List<WorldPropConfig> countList = propConfigList.stream().filter(prop ->
                 Constant.BOSS_PROP_COUNT_TYPE.equals(prop.getType())).collect(Collectors.toList());
-        countList.forEach(count->{
-            PropsBase propsInfo = PropsType.getPropsInfo(count.getPropCode());
-            sb.append("道具编码：" + count.getPropCode().replace("FISH-","")).append(" 名称：").append(propsInfo.getName()).append("｜数量：").append(count.getConfigInfo()).append("\r\n");
+        countList.forEach(count -> {
+            getSbString(count, sb,"数量");
         });
         return sb;
+    }
+
+
+    private static void getSbString(WorldPropConfig prop, StringBuilder sb,String desc) {
+        if (Constant.FISH_CODE_BB.equals(prop.getPropCode())) {
+            sb.append("道具编码：").append(prop.getPropCode().replace("FISH-", "")).append(" 名称：").append(" 币币").append("｜").append(desc).append("：").append(prop.getConfigInfo()).append("\r\n");
+        } else {
+            PropsBase propsInfo = PropsType.getPropsInfo(prop.getPropCode());
+            if (Objects.isNull(propsInfo)) {
+                return;
+            }
+            sb.append("道具编码：").append(prop.getPropCode().replace("FISH-", "")).append(" 名称：").append(propsInfo.getName()).append("｜").append(desc).append("：").append(prop.getConfigInfo()).append("\r\n");
+        }
     }
 }

@@ -13,8 +13,8 @@ import cn.chahuyun.economy.entity.props.PropsBase;
 import cn.chahuyun.economy.plugin.PropsType;
 import cn.chahuyun.economy.utils.EconomyUtil;
 import cn.chahuyun.economy.utils.Log;
+import cn.chahuyun.economy.utils.RandomHelperUtil;
 import cn.hutool.core.util.NumberUtil;
-import cn.hutool.core.util.RandomUtil;
 import cn.hutool.cron.task.Task;
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.Group;
@@ -22,6 +22,7 @@ import net.mamoe.mirai.contact.NormalMember;
 import net.mamoe.mirai.message.data.At;
 import net.mamoe.mirai.message.data.Message;
 import net.mamoe.mirai.message.data.PlainText;
+import org.apache.commons.lang3.RandomUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -118,20 +119,13 @@ public class WorldBossGoalTask implements Task {
             }
             double finalPropBB = propBB;
             propProbabilityList.forEach(probabilityBo -> {
-                // 计算百分比
-                int num;
-                if(userIdList.size() <= 10){
-                    double value = NumberUtil.round((double) probabilityBo.getConfigInfo() / 10,2).doubleValue();
-                    num = (int) (userIdList.size() * value);
-                }else {
-                    double value = NumberUtil.round((double) probabilityBo.getConfigInfo() / 100,2).doubleValue();
-                    num = (int) (userIdList.size() * value);
-                }
+                // 获取中奖人列表
+                Set<Long> getUserList = getAwardUserId(userIdList, probabilityBo, Constant.BOSS_PROP_PROBABILITY_TYPE);
                 Log.info("----------------");
                 Log.info("WorldBossGoalTask-概率-道具code：" + probabilityBo.getPropCode() + "道具概率：" + probabilityBo.getConfigInfo());
-                Log.info("WorldBossGoalTask-概率-参与人数：" + userIdList.size() + "道具获得人数：" + num);
+                Log.info("WorldBossGoalTask-概率-参与人数：" + userIdList.size() + "道具获得人数：" + getUserList.size());
                 Log.info("----------------");
-                getWorldPropInfo(group, userIdList, sb, probabilityBo.getPropCode(), num, finalPropBB);
+                getWorldPropInfo(group, getUserList, sb, probabilityBo.getPropCode(), finalPropBB);
             });
 
             // 数量开奖列表
@@ -147,15 +141,12 @@ public class WorldBossGoalTask implements Task {
             Log.info("WorldBossGoalTask：数量道具开奖，数量道具个数：" + propCountList.size());
             propCountList.forEach(probabilityBo -> {
                 // 获取数量
-                int num = probabilityBo.getConfigInfo();
-                if(userIdList.size() <= num){
-                    num = userIdList.size();
-                }
+                Set<Long> getUserList = getAwardUserId(userIdList, probabilityBo, Constant.BOSS_PROP_COUNT_TYPE);
                 Log.info("----------------");
                 Log.info("WorldBossGoalTask-数量-道具code：" + probabilityBo.getPropCode() + "道具个数：" + probabilityBo.getConfigInfo());
-                Log.info("WorldBossGoalTask-数量-参与人数：" + userIdList.size() + "数量获得人数：" + num);
+                Log.info("WorldBossGoalTask-数量-参与人数：" + userIdList.size() + "数量获得人数：" + getUserList.size());
                 Log.info("----------------");
-                getWorldPropInfo(group, userIdList, sb, probabilityBo.getPropCode(), num, finalCountBB);
+                getWorldPropInfo(group, getUserList, sb, probabilityBo.getPropCode(), finalCountBB);
             });
 
             sb.append("-------").append("\r\n");
@@ -170,13 +161,47 @@ public class WorldBossGoalTask implements Task {
         }
     }
 
-    private void getWorldPropInfo(Group group, Set<Long> userIdList, StringBuilder sb, String propCode, int num, double bb) {
-        num = Math.min(userIdList.size(), num);
-        List<Long> propProbabilityUserId = RandomUtil.randomEles(new ArrayList<>(userIdList), num);
-        Log.info("WorldBossGoalTask-getWorldPropInfo：参与人：" + userIdList.size() + "数量：" + num + "最终数量：" + propProbabilityUserId.size());
+    private Set<Long> getAwardUserId(Set<Long> userIdSet, WorldPropConfig probabilityBo, String type) {
+        Set<Long> awardUserIds = new HashSet<>();
+        List<Long> userIdList = new ArrayList<>(userIdSet);
+        if(Constant.BOSS_PROP_PROBABILITY_TYPE.equals(type)){
+            // 获取概率
+            Integer prop = probabilityBo.getConfigInfo();
+            userIdList.forEach(userId->{
+                if(RandomHelperUtil.checkRandomByProp(prop)){
+                    awardUserIds.add(userId);
+                }
+            });
+        }
+
+        if(Constant.BOSS_PROP_COUNT_TYPE.equals(type)){
+            // 数量
+            int num = probabilityBo.getConfigInfo();
+            if(userIdList.size() < num){
+                num = userIdList.size();
+            }
+            for (int i = 0; i < num; i++) {
+                addUserIds(awardUserIds, userIdList);
+            }
+        }
+        return awardUserIds;
+    }
+
+    public void addUserIds(Set<Long> awardUserIds,List<Long> userIdList) {
+        int rand = RandomUtils.nextInt(0, userIdList.size());
+        Long userId = userIdList.get(rand);
+        if(!awardUserIds.contains(userId)){
+            awardUserIds.add(userId);
+        }else {
+            addUserIds(awardUserIds,userIdList);
+        }
+    }
+
+    private void getWorldPropInfo(Group group, Set<Long> userIdList, StringBuilder sb, String propCode, double bb) {
+        Log.info("WorldBossGoalTask-getWorldPropInfo：中奖人：" + userIdList.size());
 
         if(Constant.FISH_CODE_BB.equals(propCode)){
-            propProbabilityUserId.forEach(userId -> {
+            userIdList.forEach(userId -> {
                 NormalMember member = group.get(userId);
                 if(Objects.isNull(member)){
                     Log.error("WorldBossGoalTask-概率/数量发放币币-用户为空：" + userId);
@@ -194,7 +219,7 @@ public class WorldBossGoalTask implements Task {
             if(Objects.isNull(propsInfo)){
                 return;
             }
-            propProbabilityUserId.forEach(userId -> {
+            userIdList.forEach(userId -> {
                 NormalMember member = group.get(userId);
                 UserInfo userInfo = UserManager.getUserInfo(member);
                 UserBackpack userBackpack = new UserBackpack(userInfo, propsInfo);

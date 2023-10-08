@@ -20,9 +20,9 @@ public enum WorldBossEnum {
 
     OPEN_HOUR_MINUTE(8,"open_hour_minute", "开始时间小时分钟",  Constant.BOSS_TYPE_INT, "30"),
 
-    WDIT_BB_PROP(9,"wdit_bb_prop", "币币数量奖励金额",  Constant.BOSS_TYPE_DOUBLE, "300"),
+    WDIT_BB_PROP(9,"wdit_bb_prop", "币币概率奖励金额",  Constant.BOSS_TYPE_DOUBLE, "300"),
 
-    WDIT_BB_COUNT(10,"wdit_bb_count", "币币概率奖励金额",  Constant.BOSS_TYPE_DOUBLE, "600"),
+    WDIT_BB_COUNT(10,"wdit_bb_count", "币币数量奖励金额",  Constant.BOSS_TYPE_DOUBLE, "600"),
 
 //    OPEN_HOUR(4,"open_hour", "开始时间小时",  Constant.BOSS_TYPE_INT, "0"),
 //    END_HOUR(5,"end_hour", "结束时间小时",  Constant.BOSS_TYPE_INT, "23"),

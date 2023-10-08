@@ -1,6 +1,7 @@
 package cn.chahuyun.economy.utils;
 
-import cn.hutool.core.util.RandomUtil;
+
+import org.apache.commons.lang3.RandomUtils;
 
 public class RandomHelperUtil {
     /**
@@ -8,17 +9,20 @@ public class RandomHelperUtil {
      * @return
      */
     public static boolean checkRandomLuck1_20(){
-        int random = RandomUtil.randomInt(1, 21);
-        int luck = 10;
-        return random == luck;
+        int random =  RandomUtils.nextInt(1, 101);
+        return random <= 20;
     }
     /**
      * 1%的概率
      * @return
      */
     public static boolean checkRandomLuck1_1000(){
-        int random = RandomUtil.randomInt(1, 1000);
-        int luck = 55;
-        return random == luck;
+        int random = RandomUtils.nextInt(1, 1001);
+        return random <= 2;
+    }
+
+    public static boolean checkRandomByProp(Integer prop) {
+        int random = RandomUtils.nextInt(1, 101);
+        return random <= prop;
     }
 }
