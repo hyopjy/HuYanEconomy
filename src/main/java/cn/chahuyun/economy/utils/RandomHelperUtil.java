@@ -10,7 +10,7 @@ public class RandomHelperUtil {
      */
     public static boolean checkRandomLuck1_20(){
         int random =  RandomUtils.nextInt(1, 101);
-        return random <= 20;
+        return random <= 5;
     }
     /**
      * 1%的概率
