@@ -43,12 +43,9 @@ public class WorldBossProcessTask implements Task {
         for (Map.Entry<Long, List<WorldBossUserLog>> m : userLogMap.entrySet()) {
             Long groupId = m.getKey();
             List<WorldBossUserLog> groupWorldBossUserLog = m.getValue();
-            Log.info("----------------");
-            Log.info("WorldBossProcessTask-群id：" + groupId);
-            Log.info("WorldBossProcessTask-群记录数：" + groupWorldBossUserLog.size());
-            Log.info("----------------");
+            Log.info("WorldBossProcessTask-群id：" + groupId + "WorldBossProcessTask-群记录数：" + groupWorldBossUserLog.size());
             int userFishSize = groupWorldBossUserLog.stream().mapToInt(WorldBossUserLog::getSize).sum();
-            Message message = new PlainText(String.format("Boss当前进度：\r\n%s/%s", userFishSize, fishSize) + "\r\n");
+            Message message = new PlainText(String.format("\uD83E\uDD96世界Boss当前进度：\r\n\uD83D\uDC33 %s/%s", userFishSize, fishSize) + "\r\n");
             Objects.requireNonNull(bot.getGroup(groupId)).sendMessage(message);
         }
         Log.info("WorldBossProcessTask-end");

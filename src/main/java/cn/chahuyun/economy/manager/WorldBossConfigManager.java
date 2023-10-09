@@ -43,12 +43,12 @@ public class WorldBossConfigManager {
         });
 
         // 启动定时任务
-        WorldBossConfig worldBossCornDay = getWorldBossConfigByKey(WorldBossEnum.CORN_GOAL);
-        runTask(worldBossCornDay);
-        WorldBossConfig worldBossCornSpecial = getWorldBossConfigByKey(WorldBossEnum.CORN_PROGRESS);
-        runTask(worldBossCornSpecial);
-
-
+        WorldBossConfig worldBossCornGoal = getWorldBossConfigByKey(WorldBossEnum.CORN_GOAL);
+        runTask(worldBossCornGoal);
+        WorldBossConfig worldBossCornProgress = getWorldBossConfigByKey(WorldBossEnum.CORN_PROGRESS);
+        runTask(worldBossCornProgress);
+        WorldBossConfig worldBossCornOpen = getWorldBossConfigByKey(WorldBossEnum.CORN_OPEN);
+        runTask(worldBossCornOpen);
     }
 
     private static void runTask(WorldBossConfig worldBossCornDay) {
@@ -64,7 +64,11 @@ public class WorldBossConfigManager {
                 CronUtil.schedule(cronKey, cronList.get(i), task);
             }
             if (WorldBossEnum.CORN_GOAL.getKeyId() == worldBossCornDay.getKeyId()) {
-                WorldBossGoalTask  task = new WorldBossGoalTask();
+                WorldBossGoalTask task = new WorldBossGoalTask();
+                CronUtil.schedule(cronKey, cronList.get(i), task);
+            }
+            if (WorldBossEnum.CORN_OPEN.getKeyId() == worldBossCornDay.getKeyId()) {
+                WorldBossOpenTask task = new WorldBossOpenTask();
                 CronUtil.schedule(cronKey, cronList.get(i), task);
             }
         }
