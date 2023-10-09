@@ -121,10 +121,8 @@ public class WorldBossGoalTask implements Task {
             propProbabilityList.forEach(probabilityBo -> {
                 // 获取中奖人列表
                 Set<Long> getUserList = getAwardUserId(userIdList, probabilityBo, Constant.BOSS_PROP_PROBABILITY_TYPE);
-                Log.info("----------------");
-                Log.info("WorldBossGoalTask-概率-道具code：" + probabilityBo.getPropCode() + "道具概率：" + probabilityBo.getConfigInfo());
-                Log.info("WorldBossGoalTask-概率-参与人数：" + userIdList.size() + "道具获得人数：" + getUserList.size());
-                Log.info("----------------");
+                Log.info("WorldBossGoalTask-概率-道具code：" + probabilityBo.getPropCode() + "道具概率：" + probabilityBo.getConfigInfo()
+                + "WorldBossGoalTask-概率-参与人数：" + userIdList.size() + "道具获得人数：" + getUserList.size());
                 getWorldPropInfo(group, getUserList, sb, probabilityBo.getPropCode(), finalPropBB);
             });
 
@@ -142,10 +140,8 @@ public class WorldBossGoalTask implements Task {
             propCountList.forEach(probabilityBo -> {
                 // 获取数量
                 Set<Long> getUserList = getAwardUserId(userIdList, probabilityBo, Constant.BOSS_PROP_COUNT_TYPE);
-                Log.info("----------------");
-                Log.info("WorldBossGoalTask-数量-道具code：" + probabilityBo.getPropCode() + "道具个数：" + probabilityBo.getConfigInfo());
-                Log.info("WorldBossGoalTask-数量-参与人数：" + userIdList.size() + "数量获得人数：" + getUserList.size());
-                Log.info("----------------");
+                Log.info("WorldBossGoalTask-数量-道具code：" + probabilityBo.getPropCode() + "道具个数：" + probabilityBo.getConfigInfo()
+                + "WorldBossGoalTask-数量-参与人数：" + userIdList.size() + "数量获得人数：" + getUserList.size());
                 getWorldPropInfo(group, getUserList, sb, probabilityBo.getPropCode(), finalCountBB);
             });
 
