@@ -71,24 +71,19 @@ public class WorldBossGoalTask implements Task {
             Long groupId = m.getKey();
             Group group = bot.getGroup(groupId);
             List<WorldBossUserLog> groupWorldBossUserLog = m.getValue();
-            Log.info("----------------");
-            Log.info("WorldBossGoalTask-群id：" + groupId);
-            Log.info("WorldBossGoalTask-群记录数：" + groupWorldBossUserLog.size());
-
+            Log.info("WorldBossGoalTask-群id：" + groupId + "WorldBossGoalTask-群记录数：" + groupWorldBossUserLog.size());
             double userFishSize = NumberUtil.round(groupWorldBossUserLog.stream().mapToDouble(WorldBossUserLog::getSize).sum(), 2).doubleValue();
             if (userFishSize < fishSize) {
                 Log.info("WorldBossGoalTask-end：目标尺寸:" + fishSize + "当前尺寸：" + userFishSize);
-                Log.info("----------------");
                 continue;
             }
-
             Set<Long> userIdList = groupWorldBossUserLog.stream().map(WorldBossUserLog::getUserId).collect(Collectors.toSet());
             Log.info("WorldBossGoalTask-参与人数：" + userIdList.size());
             // 转账wditBB
             StringBuilder sb = new StringBuilder();
             if (bb > 0) {
                 sb.append("-------").append("\r\n");
-                sb.append("获取wdit bb Boss奖金" + bb + "如下：").append("\r\n");
+                sb.append("获取WDIT BB Boss奖金" + bb + "如下：").append("\r\n");
                 userIdList.forEach(userId -> {
                     NormalMember member = group.get(userId);
                     if(Objects.isNull(member)){
@@ -106,7 +101,7 @@ public class WorldBossGoalTask implements Task {
             }
 
             sb.append("-------").append("\r\n");
-            sb.append("获取道具如下：").append("\r\n");
+            sb.append("钓鱼佬，你掉的道具如下：").append("\r\n");
             // 概率开奖列表
             List<WorldPropConfig> propProbabilityList = worldPropConfigList.stream().filter(worldPropConfig ->
                     Constant.BOSS_PROP_PROBABILITY_TYPE.equals(worldPropConfig.getType())).collect(Collectors.toList());
@@ -149,9 +144,8 @@ public class WorldBossGoalTask implements Task {
            // WorldBossConfigManager.deleteAllWorldBossUserLog(groupId);
             // 删除日志
             groupWorldBossUserLog.forEach(WorldBossUserLog::remove);
-            Log.info("----------------");
 
-            Message messgae = new PlainText("Boss战结束，战况如下：\r\n");
+            Message messgae = new PlainText("\uD83E\uDD96Boss战结束，战况如下：\r\n");
             messgae = messgae.plus(sb.toString());
             Objects.requireNonNull(bot.getGroup(groupId)).sendMessage(messgae);
         }
