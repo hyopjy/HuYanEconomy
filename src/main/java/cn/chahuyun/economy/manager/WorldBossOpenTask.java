@@ -52,7 +52,7 @@ public class WorldBossOpenTask implements Task {
         List<WorldPropConfig> worldPropConfigList = WorldBossConfigManager.getWorldPropConfigList();
         String propMessage = "";
         if (CollectionUtils.isEmpty(worldPropConfigList)) {
-            propMessage = "显示奖励开启\uD83C\uDFB5";
+            propMessage = "限时奖励开启\uD83C\uDFB5";
         } else if (worldPropConfigList.size() == 1) {
             String propName = getPropName(worldPropConfigList.get(0).getPropCode());
             propMessage = "钓鱼佬，你掉的是" + propName + "？";
@@ -63,7 +63,8 @@ public class WorldBossOpenTask implements Task {
         }
         List<Long> groupIdList = new ArrayList<>();
         groupIdList.add(758085692L);
-        groupIdList.add(835186488L);
+         groupIdList.add(835186488L);
+        groupIdList.add(878074795L);
         String finalPropMessage = propMessage;
         groupIdList.forEach(groupId->{
             bot.getGroup(groupId);
