@@ -1,10 +1,12 @@
 package cn.chahuyun.economy.manager;
 
+import cn.chahuyun.economy.constant.Constant;
 import cn.chahuyun.economy.constant.WorldBossEnum;
 import cn.chahuyun.economy.entity.boss.WorldBossConfig;
 import cn.chahuyun.economy.entity.boss.WorldBossUserLog;
 import cn.chahuyun.economy.entity.boss.WorldPropConfig;
 import cn.chahuyun.economy.utils.HibernateUtil;
+import cn.chahuyun.economy.utils.Log;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.cron.CronUtil;
 import jakarta.persistence.Id;
@@ -23,9 +25,17 @@ public class WorldBossConfigManager {
 
     public static void init() {
         List<WorldBossConfig> list = getWorldBossConfigList();
+        // 删除固定的
+        List<WorldBossEnum> removeEnumList = WorldBossEnum.getWorldBossNotFixEnumList();
+        removeEnumList.forEach(worldBossEnum -> {
+            Optional<WorldBossConfig> bossStatusConfig = list.stream().filter(keyConfig -> worldBossEnum.getKeyId() == keyConfig.getKeyId()).findFirst();
+            bossStatusConfig.ifPresent(WorldBossConfig::remove);
+        });
+
+        List<WorldBossConfig> list2 = getWorldBossConfigList();
         List<WorldBossEnum> worldBossEnumList = WorldBossEnum.getWorldBossEnumList();
         worldBossEnumList.forEach(worldBossEnum -> {
-            Optional<WorldBossConfig> bossStatusConfig = list.stream().filter(keyConfig -> worldBossEnum.getKeyId() == keyConfig.getKeyId()).findFirst();
+            Optional<WorldBossConfig> bossStatusConfig = list2.stream().filter(keyConfig -> worldBossEnum.getKeyId() == keyConfig.getKeyId()).findFirst();
             if (bossStatusConfig.isEmpty()) {
                 WorldBossConfig bossConfig = new WorldBossConfig(worldBossEnum.getKeyId(), worldBossEnum.getKeyString(), worldBossEnum.getValue());
                 bossConfig.save();
@@ -124,8 +134,10 @@ public class WorldBossConfigManager {
         } else {
             checkOpenTime = now.getHour() >= Integer.parseInt(openHourConfig.getConfigInfo());
         }
-        Boolean checkEndTime = now.getHour() <= Integer.parseInt(endHourConfig.getConfigInfo());
-
+        Boolean checkEndTime = now.getHour() < Integer.parseInt(endHourConfig.getConfigInfo());
+        Log.info("判断是否在钓鱼区间: 当前时间" + now.format(Constant.FORMATTER) +
+                "判断是否在钓鱼区间: 是否在开始时间范围内" + checkOpenTime +
+                "判断是否在钓鱼区间: 是否在结束时间范围内" + checkEndTime);
         if (checkOpenTime && checkEndTime) {
             WorldBossUserLog worldBossUserLog = new WorldBossUserLog(IdUtil.getSnowflakeNextId(), groupId, userId,
                     size, now);

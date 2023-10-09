@@ -57,4 +57,13 @@ public enum WorldBossEnum {
         list.add(WDIT_BB_COUNT);
         return list;
     }
+
+    public  static List<WorldBossEnum> getWorldBossNotFixEnumList(){
+        List<WorldBossEnum> list = new ArrayList<>(4);
+        list.add(OPEN_HOUR);
+        list.add(END_HOUR);
+        list.add(CORN_PROGRESS);
+        list.add(OPEN_HOUR_MINUTE);
+        return list;
+    }
 }
