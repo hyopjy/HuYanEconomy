@@ -100,8 +100,8 @@ public class WorldBossGoalTask implements Task {
                 sb.append("-------").append("\r\n");
             }
 
-            sb.append("-------").append("\r\n");
             sb.append("钓鱼佬，你掉的道具如下：").append("\r\n");
+            sb.append("-------").append("\r\n");
             // 概率开奖列表
             List<WorldPropConfig> propProbabilityList = worldPropConfigList.stream().filter(worldPropConfig ->
                     Constant.BOSS_PROP_PROBABILITY_TYPE.equals(worldPropConfig.getType())).collect(Collectors.toList());
@@ -191,7 +191,7 @@ public class WorldBossGoalTask implements Task {
         Log.info("WorldBossGoalTask-getWorldPropInfo：中奖人：" + userIdList.size());
 
         if(Constant.FISH_CODE_BB.equals(propCode)){
-            sb.append("获取["+ bb + "]币币的用户：").append("\r\n");
+            sb.append("["+ bb + "币币]").append("\r\n");
             userIdList.forEach(userId -> {
                 NormalMember member = group.get(userId);
                 if(Objects.isNull(member)){
@@ -211,7 +211,7 @@ public class WorldBossGoalTask implements Task {
             if(Objects.isNull(propsInfo)){
                 return;
             }
-            sb.append("获取["+ propsInfo.getName() + "]道具的用户：").append("\r\n");
+            sb.append("["+ propsInfo.getName() + "]").append("\r\n");
             userIdList.forEach(userId -> {
                 NormalMember member = group.get(userId);
                 UserInfo userInfo = UserManager.getUserInfo(member);
