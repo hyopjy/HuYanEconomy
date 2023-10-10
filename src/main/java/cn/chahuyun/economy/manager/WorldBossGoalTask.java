@@ -191,6 +191,7 @@ public class WorldBossGoalTask implements Task {
         Log.info("WorldBossGoalTask-getWorldPropInfo：中奖人：" + userIdList.size());
 
         if(Constant.FISH_CODE_BB.equals(propCode)){
+            sb.append("获取["+ bb + "]币币的用户：").append("\r\n");
             userIdList.forEach(userId -> {
                 NormalMember member = group.get(userId);
                 if(Objects.isNull(member)){
@@ -201,14 +202,16 @@ public class WorldBossGoalTask implements Task {
                     member.sendMessage("奖金添加失败，请联系管理员!");
                     Log.error("WorldBossGoalTask-概率/数量发放币币-发放奖金失败：" + userId);
                 }else {
-                    sb.append(new At(userId).getDisplay(group)).append(" ").append(bb).append("币币").append("\r\n");
+                    sb.append(new At(userId).getDisplay(group)).append("\r\n");
                 }
             });
+            sb.append("-------").append("\r\n");
         }else {
             PropsBase propsInfo = PropsType.getPropsInfo(propCode);
             if(Objects.isNull(propsInfo)){
                 return;
             }
+            sb.append("获取["+ propsInfo.getName() + "]道具的用户：").append("\r\n");
             userIdList.forEach(userId -> {
                 NormalMember member = group.get(userId);
                 UserInfo userInfo = UserManager.getUserInfo(member);
@@ -217,9 +220,10 @@ public class WorldBossGoalTask implements Task {
                     Log.warning("道具系统:添加道具到用户背包失败!");
                     member.sendMessage("系统出错，请联系主人!");
                 }else {
-                    sb.append(new At(userId).getDisplay(group)).append(" ").append(propsInfo.getName()).append("\r\n");
+                    sb.append(new At(userId).getDisplay(group)).append("\r\n");
                 }
             });
+            sb.append("-------").append("\r\n");
         }
 
         Log.info("WorldBossGoalTask-end");
