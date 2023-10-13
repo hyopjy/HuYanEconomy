@@ -226,8 +226,9 @@ public class GamesManager {
         // 结束时 计算buff
         difficultyMin = difficultyMin + addDifficultyMin;
         difficultyMax = Math.max(difficultyMin, difficultyMax + 1);
+        rankMin = rankMin + addRankMin;
         //roll等级
-        int rank = rankMin + addRankMin;
+        int rank = rankMin;
         if (rankMin != rankMax + 1) {
             rank = RandomUtil.randomInt(Math.min(rankMin, rankMax + 1), Math.max(rankMin, rankMax + 1));
         }
