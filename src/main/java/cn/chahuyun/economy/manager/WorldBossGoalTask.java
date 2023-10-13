@@ -141,14 +141,13 @@ public class WorldBossGoalTask implements Task {
             });
 
             sb.append("-------").append("\r\n");
-           // WorldBossConfigManager.deleteAllWorldBossUserLog(groupId);
-            // 删除日志
-            groupWorldBossUserLog.forEach(WorldBossUserLog::remove);
 
             Message messgae = new PlainText("\uD83E\uDD96Boss战结束，钓鱼佬狂砍" + userFishSize + "斤，战况如下：：\r\n");
             messgae = messgae.plus(sb.toString());
             Objects.requireNonNull(bot.getGroup(groupId)).sendMessage(messgae);
         }
+        // 删除日志
+        userLogs.forEach(WorldBossUserLog::remove);
     }
 
     private Set<Long> getAwardUserId(Set<Long> userIdSet, WorldPropConfig probabilityBo, String type) {
