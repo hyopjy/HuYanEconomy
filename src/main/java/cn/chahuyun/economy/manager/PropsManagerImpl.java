@@ -11,6 +11,7 @@ import cn.chahuyun.economy.entity.props.factory.PropsCardFactory;
 import cn.chahuyun.economy.plugin.PropsType;
 import cn.chahuyun.economy.redis.RedisUtils;
 import cn.chahuyun.economy.utils.*;
+import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import net.mamoe.mirai.Bot;
@@ -332,6 +333,34 @@ public class PropsManagerImpl implements PropsManager {
                 RBloomFilter<Long> rBloomFilter = RedisUtils.initOneDayPropBloomFilter(subject.getId(), card.getCode());
                 if (rBloomFilter.contains(sender.getId())) {
                     messages.append(new PlainText("[" + propsInfo.getName() + "]每人每天限制购买1个"));
+                    subject.sendMessage(messages.build());
+                    return;
+                }
+            }
+            // 如果是购买wditbb
+            if("FISH-51".equals(card.getCode())){
+
+                if(num > 30000){
+                    messages.append(new PlainText("["  + propsInfo.getName() + "]每人每天限制购买30000个"));
+                    subject.sendMessage(messages.build());
+                    return;
+                }
+                Double count = RedisUtils.getWditBBCount(subject.getId());
+                if(count + num > 30000){
+                    messages.append(new PlainText("["  + propsInfo.getName() + "]每人每天限制购买30000个,目前你已经购买了" + count + "个"));
+                    subject.sendMessage(messages.build());
+                    return;
+                }
+
+                Double money = NumberUtil.round(NumberUtil.div(Double.parseDouble(num+""), Double.parseDouble(card.getCost()+"")), 2).doubleValue();
+
+                if (!EconomyUtil.plusMoneyToUser(userInfo.getUser(), money)) {
+                    RedisUtils.setWditBBCount(subject.getId(), count + num );
+                    messages.append("成功购买" + num + " " + "获得" + money + " " + card.getName() + " 你还有" + (30000 - (count + num)) + "额度");
+                    subject.sendMessage(messages.build());
+                    return;
+                }else {
+                    messages.append("购买失败！");
                     subject.sendMessage(messages.build());
                     return;
                 }

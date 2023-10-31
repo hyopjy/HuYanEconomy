@@ -17,8 +17,9 @@ public class RandomHelperUtil {
      * @return
      */
     public static boolean checkRandomLuck1_1000(){
-        int random = RandomUtils.nextInt(1, 1001);
-        return random <= 2;
+//        int random = RandomUtils.nextInt(1, 1001);
+//        return random <= 1;
+        return false;
     }
 
     public static boolean checkRandomByProp(Integer prop) {

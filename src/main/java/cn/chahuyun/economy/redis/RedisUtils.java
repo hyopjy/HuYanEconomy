@@ -157,4 +157,22 @@ public class RedisUtils {
         delayedQueue.offer(orderId, delay, timeUnit);
     }
 
+    public static Double getWditBBCount(long id) {
+        String key = "wdit:bb:" + id;
+        Object value = getKeyObject(key);
+        if (Objects.isNull(value)) {
+            return 0.0;
+        }
+        if (value instanceof Double) {
+            return (Double) value;
+        } else {
+            return 0.0;
+        }
+    }
+
+    public static void setWditBBCount(long id, Double money) {
+        String key = "wdit:bb:" + id;
+        setKeyObject(key, money);
+    }
+
 }
