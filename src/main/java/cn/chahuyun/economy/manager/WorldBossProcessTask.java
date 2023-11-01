@@ -34,6 +34,12 @@ public class WorldBossProcessTask implements Task {
             Log.info("WorldBossProcessTask-end. FISH_SIZE 设定为空");
             return;
         }
+        double otherFish = 0.0;
+        // 获取额外鱼尺寸
+        WorldBossConfig otherFishSize =  WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.OTHER_FISH_SIZE);
+        if(Objects.nonNull(otherFishSize)){
+            otherFish = Double.parseDouble(otherFishSize.getConfigInfo());
+        }
         Integer fishSize = Integer.parseInt(worldBossConfig.getConfigInfo());
         Log.info("WorldBossProcessTask-fishSize设定值：" + fishSize);
         // 获取当前钓鱼所有尺寸
@@ -44,7 +50,7 @@ public class WorldBossProcessTask implements Task {
             Long groupId = m.getKey();
             List<WorldBossUserLog> groupWorldBossUserLog = m.getValue();
             Log.info("WorldBossProcessTask-群id：" + groupId + "WorldBossProcessTask-群记录数：" + groupWorldBossUserLog.size());
-            int userFishSize = groupWorldBossUserLog.stream().mapToInt(WorldBossUserLog::getSize).sum();
+            double userFishSize = groupWorldBossUserLog.stream().mapToDouble(WorldBossUserLog::getSize).sum() + otherFish;
             Message message = new PlainText(String.format("\uD83E\uDD96世界Boss当前进度：\r\n\uD83D\uDC33 %s/%s", userFishSize, fishSize) + "\r\n");
             Objects.requireNonNull(bot.getGroup(groupId)).sendMessage(message);
         }

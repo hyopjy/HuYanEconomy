@@ -60,6 +60,14 @@ public class WorldBossGoalTask implements Task {
         }
         Log.info("WorldBossGoalTask-bb数量：" + bb);
 
+        double otherFish = 0.0;
+        // 获取额外鱼尺寸
+        WorldBossConfig otherFishSize =  WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.OTHER_FISH_SIZE);
+        if(Objects.nonNull(otherFishSize)){
+            otherFish = Double.parseDouble(otherFishSize.getConfigInfo());
+        }
+        Log.info("WorldBossGoalTask-otherFish：" + otherFish);
+
         List<WorldPropConfig> worldPropConfigList = WorldBossConfigManager.getWorldPropConfigList();
         Log.info("WorldBossGoalTask-获取道具列表长度：" + worldPropConfigList.size());
 
@@ -73,8 +81,8 @@ public class WorldBossGoalTask implements Task {
             List<WorldBossUserLog> groupWorldBossUserLog = m.getValue();
             Log.info("WorldBossGoalTask-群id：" + groupId + "WorldBossGoalTask-群记录数：" + groupWorldBossUserLog.size());
             double userFishSize = NumberUtil.round(groupWorldBossUserLog.stream().mapToDouble(WorldBossUserLog::getSize).sum(), 2).doubleValue();
-            if (userFishSize < fishSize) {
-                Log.info("WorldBossGoalTask-end：目标尺寸:" + fishSize + "当前尺寸：" + userFishSize);
+            if ((userFishSize + otherFish) < fishSize) {
+                Log.info("WorldBossGoalTask-end：目标尺寸:" + fishSize + "当前尺寸：" + (userFishSize + otherFish));
                 continue;
             }
             Set<Long> userIdList = groupWorldBossUserLog.stream().map(WorldBossUserLog::getUserId).collect(Collectors.toSet());
