@@ -24,13 +24,13 @@ import java.util.Optional;
 public class WorldBossConfigManager {
 
     public static void init() {
-        List<WorldBossConfig> list = getWorldBossConfigList();
+     //   List<WorldBossConfig> list = getWorldBossConfigList();
         // 删除固定的
-        List<WorldBossEnum> removeEnumList = WorldBossEnum.getWorldBossNotFixEnumList();
-        removeEnumList.forEach(worldBossEnum -> {
-            Optional<WorldBossConfig> bossStatusConfig = list.stream().filter(keyConfig -> worldBossEnum.getKeyId() == keyConfig.getKeyId()).findFirst();
-            bossStatusConfig.ifPresent(WorldBossConfig::remove);
-        });
+//        List<WorldBossEnum> removeEnumList = WorldBossEnum.getWorldBossNotFixEnumList();
+//        removeEnumList.forEach(worldBossEnum -> {
+//            Optional<WorldBossConfig> bossStatusConfig = list.stream().filter(keyConfig -> worldBossEnum.getKeyId() == keyConfig.getKeyId()).findFirst();
+//            bossStatusConfig.ifPresent(WorldBossConfig::remove);
+//        });
 
         List<WorldBossConfig> list2 = getWorldBossConfigList();
         List<WorldBossEnum> worldBossEnumList = WorldBossEnum.getWorldBossEnumList();
@@ -172,5 +172,33 @@ public class WorldBossConfigManager {
             query.select(from);
             return session.createQuery(query).getSingleResultOrNull();
         });
+    }
+
+    public static void refreshCronStr(WorldBossConfig oldConfig, String newCronStr) {
+        deleteCronConf(oldConfig);
+        oldConfig.setConfigInfo(newCronStr);
+        oldConfig.setConfigInfo(newCronStr);
+        oldConfig.save();
+        runTask(oldConfig);
+    }
+
+    private static void deleteCronConf(WorldBossConfig oldConfig) {
+        if(Objects.isNull(oldConfig)){
+            return;
+        }
+        List<String> cronList = List.of(oldConfig.getConfigInfo().split("｜"));
+        for (int i = 0; i < cronList.size(); i++) {
+            String cronKey = oldConfig.getKeyId() + "-" + oldConfig.getKeyString() + "-" + (i + 1);
+            CronUtil.remove(cronKey);
+            if (WorldBossEnum.CORN_PROGRESS.getKeyId() == oldConfig.getKeyId()) {
+                CronUtil.remove(cronKey);
+            }
+            if (WorldBossEnum.CORN_GOAL.getKeyId() == oldConfig.getKeyId()) {
+                CronUtil.remove(cronKey);
+            }
+            if (WorldBossEnum.CORN_OPEN.getKeyId() == oldConfig.getKeyId()) {
+                CronUtil.remove(cronKey);
+            }
+        }
     }
 }

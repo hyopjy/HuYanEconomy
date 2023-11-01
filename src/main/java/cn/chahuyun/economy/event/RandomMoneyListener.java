@@ -271,6 +271,56 @@ public class RandomMoneyListener extends SimpleListenerHost {
                 worldBossStatusConfig.setConfigInfo(bb + "");
                 worldBossStatusConfig.save();
             }
+            // 设置达成播报时间
+            if ("达成播报".equals(codeArr[1])) {
+                String cornGoalCron = codeArr[2];
+                WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.CORN_GOAL);
+                // 刷新cron
+                WorldBossConfigManager.refreshCronStr(worldBossStatusConfig, cornGoalCron);
+            }
+            // 设置进度播报时间
+            if ("进度播报".equals(codeArr[1])) {
+                String cornGoalCron = codeArr[2];
+                WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.CORN_PROGRESS);
+                // 刷新cron
+                WorldBossConfigManager.refreshCronStr(worldBossStatusConfig, cornGoalCron);
+            }
+
+            // 设置开始播报时间
+            if ("开始播报".equals(codeArr[1])) {
+                String cornGoalCron = codeArr[2];
+                WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.CORN_OPEN);
+                // 刷新cron
+                WorldBossConfigManager.refreshCronStr(worldBossStatusConfig, cornGoalCron);
+            }
+
+            if ("开始时间小时".equals(codeArr[1])) {
+                String min = Integer.parseInt(codeArr[2]) + "";
+                WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.OPEN_HOUR);
+                worldBossStatusConfig.setConfigInfo(min);
+                worldBossStatusConfig.save();
+            }
+
+            if ("结束时间小时".equals(codeArr[1])) {
+                String min = Integer.parseInt(codeArr[2]) + "";
+                WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.END_HOUR);
+                worldBossStatusConfig.setConfigInfo(min);
+                worldBossStatusConfig.save();
+            }
+
+            if ("开始时间小时分钟".equals(codeArr[1])) {
+                String min = Integer.parseInt(codeArr[2]) + "";
+                WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.OPEN_HOUR_MINUTE);
+                worldBossStatusConfig.setConfigInfo(min);
+                worldBossStatusConfig.save();
+            }
+
+            if ("额外鱼尺寸".equals(codeArr[1])) {
+                String min = Double.parseDouble(codeArr[2]) + "";
+                WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.OTHER_FISH_SIZE);
+                worldBossStatusConfig.setConfigInfo(min);
+                worldBossStatusConfig.save();
+            }
 
             StringBuilder sb = new StringBuilder("世界模式配置如下:\r\n");
             List<WorldBossConfig> list = WorldBossConfigManager.getWorldBossConfigList();
