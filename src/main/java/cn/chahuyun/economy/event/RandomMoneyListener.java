@@ -69,7 +69,7 @@ public class RandomMoneyListener extends SimpleListenerHost {
         Contact subject = event.getSubject();
         String message = event.getMessage().serializeToMiraiCode();
         if (message.equals("WDIT") && EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
-            int money = RandomUtil.randomInt(100, 800);
+            int money = RandomUtil.randomInt(500, 7001);
             EconomyUtil.plusMoneyToUser(sender, money);
             subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "恭喜你获得" + money + "WDIT 币币"));
         }
