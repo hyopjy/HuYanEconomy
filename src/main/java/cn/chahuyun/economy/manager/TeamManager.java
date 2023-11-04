@@ -228,11 +228,26 @@ public class TeamManager {
             subject.sendMessage(MessageUtil.formatMessageChain(message, "不是当前队伍所指定的用户，无法解散"));
             return;
         }
+
         if(team.getTeamStatus().equals(TEAM_STATUS_NO)){
             team.remove();
             subject.sendMessage(MessageUtil.formatMessageChain(message, "队伍解散成功"));
             return;
         }else{
+            // 判断队伍创建时间是否超过48小时
+            LocalDateTime successTime = team.getSuccessTime();
+            if(Objects.nonNull(successTime)){
+                team.setSuccessTime(LocalDateTime.now());
+                team.save();
+                subject.sendMessage(MessageUtil.formatMessageChain(message, "队伍缺失创建时间,已自动补全，请48小时后进行解散"));
+                return;
+            }
+            // 创建时间在
+            LocalDateTime twoDayAfter = successTime.plusDays(2L);
+            if(twoDayAfter.isAfter(LocalDateTime.now())){
+                subject.sendMessage(MessageUtil.formatMessageChain(message, "请48小时后发起解散"));
+                return;
+            }
             team.setTeamStatus(TEAM_STATUS_NO);
             team.save();
         }
