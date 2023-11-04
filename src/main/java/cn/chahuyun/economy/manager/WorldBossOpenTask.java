@@ -64,8 +64,9 @@ public class WorldBossOpenTask implements Task {
         }
         List<Long> groupIdList = new ArrayList<>();
         groupIdList.add(758085692L);
-         groupIdList.add(835186488L);
+        groupIdList.add(835186488L);
         groupIdList.add(878074795L);
+        groupIdList.add(227265762L);
         String finalPropMessage = propMessage;
         groupIdList.forEach(groupId->{
            Group group =  bot.getGroup(groupId);
