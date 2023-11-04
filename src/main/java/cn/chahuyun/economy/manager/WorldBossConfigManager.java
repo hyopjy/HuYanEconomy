@@ -2,24 +2,26 @@ package cn.chahuyun.economy.manager;
 
 import cn.chahuyun.economy.constant.Constant;
 import cn.chahuyun.economy.constant.WorldBossEnum;
+import cn.chahuyun.economy.dto.BossTeamUserSize;
+import cn.chahuyun.economy.dto.BossUserSize;
 import cn.chahuyun.economy.entity.boss.WorldBossConfig;
 import cn.chahuyun.economy.entity.boss.WorldBossUserLog;
 import cn.chahuyun.economy.entity.boss.WorldPropConfig;
+import cn.chahuyun.economy.entity.team.Team;
 import cn.chahuyun.economy.utils.HibernateUtil;
 import cn.chahuyun.economy.utils.Log;
 import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.NumberUtil;
 import cn.hutool.cron.CronUtil;
-import jakarta.persistence.Id;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.compress.utils.Lists;
 import org.hibernate.query.criteria.HibernateCriteriaBuilder;
 import org.hibernate.query.criteria.JpaCriteriaQuery;
 import org.hibernate.query.criteria.JpaRoot;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class WorldBossConfigManager {
 
@@ -200,5 +202,116 @@ public class WorldBossConfigManager {
                 CronUtil.remove(cronKey);
             }
         }
+    }
+
+    /**
+     * 获取用户的金额数
+     * @param groupWorldBossUserLog
+     * @param bb
+     * @return
+     */
+    public static Map<Long, Double> getTeamUserBbMap(List<WorldBossUserLog> groupWorldBossUserLog, double bb, Long groupId) {
+        // 用户钓鱼的数量
+        Map<Long, Integer> userSizeMap = groupWorldBossUserLog.stream().collect(Collectors.toMap(WorldBossUserLog::getUserId, WorldBossUserLog::getSize, Integer::sum));
+        // 没有组队，则排队个人比
+        List<Team> teamList = TeamManager.listTeam(groupId);
+        if (CollectionUtils.isEmpty(teamList)) {
+            List<BossUserSize> bossUserSizeList = new ArrayList<>();
+            for (Map.Entry<Long, Integer> entry : userSizeMap.entrySet()) {
+                BossUserSize userSize = new BossUserSize();
+                userSize.setUserId(entry.getKey());
+                userSize.setFishSize(userSize.getFishSize());
+                bossUserSizeList.add(userSize);
+            }
+            List<BossUserSize> bossUserSortList = bossUserSizeList.stream().sorted(Comparator.comparing(BossUserSize::getFishSize).reversed()).collect(Collectors.toList());
+            return getUserBbMap(bb, bossUserSortList);
+        } else {
+            List<BossTeamUserSize> bossTeamUserSizesList = new ArrayList<>();
+            // 每个人钓鱼数量 bossUserSizeList
+            Set<Long> userIdList = groupWorldBossUserLog.stream().map(WorldBossUserLog::getUserId).collect(Collectors.toSet());
+            // 组队
+            List<Team> teamInfoList = teamList.stream().filter(team -> userIdList.contains(team.getTeamMember()) || userIdList.contains(team.getTeamOwner())).collect(Collectors.toList());
+            // 结算组队的大小
+            teamInfoList.forEach(team -> {
+                Long teamOwner = team.getTeamOwner();
+                Long teamMember = team.getTeamMember();
+                Integer size = Optional.ofNullable(userSizeMap.get(teamOwner)).orElse(0) + Optional.ofNullable(userSizeMap.get(teamMember)).orElse(0);
+                BossTeamUserSize teamUserSize = new BossTeamUserSize();
+                teamUserSize.setId(team.getId());
+                teamUserSize.setFishSize(size);
+                teamUserSize.setType(1);
+                teamUserSize.setTeamMember(teamOwner);
+                teamUserSize.setTeamMember(teamMember);
+                bossTeamUserSizesList.add(teamUserSize);
+            });
+            // 个人
+            Set<Long> teamUserId = new HashSet<>();
+            teamInfoList.forEach(t -> {
+                teamUserId.add(t.getTeamMember());
+                teamUserId.add(t.getTeamOwner());
+            });
+            List<Long> expUserId = userIdList.stream().filter(userId -> !teamUserId.contains(userId)).collect(Collectors.toList());
+            expUserId.stream().forEach(userId->{
+                Integer size = Optional.ofNullable(userSizeMap.get(userId)).orElse(0);
+                BossTeamUserSize teamUserSize = new BossTeamUserSize();
+                teamUserSize.setId(userId);
+                teamUserSize.setFishSize(size);
+                teamUserSize.setType(0);
+                bossTeamUserSizesList.add(teamUserSize);
+            });
+            List<BossTeamUserSize> bossUserSortList = bossTeamUserSizesList.stream().sorted(Comparator.comparing(BossTeamUserSize::getFishSize).reversed()).collect(Collectors.toList());
+            return getUserBbMapByTeamUser(bb, bossUserSortList);
+        }
+    }
+
+    private static Map<Long, Double> getUserBbMapByTeamUser(double bb, List<BossTeamUserSize> bossTeamUserSizes) {
+        Map<Long, Double> map = new HashMap<>();
+        for (int i = 0; i < bossTeamUserSizes.size(); i++) {
+            BossTeamUserSize teamUser = bossTeamUserSizes.get(i);
+            if (i == 0) {
+                putBB(teamUser, map, bb * 5, bb * 2.5);
+            }
+            if (i == 1) {
+                putBB(teamUser, map, bb * 3, bb * 1.5);
+            }
+            if (i == 2) {
+                putBB(teamUser, map, 2.5 * bb, 1.25 * bb);
+            }
+            putBB(teamUser, map, bb, bb);
+        }
+        return map;
+    }
+
+    private static void putBB(BossTeamUserSize teamUser, Map<Long, Double> map, double bb, double teamBb) {
+        // 组队用户
+        bb = NumberUtil.round(bb, 2).doubleValue();
+        teamBb = NumberUtil.round(teamBb, 2).doubleValue();
+        if(teamUser.getType().equals(1)){
+            map.put(teamUser.getTeamOwner(), teamBb);
+            map.put(teamUser.getTeamMember(), teamBb);
+        }
+        if(teamUser.getType().equals(0)){
+            map.put(teamUser.getId(), bb);
+        }
+    }
+
+
+    private static Map<Long, Double> getUserBbMap(double bb, List<BossUserSize> bossUserSortList) {
+        bb = NumberUtil.round(bb, 2).doubleValue();
+        Map<Long, Double> map = new HashMap<>();
+        for (int i = 0; i < bossUserSortList.size(); i++) {
+            Long userId = bossUserSortList.get(i).getUserId();
+            if (i ==  0) {
+                map.put(userId, 5 * bb);
+            }
+            if (i ==  1) {
+                map.put(userId, 3 * bb);
+            }
+            if (i ==  2) {
+                map.put(userId, 2.5 * bb);
+            }
+            map.put(userId, bb);
+        }
+        return map;
     }
 }
