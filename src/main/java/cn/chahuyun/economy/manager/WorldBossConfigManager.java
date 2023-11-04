@@ -240,7 +240,7 @@ public class WorldBossConfigManager {
                 teamUserSize.setId(team.getId());
                 teamUserSize.setFishSize(size);
                 teamUserSize.setType(1);
-                teamUserSize.setTeamMember(teamOwner);
+                teamUserSize.setTeamOwner(teamOwner);
                 teamUserSize.setTeamMember(teamMember);
                 bossTeamUserSizesList.add(teamUserSize);
             });
@@ -270,12 +270,15 @@ public class WorldBossConfigManager {
             BossTeamUserSize teamUser = bossTeamUserSizes.get(i);
             if (i == 0) {
                 putBB(teamUser, map, bb * 5, bb * 2.5);
+                continue;
             }
             if (i == 1) {
                 putBB(teamUser, map, bb * 3, bb * 1.5);
+                continue;
             }
             if (i == 2) {
                 putBB(teamUser, map, 2.5 * bb, 1.25 * bb);
+                continue;
             }
             putBB(teamUser, map, bb, bb);
         }

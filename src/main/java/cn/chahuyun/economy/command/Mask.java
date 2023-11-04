@@ -147,7 +147,7 @@ public class Mask extends AbstractPropUsage {
 
             StringBuilder plusBB = new StringBuilder();
             plusBB.append("获得" + money + "bb").append("\r\n");
-            plususerId.stream().forEach(userId->{
+            plususerId.forEach(userId->{
                 plusBB.append(new At(userId).getDisplay(group)).append("\r\n");
             });
 
