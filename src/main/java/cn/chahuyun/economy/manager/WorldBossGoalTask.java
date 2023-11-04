@@ -105,7 +105,7 @@ public class WorldBossGoalTask implements Task {
                         member.sendMessage("奖金添加失败，请联系管理员!");
                         Log.error("WorldBossGoalTask-发放奖金失败：" + userId);
                     } else {
-                        sb.append(new At(userId).getDisplay(group)).append(" ").append("\r\n");
+                        sb.append(new At(userId).getDisplay(group)).append(" ").append("[" + moneyBB + "]").append("\r\n");
                     }
                 }
                 sb.append("-------").append("\r\n");
