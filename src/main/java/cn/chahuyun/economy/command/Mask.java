@@ -1,6 +1,8 @@
 package cn.chahuyun.economy.command;
 
+import cn.chahuyun.economy.entity.team.Team;
 import cn.chahuyun.economy.factory.AbstractPropUsage;
+import cn.chahuyun.economy.manager.TeamManager;
 import cn.chahuyun.economy.plugin.PropsType;
 import cn.chahuyun.economy.utils.CacheUtils;
 import cn.chahuyun.economy.utils.EconomyUtil;
@@ -10,8 +12,14 @@ import cn.hutool.core.util.RandomUtil;
 import net.mamoe.mirai.contact.NormalMember;
 import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.message.data.*;
+import org.apache.commons.collections4.CollectionUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * 面罩
@@ -46,25 +54,114 @@ public class Mask extends AbstractPropUsage {
     @Override
     public void excute() {
         User sender = event.getSender();
+//        被打劫，队伍均摊损失；
+//        打劫他人，两人获得同样的币币
+//        抢劫失败罚款2000币币，如果有队友，则队友分摊一半 变成一人1000
+
+        List<Team> teamList = TeamManager.listTeam(group.getId());
+        Team senderTeam = null;
+        Team targetTeam = null;
+        // team 不为空
+        if (CollectionUtils.isNotEmpty(teamList)) {
+            // 打劫用户的team
+            Optional<Team> senderTeamOption = teamList.stream().filter(team -> team.getTeamMember().equals(sender.getId()) || team.getTeamOwner().equals(sender.getId())).collect(Collectors.toList()).stream().findAny();
+            if (senderTeamOption.isPresent()) {
+                senderTeam = senderTeamOption.get();
+            }
+            // 被打劫用户 ‘
+            Optional<Team> targetTeamOption = teamList.stream().filter(team -> team.getTeamMember().equals(target) || team.getTeamOwner().equals(target)).collect(Collectors.toList()).stream().findAny();
+            if (targetTeamOption.isPresent()) {
+                targetTeam = senderTeamOption.get();
+            }
+        }
+
         //被bobo正义执行，抢劫失败并且罚款2000币币
         if (RandomHelperUtil.checkRandomLuck1_20()) {
-            EconomyUtil.minusMoneyToUser(sender, 2000);
-            subject.sendMessage(new MessageChainBuilder().append(new QuoteReply(event.getMessage()))
-                    .append("触发币币回收计划之：被bobo正义执行，抢劫失败并且罚款2000币币").append("\r\n")
-                    .build());
+            if (Objects.isNull(senderTeam)) {
+                EconomyUtil.minusMoneyToUser(sender, 2000);
+                subject.sendMessage(new MessageChainBuilder().append(new QuoteReply(event.getMessage()))
+                        .append("触发币币回收计划之：被bobo正义执行，抢劫失败并且罚款2000币币").append("\r\n")
+                        .build());
+            } else {
+                NormalMember memberOwner = group.get(senderTeam.getTeamOwner());
+                EconomyUtil.minusMoneyToUser(memberOwner, 1000);
+                NormalMember memberMember = group.get(senderTeam.getTeamMember());
+                EconomyUtil.minusMoneyToUser(memberMember, 1000);
+                subject.sendMessage(new MessageChainBuilder().append(new QuoteReply(event.getMessage()))
+                        .append("抢劫失败").append(new At(senderTeam.getTeamOwner()).getDisplay(group))
+                        .append("   ").append(new At(senderTeam.getTeamMember()).getDisplay(group))
+                        .append("触发币币回收计划之：被bobo正义执行，抢劫失败并且每人分别罚款1000币币").append("\r\n")
+                        .build());
+            }
         } else {
             int money = RandomUtil.randomInt(501, 1500);
-            // 自己获得
-            EconomyUtil.plusMoneyToUser(sender, money);
-            // 减去目标用户
-            NormalMember member = group.get(target);
-            EconomyUtil.minusMoneyToUser(member, money);
+//            if(Objects.isNull(senderTeam) && Objects.isNull(targetTeam)){
+//                // 自己获得
+//                EconomyUtil.plusMoneyToUser(sender, money);
+//                // 减去目标用户
+//                NormalMember member = group.get(target);
+//                EconomyUtil.minusMoneyToUser(member, money);
+//
+//                CacheUtils.addUserMaskCountKey(group.getId(), sender.getId());
+//                subject.sendMessage(new MessageChainBuilder().append(new QuoteReply(event.getMessage()))
+//                        .append(propsCard.getName() + "使用成功").append("\r\n")
+//                        .append("成功获得").append(new At(target).getDisplay(group))
+//                        .append("的" + money + "币币")
+//                        .build());
+//            }
+            List<Long> plususerId = new ArrayList<>();
+            List<Long> minuserId = new ArrayList<>();
+            if (Objects.nonNull(senderTeam)) {
+                // 加钱
+                NormalMember memberOwner = group.get(senderTeam.getTeamOwner());
+                EconomyUtil.minusMoneyToUser(memberOwner, money);
+
+                NormalMember memberMember = group.get(senderTeam.getTeamMember());
+                EconomyUtil.minusMoneyToUser(memberMember, money);
+
+                minuserId.add(senderTeam.getTeamOwner());
+                minuserId.add(senderTeam.getTeamMember());
+            } else {
+                // 自己获得
+                EconomyUtil.plusMoneyToUser(sender, money);
+
+                plususerId.add(sender.getId());
+            }
+
+            if(Objects.nonNull(targetTeam)){
+                NormalMember memberOwner = group.get(senderTeam.getTeamOwner());
+                EconomyUtil.minusMoneyToUser(memberOwner, money);
+
+                NormalMember memberMember = group.get(senderTeam.getTeamMember());
+                EconomyUtil.minusMoneyToUser(memberMember, money);
+
+                plususerId.add(senderTeam.getTeamOwner());
+                plususerId.add(senderTeam.getTeamMember());
+            }else {
+                // 减去目标用户
+                NormalMember member = group.get(target);
+                EconomyUtil.minusMoneyToUser(member, money);
+
+                minuserId.add(target);
+            }
+
+            StringBuilder plusBB = new StringBuilder();
+            plusBB.append("获得" + money + "bb").append("\r\n");
+            plususerId.stream().forEach(userId->{
+                plusBB.append(new At(userId).getDisplay(group)).append("\r\n");
+            });
+
+            StringBuilder minBB = new StringBuilder();
+            plusBB.append("失去" + money + "bb").append("\r\n");
+            minuserId.stream().forEach(userId->{
+                minBB.append(new At(userId).getDisplay(group)).append("\r\n");
+            });
 
             CacheUtils.addUserMaskCountKey(group.getId(), sender.getId());
             subject.sendMessage(new MessageChainBuilder().append(new QuoteReply(event.getMessage()))
                     .append(propsCard.getName() + "使用成功").append("\r\n")
-                    .append("成功获得").append(new At(target).getDisplay(group))
-                    .append("的" + money + "币币")
+                    .append(plusBB.toString())
+                    .append(minBB.toString())
                     .build());
         }
 

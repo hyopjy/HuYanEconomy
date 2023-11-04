@@ -92,19 +92,22 @@ public class WorldBossGoalTask implements Task {
             if (bb > 0) {
                 sb.append("-------").append("\r\n");
                 sb.append("获取WDIT BB Boss奖金" + bb + "如下：").append("\r\n");
-                userIdList.forEach(userId -> {
+                Map<Long, Double> bbUserMap = WorldBossConfigManager.getTeamUserBbMap(groupWorldBossUserLog, bb, groupId);
+                for (Map.Entry<Long, Double> entry : bbUserMap.entrySet()) {
+                    Long userId = entry.getKey();
+                    Double moneyBB = entry.getValue();
                     NormalMember member = group.get(userId);
-                    if(Objects.isNull(member)){
+                    if (Objects.isNull(member)) {
                         Log.error("WorldBossGoalTask-发放奖金用户为空：" + userId);
                         return;
                     }
-                    if (!EconomyUtil.plusMoneyToUser(member, bb)) {
+                    if (!EconomyUtil.plusMoneyToUser(member, moneyBB)) {
                         member.sendMessage("奖金添加失败，请联系管理员!");
                         Log.error("WorldBossGoalTask-发放奖金失败：" + userId);
-                    }else {
+                    } else {
                         sb.append(new At(userId).getDisplay(group)).append(" ").append("\r\n");
                     }
-                });
+                }
                 sb.append("-------").append("\r\n");
             }
 

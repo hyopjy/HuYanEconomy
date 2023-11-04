@@ -184,6 +184,16 @@ public class TeamManager {
         sss = sss.plus(sb.toString());
         subject.sendMessage(sss);
     }
+    public static List<Team> listTeam(Long groupId) {
+        return HibernateUtil.factory.fromSession(session -> {
+            HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
+            JpaCriteriaQuery<Team> query = builder.createQuery(Team.class);
+            JpaRoot<Team> from = query.from(Team.class);
+            query.select(from);
+            query.where(builder.equal(from.get("groupId"), groupId), builder.equal(from.get("teamStatus"), TEAM_STATUS_OK));
+            return session.createQuery(query).list();
+        });
+    }
 
     /**
      * 解散
