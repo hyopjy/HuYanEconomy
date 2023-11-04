@@ -31,9 +31,8 @@ public class Team implements Serializable {
     // 所有者
     private Long teamOwner;
 
-    // List<Long> 字符串
 
-    private String teamMember;
+    private Long teamMember;
 
     private LocalDateTime successTime;
 
@@ -43,13 +42,17 @@ public class Team implements Serializable {
      */
     private Integer teamStatus;
 
-    public Team(String teamName,Long teamOwner, String teamMember, LocalDateTime successTime, Integer teamStatus) {
+    private Long groupId;
+
+
+    public Team(String teamName,Long teamOwner, Long teamMember, LocalDateTime successTime, Integer teamStatus,Long groupId) {
         this.id = IdUtil.getSnowflakeNextId();
         this.teamName = teamName;
         this.teamOwner = teamOwner;
         this.teamMember = teamMember;
         this.successTime = successTime;
         this.teamStatus = teamStatus;
+        this.groupId = groupId;
     }
 
     public Team save() {

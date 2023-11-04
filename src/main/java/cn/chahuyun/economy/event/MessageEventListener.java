@@ -292,16 +292,37 @@ public class MessageEventListener extends SimpleListenerHost {
             }
 
 
-            String createTeam = "开启组队(\\[mirai:at:\\d+])? (\\S+)?";
+            String createTeam = "组队(\\[mirai:at:\\d+]( )*)? (\\S+)?|team(\\[mirai:at:\\d+]( )*)? (\\S+)?";
             if (Pattern.matches(createTeam, code)) {
-                Log.info("开启组队");
+                Log.info("组队");
                 TeamManager.createTeam(event);
                 return;
             }
-            String joinTeam = "确认组队(\\[mirai:at:\\d+])?";
+            String joinTeam = "确认组队(\\[mirai:at:\\d+]( )*)?|ok(\\[mirai:at:\\d+]( )*)?";
             if (Pattern.matches(joinTeam, code)) {
                 Log.info("确认组队");
                 TeamManager.joinTeam(event);
+                return;
+            }
+
+
+            if (code.equals("组队列表") || code.equals("list")) {
+                Log.info("组队列表");
+                TeamManager.list(event);
+                return;
+            }
+
+            String deleteTeam = "解散(\\[mirai:at:\\d+]( )*)?";
+            if (Pattern.matches(deleteTeam, code)) {
+                Log.info("解散");
+                TeamManager.deleteTeam(event);
+                return;
+            }
+
+            String leveTeam = "确认解散(\\[mirai:at:\\d+]( )*)?";
+            if (Pattern.matches(leveTeam, code)) {
+                Log.info("确认解散");
+                TeamManager.leveTeam(event);
                 return;
             }
         } catch (Exception exception) {
