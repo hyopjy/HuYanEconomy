@@ -11,6 +11,7 @@ import cn.chahuyun.economy.plugin.PropsType;
 import cn.chahuyun.economy.utils.Log;
 import cn.hutool.cron.task.Task;
 import net.mamoe.mirai.Bot;
+import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.message.data.Message;
 import net.mamoe.mirai.message.data.PlainText;
 import org.apache.commons.collections4.CollectionUtils;
@@ -67,7 +68,10 @@ public class WorldBossOpenTask implements Task {
         groupIdList.add(878074795L);
         String finalPropMessage = propMessage;
         groupIdList.forEach(groupId->{
-            bot.getGroup(groupId);
+           Group group =  bot.getGroup(groupId);
+           if(Objects.isNull(group)){
+               return;
+           }
             Message message = new PlainText(finalPropMessage +"上钩" + fishSize + "斤鱼再告诉你！\r\n" +
                     "\r\n" +
                     "\uD83D\uDCE2BOSS战\uD83E\uDD96开启！今日击败世界boss即可获取" + bb + "WDIT币币\uD83E\uDE99\r\n" +
@@ -75,7 +79,7 @@ public class WorldBossOpenTask implements Task {
                     "[什么等级的鱼竿也想钓我？]\r\n" +
                     "　　/\r\n" +
                     "(ˇωˇ ﾐэ)Э三三三三　乚").plus("\r\n");
-            Objects.requireNonNull(bot.getGroup(groupId)).sendMessage(message);
+            Objects.requireNonNull(group).sendMessage(message);
         });
 
     }

@@ -234,8 +234,8 @@ public class RandomMoneyListener extends SimpleListenerHost {
         if (message.startsWith("世界boss") &&
                 EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
             //  开启
-            String code = event.getMessage().serializeToMiraiCode();
-            String[] codeArr = code.split(" ");
+            String code = event.getMessage().serializeToMiraiCode().replaceAll("\\\\,",",");
+            String[] codeArr = code.split(" ", 3);
             if ("开启".equals(codeArr[1])) {
                 WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.BOSS_STATUS);
                 worldBossStatusConfig.setConfigInfo("true");
