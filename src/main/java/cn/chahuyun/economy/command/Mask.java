@@ -71,7 +71,7 @@ public class Mask extends AbstractPropUsage {
             // 被打劫用户 ‘
             Optional<Team> targetTeamOption = teamList.stream().filter(team -> team.getTeamMember().equals(target) || team.getTeamOwner().equals(target)).collect(Collectors.toList()).stream().findAny();
             if (targetTeamOption.isPresent()) {
-                targetTeam = senderTeamOption.get();
+                targetTeam = targetTeamOption.get();
             }
         }
 
@@ -114,13 +114,13 @@ public class Mask extends AbstractPropUsage {
             if (Objects.nonNull(senderTeam)) {
                 // 加钱
                 NormalMember memberOwner = group.get(senderTeam.getTeamOwner());
-                EconomyUtil.minusMoneyToUser(memberOwner, money);
+                EconomyUtil.plusMoneyToUser(memberOwner, money);
 
                 NormalMember memberMember = group.get(senderTeam.getTeamMember());
-                EconomyUtil.minusMoneyToUser(memberMember, money);
+                EconomyUtil.plusMoneyToUser(memberMember, money);
 
-                minuserId.add(senderTeam.getTeamOwner());
-                minuserId.add(senderTeam.getTeamMember());
+                plususerId.add(senderTeam.getTeamOwner());
+                plususerId.add(senderTeam.getTeamMember());
             } else {
                 // 自己获得
                 EconomyUtil.plusMoneyToUser(sender, money);
@@ -129,14 +129,14 @@ public class Mask extends AbstractPropUsage {
             }
 
             if(Objects.nonNull(targetTeam)){
-                NormalMember memberOwner = group.get(senderTeam.getTeamOwner());
+                NormalMember memberOwner = group.get(targetTeam.getTeamOwner());
                 EconomyUtil.minusMoneyToUser(memberOwner, money);
 
-                NormalMember memberMember = group.get(senderTeam.getTeamMember());
+                NormalMember memberMember = group.get(targetTeam.getTeamMember());
                 EconomyUtil.minusMoneyToUser(memberMember, money);
 
-                plususerId.add(senderTeam.getTeamOwner());
-                plususerId.add(senderTeam.getTeamMember());
+                minuserId.add(targetTeam.getTeamOwner());
+                minuserId.add(targetTeam.getTeamMember());
             }else {
                 // 减去目标用户
                 NormalMember member = group.get(target);
@@ -146,13 +146,13 @@ public class Mask extends AbstractPropUsage {
             }
 
             StringBuilder plusBB = new StringBuilder();
-            plusBB.append("获得" + money + "bb").append("\r\n");
+            plusBB.append("获得" + money + "bb的用户：").append("\r\n");
             plususerId.forEach(userId->{
                 plusBB.append(new At(userId).getDisplay(group)).append("\r\n");
             });
 
             StringBuilder minBB = new StringBuilder();
-            plusBB.append("失去" + money + "bb").append("\r\n");
+            plusBB.append("失去" + money + "bb的用户：").append("\r\n");
             minuserId.stream().forEach(userId->{
                 minBB.append(new At(userId).getDisplay(group)).append("\r\n");
             });
