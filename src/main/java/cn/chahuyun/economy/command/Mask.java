@@ -8,6 +8,7 @@ import cn.chahuyun.economy.utils.CacheUtils;
 import cn.chahuyun.economy.utils.EconomyUtil;
 import cn.chahuyun.economy.utils.MessageUtil;
 import cn.chahuyun.economy.utils.RandomHelperUtil;
+import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.RandomUtil;
 import net.mamoe.mirai.contact.NormalMember;
 import net.mamoe.mirai.contact.User;
@@ -124,16 +125,16 @@ public class Mask extends AbstractPropUsage {
             } else {
                 // 自己获得
                 EconomyUtil.plusMoneyToUser(sender, money);
-
                 plususerId.add(sender.getId());
             }
 
             if(Objects.nonNull(targetTeam)){
+                double targetMoney = NumberUtil.round(NumberUtil.div(money, 2), 2).doubleValue();
                 NormalMember memberOwner = group.get(targetTeam.getTeamOwner());
-                EconomyUtil.minusMoneyToUser(memberOwner, money);
+                EconomyUtil.minusMoneyToUser(memberOwner, targetMoney);
 
                 NormalMember memberMember = group.get(targetTeam.getTeamMember());
-                EconomyUtil.minusMoneyToUser(memberMember, money);
+                EconomyUtil.minusMoneyToUser(memberMember, targetMoney);
 
                 minuserId.add(targetTeam.getTeamOwner());
                 minuserId.add(targetTeam.getTeamMember());
@@ -146,13 +147,13 @@ public class Mask extends AbstractPropUsage {
             }
 
             StringBuilder plusBB = new StringBuilder();
-            plusBB.append("获得" + money + "bb的用户：").append("\r\n");
+            plusBB.append("[共享" + money + "bb的用户]").append("\r\n");
             plususerId.forEach(userId->{
                 plusBB.append(new At(userId).getDisplay(group)).append("\r\n");
             });
 
             StringBuilder minBB = new StringBuilder();
-            plusBB.append("失去" + money + "bb的用户：").append("\r\n");
+            plusBB.append("[分摊" + money + "bb的用户]").append("\r\n");
             minuserId.stream().forEach(userId->{
                 minBB.append(new At(userId).getDisplay(group)).append("\r\n");
             });
@@ -161,6 +162,7 @@ public class Mask extends AbstractPropUsage {
             subject.sendMessage(new MessageChainBuilder().append(new QuoteReply(event.getMessage()))
                     .append(propsCard.getName() + "使用成功").append("\r\n")
                     .append(plusBB.toString())
+                    .append("-----")
                     .append(minBB.toString())
                     .build());
         }
