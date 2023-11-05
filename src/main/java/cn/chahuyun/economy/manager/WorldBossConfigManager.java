@@ -269,15 +269,15 @@ public class WorldBossConfigManager {
         for (int i = 0; i < bossTeamUserSizes.size(); i++) {
             BossTeamUserSize teamUser = bossTeamUserSizes.get(i);
             if (i == 0) {
-                putBB(teamUser, map, bb * 5, bb * 2.5);
+                putBB(teamUser, map, bb * 7, bb * 3.5);
                 continue;
             }
             if (i == 1) {
-                putBB(teamUser, map, bb * 3, bb * 1.5);
+                putBB(teamUser, map, bb * 5, bb * 2.5);
                 continue;
             }
             if (i == 2) {
-                putBB(teamUser, map, 2.5 * bb, 1.25 * bb);
+                putBB(teamUser, map, 3 * bb, 1.5 * bb);
                 continue;
             }
             putBB(teamUser, map, bb, bb);
@@ -305,13 +305,13 @@ public class WorldBossConfigManager {
         for (int i = 0; i < bossUserSortList.size(); i++) {
             Long userId = bossUserSortList.get(i).getUserId();
             if (i ==  0) {
-                map.put(userId, 5 * bb);
+                map.put(userId, 7 * bb);
             }
             if (i ==  1) {
-                map.put(userId, 3 * bb);
+                map.put(userId, 5 * bb);
             }
             if (i ==  2) {
-                map.put(userId, 2.5 * bb);
+                map.put(userId, 3 * bb);
             }
             map.put(userId, bb);
         }
