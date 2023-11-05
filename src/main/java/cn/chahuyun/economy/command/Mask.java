@@ -85,13 +85,14 @@ public class Mask extends AbstractPropUsage {
                         .build());
             } else {
                 NormalMember memberOwner = group.get(senderTeam.getTeamOwner());
-                EconomyUtil.minusMoneyToUser(memberOwner, 1000);
+                EconomyUtil.minusMoneyToUser(memberOwner, 2000);
                 NormalMember memberMember = group.get(senderTeam.getTeamMember());
-                EconomyUtil.minusMoneyToUser(memberMember, 1000);
+                EconomyUtil.minusMoneyToUser(memberMember, 2000);
                 subject.sendMessage(new MessageChainBuilder().append(new QuoteReply(event.getMessage()))
-                        .append("抢劫失败").append(new At(senderTeam.getTeamOwner()).getDisplay(group))
-                        .append("   ").append(new At(senderTeam.getTeamMember()).getDisplay(group))
-                        .append("触发币币回收计划之：被bobo正义执行，抢劫失败并且每人分别罚款1000币币").append("\r\n")
+                        .append("[抢劫失败]").append("\r\n")
+                        .append(new At(senderTeam.getTeamOwner()).getDisplay(group)).append("\r\n")
+                        .append(new At(senderTeam.getTeamMember()).getDisplay(group)).append("\r\n")
+                        .append("触发币币回收计划之：被bobo正义执行，抢劫失败并且每人分别罚款2000币币").append("\r\n")
                         .build());
             }
         } else {
@@ -146,23 +147,22 @@ public class Mask extends AbstractPropUsage {
                 minuserId.add(target);
             }
 
-            StringBuilder plusBB = new StringBuilder();
-            plusBB.append("[共享" + money + "bb的用户]").append("\r\n");
+            StringBuilder plusBB = new StringBuilder("[共享" + money + "bb的用户]").append("\r\n");
             plususerId.forEach(userId->{
                 plusBB.append(new At(userId).getDisplay(group)).append("\r\n");
             });
 
-            StringBuilder minBB = new StringBuilder();
-            plusBB.append("[分摊" + money + "bb的用户]").append("\r\n");
+            StringBuilder minBB = new StringBuilder("[分摊" + money + "bb的用户]").append("\r\n");
             minuserId.stream().forEach(userId->{
                 minBB.append(new At(userId).getDisplay(group)).append("\r\n");
             });
 
             CacheUtils.addUserMaskCountKey(group.getId(), sender.getId());
             subject.sendMessage(new MessageChainBuilder().append(new QuoteReply(event.getMessage()))
-                    .append(propsCard.getName() + "使用成功").append("\r\n")
+                    .append(propsCard.getName() + "使用成功")
+                    .append("\r\n")
                     .append(plusBB.toString())
-                    .append("-----")
+                    .append("-----").append("\r\n")
                     .append(minBB.toString())
                     .build());
         }
