@@ -344,7 +344,7 @@ public class PropsManagerImpl implements PropsManager {
                     subject.sendMessage(messages.build());
                     return;
                 }
-                Double count = RedisUtils.getWditBBCount(subject.getId());
+                Double count = RedisUtils.getWditBBCount(subject.getId(), sender.getId());
                 if(count + num > 30000){
                     messages.append(new PlainText("["  + propsInfo.getName() + "]每人每天限制购买30000个,目前你已经购买了" + count + "个"));
                     subject.sendMessage(messages.build());
@@ -370,7 +370,7 @@ public class PropsManagerImpl implements PropsManager {
                     subject.sendMessage(messages.build());
                     return;
                 }else {
-                    RedisUtils.setWditBBCount(subject.getId(), count + num );
+                    RedisUtils.setWditBBCount(subject.getId(), sender.getId(),count + num );
                     messages.append("成功购买" + num + " " + "获得" + num + " " + card.getName() + " 你还有" + (30000 - (count + num)) + "额度");
                     subject.sendMessage(messages.build());
                     return;
