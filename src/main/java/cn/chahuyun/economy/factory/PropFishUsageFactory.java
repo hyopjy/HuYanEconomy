@@ -99,4 +99,8 @@ public class PropFishUsageFactory {
     public IPropUsage createSportsAndArtStudents() {
         return new SportsAndArtStudents();
     }
+
+    public IPropUsage createWDITBB40() {
+        return new WDITBB40();
+    }
 }

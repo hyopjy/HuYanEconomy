@@ -33,12 +33,12 @@ public class LittleTrumpetFishStory extends AbstractPropUsage {
         User sender = event.getSender();
 
         // 自己获得
-        EconomyUtil.plusMoneyToUser(sender, 13140);
+        EconomyUtil.plusMoneyToUser(sender, 52000);
 
         subject.sendMessage(new MessageChainBuilder().append(new QuoteReply(event.getMessage()))
                 .append(propsCard.getName() + "使用成功").append("\r\n")
-                .append("成功获得13140币币")
-                .append("----------")
+                .append("成功获得52000币币")
+                .append("----------\r\n")
                 .append("开始讲述《小喇叭鱼的故事》的故事 \r\n")
                 .append(propsCard.getContent())
                 .build());

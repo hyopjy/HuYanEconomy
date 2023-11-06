@@ -47,7 +47,7 @@ public class Glassbead extends AbstractPropUsage {
     public void excute() {
         User sender = event.getSender();
         // 消耗品，对指定目标使用，获得目标的币币（随机20-100）
-        int money = RandomUtil.randomInt(20, 100);
+        int money = RandomUtil.randomInt(40, 200);
         NormalMember member = group.get(target);
         double moneyByUser = EconomyUtil.getMoneyByUser(member);
         if (moneyByUser - money < 0) {

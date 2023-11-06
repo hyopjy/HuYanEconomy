@@ -17,11 +17,11 @@ public class SportsAndArtStudents extends AbstractPropUsage {
         User sender = event.getSender();
 
         // 自己获得
-        EconomyUtil.plusMoneyToUser(sender, 36000);
+        EconomyUtil.plusMoneyToUser(sender, 520000);
 
         subject.sendMessage(new MessageChainBuilder().append(new QuoteReply(event.getMessage()))
                 .append(propsCard.getName() + "使用成功").append("\r\n")
-                .append("成功获得36000币币")
+                .append("成功获得520000币币")
                 .build());
     }
 }
