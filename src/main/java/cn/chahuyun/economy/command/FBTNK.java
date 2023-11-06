@@ -46,19 +46,19 @@ public class FBTNK extends AbstractPropUsage {
         buff.setCount(5);
         buff.setNum(5);
         List<BuffProperty> properties = new ArrayList<>(2);
-        BuffProperty property1 = new BuffProperty(BuffPropsEnum.DIFFICULTY_MIN.getName(), 52);
-        BuffProperty property2 = new BuffProperty(BuffPropsEnum.RANK_MIN.getName(), 5);
+        BuffProperty property1 = new BuffProperty(BuffPropsEnum.DIFFICULTY_MIN.getName(), 66);
+        BuffProperty property2 = new BuffProperty(BuffPropsEnum.RANK_MIN.getName(), 6);
         properties.add(property1);
         properties.add(property2);
         buff.setProperties(properties);
 
-        EconomyUtil.plusMoneyToUser(sender, 98020);
+        EconomyUtil.plusMoneyToUser(sender, 131400);
 
 
         CacheUtils.addBuff(group.getId(), sender.getId(), buff);
         subject.sendMessage(new MessageChainBuilder().append(new QuoteReply(event.getMessage()))
                 .append(propsCard.getName() + "使用成功").append("\r\n")
-                .append("成功获得98020币币").append("\r\n")
+                .append("成功获得131400币币").append("\r\n")
                 .append(propsCard.getContent())
                 .build());
     }

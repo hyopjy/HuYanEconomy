@@ -44,4 +44,6 @@ public interface PropConstant {
     String CLICKER = "响片";
 
     String SPORTS_AND_ART_STUDENTS = "《体育生与艺术生》";
+
+    String WDIT_BB_4_0 = "WDITBB4.0";
 }

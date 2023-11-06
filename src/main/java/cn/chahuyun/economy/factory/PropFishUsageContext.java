@@ -92,6 +92,9 @@ public class PropFishUsageContext {
             case PropConstant.SPORTS_AND_ART_STUDENTS:
                 iPropUsage = factory.createSportsAndArtStudents();
                 break;
+            case PropConstant.WDIT_BB_4_0:
+                iPropUsage = factory.createWDITBB40();
+                break;
             default:
                 event.getSubject().sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "道具暂未开放～"));
                 break;
