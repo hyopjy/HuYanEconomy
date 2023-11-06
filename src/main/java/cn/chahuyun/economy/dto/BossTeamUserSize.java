@@ -26,4 +26,6 @@ public class BossTeamUserSize {
      */
     Long teamOwner;
     Long teamMember;
+
+    String teamName;
 }

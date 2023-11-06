@@ -4,6 +4,7 @@ package cn.chahuyun.economy.manager;
 import cn.chahuyun.economy.HuYanEconomy;
 import cn.chahuyun.economy.constant.Constant;
 import cn.chahuyun.economy.constant.WorldBossEnum;
+import cn.chahuyun.economy.dto.BossTeamUserSize;
 import cn.chahuyun.economy.entity.UserBackpack;
 import cn.chahuyun.economy.entity.UserInfo;
 import cn.chahuyun.economy.entity.boss.WorldBossConfig;
@@ -91,8 +92,22 @@ public class WorldBossGoalTask implements Task {
             StringBuilder sb = new StringBuilder();
             if (bb > 0) {
                 sb.append("-------").append("\r\n");
-                sb.append("获取WDIT BB Boss奖金" + bb + "如下：").append("\r\n");
-                Map<Long, Double> bbUserMap = WorldBossConfigManager.getTeamUserBbMap(groupWorldBossUserLog, bb, groupId);
+                sb.append("获取WDIT BB Boss奖金").append("如下：").append("\r\n");
+                List<BossTeamUserSize> bossUserSortList = WorldBossConfigManager.getTeamUserBbList(groupWorldBossUserLog,  groupId);
+                // 拼提示信息
+                Map<Long, Double> bbUserMap = WorldBossConfigManager.getUserBbMapByTeamUser(bb, bossUserSortList);
+                bossUserSortList.stream().forEach(teamUserSize->{
+                    if(teamUserSize.getType().equals(1)){
+                        double owner = Optional.ofNullable(bbUserMap.get(teamUserSize.getTeamOwner())).orElse(0.0);
+                        double member = Optional.ofNullable(bbUserMap.get(teamUserSize.getTeamMember())).orElse(0.0);
+                        sb.append("[").append(teamUserSize.getTeamName()).append("]").append("-").append("[").append(teamUserSize.getFishSize()).append("/").append(owner).append("x").append(member).append("]").append("\r\n");
+                    }
+                    if(teamUserSize.getType().equals(0)){
+                        double mm = bbUserMap.get(teamUserSize.getId());
+                        sb.append(new At(teamUserSize.getId()).getDisplay(group)).append(" ").append("[" + teamUserSize.getFishSize() + "/" + mm + "]").append("\r\n");
+                    }
+                });
+                // 发放奖金
                 for (Map.Entry<Long, Double> entry : bbUserMap.entrySet()) {
                     Long userId = entry.getKey();
                     Double moneyBB = entry.getValue();
@@ -103,13 +118,12 @@ public class WorldBossGoalTask implements Task {
                     }
                     if (!EconomyUtil.plusMoneyToUser(member, moneyBB)) {
                         member.sendMessage("奖金添加失败，请联系管理员!");
-                        Log.error("WorldBossGoalTask-发放奖金失败：" + userId);
-                    } else {
-                        sb.append(new At(userId).getDisplay(group)).append(" ").append("[" + moneyBB + "]").append("\r\n");
+                        Log.error("WorldBossGoalTask-发放奖金失败：" + userId + "奖金：" + moneyBB);
                     }
                 }
                 sb.append("-------").append("\r\n");
             }
+
 
             sb.append("钓鱼佬，你掉的道具如下：").append("\r\n");
             sb.append("-------").append("\r\n");

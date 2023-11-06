@@ -205,27 +205,26 @@ public class WorldBossConfigManager {
     }
 
     /**
-     * 获取用户的金额数
+     * 获取用户的
      * @param groupWorldBossUserLog
-     * @param bb
      * @return
      */
-    public static Map<Long, Double> getTeamUserBbMap(List<WorldBossUserLog> groupWorldBossUserLog, double bb, Long groupId) {
+    public static List<BossTeamUserSize> getTeamUserBbList(List<WorldBossUserLog> groupWorldBossUserLog, Long groupId) {
         // 用户钓鱼的数量
         Map<Long, Integer> userSizeMap = groupWorldBossUserLog.stream().collect(Collectors.toMap(WorldBossUserLog::getUserId, WorldBossUserLog::getSize, Integer::sum));
         // 没有组队，则排队个人比
-        List<Team> teamList = TeamManager.listTeam(groupId);
-        if (CollectionUtils.isEmpty(teamList)) {
-            List<BossUserSize> bossUserSizeList = new ArrayList<>();
-            for (Map.Entry<Long, Integer> entry : userSizeMap.entrySet()) {
-                BossUserSize userSize = new BossUserSize();
-                userSize.setUserId(entry.getKey());
-                userSize.setFishSize(userSize.getFishSize());
-                bossUserSizeList.add(userSize);
-            }
-            List<BossUserSize> bossUserSortList = bossUserSizeList.stream().sorted(Comparator.comparing(BossUserSize::getFishSize).reversed()).collect(Collectors.toList());
-            return getUserBbMap(bb, bossUserSortList);
-        } else {
+        List<Team> teamList = Optional.ofNullable(TeamManager.listTeam(groupId)).orElse(Lists.newArrayList());
+//        if (CollectionUtils.isEmpty(teamList)) {
+//            List<BossUserSize> bossUserSizeList = new ArrayList<>();
+//            for (Map.Entry<Long, Integer> entry : userSizeMap.entrySet()) {
+//                BossUserSize userSize = new BossUserSize();
+//                userSize.setUserId(entry.getKey());
+//                userSize.setFishSize(userSize.getFishSize());
+//                bossUserSizeList.add(userSize);
+//            }
+//            List<BossUserSize> bossUserSortList = bossUserSizeList.stream().sorted(Comparator.comparing(BossUserSize::getFishSize).reversed()).collect(Collectors.toList());
+//            return getUserBbMap(bb, bossUserSortList);
+//        } else {
             List<BossTeamUserSize> bossTeamUserSizesList = new ArrayList<>();
             // 每个人钓鱼数量 bossUserSizeList
             Set<Long> userIdList = groupWorldBossUserLog.stream().map(WorldBossUserLog::getUserId).collect(Collectors.toSet());
@@ -242,6 +241,7 @@ public class WorldBossConfigManager {
                 teamUserSize.setType(1);
                 teamUserSize.setTeamOwner(teamOwner);
                 teamUserSize.setTeamMember(teamMember);
+                teamUserSize.setTeamName(team.getTeamName());
                 bossTeamUserSizesList.add(teamUserSize);
             });
             // 个人
@@ -260,11 +260,15 @@ public class WorldBossConfigManager {
                 bossTeamUserSizesList.add(teamUserSize);
             });
             List<BossTeamUserSize> bossUserSortList = bossTeamUserSizesList.stream().sorted(Comparator.comparing(BossTeamUserSize::getFishSize).reversed()).collect(Collectors.toList());
-            return getUserBbMapByTeamUser(bb, bossUserSortList);
-        }
+            return bossUserSortList;
+          //    return getUserBbMapByTeamUser(bb, bossUserSortList);
+//        }
     }
 
-    private static Map<Long, Double> getUserBbMapByTeamUser(double bb, List<BossTeamUserSize> bossTeamUserSizes) {
+
+
+
+    public static Map<Long, Double> getUserBbMapByTeamUser(double bb, List<BossTeamUserSize> bossTeamUserSizes) {
         Map<Long, Double> map = new HashMap<>();
         for (int i = 0; i < bossTeamUserSizes.size(); i++) {
             BossTeamUserSize teamUser = bossTeamUserSizes.get(i);
