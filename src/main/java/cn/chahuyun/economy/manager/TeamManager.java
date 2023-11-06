@@ -236,7 +236,7 @@ public class TeamManager {
         }else{
             // 判断队伍创建时间是否超过48小时
             LocalDateTime successTime = team.getSuccessTime();
-            if(Objects.nonNull(successTime)){
+            if(Objects.isNull(successTime)){
                 team.setSuccessTime(LocalDateTime.now());
                 team.save();
                 subject.sendMessage(MessageUtil.formatMessageChain(message, "队伍缺失创建时间,已自动补全，请48小时后进行解散"));

@@ -100,7 +100,7 @@ public class WorldBossGoalTask implements Task {
                     if(teamUserSize.getType().equals(1)){
                         double owner = Optional.ofNullable(bbUserMap.get(teamUserSize.getTeamOwner())).orElse(0.0);
                         double member = Optional.ofNullable(bbUserMap.get(teamUserSize.getTeamMember())).orElse(0.0);
-                        sb.append("[").append(teamUserSize.getTeamName()).append("]").append("-").append("[").append(teamUserSize.getFishSize()).append("/").append(owner).append("x").append(member).append("]").append("\r\n");
+                        sb.append("[").append(teamUserSize.getTeamName()).append("]").append("-").append("[").append(teamUserSize.getFishSize()).append("/").append(owner).append("➕").append(member).append("]").append("\r\n");
                     }
                     if(teamUserSize.getType().equals(0)){
                         double mm = bbUserMap.get(teamUserSize.getId());
