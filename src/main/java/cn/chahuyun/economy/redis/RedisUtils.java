@@ -158,7 +158,8 @@ public class RedisUtils {
     }
 
     public static Double getWditBBCount(long groupId, long userId) {
-        String key = "wdit:bb:" + groupId + ":" + userId;
+        String dateString  = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        String key = "wdit:bb:" + dateString + ":" + groupId + ":" + userId;
         Object value = getKeyObject(key);
         if (Objects.isNull(value)) {
             return 0.0;
@@ -171,7 +172,8 @@ public class RedisUtils {
     }
 
     public static void setWditBBCount(long groupId, long userId, Double money) {
-        String key = "wdit:bb:" + groupId + ":" + userId;
+        String dateString  = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        String key = "wdit:bb:" + dateString + ":" + groupId + ":" + userId;
         setKeyObject(key, money);
     }
 

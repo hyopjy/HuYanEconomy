@@ -44,10 +44,7 @@ public class DateUtil {
         String mask = "面罩";
         String maskCode = "34";
 
-        String bb = "WDIT币币";
-        String  bbCode = "51";
-        if (code.contains(dd) || code.contains(ddCode) || code.contains(mask) || code.contains(maskCode) || code.contains(bb)
-            || code.contains(bbCode)) {
+        if (code.contains(dd) || code.contains(ddCode) || code.contains(mask) || code.contains(maskCode)) {
             return true;
         }
         try {
