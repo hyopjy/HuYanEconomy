@@ -17,14 +17,17 @@ public enum WorldBossEnum {
 
 
 
-    OPEN_HOUR(4,"open_hour", "开始时间小时",  Constant.BOSS_TYPE_INT, "13"),
-    END_HOUR(5,"end_hour", "结束时间小时",  Constant.BOSS_TYPE_INT, "18"),
+//    OPEN_HOUR(4,"open_hour", "开始时间小时",  Constant.BOSS_TYPE_INT, "13"),
+//    END_HOUR(5,"end_hour", "结束时间小时",  Constant.BOSS_TYPE_INT, "18"),
     CORN_GOAL(6,"world_boss_corn_goal", "达成播报",  Constant.BOSS_TYPE_STRING, "0 0 18 * * ?"),
     CORN_PROGRESS(7,"world_boss_corn_progress", "进度播报",  Constant.BOSS_TYPE_STRING, "0 50 17 * * ?｜0 0/30 14,15,16,17 * * ?"),
-    OPEN_HOUR_MINUTE(8,"open_hour_minute", "开始时间小时分钟",  Constant.BOSS_TYPE_INT, "30"),
+    // OPEN_HOUR_MINUTE(8,"open_hour_minute", "开始时间小时分钟",  Constant.BOSS_TYPE_INT, "30"),
     CORN_OPEN(11,"world_boss_corn_open", "开始播报",  Constant.BOSS_TYPE_STRING, "0 30 13 * * ?"),
 
     OTHER_FISH_SIZE(12,"world_boss_other_fish_size", "额外鱼尺寸",  Constant.BOSS_TYPE_DOUBLE, "100"),
+
+    OPEN_TIME(13,"open_time", "开始时间",  Constant.BOSS_TYPE_STRING, "2023-11-31 18:30:00"),
+    END_TIME(14,"end_time", "结束时间",  Constant.BOSS_TYPE_STRING, "2023-12-30 12:30:00"),
 
 
 //    OPEN_HOUR(4,"open_hour", "开始时间小时",  Constant.BOSS_TYPE_INT, "0"),
@@ -57,9 +60,11 @@ public enum WorldBossEnum {
         list.add(WDIT_BB_COUNT);
         list.add(OTHER_FISH_SIZE);
 
-        list.add(OPEN_HOUR);
-        list.add(END_HOUR);
-        list.add(OPEN_HOUR_MINUTE);
+        list.add(OPEN_TIME);
+        list.add(END_TIME);
+//        list.add(OPEN_HOUR);
+//        list.add(END_HOUR);
+//        list.add(OPEN_HOUR_MINUTE);
         list.add(CORN_OPEN);
         list.add(CORN_GOAL);
         list.add(CORN_PROGRESS);
@@ -68,9 +73,11 @@ public enum WorldBossEnum {
 
     public  static List<WorldBossEnum> getWorldBossNotFixEnumList(){
         List<WorldBossEnum> list = new ArrayList<>(6);
-        list.add(OPEN_HOUR);
-        list.add(END_HOUR);
-        list.add(OPEN_HOUR_MINUTE);
+//        list.add(OPEN_HOUR);
+//        list.add(END_HOUR);
+//        list.add(OPEN_HOUR_MINUTE);
+        list.add(OPEN_TIME);
+        list.add(END_TIME);
         list.add(CORN_OPEN);
         list.add(CORN_GOAL);
         list.add(CORN_PROGRESS);
