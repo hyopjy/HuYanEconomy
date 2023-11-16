@@ -39,6 +39,8 @@ import org.hibernate.query.criteria.JpaCriteriaQuery;
 import org.hibernate.query.criteria.JpaRoot;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -294,26 +296,57 @@ public class RandomMoneyListener extends SimpleListenerHost {
                 WorldBossConfigManager.refreshCronStr(worldBossStatusConfig, cornGoalCron);
             }
 
-            if ("开始时间小时".equals(codeArr[1])) {
-                String min = Integer.parseInt(codeArr[2]) + "";
-                WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.OPEN_HOUR);
-                worldBossStatusConfig.setConfigInfo(min);
-                worldBossStatusConfig.save();
+//            if ("开始时间小时".equals(codeArr[1])) {
+//                String min = Integer.parseInt(codeArr[2]) + "";
+//                WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.OPEN_HOUR);
+//                worldBossStatusConfig.setConfigInfo(min);
+//                worldBossStatusConfig.save();
+//            }
+//
+//            if ("结束时间小时".equals(codeArr[1])) {
+//                String min = Integer.parseInt(codeArr[2]) + "";
+//                WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.END_HOUR);
+//                worldBossStatusConfig.setConfigInfo(min);
+//                worldBossStatusConfig.save();
+//            }
+//
+//            if ("开始时间小时分钟".equals(codeArr[1])) {
+//                String min = Integer.parseInt(codeArr[2]) + "";
+//                WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.OPEN_HOUR_MINUTE);
+//                worldBossStatusConfig.setConfigInfo(min);
+//                worldBossStatusConfig.save();
+//            }
+
+            if ("开始时间".equals(codeArr[1])) {
+                String openTime = codeArr[2];
+                String nt = LocalDate.now().getYear() + openTime + "00";
+                try{
+                    LocalDateTime otime = LocalDateTime.parse(nt, Constant.FORMATTER_YYMMDDHHMMSS);
+                    String time = otime.format(Constant.FORMATTER);
+                    WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.OPEN_TIME);
+                    worldBossStatusConfig.setConfigInfo(time);
+                    worldBossStatusConfig.save();
+                }catch (Exception e){
+                    subject.sendMessage("时间格式有误");
+                    return ListeningStatus.LISTENING;
+                }
             }
 
-            if ("结束时间小时".equals(codeArr[1])) {
-                String min = Integer.parseInt(codeArr[2]) + "";
-                WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.END_HOUR);
-                worldBossStatusConfig.setConfigInfo(min);
-                worldBossStatusConfig.save();
+            if ("结束时间".equals(codeArr[1])) {
+                String endtime = codeArr[2];
+                String nt = LocalDate.now().getYear() + endtime + "59";
+                try{
+                    LocalDateTime otime = LocalDateTime.parse(nt, Constant.FORMATTER_YYMMDDHHMMSS);
+                    String time = otime.format(Constant.FORMATTER);
+                    WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.END_TIME);
+                    worldBossStatusConfig.setConfigInfo(time);
+                    worldBossStatusConfig.save();
+                }catch (Exception e){
+                    subject.sendMessage("时间格式有误");
+                    return ListeningStatus.LISTENING;
+                }
             }
 
-            if ("开始时间小时分钟".equals(codeArr[1])) {
-                String min = Integer.parseInt(codeArr[2]) + "";
-                WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.OPEN_HOUR_MINUTE);
-                worldBossStatusConfig.setConfigInfo(min);
-                worldBossStatusConfig.save();
-            }
 
             if ("额外鱼尺寸".equals(codeArr[1])) {
                 String min = Double.parseDouble(codeArr[2]) + "";

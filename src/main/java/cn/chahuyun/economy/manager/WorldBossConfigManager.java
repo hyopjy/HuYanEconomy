@@ -13,7 +13,6 @@ import cn.chahuyun.economy.utils.Log;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.cron.CronUtil;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.compress.utils.Lists;
 import org.hibernate.query.criteria.HibernateCriteriaBuilder;
 import org.hibernate.query.criteria.JpaCriteriaQuery;
@@ -129,22 +128,16 @@ public class WorldBossConfigManager {
             return;
         }
         // 判断时间
-        WorldBossConfig openHourConfig = getWorldBossConfigByKey(WorldBossEnum.OPEN_HOUR);
-        WorldBossConfig openHourMinuteConfig = getWorldBossConfigByKey(WorldBossEnum.OPEN_HOUR_MINUTE);
-        WorldBossConfig endHourConfig = getWorldBossConfigByKey(WorldBossEnum.END_HOUR);
+        WorldBossConfig openTimeConfig = getWorldBossConfigByKey(WorldBossEnum.OPEN_TIME);
+        WorldBossConfig endTimeConfig = getWorldBossConfigByKey(WorldBossEnum.END_TIME);
 
         LocalDateTime now = LocalDateTime.now();
-        Boolean checkOpenTime;
-        if (now.getHour() == Integer.parseInt(openHourConfig.getConfigInfo())) {
-            checkOpenTime = now.getMinute() >= Integer.parseInt(openHourMinuteConfig.getConfigInfo());
-        } else {
-            checkOpenTime = now.getHour() >= Integer.parseInt(openHourConfig.getConfigInfo());
-        }
-        Boolean checkEndTime = now.getHour() < Integer.parseInt(endHourConfig.getConfigInfo());
-        Log.info("判断是否在钓鱼区间: 当前时间" + now.format(Constant.FORMATTER) +
-                "判断是否在钓鱼区间: 是否在开始时间范围内" + checkOpenTime +
-                "判断是否在钓鱼区间: 是否在结束时间范围内" + checkEndTime);
-        if (checkOpenTime && checkEndTime) {
+        LocalDateTime openTime = LocalDateTime.parse(openTimeConfig.getConfigInfo(), Constant.FORMATTER);
+        LocalDateTime endTime = LocalDateTime.parse(endTimeConfig.getConfigInfo(), Constant.FORMATTER);
+
+        Boolean checkTime = now.isAfter(openTime) && now.isBefore(endTime);
+        Log.info("判断是否在钓鱼区间: 当前时间" + now.format(Constant.FORMATTER) + "开始时间：" + openTime.format(Constant.FORMATTER) + "结束时间：" + endTime.format(Constant.FORMATTER) + "判断是否在钓鱼区间: 是否在时间范围内" + checkTime);
+        if (checkTime) {
             WorldBossUserLog worldBossUserLog = new WorldBossUserLog(IdUtil.getSnowflakeNextId(), groupId, userId,
                     size, now);
             worldBossUserLog.save();
