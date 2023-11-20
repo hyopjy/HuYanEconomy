@@ -38,6 +38,12 @@ public class HibernateUtil {
     public static void init(MiraiHibernateConfiguration configuration) {
         String path = SQL_PATH_PREFIX + "./data/cn.chahuyun.HuYanEconomy/HuYanEconomy";
         configuration.setProperty("hibernate.connection.url", path);
+        configuration.setProperty("hibernate.hikari.maximumPoolSize", "10");
+        configuration.setProperty("hibernate.hikari.maximumPoolSize", "5");
+        configuration.setProperty("hibernate.hikari.connectionTimeout","30000");
+        configuration.setProperty("hibernate.hikari.idleTimeout","600000");
+        configuration.setProperty("hibernate.hikari.maxLifetime","1800000");
+        configuration.setProperty("hibernate.hikari.connectionTestQuery","SELECT 1");
         configuration.scan("cn.chahuyun.entity");
         try {
             factory = configuration.buildSessionFactory();
