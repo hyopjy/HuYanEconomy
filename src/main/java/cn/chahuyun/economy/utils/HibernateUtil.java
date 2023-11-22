@@ -47,6 +47,7 @@ public class HibernateUtil {
         configuration.scan("cn.chahuyun.entity");
         try {
             factory = configuration.buildSessionFactory();
+
         } catch (HibernateException e) {
             Log.error("请删除data中的HuYanEconomy.mv.db后重新启动！", e);
             return;
