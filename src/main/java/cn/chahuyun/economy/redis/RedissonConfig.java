@@ -9,11 +9,14 @@ public class RedissonConfig {
     static{
         config.useSingleServer()
                 .setAddress("redis://127.0.0.1:6379")
-                .setTimeout(300)
-                .setConnectionPoolSize(10)
                 .setConnectionMinimumIdleSize(5)
+                .setIdleConnectionTimeout(300)
+                .setConnectionPoolSize(5)
+                .setConnectTimeout(300)
                 .setKeepAlive(true)
-        ;
+                .setRetryAttempts(1)
+               // .setPassword("zyjy110.")
+                ;
         //得到redisson对象
         redisson = (Redisson) Redisson.create(config);
 
