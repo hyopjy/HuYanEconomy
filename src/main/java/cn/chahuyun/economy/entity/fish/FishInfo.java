@@ -94,23 +94,11 @@ public class FishInfo implements Serializable {
         int upMoney = 1;
         if (getRodLevel() == 0) {
             return isMoney(user, moneyByUser, upMoney);
-        } else if (1 <= getRodLevel() && getRodLevel() < 70) {
-            upMoney = 40 * getRodLevel() * getLevel();
+        } else if (1 <= getRodLevel() && getRodLevel() < 135) {
+            upMoney = 200 * getRodLevel() * getLevel();
             return isMoney(user, moneyByUser, upMoney);
-        } else if (70 <= getRodLevel() && getRodLevel() < 80) {
-            upMoney = 80 * getRodLevel() * getLevel();
-            return isMoney(user, moneyByUser, upMoney);
-        } else if (80 <= getRodLevel() && getRodLevel() < 90) {
-            upMoney = 100 * getRodLevel() * getLevel();
-            return isMoney(user, moneyByUser, upMoney);
-        } else if (90 <= getRodLevel() && getRodLevel() < 100) {
-            upMoney = 150 * getRodLevel() * getLevel();
-            return isMoney(user, moneyByUser, upMoney);
-        } else if (getRodLevel() == 99) {
-            upMoney = 150000;
-            return isMoney(user, moneyByUser, upMoney);
-        } else {
-            return new PlainText("你的鱼竿已经满级拉！");
+        } else
+            return new PlainText("你的鱼竿已经满级啦！");
         }
     }
 

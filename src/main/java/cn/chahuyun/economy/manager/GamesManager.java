@@ -164,7 +164,7 @@ public class GamesManager {
         int difficultyMin = (int) (1 + Math.sqrt(userFishInfo.getRodLevel() * 14));
         int difficultyMax = 99 + userFishInfo.getRodLevel();
         int rankMin = 1;
-        int rankMax = userFishInfo.getRodLevel() / 8 + 2;
+        int rankMax = userFishInfo.getRodLevel() / 9;
 
         Log.info("[fishing-start]" +
                 ",difficultyMin:" + difficultyMin +
