@@ -167,7 +167,7 @@ public class TransferManager {
             }
             // 成功转账100WDIT币币（额外向您收取2手续费），MM获得98（额外向她收取2手续费）
             // 成功转账%sWDIT币币（额外消耗%s邮电费），%s获得%s（额外收取%s手续费）
-            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), String.format("成功转账%s"+ SeasonMoneyInfo.getSeasonMoney()+"（额外消耗%s邮电费），%s获得%s（额外收取%s手续费)",
+            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), String.format("成功转账%s"+ SeasonCommonInfoManager.getSeasonMoney()+"（额外消耗%s邮电费），%s获得%s（额外收取%s手续费)",
                     money, amount, name, finalMoney, amount)));
         } else {
             subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "转账失败！请联系管理员!"));

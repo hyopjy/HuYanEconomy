@@ -76,7 +76,7 @@ public class RandomMoneyListener extends SimpleListenerHost {
         if (message.equals("余额")) {
             double money = EconomyUtil.getMoneyByUser(sender);
             double bankMoney = EconomyUtil.getMoneyByBank(sender);
-            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "当前WDIT 币币余额%s;"+ SeasonMoneyInfo.getSeasonMoney()+"%s", money, bankMoney));
+            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "当前WDIT 币币余额%s;"+ SeasonCommonInfoManager.getSeasonMoney()+"%s", money, bankMoney));
         }
         if (message.equals("查看签签")) {
             List<LotteryInfo> list = HibernateUtil.factory.fromSession(session -> {
