@@ -27,14 +27,32 @@ public class PropsFishCard extends PropsBase implements Serializable {
     @Column(columnDefinition = "text")
     private String priceDesc;
 
+    // 是否兑换
     private Boolean exchange;
-    // 是否下架
+    // 是否直接兑换
     private Boolean delete;
+
+    // 是否可交易
+    private Boolean tradable;
+
+    // 是否下架
+    private Boolean offShelf;
 
     public PropsFishCard() {
     }
 
-    public PropsFishCard(String code, String name, int cost, String description, String fishDesc, String content, Boolean buy,String priceDesc,Boolean exchange,Boolean delete){
+    public PropsFishCard(String code,
+                         String name,
+                         int cost,
+                         String description,
+                         String fishDesc,
+                         String content,
+                         Boolean buy,
+                         String priceDesc,
+                         Boolean exchange,
+                         Boolean delete,
+                         Boolean tradable,
+                         Boolean offShelf){
         super(code, name, cost, false, "", description, false, null, null);
         this.buy = buy;
         this.content = content;
@@ -42,9 +60,23 @@ public class PropsFishCard extends PropsBase implements Serializable {
         this.priceDesc = priceDesc;
         this.exchange = exchange;
         this.delete = delete;
+        this.tradable = tradable;
+        this.offShelf = offShelf;
     }
 
-    public PropsFishCard(Long id,String code, String name, int cost, String description, String fishDesc, String content, Boolean buy,String priceDesc,Boolean exchange,Boolean delete){
+    public PropsFishCard(Long id,
+                         String code,
+                         String name,
+                         int cost,
+                         String description,
+                         String fishDesc,
+                         String content,
+                         Boolean buy,
+                         String priceDesc,
+                         Boolean exchange,
+                         Boolean delete,
+                         Boolean tradable,
+                         Boolean offShelf){
         super(id, code, name, cost, false, "", description, false, null, null);
         this.buy = buy;
         this.content = content;
@@ -52,6 +84,8 @@ public class PropsFishCard extends PropsBase implements Serializable {
         this.priceDesc = priceDesc;
         this.exchange = exchange;
         this.delete = delete;
+        this.tradable = tradable;
+        this.offShelf = offShelf;
     }
 
     @Override
@@ -79,4 +113,14 @@ public class PropsFishCard extends PropsBase implements Serializable {
     public Boolean getDelete() {
         return Optional.ofNullable(delete).orElse(false);
     }
+
+    public Boolean getTradable() {
+        return Optional.ofNullable(tradable).orElse(false);
+    }
+
+    public Boolean getOffShelf() {
+        return Optional.ofNullable(offShelf).orElse(false);
+    }
+
+
 }

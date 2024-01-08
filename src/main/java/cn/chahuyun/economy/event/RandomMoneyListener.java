@@ -12,10 +12,7 @@ import cn.chahuyun.economy.entity.boss.WorldPropConfig;
 import cn.chahuyun.economy.entity.fish.Fish;
 import cn.chahuyun.economy.entity.fish.FishRanking;
 import cn.chahuyun.economy.entity.props.PropsBase;
-import cn.chahuyun.economy.manager.GamesManager;
-import cn.chahuyun.economy.manager.PropTimeRangeManager;
-import cn.chahuyun.economy.manager.TimeRangeManager;
-import cn.chahuyun.economy.manager.WorldBossConfigManager;
+import cn.chahuyun.economy.manager.*;
 import cn.chahuyun.economy.plugin.FishManager;
 import cn.chahuyun.economy.plugin.FishPondManager;
 import cn.chahuyun.economy.plugin.PluginManager;
@@ -79,7 +76,7 @@ public class RandomMoneyListener extends SimpleListenerHost {
         if (message.equals("余额")) {
             double money = EconomyUtil.getMoneyByUser(sender);
             double bankMoney = EconomyUtil.getMoneyByBank(sender);
-            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "当前WDIT 币币余额%s;枫叶%s", money, bankMoney));
+            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "当前WDIT 币币余额%s;"+ SeasonMoneyInfo.getSeasonMoney()+"%s", money, bankMoney));
         }
         if (message.equals("查看签签")) {
             List<LotteryInfo> list = HibernateUtil.factory.fromSession(session -> {

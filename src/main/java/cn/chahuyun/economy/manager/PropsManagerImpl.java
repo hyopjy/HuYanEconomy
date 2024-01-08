@@ -350,12 +350,12 @@ public class PropsManagerImpl implements PropsManager {
                     subject.sendMessage(messages.build());
                     return;
                 }
-                // new 枫叶
+                // new 赛季
                 double userMoney = EconomyUtil.getMoneyByBank(sender);
                 //购买道具合计金额
                 int total = 2 * num;
                 if (userMoney - total < 0) {
-                    messages.append(new PlainText("没枫叶就不要想买" + propsInfo.getName() + "！"));
+                    messages.append(new PlainText("没"+ SeasonMoneyInfo.getSeasonMoney()+"就不要想买" + propsInfo.getName() + "！"));
                     subject.sendMessage(messages.build());
                     return;
                 }
@@ -380,7 +380,7 @@ public class PropsManagerImpl implements PropsManager {
         }
         //用户钱包现有余额
         //double money = EconomyUtil.getMoneyByUser(sender);
-        // new 枫叶
+        // new 赛季币
         double money = EconomyUtil.getMoneyByBank(sender);
         //购买道具合计金额
         int total = cost * num;
@@ -390,13 +390,13 @@ public class PropsManagerImpl implements PropsManager {
             subject.sendMessage(messages.build());
             return;
         } else if (money - total < 0) {
-            messages.append(new PlainText("没枫叶就不要想买" + propsInfo.getName() + "！"));
+            messages.append(new PlainText("没"+ SeasonMoneyInfo.getSeasonMoney()+"就不要想买" + propsInfo.getName() + "！"));
             subject.sendMessage(messages.build());
             return;
         }
 
        // if (!EconomyUtil.minusMoneyToUser(sender, total)) {
-        // new 枫叶
+        // new 赛季币
         if (!EconomyUtil.minusMoneyToBank(sender, total)) {
             Log.warning("道具系统:减少余额失败!");
             subject.sendMessage("系统出错，请联系主人!");
@@ -656,13 +656,13 @@ public class PropsManagerImpl implements PropsManager {
         int price = RandomUtil.randomInt(10, 300);
         int quantity = num * price;
        // EconomyUtil.plusMoneyToUser(sender, quantity);
-        // new 枫叶
+        // new 赛季币
         EconomyUtil.plusMoneyToBank(sender, quantity);
 
        // double money = EconomyUtil.getMoneyByUser(sender);
-        // new 枫叶
+        // new 赛季币
         double money = EconomyUtil.getMoneyByBank(sender);
-        messages.append(String.format("成功出售 %s %d%s,获得 %s 枫叶,你还有 %s 枚枫叶", propsInfo.getName(), num, propsInfo.getUnit(),quantity, money));
+        messages.append(String.format("成功出售 %s %d%s,获得 %s "+ SeasonMoneyInfo.getSeasonMoney()+",你还有 %s 枚"+ SeasonMoneyInfo.getSeasonMoney()+"", propsInfo.getName(), num, propsInfo.getUnit(),quantity, money));
         subject.sendMessage(messages.build());
     }
 
@@ -710,7 +710,7 @@ public class PropsManagerImpl implements PropsManager {
                 subject.sendMessage(messages.build());
                 return;
             }
-            // 如果是兑换枫叶
+            // 如果是兑换赛季比
             if (card.getDelete()) {
                 double moneyByUser = EconomyUtil.getMoneyByUser(sender);
                 if (moneyByUser - num < 0) {
@@ -719,7 +719,7 @@ public class PropsManagerImpl implements PropsManager {
                     return;
                 }
                 if (EconomyUtil.turnUserToBank(sender, num)) {
-                    messages.append("成功兑换"+ num +"枫叶");
+                    messages.append("成功兑换"+ num +  SeasonMoneyInfo.getSeasonMoney());
                     subject.sendMessage(messages.build());
                 } else {
                     messages.append("兑换失败!");

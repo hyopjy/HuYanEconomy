@@ -217,11 +217,11 @@ class BankInterestTask implements Task {
 
                     // if (EconomyUtil.plusMoneyToWalletForAccount(entry.getKey(), v)) {
                      if (EconomyUtil.plusMoneyToBankForAccount(entry.getKey(), v)) {
-                        Log.info("用户："+ userInfo.getQq() + "获得枫叶：" + v);
+                        Log.info("用户："+ userInfo.getQq() + "获得"+ SeasonMoneyInfo.getSeasonMoney()+"：" + v);
                         userInfo.setBankEarnings(v);
                         userInfo.save();
                     } else {
-                        Log.error("枫叶管理:" + id + "添加利息出错");
+                        Log.error(SeasonMoneyInfo.getSeasonMoney() + "管理:" + id + "添加利息出错");
                     }
                 }
             }

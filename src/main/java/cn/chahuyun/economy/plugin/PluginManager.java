@@ -97,7 +97,9 @@ public class PluginManager {
                     propsFishConfig.getBuy(),
                     propsFishConfig.getPriceDesc(),
                     propsFishConfig.getExchange(),
-                    propsFishConfig.getDelete()
+                    propsFishConfig.getDelete(),
+                    propsFishConfig.getTradable(),
+                    propsFishConfig.getOffShelf()
             );
             PropsFishCard finalPropsFishCard = propsFishCard.save();
             propsManager.registerProps(finalPropsFishCard);
@@ -156,7 +158,9 @@ public class PluginManager {
                         propsFishConfig.getBuy(),
                         propsFishConfig.getPriceDesc(),
                         propsFishConfig.getExchange(),
-                        propsFishConfig.getDelete()
+                        propsFishConfig.getDelete(),
+                        propsFishConfig.getTradable(),
+                        propsFishConfig.getOffShelf()
                 );
             }else {
                 propsFishCard = new PropsFishCard(propsFishConfig.getCode(),
@@ -167,7 +171,9 @@ public class PluginManager {
                         propsFishConfig.getBuy(),
                         propsFishConfig.getPriceDesc(),
                         propsFishConfig.getExchange(),
-                        propsFishConfig.getDelete()
+                        propsFishConfig.getDelete(),
+                        propsFishConfig.getTradable(),
+                        propsFishConfig.getOffShelf()
                 );
             }
             PropsFishCard finalPropsFishCard = propsFishCard.save();
@@ -191,6 +197,8 @@ public class PluginManager {
         map.put("是否兑换","exchange");
         // 无使用效果 直接兑换
         map.put("是否直接兑换","delete");
+        map.put("是否可交易","tradable");
+        map.put("是否下架","OffShelf");
         List<PropsFishCard> list = reader.setHeaderAlias(map).readAll(PropsFishCard.class);
         reader.close();
         return list;
