@@ -1,7 +1,6 @@
 package cn.chahuyun.economy.manager;
 
 import cn.chahuyun.economy.entity.UserInfo;
-import cn.chahuyun.economy.entity.badge.BadgeInfo;
 import cn.chahuyun.economy.entity.badge.CompetitionSeason;
 import cn.chahuyun.economy.utils.DateUtil;
 import cn.chahuyun.economy.utils.EconomyUtil;
@@ -16,7 +15,6 @@ import org.hibernate.query.criteria.JpaRoot;
 import xyz.cssxsh.mirai.economy.service.EconomyAccount;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -109,9 +107,9 @@ class CompetitionSeasonTask implements Task {
             }
 
             if (EconomyUtil.minusMoneyToBankEconomyAccount(entry.getKey(), EconomyUtil.getMoneyByBankEconomyAccount(entry.getKey()))) {
-                Log.error( SeasonMoneyInfo.getSeasonMoney() + "管理:清理成功");
+                Log.error( SeasonCommonInfoManager.getSeasonMoney() + "管理:清理成功");
             } else {
-                Log.error( SeasonMoneyInfo.getSeasonMoney() + "管理:清零失败");
+                Log.error( SeasonCommonInfoManager.getSeasonMoney() + "管理:清零失败");
             }
         }
 

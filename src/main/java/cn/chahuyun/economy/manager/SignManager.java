@@ -1,10 +1,7 @@
 package cn.chahuyun.economy.manager;
 
 import cn.chahuyun.economy.HuYanEconomy;
-import cn.chahuyun.economy.constant.Constant;
 import cn.chahuyun.economy.entity.UserInfo;
-import cn.chahuyun.economy.entity.props.PropsCard;
-import cn.chahuyun.economy.plugin.PluginManager;
 import cn.chahuyun.economy.utils.EconomyUtil;
 import cn.chahuyun.economy.utils.Log;
 import cn.chahuyun.economy.utils.MessageUtil;
@@ -22,8 +19,6 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
-import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -74,10 +69,10 @@ public class SignManager {
             randomNumber = RandomUtil.randomInt(0, 10);
             if (randomNumber > 8) {
                 goldNumber = RandomUtil.randomInt(200, 501);
-                plainText = new PlainText(String.format("今天的你运气爆棚,获得了%s" + SeasonMoneyInfo.getSeasonMoney(), goldNumber));
+                plainText = new PlainText(String.format("今天的你运气爆棚,获得了%s" + SeasonCommonInfoManager.getSeasonMoney(), goldNumber));
             } else {
                 goldNumber = RandomUtil.randomInt(100, 200);
-                plainText = new PlainText(String.format("好耶,获得%s" +  SeasonMoneyInfo.getSeasonMoney(), goldNumber));
+                plainText = new PlainText(String.format("好耶,获得%s" +  SeasonCommonInfoManager.getSeasonMoney(), goldNumber));
             }
         } else {
             goldNumber = RandomUtil.randomInt(50, 100);
@@ -95,7 +90,7 @@ public class SignManager {
        // double moneyBytUser = EconomyUtil.getMoneyByUser(userInfo.getUser());
         double moneyBytUser = EconomyUtil.getMoneyByBank(userInfo.getUser());
         messages.append(new PlainText("签到成功!"));
-        messages.append(new PlainText(String.format(SeasonMoneyInfo.getSeasonMoney() +":%s(+%s)", moneyBytUser, goldNumber)));
+        messages.append(new PlainText(String.format(SeasonCommonInfoManager.getSeasonMoney() +":%s(+%s)", moneyBytUser, goldNumber)));
         if (userInfo.getOldSignNumber() != 0) {
             messages.append(String.format("你的连签线断在了%d天,可惜~", userInfo.getOldSignNumber()));
         }

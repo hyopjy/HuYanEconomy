@@ -11,7 +11,6 @@ import cn.chahuyun.economy.entity.props.factory.PropsCardFactory;
 import cn.chahuyun.economy.plugin.PropsType;
 import cn.chahuyun.economy.redis.RedisUtils;
 import cn.chahuyun.economy.utils.*;
-import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import net.mamoe.mirai.Bot;
@@ -23,7 +22,6 @@ import net.mamoe.mirai.message.data.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.redisson.api.RBloomFilter;
 
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -373,7 +371,7 @@ public class PropsManagerImpl implements PropsManager {
                 //购买道具合计金额
                 int total = 2 * num;
                 if (userMoney - total < 0) {
-                    messages.append(new PlainText("没"+ SeasonMoneyInfo.getSeasonMoney()+"就不要想买" + propsInfo.getName() + "！"));
+                    messages.append(new PlainText("没"+ SeasonCommonInfoManager.getSeasonMoney()+"就不要想买" + propsInfo.getName() + "！"));
                     subject.sendMessage(messages.build());
                     return;
                 }
@@ -408,7 +406,7 @@ public class PropsManagerImpl implements PropsManager {
             subject.sendMessage(messages.build());
             return;
         } else if (money - total < 0) {
-            messages.append(new PlainText("没"+ SeasonMoneyInfo.getSeasonMoney()+"就不要想买" + propsInfo.getName() + "！"));
+            messages.append(new PlainText("没"+ SeasonCommonInfoManager.getSeasonMoney()+"就不要想买" + propsInfo.getName() + "！"));
             subject.sendMessage(messages.build());
             return;
         }
@@ -444,7 +442,7 @@ public class PropsManagerImpl implements PropsManager {
             RBloomFilter rBloomFilter = RedisUtils.initOneDayPropBloomFilter(subject.getId(), propsInfo.getCode());
             rBloomFilter.add(sender.getId());
         }
-        messages.append(String.format("成功购买 %s %d%s,你还有 %s 枚 %s", propsInfo.getName(), num, propsInfo.getUnit(), money, SeasonMoneyInfo.getSeasonMoney()));
+        messages.append(String.format("成功购买 %s %d%s,你还有 %s 枚 %s", propsInfo.getName(), num, propsInfo.getUnit(), money, SeasonCommonInfoManager.getSeasonMoney()));
 
         Log.info("道具系统:道具购买成功");
 
@@ -685,7 +683,7 @@ public class PropsManagerImpl implements PropsManager {
        // double money = EconomyUtil.getMoneyByUser(sender);
         // new 赛季币
         double money = EconomyUtil.getMoneyByBank(sender);
-        messages.append(String.format("成功出售 %s %d%s,获得 %s "+ SeasonMoneyInfo.getSeasonMoney()+",你还有 %s 枚"+ SeasonMoneyInfo.getSeasonMoney()+"", propsInfo.getName(), num, propsInfo.getUnit(),quantity, money));
+        messages.append(String.format("成功出售 %s %d%s,获得 %s "+ SeasonCommonInfoManager.getSeasonMoney()+",你还有 %s 枚"+ SeasonCommonInfoManager.getSeasonMoney()+"", propsInfo.getName(), num, propsInfo.getUnit(),quantity, money));
         subject.sendMessage(messages.build());
     }
 
@@ -748,7 +746,7 @@ public class PropsManagerImpl implements PropsManager {
                     return;
                 }
                 if (EconomyUtil.turnUserToBank(sender, num)) {
-                    messages.append("成功兑换"+ num +  SeasonMoneyInfo.getSeasonMoney());
+                    messages.append("成功兑换"+ num +  SeasonCommonInfoManager.getSeasonMoney());
                     subject.sendMessage(messages.build());
                 } else {
                     messages.append("兑换失败!");

@@ -2,6 +2,7 @@ package cn.chahuyun.economy.entity.fish;
 
 import cn.chahuyun.economy.HuYanEconomy;
 import cn.chahuyun.economy.entity.UserInfo;
+import cn.chahuyun.economy.manager.SeasonCommonInfoManager;
 import cn.chahuyun.economy.utils.EconomyUtil;
 import cn.chahuyun.economy.utils.HibernateUtil;
 import cn.chahuyun.economy.utils.Log;
@@ -94,10 +95,10 @@ public class FishInfo implements Serializable {
         int upMoney = 1;
         if (getRodLevel() == 0) {
             return isMoney(user, moneyByUser, upMoney);
-        } else if (1 <= getRodLevel() && getRodLevel() < 135) {
-            upMoney = 200 * getRodLevel() * getLevel();
+        } else if (1 <= getRodLevel() && getRodLevel() < SeasonCommonInfoManager.getMaxFishRodLevel()) {
+            upMoney = SeasonCommonInfoManager.getFishRodPrice() * getRodLevel() * getLevel();
             return isMoney(user, moneyByUser, upMoney);
-        } else
+        } else {
             return new PlainText("你的鱼竿已经满级啦！");
         }
     }
