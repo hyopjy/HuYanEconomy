@@ -103,7 +103,8 @@ public final class HuYanEconomy extends JavaPlugin {
             LotteryManager.init(true);
             FishManager.init();
             BankManager.init();
-            CompetitionSeasonManager.seasonInit();
+            // 赛季信息停止定时任务
+            // CompetitionSeasonManager.seasonInit();
             WorldBossConfigManager.init();
             // 延迟队列init
             RedisUtils.initDelay();
