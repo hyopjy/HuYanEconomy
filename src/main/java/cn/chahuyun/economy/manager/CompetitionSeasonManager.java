@@ -100,7 +100,7 @@ class CompetitionSeasonTask implements Task {
             Log.info("时间");
             return;
         }
-        // 清理枫叶
+        // 清理赛季
         Map<EconomyAccount, Double> accountByBank = EconomyUtil.getAccountByBank();
         for (Map.Entry<EconomyAccount, Double> entry : accountByBank.entrySet()) {
             UserInfo userInfo = UserManager.getUserInfo(entry.getKey());
@@ -109,9 +109,9 @@ class CompetitionSeasonTask implements Task {
             }
 
             if (EconomyUtil.minusMoneyToBankEconomyAccount(entry.getKey(), EconomyUtil.getMoneyByBankEconomyAccount(entry.getKey()))) {
-                Log.error("枫叶管理:清理成功");
+                Log.error( SeasonMoneyInfo.getSeasonMoney() + "管理:清理成功");
             } else {
-                Log.error("枫叶管理:清零失败");
+                Log.error( SeasonMoneyInfo.getSeasonMoney() + "管理:清零失败");
             }
         }
 

@@ -56,7 +56,7 @@ public class SisterDog extends AbstractPropUsage {
             RedisUtils.deleteKeyString(key);
         }
         if(Objects.nonNull(userId)){
-            int money = RandomUtil.randomInt(200, 1200);
+            int money = RandomUtil.randomInt(800, 3501);
             // 减去目标用户
             EconomyUtil.minusMoneyToUser(group.get(userId), money);
             // 自己获得
