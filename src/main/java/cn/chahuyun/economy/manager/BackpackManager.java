@@ -14,7 +14,7 @@ import org.hibernate.query.Query;
  */
 public class BackpackManager {
     /**
-     * 清理钓鱼机器
+     * 清理背包鱼信息
      */
 
     public static void clearFishMachine(MessageEvent event) {
