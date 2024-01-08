@@ -24,18 +24,21 @@ public class FishSignConstant {
     public static final String FISH_49 = "FISH-49";
 
     public static final String FISH_SPECIAL= "FISH-SPECIAL";
+
+    public static final String FISH_62 = "FISH-62";
     /**
      * 通用成就
      * @return
      */
     public static Set<String> getSignPropCode(){
-        HashSet<String> strings = new HashSet<>(6);
+        HashSet<String> strings = new HashSet<>(7);
         strings.add(FISH_17);
         strings.add(FISH_15);
         strings.add(FISH_16);
         strings.add(FISH_20);
         strings.add(FISH_39);
         strings.add(FISH_49);
+        strings.add(FISH_62);
         return strings;
     }
 }

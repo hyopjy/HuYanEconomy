@@ -86,6 +86,19 @@ public class PropsManagerImpl implements PropsManager {
        physicalList.add("FISH-48");
        PROP_EXCHANGE.put("FISH-49", physicalList);
 
+       List<String> uranusList = new ArrayList<>(10);
+       uranusList.add("FISH-52");
+       uranusList.add("FISH-53");
+       uranusList.add("FISH-54");
+       uranusList.add("FISH-55");
+       uranusList.add("FISH-56");
+       uranusList.add("FISH-57");
+       uranusList.add("FISH-58");
+       uranusList.add("FISH-59");
+       uranusList.add("FISH-60");
+       uranusList.add("FISH-61");
+       PROP_EXCHANGE.put("FISH-62", uranusList);
+
    }
 
     /**
@@ -242,7 +255,7 @@ public class PropsManagerImpl implements PropsManager {
             if (string.startsWith("FISH-")) {
                 if(PropsType.getPropsInfo(string) instanceof PropsFishCard){
                     PropsFishCard propsFishCard =(PropsFishCard)PropsType.getPropsInfo(string);
-                    if(propsFishCard.getBuy()){
+                    if(propsFishCard.getBuy() && !propsFishCard.getOffShelf()){
                         String propInfo = String.format("道具编号:%s\n", PropsType.getNo(string));
                         propInfo += PropsType.getPropsInfo(string).toString();
                         propCard.add(bot, new PlainText(propInfo));
@@ -255,7 +268,7 @@ public class PropsManagerImpl implements PropsManager {
             if (string.startsWith("FISH-")) {
                 if(PropsType.getPropsInfo(string) instanceof PropsFishCard){
                     PropsFishCard propsFishCard =(PropsFishCard)PropsType.getPropsInfo(string);
-                    if(propsFishCard.getExchange()){
+                    if(propsFishCard.getExchange() && !propsFishCard.getOffShelf()){
                         String propInfo = String.format("道具编号:%s\n", PropsType.getNo(string));
                         propInfo += PropsType.getPropsInfo(string).toString();
                         propCard.add(bot, new PlainText(propInfo));
@@ -312,6 +325,11 @@ public class PropsManagerImpl implements PropsManager {
         Integer cost = propsInfo.getCost();
         if(propsInfo instanceof PropsFishCard){
             PropsFishCard card = (PropsFishCard) propsInfo;
+            if(card.getOffShelf()){
+                messages.append(new PlainText("😣 ["+ propsInfo.getName() + "]已下架"));
+                subject.sendMessage(messages.build());
+                return;
+            }
             if(!card.getBuy()){
                 messages.append(new PlainText("😣 ["+ propsInfo.getName() + "]非卖品"));
                 subject.sendMessage(messages.build());
@@ -426,7 +444,7 @@ public class PropsManagerImpl implements PropsManager {
             RBloomFilter rBloomFilter = RedisUtils.initOneDayPropBloomFilter(subject.getId(), propsInfo.getCode());
             rBloomFilter.add(sender.getId());
         }
-        messages.append(String.format("成功购买 %s %d%s,你还有 %s 枚🍁", propsInfo.getName(), num, propsInfo.getUnit(), money));
+        messages.append(String.format("成功购买 %s %d%s,你还有 %s 枚 %s", propsInfo.getName(), num, propsInfo.getUnit(), money, SeasonMoneyInfo.getSeasonMoney()));
 
         Log.info("道具系统:道具购买成功");
 
@@ -479,6 +497,11 @@ public class PropsManagerImpl implements PropsManager {
 
             if (optionalPropsFishCard.isPresent()) {
                 PropsFishCard card = optionalPropsFishCard.get();
+                if (!card.getOffShelf()) {
+                    messages.append(new PlainText("😣 [" + card.getName() + "]已下架"));
+                    subject.sendMessage(messages.build());
+                    return;
+                }
                 PropUtils.excute(card, userInfo, event);
             } else {
                 subject.sendMessage(messages.append("你的包里没有这个道具!").build());
@@ -705,12 +728,18 @@ public class PropsManagerImpl implements PropsManager {
         PropsBase propsInfo = PropsType.getPropsInfo(propCode);
         if(propsInfo instanceof PropsFishCard) {
             PropsFishCard card = (PropsFishCard) propsInfo;
+            if (!card.getOffShelf()) {
+                messages.append(new PlainText("😣 [" + propsInfo.getName() + "]已下架"));
+                subject.sendMessage(messages.build());
+                return;
+            }
+
             if (!card.getExchange()) {
                 messages.append(new PlainText("😣 [" + propsInfo.getName() + "]不可兑换"));
                 subject.sendMessage(messages.build());
                 return;
             }
-            // 如果是兑换赛季比
+            // 是否可以用bb直接兑换赛季币 比例1:1
             if (card.getDelete()) {
                 double moneyByUser = EconomyUtil.getMoneyByUser(sender);
                 if (moneyByUser - num < 0) {
