@@ -18,7 +18,7 @@ public class SeasonCommonInfoManager {
         List<String> str = new ArrayList<>(3);
         str.add("雪币");
         str.add("雪花币");
-        str.add("❄");
+        str.add("雪花");
         return str;
     }
 
