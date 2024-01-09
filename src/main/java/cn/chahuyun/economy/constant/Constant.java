@@ -52,5 +52,14 @@ public interface Constant {
     String BOSS_PROP_COUNT_TYPE = "2";
 
     List<String> FISH_NAME_BB_LIST = Arrays.asList(new String[]{"币币", "bb"});
+
+    /**
+     * wditbb编码
+     */
     String FISH_CODE_BB = "FISH-bb";
+
+    /**
+     * 赛季币编码
+     */
+    String FISH_CODE_SEASON = "FISH-season";
 }

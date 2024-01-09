@@ -23,9 +23,13 @@ public class FishSignConstant {
 
     public static final String FISH_49 = "FISH-49";
 
+    /**
+     * 特殊成就
+     */
     public static final String FISH_SPECIAL= "FISH-SPECIAL";
 
     public static final String FISH_62 = "FISH-62";
+
     /**
      * 通用成就
      * @return

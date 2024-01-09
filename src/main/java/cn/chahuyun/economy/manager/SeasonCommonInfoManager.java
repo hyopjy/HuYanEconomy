@@ -1,5 +1,8 @@
 package cn.chahuyun.economy.manager;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SeasonCommonInfoManager {
 
     /**
@@ -9,6 +12,14 @@ public class SeasonCommonInfoManager {
      */
     public static String getSeasonMoney(){
        return "雪币❄";
+    }
+
+    public static List<String> getSeasonMoneyNameList(){
+        List<String> str = new ArrayList<>(3);
+        str.add("雪币");
+        str.add("雪花币");
+        str.add("❄");
+        return str;
     }
 
     /**
