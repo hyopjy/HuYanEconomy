@@ -164,6 +164,7 @@ public class TransactionManager {
         if(Objects.isNull(transactionMessageInfo)){
             return;
         }
+        // 你和目标用户有未完成的交易 请完成后
 
         UserInfo transactionUser = UserManager.getUserInfo(group.get(transactionMessageInfo.getTransactionUserId()));
         if(Objects.isNull(transactionUser)){
