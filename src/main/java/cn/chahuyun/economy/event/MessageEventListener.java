@@ -329,7 +329,8 @@ public class MessageEventListener extends SimpleListenerHost {
 //            交易 道具 3 币币 10086@934415751
 //            交易 道具 2 雪花 10068@934415751
 //            交易 道具 1 道具 4@934415751
-            String transactionProp = "交易( )(\\w+)( )(\\d+)( )(\\w+)( )(\\d+)(\\[mirai:at:\\d+]( )*)?";
+            // https://mywulian.com/tool/regex
+            String transactionProp = "交易 (\\S+) (\\S+) (\\S+) (\\S+)(\\[mirai:at:\\d+]( )*)?";
             if (Pattern.matches(transactionProp, code)) {
                 Log.info("交易道具");
                 TransactionManager.transactionProp(event);

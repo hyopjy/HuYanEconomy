@@ -1,17 +1,20 @@
 package cn.chahuyun.economy.entity;
 
+import cn.chahuyun.economy.utils.HibernateUtil;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity(name = "Transaction")
 @Table
 @Getter
 @Setter
+@NoArgsConstructor
 public class Transaction {
     @Id
-    @GeneratedValue
-    private Long id;
+    private long id;
 
     /**
      * 交易 道具 3 币币 10086 @934415751
@@ -22,7 +25,7 @@ public class Transaction {
     /**
      * 发起者
      */
-    private Long initiateUser;
+    private long initiateUserId;
 
 
     /**
@@ -33,7 +36,7 @@ public class Transaction {
     /**
      * 需要的道具
      */
-    private String initiatePropCount;
+    private int initiatePropCount;
 
     /**
      * 交易的编码
@@ -46,16 +49,45 @@ public class Transaction {
     /**
      * 交易的数量
      */
-    private String transactionCount;
+    private int transactionCount;
 
     /**
-     * 交易的数量
+     * 交易的人
      */
-    private String transactionUserId;
+    private long transactionUserId;
 
     /**
      * 交易状态  0 等待交易 1 完成交易-删除
      */
-    private Integer transactionStatus;
+    private int transactionStatus;
+
+    public Transaction(Long id,
+                       Long initiateUserId,
+                       String initiatePropCode,
+                       Integer initiatePropCount,
+                       String transactionCode,
+                       Integer transactionCount,
+                       Long transactionUserId,
+                       Integer transactionStatus) {
+        this.id = id;
+        this.initiateUserId = initiateUserId;
+        this.initiatePropCode = initiatePropCode;
+        this.initiatePropCount = initiatePropCount;
+        this.transactionCode = transactionCode;
+        this.transactionCount = transactionCount;
+        this.transactionUserId = transactionUserId;
+        this.transactionStatus = transactionStatus;
+    }
+
+    public Transaction save() {
+        return HibernateUtil.factory.fromTransaction(session -> session.merge(this));
+    }
+
+    public void remove() {
+        HibernateUtil.factory.fromTransaction(session -> {
+            session.remove(this);
+            return null;
+        });
+    }
 
 }

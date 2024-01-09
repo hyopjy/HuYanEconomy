@@ -50,8 +50,4 @@ public class TransactionMessageInfo {
      */
     private Long transactionUserId;
 
-    /**
-     * 交易状态  0 等待交易 1 完成交易-删除
-     */
-    private Integer transactionStatus;
 }
