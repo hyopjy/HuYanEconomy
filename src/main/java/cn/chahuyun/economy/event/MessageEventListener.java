@@ -325,6 +325,16 @@ public class MessageEventListener extends SimpleListenerHost {
                 TeamManager.leveTeam(event);
                 return;
             }
+
+//            交易 道具 3 币币 10086@934415751
+//            交易 道具 2 雪花 10068@934415751
+//            交易 道具 1 道具 4@934415751
+            String transactionProp = "交易( )(\\w+)( )(\\d+)( )(\\w+)( )(\\d+)(\\[mirai:at:\\d+]( )*)?";
+            if (Pattern.matches(transactionProp, code)) {
+                Log.info("交易道具");
+                TransactionManager.transactionProp(event);
+                return;
+            }
         } catch (Exception exception) {
             Log.error("发生异常！！！:" + exception.getMessage());
         }
