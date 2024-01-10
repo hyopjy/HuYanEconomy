@@ -330,12 +330,39 @@ public class MessageEventListener extends SimpleListenerHost {
 //            交易 道具 2 雪花 10068@934415751
 //            交易 道具 1 道具 4@934415751
             // https://mywulian.com/tool/regex
-            String transactionProp = "交易 (\\S+) (\\S+) (\\S+) (\\S+)(\\[mirai:at:\\d+]( )*)?";
+            String transactionProp = "交易 (\\S+) (\\S+) (\\S+) (\\S+)(\\[mirai:at:\\d+]( )*)?|deal (\\S+) (\\S+) (\\S+) (\\S+)(\\[mirai:at:\\d+]( )*)?";
             if (Pattern.matches(transactionProp, code)) {
                 Log.info("交易道具");
                 TransactionManager.transactionProp(event);
                 return;
             }
+
+            String confirmTransactionProp = "确认交易(\\[mirai:at:\\d+]( )*)?|confirm(\\[mirai:at:\\d+]( )*)?";
+            if (Pattern.matches(confirmTransactionProp, code)) {
+                Log.info("确认交易");
+                TransactionManager.confirmTransaction(event);
+                return;
+            }
+            String refuseTransactionProp = "拒绝交易(\\[mirai:at:\\d+]( )*)?|refuse(\\[mirai:at:\\d+]( )*)?";
+            if (Pattern.matches(refuseTransactionProp, code)) {
+                Log.info("拒绝交易");
+                TransactionManager.refuseTransaction(event);
+                return;
+            }
+
+            String cancelTransactionProp = "取消交易(\\[mirai:at:\\d+]( )*)?|cancel(\\[mirai:at:\\d+]( )*)?";
+            if (Pattern.matches(cancelTransactionProp, code)) {
+                Log.info("取消交易");
+                TransactionManager.cancelTransaction(event);
+                return;
+            }
+            String listTransactionProp = "查看交易列表|deal list";
+            if (Pattern.matches(listTransactionProp, code)) {
+                Log.info("查看交易列表");
+                TransactionManager.cancelTransaction(event);
+                return;
+            }
+
         } catch (Exception exception) {
             Log.error("发生异常！！！:" + exception.getMessage());
         }

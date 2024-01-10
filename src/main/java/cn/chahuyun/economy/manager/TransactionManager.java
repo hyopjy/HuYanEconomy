@@ -2,16 +2,20 @@ package cn.chahuyun.economy.manager;
 
 import cn.chahuyun.economy.constant.Constant;
 import cn.chahuyun.economy.dto.TransactionMessageInfo;
+import cn.chahuyun.economy.dto.TransactionUserInfo;
 import cn.chahuyun.economy.entity.Transaction;
 import cn.chahuyun.economy.entity.UserBackpack;
 import cn.chahuyun.economy.entity.UserInfo;
 import cn.chahuyun.economy.entity.props.PropsBase;
 import cn.chahuyun.economy.entity.props.PropsFishCard;
+import cn.chahuyun.economy.entity.props.factory.PropsCardFactory;
 import cn.chahuyun.economy.plugin.PropsType;
 import cn.chahuyun.economy.utils.EconomyUtil;
 import cn.chahuyun.economy.utils.HibernateUtil;
+import cn.chahuyun.economy.utils.Log;
 import cn.chahuyun.economy.utils.MessageUtil;
 import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.NumberUtil;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.User;
@@ -190,8 +194,15 @@ public class TransactionManager {
     public static void transactionProp(MessageEvent event) {
         Contact subject = event.getSubject();
         MessageChain message = event.getMessage();
-        Group group = (Group) subject;
+        Group group = null;
+        if(subject instanceof Group){
+            group = (Group) subject;
+        }
+        if(Objects.isNull(group)){
+            return;
+        }
         User sender = event.getSender();
+
         // 获取交易信息
         TransactionMessageInfo transactionMessageInfo = getOpenTransactionMessage(event);
         if(Objects.isNull(transactionMessageInfo)){
@@ -204,7 +215,11 @@ public class TransactionManager {
             subject.sendMessage(MessageUtil.formatMessageChain(message, "你和目标用户有未完成的交易 交易完成后在进行交易"));
             return;
         }
-        UserInfo transactionUser = UserManager.getUserInfo(group.get(transactionMessageInfo.getTransactionUserId()));
+        User transactionUserGroup = group.get(transactionMessageInfo.getTransactionUserId());
+        if(Objects.isNull(transactionUserGroup)){
+            return;
+        }
+        UserInfo transactionUser = UserManager.getUserInfo(transactionUserGroup);
         if(Objects.isNull(transactionUser)){
             return;
         }
@@ -232,7 +247,11 @@ public class TransactionManager {
                 return;
             }
         } else {
-            UserInfo initiateUser = UserManager.getUserInfo(group.get(transactionMessageInfo.getInitiateUserId()));
+            User initiateUserGroup = group.get(transactionMessageInfo.getInitiateUserId());
+            if(Objects.isNull(initiateUserGroup)){
+                return;
+            }
+            UserInfo initiateUser = UserManager.getUserInfo(initiateUserGroup);
             if(Objects.isNull(initiateUser)){
                 return;
             }
@@ -272,4 +291,201 @@ public class TransactionManager {
             return session.createQuery(query).list();
         });
     }
+
+    /**
+     * 拒绝交易删除交易信息
+     * @param event
+     */
+    public static void refuseTransaction(MessageEvent event) {
+        TransactionUserInfo userInfo = getTransactionUserInfo(event, "refuse");
+        if(Objects.isNull(userInfo)){
+            return;
+        }
+        deleteTransactionInfo(event, userInfo);
+    }
+
+    private static void deleteTransactionInfo(MessageEvent event, TransactionUserInfo userInfo) {
+        Contact subject = event.getSubject();
+        MessageChain message = event.getMessage();
+        List<Transaction> tList = getTransactionByUserType(userInfo.getInitiateUserId(),
+                userInfo.getTransactionUserId(),TRANSACTION_WAIT);
+        if(CollectionUtils.isEmpty(tList)){
+            subject.sendMessage(MessageUtil.formatMessageChain(message, "和目标用户没有交易信息"));
+            return;
+        }
+        tList.forEach(Transaction::remove);
+        subject.sendMessage(MessageUtil.formatMessageChain(message, "取消交易成功"));
+    }
+
+    /**
+     * 拒绝交易、同意交易
+     *
+     * @param event
+     * @return
+     */
+    private static TransactionUserInfo getTransactionUserInfo(MessageEvent event, String type) {
+        MessageChain message = event.getMessage();
+        Long senderId = getSenderIdByEvent(event);
+        Long targetUserId = null;
+        for (SingleMessage singleMessage : message) {
+            if (singleMessage instanceof At) {
+                At at = (At) singleMessage;
+                targetUserId = at.getTarget();
+            }
+        }
+        if (Objects.isNull(targetUserId)) {
+            event.getSubject().sendMessage(MessageUtil.formatMessageChain(message, "@用户不存在！"));
+            return null;
+        }
+        if ("cancel".equals(type)) {
+            return TransactionUserInfo.builder()
+                    .initiateUserId(senderId)
+                    .transactionUserId(targetUserId)
+                    .build();
+        } else if ("refuse".equals(type) || "confirm".equals(type)) {
+            return TransactionUserInfo.builder()
+                    .initiateUserId(targetUserId)
+                    .transactionUserId(senderId)
+                    .build();
+        } else {
+            return null;
+        }
+    }
+
+
+    /**
+     * 取消交易
+     *
+     * @param event
+     */
+    public static void cancelTransaction(MessageEvent event) {
+        TransactionUserInfo userInfo = getTransactionUserInfo(event, "cancel");
+        if(Objects.isNull(userInfo)){
+            return;
+        }
+        deleteTransactionInfo(event,userInfo);
+    }
+
+    /**
+     * 确认交易
+     *
+     * @param event
+     */
+    public static void confirmTransaction(MessageEvent event) {
+        TransactionUserInfo userInfo = getTransactionUserInfo(event, "confirm");
+        if(Objects.isNull(userInfo)){
+            return;
+        }
+        Contact subject = event.getSubject();
+        MessageChain message = event.getMessage();
+
+        // 目标用户
+        UserInfo transactionUserInfo = getTransactionUserInfo(userInfo.getTransactionUserId(), subject);
+        if(Objects.isNull(transactionUserInfo)){
+            return;
+        }
+        // 交易用户
+        UserInfo initiateUserInfo = getTransactionUserInfo(userInfo.getInitiateUserId(), subject);
+        if(Objects.isNull(initiateUserInfo)){
+            return;
+        }
+
+        List<Transaction> tList = getTransactionByUserType(userInfo.getInitiateUserId(), userInfo.getTransactionUserId(),TRANSACTION_WAIT);
+        //
+        subject.sendMessage(MessageUtil.formatMessageChain(message, "正在交易中......"));
+
+        tList.stream().forEach(t->{
+            String transactionCode = t.getTransactionCode();
+            Integer transactionCount = t.getTransactionCount();
+            // 目标用户 -> 交易用户 : 交易道具
+            transactionPropStep_1(transactionCode, transactionCount, transactionUserInfo, initiateUserInfo);
+
+            String initiatePropCode = t.getInitiatePropCode();
+            Integer initiatePropCount = t.getInitiatePropCount();
+            // 交易用户 -> 目标用户： 交易道具、交易bb、交易雪花
+            transactionPropStep_2(initiatePropCode, initiatePropCount, transactionUserInfo, initiateUserInfo);
+            t.remove();
+        });
+
+        subject.sendMessage(MessageUtil.formatMessageChain(message, "交易完成"));
+
+    }
+
+    /**
+     * 交易道具
+     */
+    private static void transactionPropStep_1(String transactionCode, Integer transactionCount, UserInfo transactionUserInfo, UserInfo initiateUserInfo){
+        // 目标用户减少对应的道具数量
+        List<UserBackpack> backpacksList = Optional.ofNullable(transactionUserInfo.getBackpacks())
+                .orElse(Lists.newArrayList()).stream()
+                .filter(back -> transactionCode.equals(back.getPropsCode()))
+                .limit(transactionCount)
+                .collect(Collectors.toList());
+        // 交易用户增加
+        backpacksList.forEach(back->{
+            PropsBase propsBase = PropsCardFactory.INSTANCE.getPropsBase(transactionCode);
+            UserBackpack userBackpack = new UserBackpack(initiateUserInfo, propsBase);
+            if (!initiateUserInfo.addPropToBackpack(userBackpack)) {
+                Log.error("交易失败:添加道具到用户背包失败!" + initiateUserInfo.getId() + "--" + transactionCode);
+                return;
+            }
+            back.remove();
+        });
+    }
+
+    private static void transactionPropStep_2(String initiatePropCode, Integer initiatePropCount, UserInfo transactionUserInfo, UserInfo initiateUserInfo){
+         if(Constant.FISH_CODE_BB.equals(initiatePropCode)){
+             // 交易用户减少额度
+             EconomyUtil.minusMoneyToUser(initiateUserInfo.getUser(), Double.parseDouble(initiatePropCount +""));
+             // 增加被交易用户的钱数
+             double targetCount =  NumberUtil.round( NumberUtil.mul(Double.parseDouble(initiatePropCount +""), 0.90), 2).doubleValue();
+             EconomyUtil.plusMoneyToUser(transactionUserInfo.getUser(), targetCount);
+         }else if(Constant.FISH_CODE_SEASON.equals(initiatePropCode)){
+             // 交易用户减少额度
+             EconomyUtil.minusMoneyToBank(initiateUserInfo.getUser(), Double.parseDouble(initiatePropCount +""));
+             // 增加被交易用户的钱数
+             double targetCount =  NumberUtil.round( NumberUtil.mul(Double.parseDouble(initiatePropCount +""), 0.90), 2).doubleValue();
+             EconomyUtil.plusMoneyToBank(transactionUserInfo.getUser(), targetCount);
+         }else {
+             // 交易用户减少对应的道具数量
+             List<UserBackpack> backpacksList = Optional.ofNullable(initiateUserInfo.getBackpacks())
+                     .orElse(Lists.newArrayList()).stream()
+                     .filter(back -> initiatePropCode.equals(back.getPropsCode()))
+                     .limit(initiatePropCount)
+                     .collect(Collectors.toList());
+
+             // 目标用户增加道具
+            backpacksList.forEach(back->{
+                PropsBase propsBase = PropsCardFactory.INSTANCE.getPropsBase(initiatePropCode);
+                UserBackpack userBackpack = new UserBackpack(transactionUserInfo, propsBase);
+                if (!transactionUserInfo.addPropToBackpack(userBackpack)) {
+                    Log.error("交易失败:添加道具到用户背包失败!" + transactionUserInfo.getId() + "--" + initiatePropCode);
+                    return;
+                }
+                back.remove();
+            });
+         }
+    }
+
+
+
+    private static UserInfo getTransactionUserInfo(Long userId, Contact subject){
+       Group group = null;
+       if(subject instanceof Group){
+           group = (Group) subject;
+       }
+       if(Objects.isNull(group)){
+           return null;
+       }
+
+       User groupUser = group.get(userId);
+       if(Objects.isNull(groupUser)){
+           return null;
+       }
+       UserInfo user = UserManager.getUserInfo(groupUser);
+       if(Objects.isNull(user)){
+           return null;
+       }
+       return user;
+   }
 }
