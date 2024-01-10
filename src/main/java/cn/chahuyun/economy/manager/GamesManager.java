@@ -27,6 +27,7 @@ import net.mamoe.mirai.contact.NormalMember;
 import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.message.data.*;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.query.criteria.HibernateCriteriaBuilder;
 import org.hibernate.query.criteria.JpaCriteriaQuery;
 import org.hibernate.query.criteria.JpaRoot;
@@ -252,9 +253,12 @@ public class GamesManager {
 
             //在所有鱼中拿到对应的鱼等级
             List<Fish> levelFishList = fishPond.getFishList(rank);
-            //过滤掉难度不够的鱼
+            //过滤掉难度不够的鱼 以及 rgb为空 和 用户对应rgb的鱼列表
             List<Fish> collect;
-            collect = levelFishList.stream().filter(it -> it.getDifficulty() <= difficulty).collect(Collectors.toList());
+            collect = levelFishList.stream().filter(it ->
+                            it.getDifficulty() <= difficulty &&
+                                    (StringUtils.isBlank(it.getRgb()) || it.getRgb().equals(userInfo.getRgb()))
+            ).collect(Collectors.toList());
             //如果没有了
             int size = collect.size();
             if (size == 0) {
@@ -633,9 +637,11 @@ public class GamesManager {
 
             //在所有鱼中拿到对应的鱼等级
             List<Fish> levelFishList = fishPond.getFishList(rank);
-            //过滤掉难度不够的鱼
+            //过滤掉难度不够的鱼, 以及rgb为空 和 rgb和用户一致的鱼数据
             List<Fish> collect;
-            collect = levelFishList.stream().filter(it -> it.getDifficulty() <= difficulty).collect(Collectors.toList());
+            collect = levelFishList.stream().filter(it -> it.getDifficulty() <= difficulty &&
+                    (StringUtils.isBlank(it.getRgb()) || it.getRgb().equals(userInfo.getRgb()))
+            ).collect(Collectors.toList());
             //如果没有了
             int size = collect.size();
             if (size == 0) {
