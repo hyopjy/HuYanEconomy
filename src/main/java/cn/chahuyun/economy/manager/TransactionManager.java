@@ -5,8 +5,11 @@ import cn.chahuyun.economy.dto.TransactionMessageInfo;
 import cn.chahuyun.economy.entity.Transaction;
 import cn.chahuyun.economy.entity.UserBackpack;
 import cn.chahuyun.economy.entity.UserInfo;
+import cn.chahuyun.economy.entity.props.PropsBase;
+import cn.chahuyun.economy.entity.props.PropsFishCard;
 import cn.chahuyun.economy.plugin.PropsType;
 import cn.chahuyun.economy.utils.EconomyUtil;
+import cn.chahuyun.economy.utils.HibernateUtil;
 import cn.chahuyun.economy.utils.MessageUtil;
 import cn.hutool.core.util.IdUtil;
 import net.mamoe.mirai.contact.Contact;
@@ -20,6 +23,9 @@ import net.mamoe.mirai.message.data.SingleMessage;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.compress.utils.Lists;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.query.criteria.HibernateCriteriaBuilder;
+import org.hibernate.query.criteria.JpaCriteriaQuery;
+import org.hibernate.query.criteria.JpaRoot;
 
 import java.util.List;
 import java.util.Objects;
@@ -89,6 +95,10 @@ public class TransactionManager {
             subject.sendMessage(MessageUtil.formatMessageChain(message, "需要的道具不存在！"));
             return null;
         }
+        PropsFishCard propsFishCard = getPropsFishCard(subject, message, initiatePropCode);
+        if(Objects.isNull(propsFishCard)){
+            return null;
+        }
         // 需要的道具数量
         Integer initiatePropCount;
         try{
@@ -118,7 +128,11 @@ public class TransactionManager {
         } else {
             transactionCode = PropsType.getCode(transactionCode);
             if (StringUtils.isBlank(transactionCode)) {
-                subject.sendMessage(MessageUtil.formatMessageChain(message, "请输入交换的道具信息！"));
+                subject.sendMessage(MessageUtil.formatMessageChain(message, "交易道具信息有误！"));
+                return null;
+            }
+            PropsFishCard transactionPropsFishCard = getPropsFishCard(subject, message, transactionCode);
+            if(Objects.isNull(transactionPropsFishCard)){
                 return null;
             }
         }
@@ -150,6 +164,25 @@ public class TransactionManager {
                 .build();
     }
 
+    private static PropsFishCard getPropsFishCard( Contact subject ,MessageChain message,String propCode) {
+        PropsBase propsInfo = PropsType.getPropsInfo(propCode);
+        if(propsInfo instanceof PropsFishCard){
+            PropsFishCard card = (PropsFishCard) propsInfo;
+            if(card.getOffShelf()){
+                subject.sendMessage(MessageUtil.formatMessageChain(message, "道具已下架！"));
+                return null;
+            }
+            if(!card.getTradable()){
+                subject.sendMessage(MessageUtil.formatMessageChain(message, "道具不可交易！"));
+                return null;
+            }
+            return card;
+        }else {
+            subject.sendMessage(MessageUtil.formatMessageChain(message, "无法使用！"));
+        }
+        return null;
+    }
+
     /**
      * 交易道具
      * @param event
@@ -165,7 +198,12 @@ public class TransactionManager {
             return;
         }
         // 你和目标用户有未完成的交易 请完成后
-
+        List<Transaction> tList = getTransactionByUserType(transactionMessageInfo.getInitiateUserId(),
+                transactionMessageInfo.getTransactionUserId(),TRANSACTION_WAIT);
+        if(CollectionUtils.isNotEmpty(tList)){
+            subject.sendMessage(MessageUtil.formatMessageChain(message, "你和目标用户有未完成的交易 交易完成后在进行交易"));
+            return;
+        }
         UserInfo transactionUser = UserManager.getUserInfo(group.get(transactionMessageInfo.getTransactionUserId()));
         if(Objects.isNull(transactionUser)){
             return;
@@ -217,5 +255,21 @@ public class TransactionManager {
                 TRANSACTION_WAIT
         );
         transaction.save();
+    }
+
+
+    public static List<Transaction> getTransactionByUserType(Long initiateUserId, Long transactionUserId, Integer transactionStatus){
+        return HibernateUtil.factory.fromTransaction(session -> {
+            HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
+            JpaCriteriaQuery<Transaction> query = builder.createQuery(Transaction.class);
+            JpaRoot<Transaction> from = query.from(Transaction.class);
+            query.select(from);
+            query.where(
+                    builder.equal(from.get("initiateUserId"), initiateUserId),
+                    builder.equal(from.get("transactionUserId"), transactionUserId),
+                    builder.equal(from.get("transactionStatus"), transactionStatus)
+            );
+            return session.createQuery(query).list();
+        });
     }
 }
