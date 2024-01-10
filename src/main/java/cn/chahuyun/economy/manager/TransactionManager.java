@@ -168,7 +168,7 @@ public class TransactionManager {
                 .build();
     }
 
-    private static PropsFishCard getPropsFishCard( Contact subject ,MessageChain message,String propCode) {
+    private static PropsFishCard getPropsFishCard(Contact subject ,MessageChain message,String propCode) {
         PropsBase propsInfo = PropsType.getPropsInfo(propCode);
         if(propsInfo instanceof PropsFishCard){
             PropsFishCard card = (PropsFishCard) propsInfo;
@@ -392,7 +392,7 @@ public class TransactionManager {
 
         List<Transaction> tList = getTransactionByUserType(userInfo.getInitiateUserId(), userInfo.getTransactionUserId(),TRANSACTION_WAIT);
         //
-        subject.sendMessage(MessageUtil.formatMessageChain(message, "正在交易中......"));
+       // subject.sendMessage(MessageUtil.formatMessageChain(message, "正在交易中......"));
 
         tList.stream().forEach(t->{
             String transactionCode = t.getTransactionCode();
@@ -488,4 +488,95 @@ public class TransactionManager {
        }
        return user;
    }
+
+    /**
+     * 查看交易列表
+     *
+     * @param event
+     */
+    public static void listTransaction(MessageEvent event) {
+        Contact subject = event.getSubject();
+        Group group = null;
+        if(subject instanceof Group){
+            group = (Group) subject;
+        }
+        if(Objects.isNull(group)){
+            return;
+        }
+        MessageChain message = event.getMessage();
+        Long senderId = getSenderIdByEvent(event);
+        StringBuilder messageFormat = new StringBuilder();
+        // 我发起的交易
+        List<Transaction> initiateUserList = queryInitiateUserTransaction(senderId);
+        if(CollectionUtils.isNotEmpty(initiateUserList)){
+            messageFormat.append("---我发起的交易---").append("\r\n");
+            Group finalGroup = group;
+            initiateUserList.forEach(initiate->{
+                String messageInfo = changeMessage(initiate, finalGroup);
+                messageFormat.append(messageInfo).append("\r\n");
+                messageFormat.append("--------").append("\r\n");
+            });
+        }
+        // 待我审核的交易
+        List<Transaction> transactionUserList = queryTransactionUserTransaction(senderId);
+        if(CollectionUtils.isNotEmpty(transactionUserList)){
+            messageFormat.append("---待完成的交易---").append("\r\n");
+            Group finalGroup = group;
+            transactionUserList.forEach(transaction->{
+                String messageInfo = changeMessage(transaction, finalGroup);
+                messageFormat.append(messageInfo).append("\r\n");
+                messageFormat.append("--------").append("\r\n");
+            });
+        }
+        subject.sendMessage(MessageUtil.formatMessageChain(message, messageFormat.toString()));
+    }
+
+    private static String changeMessage(Transaction transaction, Group group) {
+        PropsBase initiatePropsInfo = PropsType.getPropsInfo(transaction.getInitiatePropCode());
+        PropsFishCard card = (PropsFishCard) initiatePropsInfo;
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(new At(transaction.getInitiateUserId()).getDisplay(group))
+                .append(card.getName()).append("x").append(transaction.getInitiatePropCount()).append("\r\n");
+
+        String transactionPropName = "";
+        if(Constant.FISH_CODE_BB.equals(transaction.getTransactionCode())){
+            transactionPropName = Constant.FISH_NAME_BB_LIST.get(0);
+        }else if(Constant.FISH_CODE_SEASON.equals(transaction.getTransactionCode())){
+            transactionPropName = SeasonCommonInfoManager.getSeasonMoneyNameList().get(0);
+        }else {
+            PropsBase transactionPropsInfo = PropsType.getPropsInfo(transaction.getTransactionCode());
+            PropsFishCard cardTransaction = (PropsFishCard) transactionPropsInfo;
+            transactionPropName = cardTransaction.getName();
+        }
+        sb.append(new At(transaction.getTransactionUserId()).getDisplay(group))
+                .append(transactionPropName).append("x").append(transaction.getTransactionCount()).append("\r\n");
+        return sb.toString();
+    }
+
+    private static List<Transaction> queryInitiateUserTransaction(Long senderId){
+        return HibernateUtil.factory.fromTransaction(session -> {
+            HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
+            JpaCriteriaQuery<Transaction> query = builder.createQuery(Transaction.class);
+            JpaRoot<Transaction> from = query.from(Transaction.class);
+            query.select(from);
+            query.where(builder.equal(from.get("initiateUserId"), senderId),
+                    builder.equal(from.get("transactionStatus"), TRANSACTION_WAIT)
+            );
+            return session.createQuery(query).list();
+        });
+    }
+
+    private static List<Transaction> queryTransactionUserTransaction(Long senderId){
+        return HibernateUtil.factory.fromTransaction(session -> {
+            HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
+            JpaCriteriaQuery<Transaction> query = builder.createQuery(Transaction.class);
+            JpaRoot<Transaction> from = query.from(Transaction.class);
+            query.select(from);
+            query.where(builder.equal(from.get("transactionUserId"), senderId), builder.equal(from.get(
+                    "transactionStatus"), TRANSACTION_WAIT)
+            );
+            return session.createQuery(query).list();
+        });
+    }
 }
