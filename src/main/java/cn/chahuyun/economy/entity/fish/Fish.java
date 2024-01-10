@@ -61,6 +61,10 @@ public class Fish implements Serializable {
      */
     private boolean special;
 
+    /**
+     * 鱼 rgb
+     */
+    private String rgb;
 
     /**
      * 获取鱼的尺寸<p>

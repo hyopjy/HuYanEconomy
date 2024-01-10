@@ -1,11 +1,13 @@
 package cn.chahuyun.economy.manager;
 
 import cn.chahuyun.economy.HuYanEconomy;
+import cn.chahuyun.economy.constant.Constant;
 import cn.chahuyun.economy.entity.UserInfo;
 import cn.chahuyun.economy.utils.EconomyUtil;
 import cn.chahuyun.economy.utils.HibernateUtil;
 import cn.chahuyun.economy.utils.Log;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.RandomUtil;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
@@ -27,6 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -414,4 +417,21 @@ public class UserManager {
     }
 
 
+    public static void resetUserRgb() {
+        getUserList().stream().forEach(user->{
+            String rgbProp = Constant.RGB_LIST.get(RandomUtil.randomInt(0,3));
+            user.setRgb(rgbProp);
+            user.save();
+        });
+    }
+
+    public static List<UserInfo> getUserList(){
+        return HibernateUtil.factory.fromTransaction(session -> {
+            HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
+            JpaCriteriaQuery<UserInfo> query = builder.createQuery(UserInfo.class);
+            JpaRoot<UserInfo> from = query.from(UserInfo.class);
+            query.select(from);
+            return session.createQuery(query).list();
+        });
+    }
 }

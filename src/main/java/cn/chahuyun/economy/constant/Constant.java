@@ -62,4 +62,6 @@ public interface Constant {
      * 赛季币编码
      */
     String FISH_CODE_SEASON = "FISH-season";
+
+    List<String> RGB_LIST = Arrays.asList(new String[]{"R", "G","B"});
 }

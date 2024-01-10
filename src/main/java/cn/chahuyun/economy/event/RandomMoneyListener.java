@@ -293,27 +293,6 @@ public class RandomMoneyListener extends SimpleListenerHost {
                 WorldBossConfigManager.refreshCronStr(worldBossStatusConfig, cornGoalCron);
             }
 
-//            if ("开始时间小时".equals(codeArr[1])) {
-//                String min = Integer.parseInt(codeArr[2]) + "";
-//                WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.OPEN_HOUR);
-//                worldBossStatusConfig.setConfigInfo(min);
-//                worldBossStatusConfig.save();
-//            }
-//
-//            if ("结束时间小时".equals(codeArr[1])) {
-//                String min = Integer.parseInt(codeArr[2]) + "";
-//                WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.END_HOUR);
-//                worldBossStatusConfig.setConfigInfo(min);
-//                worldBossStatusConfig.save();
-//            }
-//
-//            if ("开始时间小时分钟".equals(codeArr[1])) {
-//                String min = Integer.parseInt(codeArr[2]) + "";
-//                WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.OPEN_HOUR_MINUTE);
-//                worldBossStatusConfig.setConfigInfo(min);
-//                worldBossStatusConfig.save();
-//            }
-
             if ("开始时间".equals(codeArr[1])) {
                 String openTime = codeArr[2];
                 String nt = LocalDate.now().getYear() + openTime + "00";
@@ -450,6 +429,21 @@ public class RandomMoneyListener extends SimpleListenerHost {
             subject.sendMessage(sb.toString());
         }
 
+
+        if (message.startsWith("重置用户属性") &&
+                EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())){
+            UserManager.resetUserRgb();
+        }
+        if (message.startsWith("重置赛季") &&
+                EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())){
+//            a. 更新道具
+//            b. 清除旧的赛季币
+//            c. 清理用户包内道具信息
+//            d. 点亮鱼竿纪念成就
+//            e. 清理钓鱼排行榜
+//            f. 用户widitbb余额 超过88888的 更新为88888
+//            g. 鱼竿最大限制
+        }
         return ListeningStatus.LISTENING;
     }
 
