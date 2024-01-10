@@ -359,7 +359,7 @@ public class MessageEventListener extends SimpleListenerHost {
             String listTransactionProp = "查看交易列表|deal list";
             if (Pattern.matches(listTransactionProp, code)) {
                 Log.info("查看交易列表");
-                TransactionManager.cancelTransaction(event);
+                TransactionManager.listTransaction(event);
                 return;
             }
 
