@@ -8,10 +8,13 @@ import cn.chahuyun.economy.plugin.PropsType;
 import cn.chahuyun.economy.utils.HibernateUtil;
 import cn.chahuyun.economy.utils.Log;
 import cn.chahuyun.economy.utils.MessageUtil;
+import jakarta.persistence.criteria.Root;
 import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.message.data.PlainText;
+import org.apache.poi.ss.formula.functions.T;
 import org.hibernate.query.Query;
 import org.hibernate.query.criteria.HibernateCriteriaBuilder;
+import org.hibernate.query.criteria.JpaCriteriaDelete;
 import org.hibernate.query.criteria.JpaCriteriaQuery;
 import org.hibernate.query.criteria.JpaRoot;
 
@@ -32,9 +35,21 @@ public class BackpackManager {
 
     public static void clearOffLineProp() {
         List<String> offLinePropList = getOfflinePropCodeList();
-        List<UserBackpack> userBackpacks = listBackPackByFishType(offLinePropList);
-        userBackpacks.stream().forEach(UserBackpack::remove);
+//        List<UserBackpack> userBackpacks = listBackPackByFishType(offLinePropList);
+//        userBackpacks.stream().forEach(UserBackpack::remove);
+        deleteUserPackByCode(offLinePropList);
     }
+
+    private static Integer deleteUserPackByCode(List<String> offLinePropList) {
+        return HibernateUtil.factory.fromTransaction(session -> {
+            HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
+            JpaCriteriaDelete<UserBackpack> delete = builder.createCriteriaDelete(UserBackpack.class);
+            Root<UserBackpack> e = delete.from(UserBackpack.class);
+            delete.where(builder.in(e.get("propsCode")).value(offLinePropList));
+            return session.createQuery(delete).executeUpdate();
+        });
+    }
+
 
     private static List<String> getOfflinePropCodeList() {
         List<String> cardList = new ArrayList<>();

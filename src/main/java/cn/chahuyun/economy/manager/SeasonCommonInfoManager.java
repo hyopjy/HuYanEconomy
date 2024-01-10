@@ -32,6 +32,15 @@ public class SeasonCommonInfoManager {
     }
 
     /**
+     * 点亮鱼竿成就-限制等级
+     *
+     * @return
+     */
+    public static Integer getBadgeFishRodLevel(){
+        return 99;
+    }
+
+    /**
      * 当前赛季鱼竿单价
      *
      * @return

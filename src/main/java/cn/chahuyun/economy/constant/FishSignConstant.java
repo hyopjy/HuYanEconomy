@@ -31,6 +31,12 @@ public class FishSignConstant {
     public static final String FISH_62 = "FISH-62";
 
     /**
+     * 鱼竿 赛季 成就
+     */
+    public static final String FISH_ROD_LEVEL= "FISH-ROD-LEVEL";
+
+
+    /**
      * 通用成就
      * @return
      */

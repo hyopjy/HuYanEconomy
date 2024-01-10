@@ -413,9 +413,11 @@ public class RandomMoneyListener extends SimpleListenerHost {
             SeasonManager.clearUserPackOffline(event);
             // 6. 点亮鱼竿纪念成就
             SeasonManager.lightUpFishRod(event);
-//            e. 清理钓鱼排行榜
-//            f. 用户widitbb余额 超过88888的 更新为88888
-//            g. 鱼竿最大限制
+            // 7. 清理钓鱼排行榜
+            SeasonManager.clearFishRank(event);
+            // 8. 用户widitbb余额 超过88888的 更新为88888
+            SeasonManager.resetWditBB(event);
+            // 9. 鱼竿重置
         }
         return ListeningStatus.LISTENING;
     }

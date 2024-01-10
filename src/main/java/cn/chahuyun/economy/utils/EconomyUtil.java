@@ -628,11 +628,42 @@ public class EconomyUtil {
 
     public static Map<EconomyAccount, Double> getAllAccount(EconomyCurrency economyCurrency) {
         try (EconomyContext context = economyService.custom(HuYanEconomy.INSTANCE)) {
-            return context.balance(Constant.CURRENCY_GOLD);
+            return context.balance(economyCurrency);
         } catch (Exception e) {
             Log.error("经济转移出错:获取所有经济账户", e);
         }
         return new HashMap<>();
     }
 
+    public static double getMoneyEconomyAccount(EconomyAccount account) {
+        return getMoneyEconomyAccount(account, Constant.CURRENCY_GOLD);
+    }
+
+    public static double getMoneyEconomyAccount(EconomyAccount account, EconomyCurrency currency) {
+        //获取一个bot上下文
+        try (EconomyContext context = economyService.custom(HuYanEconomy.INSTANCE)) {
+            //在bot上下文里面找到这个用户
+            DecimalFormat format = new DecimalFormat("#.0");
+            //返回这个用户在bot上下文的某种货币的余额，并格式化
+            String str = format.format(context.get(account, currency));
+            return Double.parseDouble(str);
+        } catch (Exception e) {
+            Log.error("经济获取出错:获取用户钱包余额", e);
+        }
+        return 0;
+    }
+
+    public static boolean minusMoneyToEconomyAccount(EconomyAccount account, double quantity) {
+       return minusMoneyToEconomyAccount(account, Constant.CURRENCY_GOLD, quantity);
+    }
+
+    public static boolean minusMoneyToEconomyAccount(EconomyAccount account, EconomyCurrency currency, double quantity) {
+        try (EconomyContext context = economyService.custom(HuYanEconomy.INSTANCE)) {
+            context.minusAssign(account, currency, quantity);
+            return true;
+        } catch (Exception e) {
+            Log.error("经济转移出错:减少用户经济", e);
+            return false;
+        }
+    }
 }

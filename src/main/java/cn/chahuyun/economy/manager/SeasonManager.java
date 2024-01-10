@@ -1,7 +1,10 @@
 package cn.chahuyun.economy.manager;
 
 
+import cn.chahuyun.economy.constant.FishSignConstant;
+import cn.chahuyun.economy.dto.BadgeFishInfoDto;
 import cn.chahuyun.economy.entity.fish.Fish;
+import cn.chahuyun.economy.entity.fish.FishInfo;
 import cn.chahuyun.economy.entity.fish.FishRanking;
 import cn.chahuyun.economy.plugin.FishManager;
 import cn.chahuyun.economy.plugin.FishPondManager;
@@ -93,6 +96,28 @@ public class SeasonManager {
      * @param event
      */
     public static void lightUpFishRod(UserMessageEvent event) {
+        Contact subject = event.getSubject();
+        List<BadgeFishInfoDto> badgeFishInfoDtos = FishInfoManager.getBadgeFishInfoDto();
+        badgeFishInfoDtos.stream().forEach(badgeFishInfoDto -> {
+            BadgeInfoManager.updateOrInsertBadgeInfo(badgeFishInfoDto.getGroupId(), badgeFishInfoDto.getQq(),
+                    FishSignConstant.FISH_ROD_LEVEL, null, null);
+        });
+        subject.sendMessage(MessageUtil.formatMessageChain("点亮鱼竿成就结束"));
+    }
 
+    /**
+     * 清理排行榜
+     * @param event
+     */
+    public static void clearFishRank(UserMessageEvent event) {
+        Contact subject = event.getSubject();
+        FishRankingManger.clearFishRanking();
+        subject.sendMessage(MessageUtil.formatMessageChain("清理排行榜数据成功"));
+    }
+
+    public static void resetWditBB(UserMessageEvent event) {
+        Contact subject = event.getSubject();
+        CompetitionSeasonManager.resetWditBB();
+        subject.sendMessage(MessageUtil.formatMessageChain("重置wdit bb"));
     }
 }
