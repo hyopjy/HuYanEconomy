@@ -73,6 +73,11 @@ public class UserInfo implements Serializable {
     private double bankEarnings;
 
     /**
+     * 用户rgb属性
+     */
+    private String rgb;
+
+    /**
      * 道具背包
      */
     @OneToMany(targetEntity = UserBackpack.class, mappedBy = "userId", fetch = FetchType.EAGER)
