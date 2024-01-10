@@ -90,6 +90,7 @@ public class FishManager {
         map.put("尺寸4阶", "dimensions4");
         map.put("难度", "difficulty");
         map.put("特殊标记", "special");
+        map.put("RGB属性", "rgb");
         List<Fish> fishList = reader.setHeaderAlias(map).readAll(Fish.class);
         for (Fish fish : fishList) {
             HibernateUtil.factory.fromTransaction(session -> session.merge(fish));

@@ -75,6 +75,25 @@ public class CompetitionSeasonManager {
         CronUtil.schedule("competition-season", competitionSeason.getCron(), task);
         Log.info("加载赛季-结束");
     }
+
+    /**
+     * 清理赛季币
+     */
+    public static void clearUserBankMoney(){
+        // 清理赛季
+        Map<EconomyAccount, Double> accountByBank = EconomyUtil.getAccountByBank();
+        for (Map.Entry<EconomyAccount, Double> entry : accountByBank.entrySet()) {
+            UserInfo userInfo = UserManager.getUserInfo(entry.getKey());
+            if (userInfo == null) {
+                continue;
+            }
+            if (EconomyUtil.minusMoneyToBankEconomyAccount(entry.getKey(), EconomyUtil.getMoneyByBankEconomyAccount(entry.getKey()))) {
+                Log.error( SeasonCommonInfoManager.getSeasonMoney() + "管理:清理成功");
+            } else {
+                Log.error( SeasonCommonInfoManager.getSeasonMoney() + "管理:清零失败");
+            }
+        }
+    }
 }
 
 
@@ -126,4 +145,6 @@ class CompetitionSeasonTask implements Task {
         // 更新执行规则
         CronUtil.updatePattern(id, CronPattern.of(competitionSeason.getCron()));
     }
+
+
 }
