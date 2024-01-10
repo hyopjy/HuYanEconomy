@@ -124,39 +124,7 @@ public class RandomMoneyListener extends SimpleListenerHost {
         String message = event.getMessage().serializeToMiraiCode();
 
         if (message.equals("重置鱼塘") && EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
-            List<FishRanking> fishRankList = HibernateUtil.factory.fromSession(session -> {
-                HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
-                JpaCriteriaQuery<FishRanking> query = builder.createQuery(FishRanking.class);
-                query.select(query.from(FishRanking.class));
-                return session.createQuery(query).list();
-            });
-
-            fishRankList.stream().forEach(fishRanking -> {
-                HibernateUtil.factory.fromTransaction(session -> {
-                    session.remove(fishRanking);
-                    return null;
-                });
-            });
-
-            List<Fish> fishList = HibernateUtil.factory.fromSession(session -> {
-                HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
-                JpaCriteriaQuery<Fish> query = builder.createQuery(Fish.class);
-                query.select(query.from(Fish.class));
-                return session.createQuery(query).list();
-            });
-            fishList.stream().forEach(fish -> {
-                HibernateUtil.factory.fromTransaction(session -> {
-                    session.remove(fish);
-                    return null;
-                });
-            });
-            FishManager.fishMap.clear();
-            FishManager.init();
-            GamesManager.playerCooling.clear();
-            GamesManager.refresh(event);
-            FishPondManager.refresh(event);
-            Log.info("重新加载完成！");
-            subject.sendMessage(MessageUtil.formatMessageChain("重新加载完成"));
+            SeasonManager.reloadFishPod(event);
         }
 
         if (message.startsWith("休渔期") && EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
@@ -226,8 +194,7 @@ public class RandomMoneyListener extends SimpleListenerHost {
 
         if (message.equals("刷新道具") &&
                 EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
-            PluginManager.refreshPropsFishCard();
-            subject.sendMessage(MessageUtil.formatMessageChain("刷新道具完成"));
+            SeasonManager.reloadPropsFishCard(event);
         }
 
         if (message.startsWith("世界boss") &&
@@ -436,10 +403,16 @@ public class RandomMoneyListener extends SimpleListenerHost {
         }
         if (message.startsWith("重置赛季") &&
                 EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())){
-//            a. 更新道具
-//            b. 清除旧的赛季币
-//            c. 清理用户包内道具信息
-//            d. 点亮鱼竿纪念成就
+            // 1. 重置鱼塘
+            SeasonManager.reloadFishPod(event);
+            // 2. 更新道具
+            SeasonManager.reloadPropsFishCard(event);
+            // 3. 清除旧的赛季币
+            SeasonManager.clearSeasonMoney(event);
+            // 4. 清理用户包内道具信息
+            SeasonManager.clearUserPackOffline(event);
+            // 6. 点亮鱼竿纪念成就
+            SeasonManager.lightUpFishRod(event);
 //            e. 清理钓鱼排行榜
 //            f. 用户widitbb余额 超过88888的 更新为88888
 //            g. 鱼竿最大限制

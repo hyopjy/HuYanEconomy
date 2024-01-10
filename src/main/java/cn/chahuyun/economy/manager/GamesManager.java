@@ -257,7 +257,7 @@ public class GamesManager {
             List<Fish> collect;
             collect = levelFishList.stream().filter(it ->
                             it.getDifficulty() <= difficulty &&
-                                    (StringUtils.isBlank(it.getRgb()) || it.getRgb().equals(userInfo.getRgb()))
+                                    (StringUtils.isBlank(it.getRgb()) || it.getRgb().equalsIgnoreCase(userInfo.getRgb()))
             ).collect(Collectors.toList());
             //如果没有了
             int size = collect.size();
@@ -640,7 +640,7 @@ public class GamesManager {
             //过滤掉难度不够的鱼, 以及rgb为空 和 rgb和用户一致的鱼数据
             List<Fish> collect;
             collect = levelFishList.stream().filter(it -> it.getDifficulty() <= difficulty &&
-                    (StringUtils.isBlank(it.getRgb()) || it.getRgb().equals(userInfo.getRgb()))
+                    (StringUtils.isBlank(it.getRgb()) || it.getRgb().equalsIgnoreCase(userInfo.getRgb()))
             ).collect(Collectors.toList());
             //如果没有了
             int size = collect.size();
