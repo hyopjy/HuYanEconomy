@@ -6,6 +6,7 @@ import cn.chahuyun.economy.utils.DateUtil;
 import cn.chahuyun.economy.utils.EconomyUtil;
 import cn.chahuyun.economy.utils.HibernateUtil;
 import cn.chahuyun.economy.utils.Log;
+import cn.hutool.core.util.NumberUtil;
 import cn.hutool.cron.CronUtil;
 import cn.hutool.cron.pattern.CronPattern;
 import cn.hutool.cron.task.Task;
@@ -91,6 +92,24 @@ public class CompetitionSeasonManager {
                 Log.error( SeasonCommonInfoManager.getSeasonMoney() + "管理:清理成功");
             } else {
                 Log.error( SeasonCommonInfoManager.getSeasonMoney() + "管理:清零失败");
+            }
+        }
+    }
+
+    /**
+     * 重置wdit bb
+     */
+    public static void resetWditBB() {
+        Map<EconomyAccount, Double> accountWditBBMap = EconomyUtil.getAllAccount();
+        for (Map.Entry<EconomyAccount, Double> entry : accountWditBBMap.entrySet()) {
+            UserInfo userInfo = UserManager.getUserInfo(entry.getKey());
+            if (userInfo == null) {
+                continue;
+            }
+            Double money = EconomyUtil.getMoneyEconomyAccount(entry.getKey());
+            if (money > SeasonCommonInfoManager.getWditBB()) {
+                double quantity = NumberUtil.min(money, SeasonCommonInfoManager.getWditBB());
+                EconomyUtil.minusMoneyToEconomyAccount(entry.getKey(), quantity);
             }
         }
     }
