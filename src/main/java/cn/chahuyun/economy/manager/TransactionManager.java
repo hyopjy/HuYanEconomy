@@ -397,9 +397,19 @@ public class TransactionManager {
         tList.stream().forEach(t->{
             String transactionCode = t.getTransactionCode();
             Integer transactionCount = t.getTransactionCount();
+
+//            String transactionPropMessage = checkTransactionPropStep(transactionCode, transactionCount, transactionUserInfo);
+//            if(StringUtils.isNotBlank(transactionPropMessage)){
+//                return;
+//            }
+//
+//            String initiatePropMessage = checkInitiatePropStep(initiatePropCode, initiatePropCount, initiateUserInfo);
+//            if(StringUtils.isNotBlank(initiatePropMessage)){
+//                return;
+//            }
+
             // 目标用户 -> 交易用户 : 交易道具
             transactionPropStep_1(transactionCode, transactionCount, transactionUserInfo, initiateUserInfo);
-
             String initiatePropCode = t.getInitiatePropCode();
             Integer initiatePropCount = t.getInitiatePropCount();
             // 交易用户 -> 目标用户： 交易道具、交易bb、交易雪花
@@ -408,6 +418,19 @@ public class TransactionManager {
         });
 
         subject.sendMessage(MessageUtil.formatMessageChain(message, "交易完成"));
+
+    }
+
+    private static String checkTransactionPropStep(String transactionCode, Integer transactionCount, UserInfo transactionUserInfo) {
+        // 目标用户减少对应的道具数量
+        List<UserBackpack> backpacksList = Optional.ofNullable(transactionUserInfo.getBackpacks())
+                .orElse(Lists.newArrayList()).stream()
+                .filter(back -> transactionCode.equals(back.getPropsCode()))
+                .collect(Collectors.toList());
+        if(CollectionUtils.isNotEmpty(backpacksList) || backpacksList.size() < transactionCount){
+            return "道具数量不足";
+        }
+        return null;
 
     }
 
