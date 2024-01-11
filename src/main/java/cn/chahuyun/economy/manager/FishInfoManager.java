@@ -45,6 +45,10 @@ public class FishInfoManager {
                     .build();
 
             badgeFishInfoDtos.add(dto);
+
+            // 更新鱼竿等级
+            fishInfo.setRodLevel(SeasonCommonInfoManager.getBadgeFishRodLevel());
+            fishInfo.save();
         });
         return badgeFishInfoDtos;
     }
