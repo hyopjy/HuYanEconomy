@@ -122,5 +122,7 @@ public class PropsFishCard extends PropsBase implements Serializable {
         return Optional.ofNullable(offShelf).orElse(false);
     }
 
-
+    public Boolean getBuy() {
+        return Optional.ofNullable(buy).orElse(false);
+    }
 }
