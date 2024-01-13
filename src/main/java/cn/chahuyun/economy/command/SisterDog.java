@@ -11,9 +11,8 @@ import cn.chahuyun.economy.utils.MessageUtil;
 import cn.hutool.core.util.RandomUtil;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.User;
-import net.mamoe.mirai.message.data.At;
-import net.mamoe.mirai.message.data.MessageChainBuilder;
-import net.mamoe.mirai.message.data.QuoteReply;
+import net.mamoe.mirai.message.data.*;
+import org.apache.commons.collections4.CollectionUtils;
 import org.redisson.api.RKeys;
 import xyz.cssxsh.mirai.economy.service.EconomyAccount;
 
@@ -22,20 +21,24 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
- * 姐姐的狗
+ * 狗的姐姐
  */
 public class SisterDog extends AbstractPropUsage {
+
+    Integer n;
 
     @Override
     public boolean checkOrder() {
         String no = PropsType.getNo(propsCard.getCode());
-        String match = "使用 (" + propsCard.getName() + "|" + no + ")( )*";
+        String match = "使用 (" + propsCard.getName() + "|" + no + ")( )(\\d+)*";
         String code = event.getMessage().serializeToMiraiCode();
         Contact subject = event.getSubject();
-        if(!Pattern.matches(match, code)){
-            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "请输入正确的命令[使用 " + propsCard.getName() + "或者" + no + "]"));
+        if (!Pattern.matches(match, code)) {
+            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "请输入正确的命令[使用 " + propsCard.getName() + "或者" + no + " n]"));
             return false;
         }
+        String[] codeArr = code.split(" ");
+        n = Integer.parseInt(codeArr[1]);
         return true;
     }
 
@@ -43,17 +46,24 @@ public class SisterDog extends AbstractPropUsage {
     public void excute() {
         // 消耗品，对指定目标使用，使目标失去自我3分钟，并获得目标的币币（随机100-800）
         Long userId;
-        String key = "clicker:" + group.getId();
-        Object clicker =  RedisUtils.getKeyObject(key);
-        if(Objects.isNull(clicker)){
-            // 获取随机目标
-            List<Long> userInfoList = RedisUtils.getSisterUserList(group.getId());
-            int userIndex = RandomUtil.randomInt(0, userInfoList.size());
-            Log.info("[SisterDog] - userList：" + userInfoList.size()  + ",userIndex: " + userIndex);
-            userId = userInfoList.get(userIndex);
+//        String key = "clicker:" + group.getId();
+//        Object clicker =  RedisUtils.getKeyObject(key);
+//        if(Objects.isNull(clicker)){
+//            // 获取随机目标
+//            List<Long> userInfoList = RedisUtils.getSisterUserList(group.getId());
+//            int userIndex = RandomUtil.randomInt(0, userInfoList.size());
+//            Log.info("[SisterDog] - userList：" + userInfoList.size()  + ",userIndex: " + userIndex);
+//            userId = userInfoList.get(userIndex);
+//        }else {
+//            userId = (Long) clicker;
+//            RedisUtils.deleteKeyString(key);
+//        }
+
+        List<Long> userInfoList = RedisUtils.getSisterUserList(group.getId());
+        if(userInfoList.size() <= n){
+            userId = userInfoList.get(userInfoList.size() -1);
         }else {
-            userId = (Long) clicker;
-            RedisUtils.deleteKeyString(key);
+            userId = userInfoList.get(n -1);
         }
         if(Objects.nonNull(userId)){
             int money = RandomUtil.randomInt(800, 3501);
@@ -65,9 +75,10 @@ public class SisterDog extends AbstractPropUsage {
 
             subject.sendMessage(new MessageChainBuilder().append(new QuoteReply(event.getMessage()))
                     .append(propsCard.getName()).append("使用成功").append("\r\n")
-                    .append(new At(sender.getId()).getDisplay(group)).append("成功获得" + money + "币币").append("\r\n")
-                    .append(new At(userId).getDisplay(group)).append("失去自我3分钟").append("\r\n")
+                    .append(new At(sender.getId()).getDisplay(group)).append("搭讪的姐姐选择了幸运数字" + n)
+                    .append(new At(userId).getDisplay(group)).append("被姐姐成功俘获，ATM姬自愿交出了" + money + "币币").append("\r\n")
                     .build());
+
             // 失去自我的用户加入缓存
             CacheUtils.addTimeCacheKey(group.getId(), userId);
         }else {
