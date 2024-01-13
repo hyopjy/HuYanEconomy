@@ -179,18 +179,18 @@ public class FbUserManager  {
             pen.drawString(String.valueOf(userInfo.getQq()),195, 450);
             pen.setColor(Color.black);
 
-            String format;
-            if (userInfo.getSignTime() == null) {
-                format = "暂未签到";
-
-            } else {
-                format = DateUtil.format(userInfo.getSignTime(), "yyyy-MM-dd HH:mm:ss");
-            }
-            //签到时间
-            pen.setFont(new Font("黑体", Font.PLAIN, 18));
-            pen.drawString(format, 232, 825);
+//            String format;
+//            if (userInfo.getSignTime() == null) {
+//                format = "暂未签到";
+//
+//            } else {
+//                format = DateUtil.format(userInfo.getSignTime(), "yyyy-MM-dd HH:mm:ss");
+//            }
+//            //签到时间
+//            pen.setFont(new Font("黑体", Font.PLAIN, 18));
+//            pen.drawString(format, 232, 825);
             //连签次数
-            pen.drawString(String.valueOf(userInfo.getSignNumber()), 181, 875);
+            pen.drawString(String.valueOf(userInfo.getSignNumber()), 370, 730);
             //其他称号
 //            pen.drawString("暂无", 172, 400);
 
@@ -207,7 +207,7 @@ public class FbUserManager  {
             fontSize = 20;
             pen.setFont(new Font("黑体", Font.PLAIN, fontSize));
             //写入今日获得
-            pen.drawString(String.valueOf(userInfo.getSignEarnings()), 100, 740);
+            pen.drawString(String.valueOf(userInfo.getSignEarnings()), 79, 735);
 
             //写入银行
             if (String.valueOf(bank).length() > 5) {
@@ -225,14 +225,14 @@ public class FbUserManager  {
             }
             pen.setFont(new Font("黑体", Font.PLAIN, fontSize));
             //写入银行收益金币
-            pen.drawString(String.valueOf(bankEarnings), 320, 740);
+            pen.drawString(String.valueOf(bankEarnings), 219, 736);
 
             // 设置徽章
             Long fish31 = Optional.ofNullable(userInfo.getBackpacks()).orElse(new ArrayList<>()).stream()
                     .filter(userBackpack -> Objects.nonNull(userBackpack) &&
                             FishSignConstant.FISH_31.equals(userBackpack.getPropsCode().toUpperCase(Locale.ROOT))).count();
             if (fish31 > 0) {
-                drawFishSign(pen, FishSignConstant.FISH_31, fish31, 58, 1025, 142, 1085);
+                drawFishSign(pen, FishSignConstant.FISH_31, fish31, 66, 908, 142, 1085);
             } else {
                 pen.setFont(new Font("黑体", Font.BOLD, 20));
                 //写入数量
@@ -243,7 +243,7 @@ public class FbUserManager  {
                     .filter(userBackpack -> Objects.nonNull(userBackpack) &&
                             FishSignConstant.FISH_32.equals(userBackpack.getPropsCode().toUpperCase(Locale.ROOT))).count();
             if (fish32 > 0) {
-                drawFishSign(pen, FishSignConstant.FISH_32, fish32, 193, 1022, 271, 1085);
+                drawFishSign(pen, FishSignConstant.FISH_32, fish32, 211, 900, 271, 1085);
             } else {
                 pen.setFont(new Font("黑体", Font.BOLD, 20));
                 //写入数量
@@ -255,7 +255,7 @@ public class FbUserManager  {
                             FishSignConstant.FISH_33.equals(userBackpack.getPropsCode().
                                     toUpperCase(Locale.ROOT))).count();
             if (fish33 > 0) {
-                drawFishSign(pen, FishSignConstant.FISH_33, fish33, 320, 1022, 390, 1085);
+                drawFishSign(pen, FishSignConstant.FISH_33, fish33, 329, 897, 390, 1085);
             } else {
                 pen.setFont(new Font("黑体", Font.BOLD, 20));
                 //写入数量
@@ -267,35 +267,41 @@ public class FbUserManager  {
                 if(Objects.nonNull(badgeInfo)){
                     if(badgeInfo.getContent().length() > 6){
                         pen.setFont(new Font("黑体", Font.BOLD, 15));
-                        pen.drawString(badgeInfo.getContent().substring(0,6) +"...", 183, 964);
+                        pen.drawString(badgeInfo.getContent().substring(0,6) +"...", 190, 781);
                     }else {
                         pen.setFont(new Font("黑体", Font.BOLD, 20));
-                        pen.drawString(badgeInfo.getContent(), 183, 964);
+                        pen.drawString(badgeInfo.getContent(), 190, 781);
                     }
                 }
             }
 
             // 90 85
             if (BadgeInfoManager.getCount(group.getId(), userInfo.getQq(), FishSignConstant.FISH_17) > 0) {
-                drawFishSign(pen, FishSignConstant.FISH_17, null, 56, 1154, 0, 0);
+                drawFishSign(pen, FishSignConstant.FISH_17, null, 60, 1030, 0, 0);
             }
 
             if (BadgeInfoManager.getCount(group.getId(), userInfo.getQq(), FishSignConstant.FISH_15) > 0) {
-                drawFishSign(pen, FishSignConstant.FISH_15, null, 136, 1144, 0, 0);
+                drawFishSign(pen, FishSignConstant.FISH_15, null, 141, 1038, 0, 0);
             }
 
             if (BadgeInfoManager.getCount(group.getId(), userInfo.getQq(), FishSignConstant.FISH_16) > 0) {
-                drawFishSign(pen, FishSignConstant.FISH_16, null, 237, 1144, 0, 0);
+                drawFishSign(pen, FishSignConstant.FISH_16, null, 252, 1047, 0, 0);
             }
 
             if (BadgeInfoManager.getCount(group.getId(), userInfo.getQq(), FishSignConstant.FISH_20) > 0) {
-                drawFishSign(pen, FishSignConstant.FISH_20, null, 352, 1161, 0, 0);
+                drawFishSign(pen, FishSignConstant.FISH_20, null, 360, 1037, 0, 0);
             }
             if (BadgeInfoManager.getCount(group.getId(), userInfo.getQq(), FishSignConstant.FISH_39) > 0) {
-               drawFishSign(pen, FishSignConstant.FISH_39, null, 205, 1311, 0, 0);
+               drawFishSign(pen, FishSignConstant.FISH_39, null, 94, 1202, 0, 0);
             }
             if (BadgeInfoManager.getCount(group.getId(), userInfo.getQq(), FishSignConstant.FISH_49) > 0) {
-                drawFishSign(pen, FishSignConstant.FISH_49, null, 70, 1301, 0, 0);
+                drawFishSign(pen, FishSignConstant.FISH_49, null, 268, 1198, 0, 0);
+            }
+            if (BadgeInfoManager.getCount(group.getId(), userInfo.getQq(), FishSignConstant.FISH_62) > 0) {
+                drawFishSign(pen, FishSignConstant.FISH_62, null, 247, 1385, 0, 0);
+            }
+            if (BadgeInfoManager.getCount(group.getId(), userInfo.getQq(), FishSignConstant.FISH_ROD_LEVEL) > 0) {
+                drawFishSign(pen, FishSignConstant.FISH_ROD_LEVEL, null, 110, 1398, 0, 0);
             }
             //关闭窗体，释放部分资源
             pen.dispose();
