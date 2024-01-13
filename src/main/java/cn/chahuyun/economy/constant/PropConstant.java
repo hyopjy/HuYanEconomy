@@ -5,7 +5,7 @@ import org.h2.tools.Shell;
 public interface PropConstant {
     String GLASS_BEAD = "玻璃珠";
 
-    String SISTER_DOG = "姐姐的狗";
+    String SISTER_DOG = "狗的姐姐";
 
     String MASK = "面罩";
 

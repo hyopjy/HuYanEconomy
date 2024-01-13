@@ -495,7 +495,7 @@ public class PropsManagerImpl implements PropsManager {
 
             if (optionalPropsFishCard.isPresent()) {
                 PropsFishCard card = optionalPropsFishCard.get();
-                if (!card.getOffShelf()) {
+                if (card.getOffShelf()) {
                     messages.append(new PlainText("😣 [" + card.getName() + "]已下架"));
                     subject.sendMessage(messages.build());
                     return;
@@ -726,7 +726,7 @@ public class PropsManagerImpl implements PropsManager {
         PropsBase propsInfo = PropsType.getPropsInfo(propCode);
         if(propsInfo instanceof PropsFishCard) {
             PropsFishCard card = (PropsFishCard) propsInfo;
-            if (!card.getOffShelf()) {
+            if (card.getOffShelf()) {
                 messages.append(new PlainText("😣 [" + propsInfo.getName() + "]已下架"));
                 subject.sendMessage(messages.build());
                 return;
