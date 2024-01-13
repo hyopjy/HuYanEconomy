@@ -86,7 +86,7 @@ public class RedisUtils {
     public static void setSisterUserList(Long groupId, Long userId) {
         String key = RedisKeyConstant.SISTER_USER + groupId + RedisKeyConstant.COLON_SPILT + userId;
         RBucket<Long> sisterDogRedis = RedissonConfig.getRedisson().getBucket(key);
-        sisterDogRedis.set(userId, 30, TimeUnit.MINUTES);
+        sisterDogRedis.set(userId, 15, TimeUnit.MINUTES);
     }
 
     /**
