@@ -12,6 +12,7 @@ import cn.chahuyun.economy.entity.fish.FishInfo;
 import cn.chahuyun.economy.entity.fish.FishPond;
 import cn.chahuyun.economy.entity.fish.FishRanking;
 import cn.chahuyun.economy.entity.props.PropsBase;
+import cn.chahuyun.economy.entity.props.PropsFishCard;
 import cn.chahuyun.economy.entity.props.factory.PropsCardFactory;
 import cn.chahuyun.economy.plugin.PropsType;
 import cn.chahuyun.economy.utils.*;
@@ -306,20 +307,23 @@ public class GamesManager {
                     // 折现-钓鱼
                     sendFishInfoMessage(userInfo, user, subject, fishPond, fish, dimensions, money, v, buffDesc,messages);
                 }else {
-                    UserBackpack userBackpack = new UserBackpack(userInfo, propsBase);
-                    if (!userInfo.addPropToBackpack(userBackpack)) {
-                        Log.error("钓鱼系统:添加道具到用户背包失败!");
-                        // subject.sendMessage("系统出错，请联系主人!");
-                        // 折现-钓鱼
-                        sendFishInfoMessage(userInfo, user, subject, fishPond, fish, dimensions, money, v, buffDesc,messages);
-                    }else {
-                        String format = String.format("\r\n" + buffDesc + "起竿咯！获取道具 \r\n%s\r\n等级:%s\r\n单价:%s\r\n尺寸:%d\r\n" +
-                                        "总金额:%d\r\n收益:%s\r\n%s\r\n",
-                                fish.getName(), fish.getLevel(), fish.getPrice(), dimensions, money,
-                                propsBase.getName(), fish.getDescription());
-                        messages.append(new PlainText(format));
-                        // subject.sendMessage(messages.build());
-                        Log.info("钓鱼系统:添加道具到用户-Code " + propCode);
+                    PropsFishCard propsFishCard = (PropsFishCard) propsBase;
+                    // 道具下线 折现
+                    if (propsFishCard.getOffShelf()) {
+                        sendFishInfoMessage(userInfo, user, subject, fishPond, fish, dimensions, money, v, buffDesc, messages);
+                    } else {
+                        UserBackpack userBackpack = new UserBackpack(userInfo, propsBase);
+                        if (!userInfo.addPropToBackpack(userBackpack)) {
+                            Log.error("钓鱼系统:添加道具到用户背包失败!");
+                            // subject.sendMessage("系统出错，请联系主人!");
+                            // 折现-钓鱼
+                            sendFishInfoMessage(userInfo, user, subject, fishPond, fish, dimensions, money, v, buffDesc, messages);
+                        } else {
+                            String format = String.format("\r\n" + buffDesc + "起竿咯！获取道具 \r\n%s\r\n等级:%s\r\n单价:%s\r\n尺寸:%d\r\n" + "总金额:%d\r\n收益:%s\r\n%s\r\n", fish.getName(), fish.getLevel(), fish.getPrice(), dimensions, money, propsBase.getName(), fish.getDescription());
+                            messages.append(new PlainText(format));
+                            // subject.sendMessage(messages.build());
+                            Log.info("钓鱼系统:添加道具到用户-Code " + propCode);
+                        }
                     }
                 }
             }else {
@@ -673,12 +677,17 @@ public class GamesManager {
             if (Objects.isNull(propsBase)) {
                 automaticFish = getAutomaticFishInfo(user,fishPond, fish, dimensions, money, v);
             } else {
-                UserBackpack userBackpack = new UserBackpack(userInfo, propsBase);
-                if (!userInfo.addPropToBackpack(userBackpack)) {
-                    Log.error("自动钓鱼机:添加道具到用户背包失败!");
-                    automaticFish = getAutomaticFishInfo(user,fishPond, fish, dimensions, money, v);
+                PropsFishCard propsFishCard = (PropsFishCard) propsBase;
+                if (propsFishCard.getOffShelf()) {
+                    automaticFish = getAutomaticFishInfo(user, fishPond, fish, dimensions, money, v);
                 } else {
-                    automaticFish = getAutomaticPropCard(fish, dimensions, money);
+                    UserBackpack userBackpack = new UserBackpack(userInfo, propsBase);
+                    if (!userInfo.addPropToBackpack(userBackpack)) {
+                        Log.error("自动钓鱼机:添加道具到用户背包失败!");
+                        automaticFish = getAutomaticFishInfo(user, fishPond, fish, dimensions, money, v);
+                    } else {
+                        automaticFish = getAutomaticPropCard(fish, dimensions, money);
+                    }
                 }
             }
         }else {
