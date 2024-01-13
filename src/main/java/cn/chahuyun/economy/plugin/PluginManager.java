@@ -198,7 +198,7 @@ public class PluginManager {
         // 无使用效果 直接兑换
         map.put("是否直接兑换","delete");
         map.put("是否可交易","tradable");
-        map.put("是否下架","OffShelf");
+        map.put("是否下架","offShelf");
         List<PropsFishCard> list = reader.setHeaderAlias(map).readAll(PropsFishCard.class);
         reader.close();
         return list;

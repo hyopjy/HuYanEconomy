@@ -102,13 +102,9 @@ public class CompetitionSeasonManager {
     public static void resetWditBB() {
         Map<EconomyAccount, Double> accountWditBBMap = EconomyUtil.getAllAccount();
         for (Map.Entry<EconomyAccount, Double> entry : accountWditBBMap.entrySet()) {
-            UserInfo userInfo = UserManager.getUserInfo(entry.getKey());
-            if (userInfo == null) {
-                continue;
-            }
             Double money = EconomyUtil.getMoneyEconomyAccount(entry.getKey());
             if (money > SeasonCommonInfoManager.getWditBB()) {
-                double quantity = NumberUtil.min(money, SeasonCommonInfoManager.getWditBB());
+                double quantity = (money-SeasonCommonInfoManager.getWditBB());
                 EconomyUtil.minusMoneyToEconomyAccount(entry.getKey(), quantity);
             }
         }
