@@ -38,7 +38,12 @@ public class SisterDog extends AbstractPropUsage {
             return false;
         }
         String[] codeArr = code.split(" ");
-        n = Integer.parseInt(codeArr[1]);
+        try {
+            n = Integer.parseInt(codeArr[2]);
+        }catch (Exception e){
+            return false;
+        }
+
         return true;
     }
 
