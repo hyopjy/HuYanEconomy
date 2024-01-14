@@ -34,6 +34,7 @@ import org.hibernate.query.criteria.JpaRoot;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 /**
@@ -65,7 +66,7 @@ public class TransactionManager {
         Long senderId = getSenderIdByEvent(event);
         String[] s = code.split(" ");
         if (s.length < 5) {
-            subject.sendMessage(MessageUtil.formatMessageChain(message, "请按照格式输入交易信息！"));
+            subject.sendMessage(MessageUtil.formatMessageChain(message, "交易 xx道具 数量 币币/bb/雪币/道具 数量 @B"));
             return null;
         }
 
@@ -393,32 +394,60 @@ public class TransactionManager {
         List<Transaction> tList = getTransactionByUserType(userInfo.getInitiateUserId(), userInfo.getTransactionUserId(),TRANSACTION_WAIT);
         //
        // subject.sendMessage(MessageUtil.formatMessageChain(message, "正在交易中......"));
-
+        AtomicReference<Boolean> check = new AtomicReference<>(false);
         tList.stream().forEach(t->{
-            String transactionCode = t.getTransactionCode();
-            Integer transactionCount = t.getTransactionCount();
-
-//            String transactionPropMessage = checkTransactionPropStep(transactionCode, transactionCount, transactionUserInfo);
-//            if(StringUtils.isNotBlank(transactionPropMessage)){
-//                return;
-//            }
-//
-//            String initiatePropMessage = checkInitiatePropStep(initiatePropCode, initiatePropCount, initiateUserInfo);
-//            if(StringUtils.isNotBlank(initiatePropMessage)){
-//                return;
-//            }
-
-            // 目标用户 -> 交易用户 : 交易道具
-            transactionPropStep_1(transactionCode, transactionCount, transactionUserInfo, initiateUserInfo);
             String initiatePropCode = t.getInitiatePropCode();
             Integer initiatePropCount = t.getInitiatePropCount();
+            String transactionPropMessage = checkTransactionPropStep(initiatePropCode, initiatePropCount, transactionUserInfo);
+            if(StringUtils.isNotBlank(transactionPropMessage)){
+                subject.sendMessage(MessageUtil.formatMessageChain(message, transactionPropMessage));
+                return;
+            }
+
+            String transactionCode = t.getTransactionCode();
+            Integer transactionCount = t.getTransactionCount();
+            String initiatePropMessage = checkInitiatePropStep(transactionCode, transactionCount, initiateUserInfo);
+            if(StringUtils.isNotBlank(initiatePropMessage)){
+                subject.sendMessage(MessageUtil.formatMessageChain(message, initiatePropMessage));
+                return;
+            }
+
+            // 目标用户 -> 交易用户 : 交易道具
+            transactionPropStep_1(initiatePropCode, initiatePropCount, transactionUserInfo, initiateUserInfo);
+
             // 交易用户 -> 目标用户： 交易道具、交易bb、交易雪花
-            transactionPropStep_2(initiatePropCode, initiatePropCount, transactionUserInfo, initiateUserInfo);
+            transactionPropStep_2(transactionCode, transactionCount, transactionUserInfo, initiateUserInfo);
             t.remove();
+            check.set(true);
         });
+        if(check.get()){
+            subject.sendMessage(MessageUtil.formatMessageChain(message, "交易完成"));
+        }
 
-        subject.sendMessage(MessageUtil.formatMessageChain(message, "交易完成"));
+    }
 
+    private static String checkInitiatePropStep(String propCode, Integer propCount, UserInfo initiateUserInfo) {
+        if(Constant.FISH_CODE_BB.equals(propCode)){
+            // 交易用户金钱
+            if (Double.parseDouble(propCount + "") > EconomyUtil.getMoneyByUser(initiateUserInfo.getUser())) {
+                return "交易发起人币币不足 无法交易";
+            }
+        }else if(Constant.FISH_CODE_SEASON.equals(propCode)){
+            // 交易用户减少额度
+            if (Double.parseDouble(propCount + "") > EconomyUtil.getMoneyByBank(initiateUserInfo.getUser())) {
+                return "交易发起人"+SeasonCommonInfoManager.getSeasonMoney() + "不足 无法交易";
+            }
+        }else {
+            // 交易用户减少对应的道具数量
+            List<UserBackpack> backpacksList = Optional.ofNullable(initiateUserInfo.getBackpacks())
+                    .orElse(Lists.newArrayList()).stream()
+                    .filter(back -> propCode.equals(back.getPropsCode()))
+                    .collect(Collectors.toList());
+            if(CollectionUtils.isEmpty(backpacksList) || backpacksList.size() < propCount){
+                return "交易发起人道具数量不足";
+            }
+        }
+        return null;
     }
 
     private static String checkTransactionPropStep(String transactionCode, Integer transactionCount, UserInfo transactionUserInfo) {
@@ -427,8 +456,8 @@ public class TransactionManager {
                 .orElse(Lists.newArrayList()).stream()
                 .filter(back -> transactionCode.equals(back.getPropsCode()))
                 .collect(Collectors.toList());
-        if(CollectionUtils.isNotEmpty(backpacksList) || backpacksList.size() < transactionCount){
-            return "道具数量不足";
+        if(CollectionUtils.isEmpty(backpacksList) || backpacksList.size() < transactionCount){
+            return "您道具数量不足,无法完成交易";
         }
         return null;
 
@@ -437,52 +466,52 @@ public class TransactionManager {
     /**
      * 交易道具
      */
-    private static void transactionPropStep_1(String transactionCode, Integer transactionCount, UserInfo transactionUserInfo, UserInfo initiateUserInfo){
+    private static void transactionPropStep_1(String code, Integer count, UserInfo transactionUserInfo, UserInfo initiateUserInfo){
         // 目标用户减少对应的道具数量
         List<UserBackpack> backpacksList = Optional.ofNullable(transactionUserInfo.getBackpacks())
                 .orElse(Lists.newArrayList()).stream()
-                .filter(back -> transactionCode.equals(back.getPropsCode()))
-                .limit(transactionCount)
+                .filter(back -> code.equals(back.getPropsCode()))
+                .limit(count)
                 .collect(Collectors.toList());
         // 交易用户增加
         backpacksList.forEach(back->{
-            PropsBase propsBase = PropsCardFactory.INSTANCE.getPropsBase(transactionCode);
+            PropsBase propsBase = PropsCardFactory.INSTANCE.getPropsBase(code);
             UserBackpack userBackpack = new UserBackpack(initiateUserInfo, propsBase);
             if (!initiateUserInfo.addPropToBackpack(userBackpack)) {
-                Log.error("交易失败:添加道具到用户背包失败!" + initiateUserInfo.getId() + "--" + transactionCode);
+                Log.error("交易失败:添加道具到用户背包失败!" + initiateUserInfo.getId() + "--" + code);
                 return;
             }
             back.remove();
         });
     }
 
-    private static void transactionPropStep_2(String initiatePropCode, Integer initiatePropCount, UserInfo transactionUserInfo, UserInfo initiateUserInfo){
-         if(Constant.FISH_CODE_BB.equals(initiatePropCode)){
+    private static void transactionPropStep_2(String propCode, Integer propCount, UserInfo transactionUserInfo, UserInfo initiateUserInfo){
+         if(Constant.FISH_CODE_BB.equals(propCode)){
              // 交易用户减少额度
-             EconomyUtil.minusMoneyToUser(initiateUserInfo.getUser(), Double.parseDouble(initiatePropCount +""));
+             EconomyUtil.minusMoneyToUser(initiateUserInfo.getUser(), Double.parseDouble(propCount +""));
              // 增加被交易用户的钱数
-             double targetCount =  NumberUtil.round( NumberUtil.mul(Double.parseDouble(initiatePropCount +""), 0.90), 2).doubleValue();
+             double targetCount =  NumberUtil.round( NumberUtil.mul(Double.parseDouble(propCount +""), 0.90), 2).doubleValue();
              EconomyUtil.plusMoneyToUser(transactionUserInfo.getUser(), targetCount);
-         }else if(Constant.FISH_CODE_SEASON.equals(initiatePropCode)){
+         }else if(Constant.FISH_CODE_SEASON.equals(propCode)){
              // 交易用户减少额度
-             EconomyUtil.minusMoneyToBank(initiateUserInfo.getUser(), Double.parseDouble(initiatePropCount +""));
+             EconomyUtil.minusMoneyToBank(initiateUserInfo.getUser(), Double.parseDouble(propCount +""));
              // 增加被交易用户的钱数
-             double targetCount =  NumberUtil.round( NumberUtil.mul(Double.parseDouble(initiatePropCount +""), 0.90), 2).doubleValue();
+             double targetCount =  NumberUtil.round( NumberUtil.mul(Double.parseDouble(propCount +""), 0.90), 2).doubleValue();
              EconomyUtil.plusMoneyToBank(transactionUserInfo.getUser(), targetCount);
          }else {
              // 交易用户减少对应的道具数量
              List<UserBackpack> backpacksList = Optional.ofNullable(initiateUserInfo.getBackpacks())
                      .orElse(Lists.newArrayList()).stream()
-                     .filter(back -> initiatePropCode.equals(back.getPropsCode()))
-                     .limit(initiatePropCount)
+                     .filter(back -> propCode.equals(back.getPropsCode()))
+                     .limit(propCount)
                      .collect(Collectors.toList());
 
              // 目标用户增加道具
             backpacksList.forEach(back->{
-                PropsBase propsBase = PropsCardFactory.INSTANCE.getPropsBase(initiatePropCode);
+                PropsBase propsBase = PropsCardFactory.INSTANCE.getPropsBase(propCode);
                 UserBackpack userBackpack = new UserBackpack(transactionUserInfo, propsBase);
                 if (!transactionUserInfo.addPropToBackpack(userBackpack)) {
-                    Log.error("交易失败:添加道具到用户背包失败!" + transactionUserInfo.getId() + "--" + initiatePropCode);
+                    Log.error("交易失败:添加道具到用户背包失败!" + transactionUserInfo.getId() + "--" + propCode);
                     return;
                 }
                 back.remove();
@@ -551,7 +580,11 @@ public class TransactionManager {
                 messageFormat.append("--------").append("\r\n");
             });
         }
-        subject.sendMessage(MessageUtil.formatMessageChain(message, messageFormat.toString()));
+        if(StringUtils.isBlank(messageFormat.toString())){
+            subject.sendMessage(MessageUtil.formatMessageChain(message, "暂无交易信息"));
+        }else {
+            subject.sendMessage(MessageUtil.formatMessageChain(message, messageFormat.toString()));
+        }
     }
 
     private static String changeMessage(Transaction transaction, Group group) {
@@ -559,8 +592,7 @@ public class TransactionManager {
         PropsFishCard card = (PropsFishCard) initiatePropsInfo;
 
         StringBuilder sb = new StringBuilder();
-        sb.append(new At(transaction.getInitiateUserId()).getDisplay(group))
-                .append(card.getName()).append("x").append(transaction.getInitiatePropCount()).append("\r\n");
+        sb.append("道具：").append(card.getName()).append("x").append(transaction.getInitiatePropCount()).append("\r\n");
 
         String transactionPropName = "";
         if(Constant.FISH_CODE_BB.equals(transaction.getTransactionCode())){
@@ -572,8 +604,8 @@ public class TransactionManager {
             PropsFishCard cardTransaction = (PropsFishCard) transactionPropsInfo;
             transactionPropName = cardTransaction.getName();
         }
-        sb.append(new At(transaction.getTransactionUserId()).getDisplay(group))
-                .append(transactionPropName).append("x").append(transaction.getTransactionCount()).append("\r\n");
+        sb.append("交换人：").append(new At(transaction.getTransactionUserId()).getDisplay(group)).append("\r\n");;
+        sb.append("交换物：").append(transactionPropName).append("x").append(transaction.getTransactionCount()).append("\r\n");
         return sb.toString();
     }
 

@@ -63,7 +63,7 @@ public class SisterDog extends AbstractPropUsage {
 //            userId = (Long) clicker;
 //            RedisUtils.deleteKeyString(key);
 //        }
-
+        // todo 每天两次
         List<Long> userInfoList = RedisUtils.getSisterUserList(group.getId());
         if(userInfoList.size() <= n){
             userId = userInfoList.get(userInfoList.size() -1);
