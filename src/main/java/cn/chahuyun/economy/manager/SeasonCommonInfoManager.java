@@ -15,10 +15,8 @@ public class SeasonCommonInfoManager {
     }
 
     public static List<String> getSeasonMoneyNameList(){
-        List<String> str = new ArrayList<>(3);
+        List<String> str = new ArrayList<>(1);
         str.add("雪币");
-        str.add("雪花币");
-        str.add("雪花");
         return str;
     }
 
