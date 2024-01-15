@@ -124,7 +124,7 @@ public class RandomMoneyListener extends SimpleListenerHost {
         String message = event.getMessage().serializeToMiraiCode();
 
         if (message.equals("重置鱼塘") && EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
-            SeasonManager.clearFishRank();
+             // SeasonManager.clearFishRank();
             SeasonManager.reloadFishPod(event);
             subject.sendMessage(MessageUtil.formatMessageChain("重置鱼塘成功"));
         }
@@ -417,7 +417,7 @@ public class RandomMoneyListener extends SimpleListenerHost {
             // 6. 点亮鱼竿纪念成就, 鱼竿重置等级
             SeasonManager.lightUpFishRod();
             // 7. 清理钓鱼排行榜
-            SeasonManager.clearFishRank();
+            // SeasonManager.clearFishRank();
             // 8. 用户widitbb余额 超过88888的 更新为88888
             SeasonManager.resetWditBB();
         }

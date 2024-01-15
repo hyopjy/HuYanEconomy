@@ -31,37 +31,31 @@ public class SeasonManager {
 
      */
     public static void reloadFishPod(UserMessageEvent event){
-//        List<FishRanking> fishRankList = HibernateUtil.factory.fromSession(session -> {
-//            HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
-//            JpaCriteriaQuery<FishRanking> query = builder.createQuery(FishRanking.class);
-//            query.select(query.from(FishRanking.class));
-//            return session.createQuery(query).list();
-//        });
-
-//        fishRankList.stream().forEach(fishRanking -> {
-//            HibernateUtil.factory.fromTransaction(session -> {
-//                session.remove(fishRanking);
-//                return null;
-//            });
-//        });
-
-//        List<Fish> fishList = HibernateUtil.factory.fromSession(session -> {
-//            HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
-//            JpaCriteriaQuery<Fish> query = builder.createQuery(Fish.class);
-//            query.select(query.from(Fish.class));
-//            return session.createQuery(query).list();
-//        });
-//        fishList.stream().forEach(fish -> {
-//            HibernateUtil.factory.fromTransaction(session -> {
-//                session.remove(fish);
-//                return null;
-//            });
-//        });
-        HibernateUtil.factory.fromTransaction(session -> {
+        List<FishRanking> fishRankList = HibernateUtil.factory.fromSession(session -> {
             HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
-            JpaCriteriaDelete<Fish> query = builder.createCriteriaDelete(Fish.class);
-            query.from(Fish.class);
-            return session.createQuery(query).executeUpdate();
+            JpaCriteriaQuery<FishRanking> query = builder.createQuery(FishRanking.class);
+            query.select(query.from(FishRanking.class));
+            return session.createQuery(query).list();
+        });
+
+        fishRankList.stream().forEach(fishRanking -> {
+            HibernateUtil.factory.fromTransaction(session -> {
+                session.remove(fishRanking);
+                return null;
+            });
+        });
+
+        List<Fish> fishList = HibernateUtil.factory.fromSession(session -> {
+            HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
+            JpaCriteriaQuery<Fish> query = builder.createQuery(Fish.class);
+            query.select(query.from(Fish.class));
+            return session.createQuery(query).list();
+        });
+        fishList.stream().forEach(fish -> {
+            HibernateUtil.factory.fromTransaction(session -> {
+                session.remove(fish);
+                return null;
+            });
         });
 
         FishManager.fishMap.clear();

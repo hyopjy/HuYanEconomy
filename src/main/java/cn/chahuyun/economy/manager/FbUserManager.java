@@ -14,6 +14,7 @@ import cn.hutool.core.util.StrUtil;
 import net.mamoe.mirai.contact.*;
 import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.message.data.MessageChainBuilder;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -176,7 +177,8 @@ public class FbUserManager  {
             fontSize = 20;
             pen.setFont(new Font("黑体", Font.PLAIN, fontSize));
             //id
-            pen.drawString(String.valueOf(userInfo.getQq()),195, 450);
+            String rgb = StringUtils.isBlank(userInfo.getRgb()) ? "" : userInfo.getRgb();
+            pen.drawString(String.valueOf(userInfo.getQq() + "("+rgb+")"),195, 450);
             pen.setColor(Color.black);
 
 //            String format;
