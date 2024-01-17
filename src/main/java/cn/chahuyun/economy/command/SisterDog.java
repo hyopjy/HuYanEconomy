@@ -41,6 +41,12 @@ public class SisterDog extends AbstractPropUsage {
         try {
             n = Integer.parseInt(codeArr[2]);
         }catch (Exception e){
+            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "请输入正确的命令[使用 " + propsCard.getName() + "或者" + no + " n]"));
+            return false;
+        }
+        User sender = event.getSender();
+        if(RedisUtils.getDogSisterCount(group.getId(), sender.getId()) >= 2){
+            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "已达到每天搭讪次数"));
             return false;
         }
 
@@ -86,8 +92,10 @@ public class SisterDog extends AbstractPropUsage {
 
             // 失去自我的用户加入缓存
             CacheUtils.addTimeCacheKey(group.getId(), userId);
+            RedisUtils.addDogSisterCount(group.getId(), sender.getId());
         }else {
             subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "随机用户为空！"));
         }
+
     }
 }
