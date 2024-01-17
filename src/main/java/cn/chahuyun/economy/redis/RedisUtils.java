@@ -177,4 +177,25 @@ public class RedisUtils {
         setKeyObject(key, money);
     }
 
+    public synchronized static void addDogSisterCount(long groupId, long userId) {
+        Integer count = getDogSisterCount(groupId, userId);
+        String dateString = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        String key = "dog:sister:" + dateString + ":" + groupId + ":" + userId;
+        setKeyObject(key, (count + 1));
+    }
+
+    public static Integer getDogSisterCount(long groupId, long userId) {
+        String dateString = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        String key = "dog:sister:" + dateString + ":" + groupId + ":" + userId;
+        Object value = getKeyObject(key);
+        if (Objects.isNull(value)) {
+            return 0;
+        }
+        if (value instanceof Integer) {
+            return (Integer) value;
+        } else {
+            return 0;
+        }
+    }
+
 }
