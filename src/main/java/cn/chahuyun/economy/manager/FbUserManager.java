@@ -177,8 +177,10 @@ public class FbUserManager  {
             fontSize = 20;
             pen.setFont(new Font("黑体", Font.PLAIN, fontSize));
             //id
-            String rgb = StringUtils.isBlank(userInfo.getRgb()) ? "" : userInfo.getRgb();
-            pen.drawString(String.valueOf(userInfo.getQq() + "("+rgb+")"),195, 450);
+             // String rgb = StringUtils.isBlank(userInfo.getRgb()) ? "" : userInfo.getRgb();
+          //  pen.drawString(String.valueOf(userInfo.getQq() + "("+rgb+")"),195, 450);
+            pen.drawString(String.valueOf(userInfo.getQq()),195, 450);
+
             pen.setColor(Color.black);
 
 //            String format;
