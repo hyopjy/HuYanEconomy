@@ -67,7 +67,7 @@ public class TransactionManager {
         String[] s = code.split(" ");
         if (s.length < 5) {
 //            subject.sendMessage(MessageUtil.formatMessageChain(message, "交易 xx道具 数量 币币/bb/雪币/道具 数量 @B"));
-            Log.info("[道具交易]: " + senderId + " 格式不正确-{" + code + "}");
+            Log.info("[道具交易-格式不正确]: " + senderId + " {" + code + "}");
             return null;
         }
 
@@ -89,19 +89,19 @@ public class TransactionManager {
         String[] s1Arr = s1.split(" ");
         if (s1Arr.length != 5 || Objects.isNull(transactionUserId)) {
 //            subject.sendMessage(MessageUtil.formatMessageChain(message, "请按照格式输入交易信息！"));
-            Log.info("[道具交易]: " + senderId + " 请按照格式输入交易信息-{" + code + "}");
+            Log.info("[道具交易-不正确]: " + senderId + " {" + code + "}");
             return null;
         }
         if(senderId.equals(transactionUserId)){
         //    subject.sendMessage(MessageUtil.formatMessageChain(message, "不能和自己交易哦！"));
-            Log.info("[道具交易]: " + senderId + " 不能和自己交易哦");
+            Log.info("[道具交易-和自己交易]: " + senderId);
             return null;
         }
         // 需要的道具
         String initiatePropCode = PropsType.getCode(s1Arr[1]);
         if(StringUtils.isBlank(initiatePropCode)){
 //            subject.sendMessage(MessageUtil.formatMessageChain(message, "需要的道具不存在！"));
-            Log.info("[道具交易]: " + senderId + " 需要的道具不存在");
+            Log.info("[道具交易-需要的道具不存在]: " + senderId + "-" + initiatePropCode);
             return null;
         }
         PropsFishCard propsFishCard = getPropsFishCard(subject, message, initiatePropCode);
@@ -114,13 +114,13 @@ public class TransactionManager {
             String initiatePropCountStr = s1Arr[2];
             if(StringUtils.isBlank(initiatePropCountStr)){
             //    subject.sendMessage(MessageUtil.formatMessageChain(message, "请输入道具数量！"));
-                Log.info("[道具交易]: " + senderId + " 请输入道具数量！");
+                Log.info("[道具交易-道具数量为空]: " + senderId);
                 return null;
             }
             initiatePropCount = Integer.parseInt(initiatePropCountStr);
         }catch(NumberFormatException | NullPointerException exception  ) {
 //            subject.sendMessage(MessageUtil.formatMessageChain(message, "需要的道具数量请输入数量！"));
-            Log.info("[道具交易]: " + senderId + " 需要的道具数量请输入数量！");
+            Log.info("[道具交易-道具数量为空]: " + senderId);
             return null;
         }
 
@@ -140,12 +140,12 @@ public class TransactionManager {
             transactionCode = PropsType.getCode(transactionCode);
             if (StringUtils.isBlank(transactionCode)) {
                // subject.sendMessage(MessageUtil.formatMessageChain(message, "交易道具信息有误！"));
-                Log.info("[道具交易]: " + senderId + " 交易道具信息有误！");
+                Log.info("[道具交易-交易道具信息]: " + senderId + "-" + transactionCode);
                 return null;
             }
             PropsFishCard transactionPropsFishCard = getPropsFishCard(subject, message, transactionCode);
             if(Objects.isNull(transactionPropsFishCard)){
-                Log.info("[道具交易]: " + senderId + " 交易道具信息有为空！");
+                Log.info("[道具交易-交易道具信息有为空]: " + senderId + "-" + transactionCode);
                 return null;
             }
         }
@@ -195,7 +195,7 @@ public class TransactionManager {
             }
             return card;
         }else {
-            subject.sendMessage(MessageUtil.formatMessageChain(message, "无法使用！"));
+            // subject.sendMessage(MessageUtil.formatMessageChain(message, "无法使用！"));
             Log.info("[道具交易]: " + propCode + "无法使用");
         }
         return null;
@@ -242,7 +242,8 @@ public class TransactionManager {
                 .filter(back -> transactionMessageInfo.getInitiatePropCode().equals(back.getPropsCode()))
                 .collect(Collectors.toList());
         if(CollectionUtils.isEmpty(list) || list.size() < transactionMessageInfo.getInitiatePropCount()){
-           subject.sendMessage(MessageUtil.formatMessageChain(message, "对方没有足够的道具哦。！"));
+            //subject.sendMessage(MessageUtil.formatMessageChain(message, "对方没有足够的道具哦。！"));
+            Log.info("[道具交易-交易目标没有足够道具]" + transactionMessageInfo.getInitiateUserId() + " to " + transactionMessageInfo.getTransactionUserId() + "-" + transactionMessageInfo.getInitiatePropCode());
             return;
         }
 
@@ -250,14 +251,16 @@ public class TransactionManager {
         if (Constant.FISH_CODE_BB.equals(transactionMessageInfo.getTransactionCode())) {
             double bbMoney = EconomyUtil.getMoneyByUser(sender);
             if(bbMoney  <  transactionMessageInfo.getTransactionCount()){
-                subject.sendMessage(MessageUtil.formatMessageChain(message, "你没有足够的bb哦。！"));
+                // subject.sendMessage(MessageUtil.formatMessageChain(message, "你没有足够的bb哦。！"));
+                Log.info("[道具交易-交易方没有足够的bb]" + transactionMessageInfo.getInitiateUserId() + " to " + transactionMessageInfo.getTransactionUserId() + "-" + transactionMessageInfo.getTransactionCode());
                 return;
             }
         } else if (Constant.FISH_CODE_SEASON.equals(transactionMessageInfo.getTransactionCode())) {
             // check 交易方赛季币
             double seasonMoney = EconomyUtil.getMoneyByBank(sender);
             if (seasonMoney <  transactionMessageInfo.getTransactionCount() ) {
-                subject.sendMessage(MessageUtil.formatMessageChain(message, "你没有足够的" + SeasonCommonInfoManager.getSeasonMoney() + "哦。！"));
+                // subject.sendMessage(MessageUtil.formatMessageChain(message, "你没有足够的" + SeasonCommonInfoManager.getSeasonMoney() + "哦。！"));
+                Log.info("[道具交易-交易方没有足够的赛季币]" + transactionMessageInfo.getInitiateUserId() + " to " + transactionMessageInfo.getTransactionUserId() + "-" + transactionMessageInfo.getTransactionCode());
                 return;
             }
         } else {
@@ -274,7 +277,8 @@ public class TransactionManager {
                     .filter(back -> transactionMessageInfo.getTransactionCode().equals(back.getPropsCode()))
                     .collect(Collectors.toList());
             if(CollectionUtils.isEmpty(ownList) || ownList.size() < transactionMessageInfo.getTransactionCount()){
-                subject.sendMessage(MessageUtil.formatMessageChain(message, "你没有足够的道具哦。！"));
+               // subject.sendMessage(MessageUtil.formatMessageChain(message, "你没有足够的道具哦。！"));
+                Log.info("[道具交易-交易方没有足够的道具]" + transactionMessageInfo.getInitiateUserId() + " to " + transactionMessageInfo.getTransactionUserId() + "-" + transactionMessageInfo.getTransactionCode());
                 return;
             }
         }
