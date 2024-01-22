@@ -50,7 +50,8 @@ public class EconomyEventListener extends SimpleListenerHost {
             return ListeningStatus.LISTENING;
         }
         // 设置30分钟发言缓存
-        RedisUtils.setSisterUserList(event.getGroup().getId(), event.getSender().getId());
+//        RedisUtils.setSisterUserList(event.getGroup().getId(), event.getSender().getId());
+        SisterDogCommand.getInstance().fireClickEvent(event.getGroup().getId(), event.getSender().getId());
 
         if(CacheUtils.checkTimeCacheKey(event.getGroup().getId(),event.getSender().getId())
                 || CacheUtils.checkSchDingerFishKey(event.getGroup().getId(),event.getSender().getId())
