@@ -58,9 +58,9 @@ public class SisterDogListenerImpl implements SisterDogListener {
             return;
         }
 
-        if(sisterDogEvent.getUserId().equals(sourceId)){
-            return;
-        }
+//        if(sisterDogEvent.getUserId().equals(sourceId)){
+//            return;
+//        }
         Long userId = sisterDogEvent.getUserId();
         userIdList.add(userId);
         if(!LocalDateTime.now().isBefore(expireDate)){
