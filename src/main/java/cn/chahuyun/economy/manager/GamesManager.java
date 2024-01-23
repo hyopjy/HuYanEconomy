@@ -353,7 +353,7 @@ public class GamesManager {
     private static void sendFishInfoMessage(UserInfo userInfo, User user, Contact subject, FishPond fishPond,
                                             Fish fish, int dimensions, int money, double v,String buffDesc, MessageChainBuilder messages ) {
         v = NumberUtil.round(v, 2).doubleValue();
-        if (EconomyUtil.plusMoneyToUser(user, v)
+        if (EconomyUtil.plusMoneyToBank(user, v)
                 && EconomyUtil.plusMoneyToBankForId(fishPond.getCode(), fishPond.getDescription(),
                 money * fishPond.getRebate())) {
             fishPond.addNumber();
@@ -670,7 +670,7 @@ public class GamesManager {
 
         NormalMember normalMember = group.get(HuYanEconomy.config.getOwner());
         if (Objects.nonNull(normalMember)) {
-            EconomyUtil.plusMoneyToUser(normalMember, money * fishPond.getRebate());
+            EconomyUtil.plusMoneyToBank(normalMember, money * fishPond.getRebate());
         }
         if (fish.isSpecial()) {
             String propCode = PropsType.getCode(fish.getName());
@@ -718,7 +718,7 @@ public class GamesManager {
     private static AutomaticFish getAutomaticFishInfo(User user, FishPond fishPond, Fish fish, int dimensions,
                                                       int money, double v) {
         v = NumberUtil.round(v, 2).doubleValue();
-        if (EconomyUtil.plusMoneyToUser(user, v)
+        if (EconomyUtil.plusMoneyToBank(user, v)
                 && EconomyUtil.plusMoneyToBankForId(fishPond.getCode(), fishPond.getDescription(),
                 money * fishPond.getRebate())) {
             fishPond.addNumber();
