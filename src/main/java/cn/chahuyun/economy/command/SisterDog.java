@@ -55,7 +55,7 @@ public class SisterDog extends AbstractPropUsage {
         Integer n = RandomUtil.randomInt(2, 67);
         subject.sendMessage(new MessageChainBuilder().append(new QuoteReply(event.getMessage()))
                 .append(propsCard.getName()).append("使用成功").append("\r\n")
-                .append(new At(sender.getId()).getDisplay(group)).append("搭讪的姐姐选择了幸运数字" + n)
+                // .append(new At(sender.getId()).getDisplay(group)).append("搭讪的姐姐选择了幸运数字" + n)
                 .build());
 //        RedisUtils.addDogSisterCount(group.getId(), sender.getId());
         String key = SisterDogCommand.getListenerKey(group.getId(), sender.getId());
