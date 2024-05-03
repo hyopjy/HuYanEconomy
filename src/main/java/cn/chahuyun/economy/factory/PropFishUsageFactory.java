@@ -103,4 +103,8 @@ public class PropFishUsageFactory {
     public IPropUsage createWDITBB40() {
         return new WDITBB40();
     }
+
+    public IPropUsage createULNS_2324() {
+        return new Ulns2324();
+    }
 }

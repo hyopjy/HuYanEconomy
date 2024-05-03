@@ -46,4 +46,6 @@ public interface PropConstant {
     String SPORTS_AND_ART_STUDENTS = "《体育生与艺术生》";
 
     String WDIT_BB_4_0 = "WDITBB4.0";
+
+    String ULNS_2324 = "《乌拉诺斯2324》";
 }

@@ -96,7 +96,8 @@ public class Mask extends AbstractPropUsage {
                         .build());
             }
         } else {
-            int money = RandomUtil.randomInt(5001, 9001);
+            // 8001-20000
+            int money = RandomUtil.randomInt(8001, 20000);
             List<Long> plususerId = new ArrayList<>();
             List<Long> minuserId = new ArrayList<>();
             if (Objects.nonNull(senderTeam)) {
