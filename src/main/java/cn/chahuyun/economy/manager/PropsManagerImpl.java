@@ -95,6 +95,26 @@ public class PropsManagerImpl implements PropsManager {
        uranusList.add("FISH-59");
        uranusList.add("FISH-60");
        uranusList.add("FISH-61");
+       uranusList.add("FISH-63");
+       uranusList.add("FISH-64");
+       uranusList.add("FISH-65");
+       uranusList.add("FISH-66");
+       uranusList.add("FISH-67");
+       uranusList.add("FISH-68");
+       uranusList.add("FISH-69");
+       uranusList.add("FISH-70");
+       uranusList.add("FISH-71");
+       uranusList.add("FISH-72");
+       uranusList.add("FISH-73");
+       uranusList.add("FISH-74");
+       uranusList.add("FISH-75");
+       uranusList.add("FISH-76");
+       uranusList.add("FISH-77");
+       uranusList.add("FISH-78");
+       uranusList.add("FISH-79");
+       uranusList.add("FISH-80");
+       uranusList.add("FISH-81");
+       uranusList.add("FISH-82");
        PROP_EXCHANGE.put("FISH-62", uranusList);
 
    }

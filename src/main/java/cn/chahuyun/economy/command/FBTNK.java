@@ -52,13 +52,13 @@ public class FBTNK extends AbstractPropUsage {
         properties.add(property2);
         buff.setProperties(properties);
 
-        EconomyUtil.plusMoneyToUser(sender, 131400);
+        EconomyUtil.plusMoneyToUser(sender, 513140);
 
 
         CacheUtils.addBuff(group.getId(), sender.getId(), buff);
         subject.sendMessage(new MessageChainBuilder().append(new QuoteReply(event.getMessage()))
                 .append(propsCard.getName() + "使用成功").append("\r\n")
-                .append("成功获得131400币币").append("\r\n")
+                .append("成功获得513140币币").append("\r\n")
                 .append(propsCard.getContent())
                 .build());
     }
