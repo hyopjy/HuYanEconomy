@@ -11,7 +11,7 @@ public class SeasonCommonInfoManager {
      * @return
      */
     public static String getSeasonMoney(){
-       return "雪币❄";
+       return "雪币";
     }
 
     public static List<String> getSeasonMoneyNameList(){
