@@ -68,27 +68,30 @@ public class SignManager {
         if (randomNumber > 7) {
             randomNumber = RandomUtil.randomInt(0, 10);
             if (randomNumber > 8) {
-                goldNumber = RandomUtil.randomInt(200, 501);
-                plainText = new PlainText(String.format("今天的你运气爆棚,获得了%s" + SeasonCommonInfoManager.getSeasonMoney(), goldNumber));
+                goldNumber = RandomUtil.randomInt(6000, 11000);
+//                plainText = new PlainText(String.format("今天的你运气爆棚,获得了%s" + SeasonCommonInfoManager.getSeasonMoney(), goldNumber));
+                plainText = new PlainText(String.format("今天的你运气爆棚,获得了%s 币币", goldNumber));
             } else {
-                goldNumber = RandomUtil.randomInt(100, 200);
-                plainText = new PlainText(String.format("好耶,获得%s" +  SeasonCommonInfoManager.getSeasonMoney(), goldNumber));
+                goldNumber = RandomUtil.randomInt(6000, 15000);
+//                plainText = new PlainText(String.format("好耶,获得%s " +  SeasonCommonInfoManager.getSeasonMoney(), goldNumber));
+                plainText = new PlainText(String.format("好耶,获得%s 币币", goldNumber));
             }
         } else {
-            goldNumber = RandomUtil.randomInt(50, 100);
+            // 签到收益改为币币，随机范围5000~10000
+            goldNumber = RandomUtil.randomInt(5000, 10000);
         }
 
-       // if (!EconomyUtil.plusMoneyToUser(userInfo.getUser(), goldNumber)) {
+        if (!EconomyUtil.plusMoneyToUser(userInfo.getUser(), goldNumber)) {
         // new 枫叶
-        if (!EconomyUtil.plusMoneyToBank(userInfo.getUser(), goldNumber)) {
+//        if (!EconomyUtil.plusMoneyToBank(userInfo.getUser(), goldNumber)) {
             subject.sendMessage("签到失败!");
             //todo 签到失败回滚
             return;
         }
         userInfo.setSignEarnings(goldNumber);
         userInfo.save();
-       // double moneyBytUser = EconomyUtil.getMoneyByUser(userInfo.getUser());
-        double moneyBytUser = EconomyUtil.getMoneyByBank(userInfo.getUser());
+        double moneyBytUser = EconomyUtil.getMoneyByUser(userInfo.getUser());
+//        double moneyBytUser = EconomyUtil.getMoneyByBank(userInfo.getUser());
         messages.append(new PlainText("签到成功!"));
         messages.append(new PlainText(String.format(SeasonCommonInfoManager.getSeasonMoney() +":%s(+%s)", moneyBytUser, goldNumber)));
         if (userInfo.getOldSignNumber() != 0) {

@@ -421,13 +421,27 @@ public class RandomMoneyListener extends SimpleListenerHost {
             // 8. 用户widitbb余额 超过88888的 更新为88888
             SeasonManager.resetWditBB();
         }
-        if (message.startsWith("给我雪币") &&
+        if (message.startsWith("xb") &&
                 EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())){
-            EconomyUtil.plusMoneyToBank(sender, 99999);
+            try {
+                String[] arr = message.split(" ");
+                double money = Double.parseDouble(arr[1]);
+                EconomyUtil.plusMoneyToBank(sender, money);
+
+            }catch (Exception e){
+                Log.info("给我雪币 exception:"+ e.getMessage());
+            }
         }
-        if (message.startsWith("给我币币") &&
+        if (message.startsWith("bb") &&
                 EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())){
-            EconomyUtil.plusMoneyToUser(sender, 99999);
+            try {
+                String[] arr = message.split(" ");
+                double money = Double.parseDouble(arr[1]);
+                EconomyUtil.plusMoneyToUser(sender, money);
+
+            }catch (Exception e){
+               Log.info("给我币币 exception:"+ e.getMessage());
+            }
         }
         return ListeningStatus.LISTENING;
     }
