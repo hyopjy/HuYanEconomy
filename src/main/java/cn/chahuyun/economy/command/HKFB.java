@@ -34,7 +34,6 @@ public class HKFB extends AbstractPropUsage {
         subject.sendMessage(new MessageChainBuilder().append(new QuoteReply(event.getMessage()))
                 .append(propsCard.getName() + "使用成功").append("\r\n")
                 .append("成功获得980200币币").append("\r\n")
-                .append(new At(HuYanEconomy.config.getOwner()).getDisplay(group) +"已完成收集")
                 .build());
     }
 }

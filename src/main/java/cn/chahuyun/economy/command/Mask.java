@@ -58,6 +58,7 @@ public class Mask extends AbstractPropUsage {
 //        被打劫，队伍均摊损失；
 //        打劫他人，两人获得同样的币币
 //        抢劫失败罚款2000币币，如果有队友，则队友分摊一半 变成一人1000
+        CacheUtils.addUserMaskCountKey(group.getId(), sender.getId());
 
         List<Team> teamList = TeamManager.listTeam(group.getId());
         Team senderTeam = null;
@@ -144,7 +145,6 @@ public class Mask extends AbstractPropUsage {
                 minBB.append(new At(userId).getDisplay(group)).append("\r\n");
             });
 
-            CacheUtils.addUserMaskCountKey(group.getId(), sender.getId());
             subject.sendMessage(new MessageChainBuilder().append(new QuoteReply(event.getMessage()))
                     .append(propsCard.getName() + "使用成功")
                     .append("\r\n")
