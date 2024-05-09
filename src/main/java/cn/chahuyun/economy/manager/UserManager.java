@@ -61,7 +61,7 @@ public class UserManager {
         long userId = user.getId();
         //查询用户
         try {
-            return HibernateUtil.factory.fromTransaction(session -> {
+            UserInfo userExits =  HibernateUtil.factory.fromTransaction(session -> {
                 HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
                 JpaCriteriaQuery<UserInfo> query = builder.createQuery(UserInfo.class);
                 JpaRoot<UserInfo> from = query.from(UserInfo.class);
@@ -69,6 +69,11 @@ public class UserManager {
                 query.where(builder.equal(from.get("qq"), userId));
                 return session.createQuery(query).getSingleResult().setUser(user);
             });
+            if(!userExits.getName().equals(user.getNick())){
+                userExits.setName(user.getNick());
+                userExits.save();
+            }
+            return userExits;
         } catch (Exception e) {
             //注册用户
             long group = 0;
@@ -433,5 +438,15 @@ public class UserManager {
             query.select(from);
             return session.createQuery(query).list();
         });
+    }
+
+    public static void userRgbList(MessageEvent event) {
+        Contact subject = event.getSubject();
+        List<UserInfo> userInfos =  getUserList();
+        StringBuilder messageFormat = new StringBuilder();
+        userInfos.forEach(user->{
+            messageFormat.append(user.getQq()).append("_").append(user.getName()).append("_").append(user.getRgb()).append("\r\n");
+        });
+        subject.sendMessage(messageFormat.toString());
     }
 }

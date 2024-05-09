@@ -403,6 +403,12 @@ public class RandomMoneyListener extends SimpleListenerHost {
         if (message.startsWith("重置用户属性") &&
                 EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())){
             UserManager.resetUserRgb();
+            subject.sendMessage("重置成功");
+        }
+
+        if (message.startsWith("rgb") &&
+                EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())){
+            UserManager.userRgbList(event);
         }
         if (message.startsWith("重置赛季") &&
                 EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())){

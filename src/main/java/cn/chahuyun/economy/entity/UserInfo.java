@@ -1,5 +1,6 @@
 package cn.chahuyun.economy.entity;
 
+import cn.chahuyun.economy.constant.Constant;
 import cn.chahuyun.economy.entity.fish.FishInfo;
 import cn.chahuyun.economy.utils.HibernateUtil;
 import cn.chahuyun.economy.utils.Log;
@@ -7,6 +8,7 @@ import cn.hutool.core.date.CalendarUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.RandomUtil;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -100,6 +102,7 @@ public class UserInfo implements Serializable {
         this.registerGroup = registerGroup;
         this.name = name;
         this.registerTime = registerTime;
+        this.rgb = Constant.RGB_LIST.get(RandomUtil.randomInt(0,3));
     }
 
 
