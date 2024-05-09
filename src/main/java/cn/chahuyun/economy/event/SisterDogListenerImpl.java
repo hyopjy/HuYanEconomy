@@ -81,7 +81,8 @@ public class SisterDogListenerImpl implements SisterDogListener {
         if(Objects.isNull(lastUserId)){
             return;
         }
-        int money = RandomUtil.randomInt(800, 3501);
+        // 1200-8500
+        int money = RandomUtil.randomInt(1200, 8501);
         // 减去目标用户
         EconomyUtil.minusMoneyToUser(group.get(lastUserId), money);
 
