@@ -99,4 +99,6 @@ public interface PropsManager {
      */
 
     void exchangePropFromStore(MessageEvent event);
+
+    void addProp(UserInfo userInfo, PropsBase propsBase);
 }
