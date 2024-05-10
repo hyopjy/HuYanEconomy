@@ -233,7 +233,7 @@ public class PropsManagerImpl implements PropsManager {
      * @return true 成功删除
      */
     @Override
-    public UserInfo deleteProp(UserInfo userInfo, PropsBase props,int limit) {
+    public UserInfo deleteProp(UserInfo userInfo, PropsBase props, int limit) {
         List<UserBackpack> backpacks = Optional.ofNullable(userInfo.getBackpacks()).orElse(new ArrayList<>());
         backpacks.stream().filter(Objects::nonNull)
                 .filter(back -> back.getPropId() == props.getId())
@@ -818,6 +818,14 @@ public class PropsManagerImpl implements PropsManager {
             subject.sendMessage(messages.build());
             return;
 
+        }
+    }
+
+    @Override
+    public void addProp(UserInfo userInfo, PropsBase propsBase) {
+        UserBackpack userBackpack = new UserBackpack(userInfo, propsBase);
+        if (!userInfo.addPropToBackpack(userBackpack)) {
+            Log.warning("道具系统-addProp:添加道具到用户背包失败!");
         }
     }
 

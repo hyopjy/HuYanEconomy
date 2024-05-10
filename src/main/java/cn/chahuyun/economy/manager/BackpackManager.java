@@ -1,18 +1,18 @@
 package cn.chahuyun.economy.manager;
 
 import cn.chahuyun.economy.entity.UserBackpack;
-import cn.chahuyun.economy.entity.badge.BadgeInfo;
+import cn.chahuyun.economy.entity.UserInfo;
+import cn.chahuyun.economy.entity.props.PropsBase;
 import cn.chahuyun.economy.entity.props.PropsFishCard;
+import cn.chahuyun.economy.entity.props.factory.PropsCardFactory;
 import cn.chahuyun.economy.plugin.PluginManager;
 import cn.chahuyun.economy.plugin.PropsType;
 import cn.chahuyun.economy.utils.HibernateUtil;
-import cn.chahuyun.economy.utils.Log;
-import cn.chahuyun.economy.utils.MessageUtil;
 import jakarta.persistence.criteria.Root;
-import net.mamoe.mirai.event.events.MessageEvent;
-import net.mamoe.mirai.message.data.PlainText;
-import org.apache.poi.ss.formula.functions.T;
-import org.hibernate.query.Query;
+import net.mamoe.mirai.contact.Contact;
+import net.mamoe.mirai.contact.Group;
+import net.mamoe.mirai.contact.NormalMember;
+import net.mamoe.mirai.event.events.UserMessageEvent;
 import org.hibernate.query.criteria.HibernateCriteriaBuilder;
 import org.hibernate.query.criteria.JpaCriteriaDelete;
 import org.hibernate.query.criteria.JpaCriteriaQuery;
@@ -20,6 +20,7 @@ import org.hibernate.query.criteria.JpaRoot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -78,4 +79,42 @@ public class BackpackManager {
             return session.createQuery(query).list();
         });
     }
+
+    public static void updateUserPropForGroup(UserMessageEvent event, Long groupId, Long qq, String prop, Integer num, String type) {
+        Contact subject = event.getSubject();
+
+        // 获取机器人所在群聊
+        Group group = event.getBot().getGroup(groupId);
+        if(Objects.isNull(group)){
+            subject.sendMessage("机器人暂未加入该群聊：" + groupId);
+            return;
+        }
+        // 道具
+        String propCode = PropsType.getCode(prop);
+        if (Objects.isNull(propCode)) {
+            subject.sendMessage("道具为空：" + prop);
+            return;
+        }
+        // 指定用户
+        NormalMember member = group.get(qq);
+        if(Objects.isNull(member)){
+            subject.sendMessage("指定用户不存在：" + qq);
+            return;
+        }
+        UserInfo userInfo = UserManager.getUserInfo(member);
+        PropsBase propsBase = PropsCardFactory.INSTANCE.getPropsBase(propCode);
+        int number = num;
+        while (number != 0) {
+            if("ap".equals(type)){
+                PluginManager.getPropsManager().addProp(userInfo, propsBase);
+            }
+            if("rp".equals(type)){
+                PluginManager.getPropsManager().deleteProp(userInfo, propsBase);
+            }
+            number--;
+        }
+        String typeStr = "rp".equals(type) ? "删除" : "添加";
+        subject.sendMessage(typeStr + " 道具成功");
+    }
+
 }

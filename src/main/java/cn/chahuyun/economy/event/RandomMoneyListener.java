@@ -449,6 +449,45 @@ public class RandomMoneyListener extends SimpleListenerHost {
                Log.info("给我币币 exception:"+ e.getMessage());
             }
         }
+
+        // 增加道具 add pack
+        // ap groupId qq prop 4
+        // ap groupId qq prop
+
+        // 删除道具 remove pack
+        // rp groupid qq prop 4
+        if ((message.startsWith("ap") || message.startsWith("rp")) &&
+                EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
+            try {
+                String[] arr = message.split(" ");
+                if (!(arr.length == 4 || arr.length == 5)) {
+                    subject.sendMessage("请输入： ap groupId qq prop 4 或者 ap groupId qq prop");
+                    return ListeningStatus.LISTENING;
+                }
+                String type = arr[0];
+                Long groupId = null;
+                Long qq = null;
+                String prop = "";
+                Integer num = null;
+                if (arr.length == 5) {
+                    groupId = Long.parseLong(arr[1]);
+                    qq = Long.parseLong(arr[2]);
+                    prop = arr[3];
+                    num = Integer.parseInt(arr[4]);
+                }
+                if (arr.length == 4) {
+                    groupId = Long.parseLong(arr[1]);
+                    qq = Long.parseLong(arr[2]);
+                    prop = arr[3];
+                    num = 1;
+                }
+                // 给某人背包新增道具
+                BackpackManager.updateUserPropForGroup(event, groupId, qq, prop, num, type);
+            } catch (Exception e) {
+                Log.info("增加/删除 道具 add pack exception:" + e.getMessage());
+            }
+        }
+
         return ListeningStatus.LISTENING;
     }
 
