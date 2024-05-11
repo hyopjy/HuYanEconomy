@@ -1,6 +1,7 @@
 package cn.chahuyun.economy.event;
 
 import cn.chahuyun.config.EconomyConfig;
+import cn.chahuyun.config.EconomyEventConfig;
 import cn.chahuyun.economy.HuYanEconomy;
 import cn.chahuyun.economy.manager.*;
 import cn.chahuyun.economy.plugin.PluginManager;
@@ -285,7 +286,8 @@ public class MessageEventListener extends SimpleListenerHost {
 //            }
 
             String setSpecialAchievements = "特殊成就(\\[mirai:at:\\d+])? (\\S+)?";
-            if (Pattern.matches(setSpecialAchievements, code)) {
+            if (EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())
+                    && Pattern.matches(setSpecialAchievements, code)) {
                 Log.info("特殊成就");
                 BadgeInfoManager.setSpecialAchievements(event);
                 return;
