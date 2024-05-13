@@ -410,6 +410,11 @@ public class RandomMoneyListener extends SimpleListenerHost {
                 EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())){
             UserManager.userRgbList(event);
         }
+        // 设置用户属性 set rgb qq R/G/B
+        if (message.startsWith("set rgb") &&
+                EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())){
+//            UserManager.setUserRgb(event);
+        }
         if (message.startsWith("重置赛季") &&
                 EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())){
             // 1. 重置鱼塘
