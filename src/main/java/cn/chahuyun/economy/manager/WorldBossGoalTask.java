@@ -11,6 +11,7 @@ import cn.chahuyun.economy.entity.boss.WorldBossConfig;
 import cn.chahuyun.economy.entity.boss.WorldBossUserLog;
 import cn.chahuyun.economy.entity.boss.WorldPropConfig;
 import cn.chahuyun.economy.entity.props.PropsBase;
+import cn.chahuyun.economy.plugin.PluginManager;
 import cn.chahuyun.economy.plugin.PropsType;
 import cn.chahuyun.economy.utils.EconomyUtil;
 import cn.chahuyun.economy.utils.Log;
@@ -23,6 +24,7 @@ import net.mamoe.mirai.contact.NormalMember;
 import net.mamoe.mirai.message.data.At;
 import net.mamoe.mirai.message.data.Message;
 import net.mamoe.mirai.message.data.PlainText;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.RandomUtils;
 
 import java.util.*;
@@ -69,6 +71,19 @@ public class WorldBossGoalTask implements Task {
         }
         Log.info("WorldBossGoalTask-otherFish：" + otherFish);
 
+        double lastShotBB = 0.0;
+        // 最后一杆奖励bb
+        WorldBossConfig lastShotBbConfig =  WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.LAST_SHOT_BB);
+        if(Objects.nonNull(lastShotBbConfig)){
+            lastShotBB = Double.parseDouble(lastShotBbConfig.getConfigInfo());
+        }
+        // 最后一杆奖励道具
+        List<String>  lastShotPropCodeList = new ArrayList<>();
+        WorldBossConfig lastShotPropCodeConfig =  WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.LAST_SHOT_PROP);
+        if(Objects.nonNull(lastShotPropCodeConfig)){
+            lastShotPropCodeList = Arrays.asList(lastShotPropCodeConfig.getConfigInfo().split(Constant.SPILT));
+        }
+
         List<WorldPropConfig> worldPropConfigList = WorldBossConfigManager.getWorldPropConfigList();
         Log.info("WorldBossGoalTask-获取道具列表长度：" + worldPropConfigList.size());
 
@@ -80,7 +95,16 @@ public class WorldBossGoalTask implements Task {
             Long groupId = m.getKey();
             Group group = bot.getGroup(groupId);
             List<WorldBossUserLog> groupWorldBossUserLog = m.getValue();
-            Log.info("WorldBossGoalTask-群id：" + groupId + "WorldBossGoalTask-群记录数：" + groupWorldBossUserLog.size());
+            // 查询最后一杆用户
+            Long lastShotUserId = null;
+            Optional<WorldBossUserLog> optionalWorldBossUserLog =
+                    groupWorldBossUserLog.stream()
+                            .max(Comparator.comparing(WorldBossUserLog::getDateTime));
+            if (optionalWorldBossUserLog.isPresent()) {
+                WorldBossUserLog worldBossUserLog = optionalWorldBossUserLog.get();
+                lastShotUserId = worldBossUserLog.getUserId();
+            }
+            Log.info("WorldBossGoalTask-群id：" + groupId + "WorldBossGoalTask-群记录数：" + groupWorldBossUserLog.size() + "最后一名玩家：" + lastShotUserId);
             double userFishSize = NumberUtil.round(groupWorldBossUserLog.stream().mapToDouble(WorldBossUserLog::getSize).sum(), 2).doubleValue();
             if ((userFishSize + otherFish) < fishSize) {
                 Log.info("WorldBossGoalTask-end：目标尺寸:" + fishSize + "当前尺寸：" + (userFishSize + otherFish));
@@ -124,6 +148,39 @@ public class WorldBossGoalTask implements Task {
                 sb.append("-------").append("\r\n");
             }
 
+            // 最后一个钓鱼用户
+            if(Objects.nonNull(lastShotUserId)){
+                sb.append("-------").append("\r\n");
+                sb.append("恭喜最后一杆 \uD83D\uDC51\uD83D\uDC51")
+                        .append(new At(lastShotUserId).getDisplay(group))
+                        .append("获得：").append("\r\n");
+                NormalMember member = group.get(lastShotUserId);
+                if (Objects.isNull(member)) {
+                    Log.error("WorldBossGoalTask-发放奖金用户为空：" + lastShotUserId);
+                    return;
+                }
+                // bb
+                if(lastShotBB > 0){
+                    if (!EconomyUtil.plusMoneyToUser(member, lastShotBB)) {
+                        member.sendMessage("奖金添加失败，请联系管理员!");
+                        Log.error("WorldBossGoalTask-发放奖金失败：" + lastShotUserId + "奖金：" + lastShotBB);
+                        return;
+                    }
+                    sb.append("bb:" + lastShotBB).append("\r\n");
+                } else if(CollectionUtils.isNotEmpty(lastShotPropCodeList)){
+                    // 道具
+                    List<String> propNameList = new ArrayList<>();
+                    lastShotPropCodeList.forEach(propCode->{
+                        PropsBase propsInfo = PropsType.getPropsInfo(propCode);
+                        UserInfo userInfo = UserManager.getUserInfo(member);
+                        PluginManager.getPropsManager().addProp(userInfo, propsInfo);
+                    });
+                    sb.append("道具:" + String.join(Constant.SPILT, propNameList)).append("\r\n");
+                } else {
+                    sb.append("什么也没有呢\uD83D\uDE09\uD83D\uDE09").append("\r\n");
+                }
+                sb.append("-------").append("\r\n");
+            }
 
             sb.append("钓鱼佬，你掉的道具如下：").append("\r\n");
             sb.append("-------").append("\r\n");

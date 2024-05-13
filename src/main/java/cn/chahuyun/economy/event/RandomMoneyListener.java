@@ -38,9 +38,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -298,6 +296,37 @@ public class RandomMoneyListener extends SimpleListenerHost {
                 String min = Double.parseDouble(codeArr[2]) + "";
                 WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.OTHER_FISH_SIZE);
                 worldBossStatusConfig.setConfigInfo(min);
+                worldBossStatusConfig.save();
+            }
+
+            if ("最后一杆奖励币币".equals(codeArr[1])) {
+                String bb = Double.parseDouble(codeArr[2]) + "";
+                WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.LAST_SHOT_BB);
+                worldBossStatusConfig.setConfigInfo(bb);
+                worldBossStatusConfig.save();
+            }
+
+            if ("最后一杆奖励道具".equals(codeArr[1])) {
+                String prop = Objects.isNull(codeArr[2]) ? "" : codeArr[2];
+                List<String> propList = Arrays.asList(prop.split(Constant.SPILT)).stream().distinct().collect(Collectors.toList());
+                List<String> propCodeList = new ArrayList<>(propList.size());
+                List<String> notExitPropList = new ArrayList<>();
+                propList.forEach(no->{
+                    String propCode = PropsType.getCode(no);
+                    if(Objects.isNull(propCode)){
+                        notExitPropList.add(no);
+                    }else {
+                        propCodeList.add(propCode);
+                    }
+                });
+                if(CollectionUtils.isNotEmpty(notExitPropList)){
+                    String commaSeparatedString = String.join(Constant.SPILT, notExitPropList);
+                    subject.sendMessage("道具不存在：" + commaSeparatedString);
+                    return ListeningStatus.LISTENING;
+                }
+                String propCodeValue =  String.join(Constant.SPILT, propCodeList);
+                WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.LAST_SHOT_PROP);
+                worldBossStatusConfig.setConfigInfo(propCodeValue);
                 worldBossStatusConfig.save();
             }
 

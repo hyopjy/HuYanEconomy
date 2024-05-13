@@ -29,6 +29,15 @@ public enum WorldBossEnum {
     OPEN_TIME(13,"open_time", "开始时间",  Constant.BOSS_TYPE_STRING, "2023-11-31 18:30:00"),
     END_TIME(14,"end_time", "结束时间",  Constant.BOSS_TYPE_STRING, "2023-12-30 12:30:00"),
 
+    /**
+     * 最后一杆奖励bb
+     */
+    LAST_SHOT_BB(15,"last_shot_bb", "最后一杆奖励币币", Constant.BOSS_TYPE_DOUBLE, "0.0"),
+
+    /**
+     * 最后一杆奖励道具
+     */
+    LAST_SHOT_PROP(16,"last_shot_prop", "最后一杆奖励道具", Constant.BOSS_TYPE_STRING, ""),
 
 //    OPEN_HOUR(4,"open_hour", "开始时间小时",  Constant.BOSS_TYPE_INT, "0"),
 //    END_HOUR(5,"end_hour", "结束时间小时",  Constant.BOSS_TYPE_INT, "23"),
@@ -52,7 +61,7 @@ public enum WorldBossEnum {
     final String value;
 
     public  static List<WorldBossEnum> getWorldBossEnumList(){
-        List<WorldBossEnum> list = new ArrayList<>(12);
+        List<WorldBossEnum> list = new ArrayList<>(14);
         list.add(BOSS_STATUS);
         list.add(FISH_SIZE);
         list.add(WDIT_BB);
@@ -68,19 +77,8 @@ public enum WorldBossEnum {
         list.add(CORN_OPEN);
         list.add(CORN_GOAL);
         list.add(CORN_PROGRESS);
-        return list;
-    }
-
-    public  static List<WorldBossEnum> getWorldBossNotFixEnumList(){
-        List<WorldBossEnum> list = new ArrayList<>(6);
-//        list.add(OPEN_HOUR);
-//        list.add(END_HOUR);
-//        list.add(OPEN_HOUR_MINUTE);
-        list.add(OPEN_TIME);
-        list.add(END_TIME);
-        list.add(CORN_OPEN);
-        list.add(CORN_GOAL);
-        list.add(CORN_PROGRESS);
+        list.add(LAST_SHOT_BB);
+        list.add(LAST_SHOT_PROP);
         return list;
     }
 }

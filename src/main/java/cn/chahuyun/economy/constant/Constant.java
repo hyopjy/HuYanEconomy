@@ -64,4 +64,6 @@ public interface Constant {
     String FISH_CODE_SEASON = "FISH-season";
 
     List<String> RGB_LIST = Arrays.asList(new String[]{"R", "G","B"});
+
+    String SPILT = ",";
 }
