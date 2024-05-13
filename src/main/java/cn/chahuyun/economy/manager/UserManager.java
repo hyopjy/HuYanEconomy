@@ -13,6 +13,7 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import net.mamoe.mirai.contact.*;
 import net.mamoe.mirai.event.events.MessageEvent;
+import net.mamoe.mirai.event.events.UserMessageEvent;
 import net.mamoe.mirai.message.data.Image;
 import net.mamoe.mirai.message.data.MessageChainBuilder;
 import org.hibernate.query.criteria.HibernateCriteriaBuilder;
@@ -30,6 +31,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -448,5 +450,26 @@ public class UserManager {
             messageFormat.append(user.getQq()).append("_").append(user.getName()).append("_").append(user.getRgb()).append("\r\n");
         });
         subject.sendMessage(messageFormat.toString());
+    }
+
+    public static void setUserRgb(UserMessageEvent event, Long groupId, Long userId, String rgb) {
+        Contact subject = event.getSubject();
+        // 获取机器人所在群聊
+        Group group = event.getBot().getGroup(groupId);
+        if(Objects.isNull(group)){
+            subject.sendMessage("机器人暂未加入该群聊：" + groupId);
+            return;
+        }
+
+        // 指定用户
+        NormalMember member = group.get(userId);
+        if(Objects.isNull(member)){
+            subject.sendMessage("指定用户不存在：" + userId);
+            return;
+        }
+        UserInfo userInfo = UserManager.getUserInfo(member);
+        userInfo.setRgb(rgb);
+        userInfo.save();
+        subject.sendMessage("更新成功：" + userId);
     }
 }
