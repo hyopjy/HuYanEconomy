@@ -226,7 +226,7 @@ public class TransactionManager {
         List<Transaction> tList = getTransactionByUserType(transactionMessageInfo.getInitiateUserId(),
                 transactionMessageInfo.getTransactionUserId(),TRANSACTION_WAIT);
         if(CollectionUtils.isNotEmpty(tList)){
-            subject.sendMessage(MessageUtil.formatMessageChain(message, "你和目标用户有未完成的交易 交易完成后在进行交易"));
+            subject.sendMessage(MessageUtil.formatMessageChain(message, "你和目标用户有未完成的交易 交易完成后再进行交易"));
             return;
         }
         User transactionUserGroup = group.get(transactionMessageInfo.getTransactionUserId());

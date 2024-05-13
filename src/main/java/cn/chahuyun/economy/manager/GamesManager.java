@@ -155,8 +155,8 @@ public class GamesManager {
 
         //随机睡眠
         try {
-            // 30-120
-           Thread.sleep(RandomUtil.randomInt(30 * 60 * 1000, 120 * 60 * 1000));
+            // 15-90
+           Thread.sleep(RandomUtil.randomInt(15 * 60 * 1000, 90 * 60 * 1000));
             //      Thread.sleep(RandomUtil.randomInt(100, 6000));
         } catch (InterruptedException e) {
             Log.debug(e);
@@ -168,6 +168,7 @@ public class GamesManager {
         int difficultyMax = 99 + userFishInfo.getRodLevel();
         int rankMin = 1;
         int rankMax = userFishInfo.getRodLevel() / 9;
+
 
         Log.info("[fishing-start]" +
                 ",difficultyMin:" + difficultyMin +
@@ -586,11 +587,13 @@ public class GamesManager {
         double result = 1 + Math.sqrt(userFishInfo.getRodLevel() * 14);
         int difficultyMin =(int) result;
         int difficultyMax = 131;
-        int rankMin = (int) (userFishInfo.getLevel() + 20) / 20;
-        int rankMax = 1;
+        int rankMin = (int) (userFishInfo.getLevel() + 20) / 10 == 0 ? 1 : (userFishInfo.getLevel() + 20) / 10;
+        int rankMax = (int) userFishInfo.getLevel() / 9 == 0 ? 1 : userFishInfo.getLevel() / 9;
  //       rankMin = Math.max((userFishInfo.getLevel() / 8) + 1, rankMin);
-        rankMax = Math.max(rankMin + 1, Math.min(userFishInfo.getLevel(), fishPond.getPondLevel()));
-      //  int userFishLevel = (userFishInfo.getLevel() / 8) + 1;
+//        rankMax = Math.max(rankMin + 1, Math.min(userFishInfo.getLevel(), fishPond.getPondLevel()));
+        rankMax = Math.max(rankMin, rankMax);
+
+        //  int userFishLevel = (userFishInfo.getLevel() / 8) + 1;
        // rankMax = Math.max(Math.max(userFishLevel, rankMin), Math.min(userFishLevel, fishPond.getPondLevel()));
         Log.info("[自动钓鱼机-自动钓鱼-start] "
                 +",difficultyMin:" + difficultyMin
