@@ -53,6 +53,6 @@ public class SpecialTitleAlawys extends AbstractPropUsage {
         NormalMember normalMember = group.get(sender.getId());
         assert normalMember != null;
         normalMember.setSpecialTitle(title);
-        subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"修改头衔成功！"));
+//        subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"修改头衔成功！"));
     }
 }

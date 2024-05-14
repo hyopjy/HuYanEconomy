@@ -53,6 +53,6 @@ public class SpecialTitleOneDay extends AbstractPropUsage {
         // 延迟过期策略
         String key = group.getId() + "-" + sender.getId();
         RedisUtils.addTaskToDelayQueue(key, 1, TimeUnit.DAYS);
-        subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"修改头衔成功！24小时后消失"));
+//        subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),"修改头衔成功！24小时后消失"));
     }
 }
