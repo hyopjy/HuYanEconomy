@@ -45,6 +45,7 @@ dependencies {
     implementation 'net.bytebuddy:byte-buddy:1.14.2'
     implementation 'org.redisson:redisson:3.20.1'
     implementation 'com.alibaba:fastjson:2.0.28'
+    implementation 'com.dtflys.forest:forest-core:1.5.36'
     //测试库
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.0'
     implementation 'org.apache.commons:commons-lang3:3.8.1'
