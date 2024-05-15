@@ -116,12 +116,12 @@ public class TransferManager {
         double finalMoney = money - amount;
         if (EconomyUtil.turnUserToUser(user, member, finalMoney)) {
             // 给管理员转账
-//            NormalMember admin = group.get(EconomyConfig.INSTANCE.getOwner());
-//            if (Objects.nonNull(admin)) {
-//                if (EconomyUtil.turnUserToUser(user, admin, amount)) {
-//                    Log.info("转账管理:管理员转账成功");
-//                }
-//            }
+            NormalMember admin = group.get(EconomyConfig.INSTANCE.getOwner());
+            if (Objects.nonNull(admin)) {
+                if (EconomyUtil.turnUserToUser(user, admin, amount)) {
+                    Log.info("转账管理:管理员转账成功");
+                }
+            }
             assert member != null;
             String name = member.getNameCard();
             if (StrUtil.isBlank(name)) {

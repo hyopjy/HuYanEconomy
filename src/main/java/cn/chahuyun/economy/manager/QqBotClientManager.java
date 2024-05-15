@@ -3,6 +3,8 @@ import cn.chahuyun.economy.http.QqBotClient;
 import com.dtflys.forest.Forest;
 import com.dtflys.forest.config.ForestConfiguration;
 
+import java.util.Map;
+
 public class QqBotClientManager {
     public static QqBotClient getQqBotClient(){
         // 获取 Forest 全局配置对象
@@ -16,5 +18,12 @@ public class QqBotClientManager {
 
         return Forest.client(QqBotClient.class);
 
+    }
+
+    public static String getSession(){
+        String verifyKey = "INITKEYOHBbUoxm";
+        Map<String, String> sessionMap = QqBotClientManager.getQqBotClient().getVerifySession(verifyKey);
+        System.out.println(sessionMap.get("session"));
+        return sessionMap.get("session");
     }
 }
