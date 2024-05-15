@@ -82,7 +82,7 @@ public class Mask extends AbstractPropUsage {
             if (Objects.isNull(senderTeam)) {
                 EconomyUtil.minusMoneyToUser(sender, 5000);
                 subject.sendMessage(new MessageChainBuilder().append(new QuoteReply(event.getMessage()))
-                        .append("触发币币回收计划之：被bobo正义执行，抢劫失败并且罚款2000币币").append("\r\n")
+                        .append("被bobo正义执行，抢劫失败并且罚款5000币币").append("\r\n")
                         .build());
             } else {
                 NormalMember memberOwner = group.get(senderTeam.getTeamOwner());
@@ -93,7 +93,7 @@ public class Mask extends AbstractPropUsage {
                         .append("[抢劫失败]").append("\r\n")
                         .append(new At(senderTeam.getTeamOwner()).getDisplay(group)).append("\r\n")
                         .append(new At(senderTeam.getTeamMember()).getDisplay(group)).append("\r\n")
-                        .append("触发币币回收计划之：被bobo正义执行，抢劫失败并且每人分别罚款2000币币").append("\r\n")
+                        .append("被bobo正义执行，抢劫失败并且罚款5000币币").append("\r\n")
                         .build());
             }
         } else {
