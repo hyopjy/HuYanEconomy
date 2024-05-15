@@ -673,7 +673,7 @@ public class GamesManager {
 
         NormalMember normalMember = group.get(HuYanEconomy.config.getOwner());
         if (Objects.nonNull(normalMember)) {
-            EconomyUtil.plusMoneyToBank(normalMember, money * fishPond.getRebate());
+            EconomyUtil.plusMoneyToUser(normalMember, money * fishPond.getRebate());
         }
         if (fish.isSpecial()) {
             String propCode = PropsType.getCode(fish.getName());

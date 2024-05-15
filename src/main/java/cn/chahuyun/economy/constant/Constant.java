@@ -65,5 +65,5 @@ public interface Constant {
 
     List<String> RGB_LIST = Arrays.asList(new String[]{"R", "G","B"});
 
-    String SPILT = ",";
+    String SPILT = "—";
 }
