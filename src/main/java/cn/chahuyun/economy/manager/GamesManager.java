@@ -584,50 +584,25 @@ public class GamesManager {
             Log.error("[自动钓鱼机-发生异常] fishPon null");
             return new AutomaticFish("[鱼呢]", "切线了", 0, 0,"");
         }
-        double result = 1 + Math.sqrt(userFishInfo.getRodLevel() * 14);
-        int difficultyMin =(int) result;
-        int difficultyMax = 99+ userFishInfo.getRodLevel();
-        int rankMin = (int) (userFishInfo.getLevel() + 20) / 10 == 0 ? 1 : (userFishInfo.getLevel() + 20) / 10;
-        int rankMax = (int) userFishInfo.getLevel() / 9 == 0 ? 1 : userFishInfo.getLevel() / 9;
- //       rankMin = Math.max((userFishInfo.getLevel() / 8) + 1, rankMin);
-//        rankMax = Math.max(rankMin + 1, Math.min(userFishInfo.getLevel(), fishPond.getPondLevel()));
-        rankMax = Math.max(rankMin, rankMax);
+        // 溜鱼增加difficultymin，之前的difficultymin=1+根号(14*RodLevel)
+        int difficultyMin = (int) (1 + Math.sqrt(userFishInfo.getRodLevel() * 14));
+        int difficultyMax = 99 + userFishInfo.getRodLevel();
+        int rankMin = 1;
+        int rankMax = userFishInfo.getRodLevel() / 9;
 
-        //  int userFishLevel = (userFishInfo.getLevel() / 8) + 1;
-       // rankMax = Math.max(Math.max(userFishLevel, rankMin), Math.min(userFishLevel, fishPond.getPondLevel()));
-        Log.info("[自动钓鱼机-自动钓鱼-start] "
+        Log.info("[fishing-start] "
                 +",difficultyMin:" + difficultyMin
                 +",difficultyMax:" + difficultyMax
                 +",rankMin:" + rankMin
                 +",rankMax:" + rankMax);
 
-        int rollIndex = RandomUtil.randomInt(0,3);
-        Log.info("[自动钓鱼机-自动钓鱼] 随机-rollIndex:" + rollIndex);
-        switch (rollIndex){
-            case 1:
-                int randomLeftInt = RandomUtil.randomInt(10, 50);
-                difficultyMin += randomLeftInt;
-                break;
-            case 2:
-                int randomRightInt = RandomUtil.randomInt(0, 20);
-                difficultyMin += randomRightInt;
-                // int randomRankMaxRight = RandomUtil.randomInt(1, 4);
-                rankMax += 1;
-                break;
-            case 0:
-                int randomPullInt = RandomUtil.randomInt(0, 30);
-                difficultyMin = difficultyMin + randomPullInt;
-
-                rankMax = rankMin;
-                break;
-        }
-        difficultyMax = Math.max(difficultyMin + 1, difficultyMax + userFishInfo.getRodLevel());
         //roll等级
         int rank = rankMin;
         if (rankMin != rankMax + 1) {
             rank = RandomUtil.randomInt(Math.min(rankMin, rankMax + 1), Math.max(rankMin, rankMax + 1));
         }
-        Log.info("[自动钓鱼机-自动钓鱼-end]" +
+
+        Log.info("[fishing-end]" +
                 ",difficultyMin:" + difficultyMin +
                 ",difficultyMax:" + difficultyMax +
                 ",rankMin:" + rankMin +
@@ -641,14 +616,15 @@ public class GamesManager {
                 return new AutomaticFish("[鱼呢]", "切线了", 0, 0,"");
             }
             //roll难度
-            int difficulty = RandomUtil.randomInt(Math.min(difficultyMin, difficultyMax + 1), Math.max(difficultyMin, difficultyMax + 1));
+            int difficulty = RandomUtil.randomInt(difficultyMin, difficultyMax + 1);
 
             //在所有鱼中拿到对应的鱼等级
             List<Fish> levelFishList = fishPond.getFishList(rank);
-            //过滤掉难度不够的鱼, 以及rgb为空 和 rgb和用户一致的鱼数据
+            //过滤掉难度不够的鱼 以及 rgb为空 和 用户对应rgb的鱼列表
             List<Fish> collect;
-            collect = levelFishList.stream().filter(it -> it.getDifficulty() <= difficulty &&
-                    (StringUtils.isBlank(it.getRgb()) || it.getRgb().equalsIgnoreCase(userInfo.getRgb()))
+            collect = levelFishList.stream().filter(it ->
+                    it.getDifficulty() <= difficulty &&
+                            (StringUtils.isBlank(it.getRgb()) || it.getRgb().equalsIgnoreCase(userInfo.getRgb()))
             ).collect(Collectors.toList());
             //如果没有了
             int size = collect.size();
