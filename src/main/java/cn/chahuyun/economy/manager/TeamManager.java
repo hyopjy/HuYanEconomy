@@ -110,6 +110,41 @@ public class TeamManager {
         return null;
     }
 
+    private static Team getTeamByTwoUserInfo(Long senderId, Long qq, Long groupId) {
+        List<Team> list = HibernateUtil.factory.fromSession(session -> {
+            HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
+            JpaCriteriaQuery<Team> query = builder.createQuery(Team.class);
+            JpaRoot<Team> from = query.from(Team.class);
+            query.select(from);
+            query.where(
+                    builder.equal(from.get("teamOwner"), senderId),
+                    builder.equal(from.get("teamMember"), qq),
+                    builder.equal(from.get("groupId"), groupId)
+            );
+            return session.createQuery(query).list();
+        });
+        if (CollectionUtils.isNotEmpty(list)) {
+            return list.get(0);
+        }
+
+        List<Team> list2 = HibernateUtil.factory.fromSession(session -> {
+            HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
+            JpaCriteriaQuery<Team> query = builder.createQuery(Team.class);
+            JpaRoot<Team> from = query.from(Team.class);
+            query.select(from);
+            query.where(
+                    builder.equal(from.get("teamOwner"), qq),
+                    builder.equal(from.get("teamMember"), senderId),
+                    builder.equal(from.get("groupId"), groupId)
+            );
+            return session.createQuery(query).list();
+        });
+        if (CollectionUtils.isNotEmpty(list2)) {
+            return list2.get(0);
+        }
+        return null;
+    }
+
     /**
      * 确认组队
      *
@@ -218,18 +253,18 @@ public class TeamManager {
             return;
         }
         // 当前发送人是否是队伍组建人员
-        Team team = getTeamOwnerInfo(senderId, subject.getId());
+        Team team = getTeamByTwoUserInfo(senderId, qq, subject.getId());
         if(Objects.isNull(team)){
-            subject.sendMessage(MessageUtil.formatMessageChain(message, "你不是队伍组建人,无法解散！"));
+            subject.sendMessage(MessageUtil.formatMessageChain(message, "队伍不存在！"));
             return;
         }
         // 判断被艾特用户是否是队伍人员
-        if(!team.getTeamMember().equals(qq)){
-            subject.sendMessage(MessageUtil.formatMessageChain(message, "不是当前队伍所指定的用户，无法解散"));
-            return;
-        }
+//        if(!team.getTeamMember().equals(qq)){
+//            subject.sendMessage(MessageUtil.formatMessageChain(message, "不是当前队伍所指定的用户，无法解散"));
+//            return;
+//        }
 
-        if(team.getTeamStatus().equals(TEAM_STATUS_NO)){
+        if(TEAM_STATUS_NO.equals(team.getTeamStatus())){
             team.remove();
             subject.sendMessage(MessageUtil.formatMessageChain(message, "队伍解散成功"));
             return;
@@ -275,19 +310,24 @@ public class TeamManager {
             subject.sendMessage(MessageUtil.formatMessageChain(message, "格式有误"));
             return;
         }
-        // 当前被艾特用户是否是队长
-        Team team = getTeamOwnerInfo(qq, subject.getId());
+//        // 当前被艾特用户是否是队长
+//        Team team = getTeamOwnerInfo(qq, subject.getId());
+//        if(Objects.isNull(team)){
+//            subject.sendMessage(MessageUtil.formatMessageChain(message, "被艾特用户没有队伍、无法解散"));
+//            return;
+//        }
+//        // 判断被艾特用户是否是队伍人员
+//        if(!team.getTeamMember().equals(senderId)){
+//            subject.sendMessage(MessageUtil.formatMessageChain(message, "你不是当前队伍成员"));
+//            return;
+//        }
+        Team team = getTeamByTwoUserInfo(senderId, qq, subject.getId());
         if(Objects.isNull(team)){
-            subject.sendMessage(MessageUtil.formatMessageChain(message, "被艾特用户没有队伍、无法解散"));
-            return;
-        }
-        // 判断被艾特用户是否是队伍人员
-        if(!team.getTeamMember().equals(senderId)){
-            subject.sendMessage(MessageUtil.formatMessageChain(message, "你不是当前队伍成员"));
+            subject.sendMessage(MessageUtil.formatMessageChain(message, "队伍不存在！"));
             return;
         }
         if(team.getTeamStatus().equals(TEAM_STATUS_OK)){
-            subject.sendMessage(MessageUtil.formatMessageChain(message, "请队伍创建人先发起解散"));
+            subject.sendMessage(MessageUtil.formatMessageChain(message, "请先发起解散"));
             return;
         }else {
             team.remove();
