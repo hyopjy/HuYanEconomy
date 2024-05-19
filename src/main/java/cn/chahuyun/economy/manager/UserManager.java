@@ -470,6 +470,6 @@ public class UserManager {
         UserInfo userInfo = UserManager.getUserInfo(member);
         userInfo.setRgb(rgb);
         userInfo.save();
-        subject.sendMessage("更新成功：" + userId);
+        subject.sendMessage("更新成功：" + userId + ":" + rgb);
     }
 }

@@ -120,412 +120,414 @@ public class RandomMoneyListener extends SimpleListenerHost {
         User sender = event.getSender();
         Contact subject = event.getSubject();
         String message = event.getMessage().serializeToMiraiCode();
-
-        if (message.equals("重置鱼塘") && EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
-             // SeasonManager.clearFishRank();
-            SeasonManager.reloadFishPod(event);
-            subject.sendMessage(MessageUtil.formatMessageChain("重置鱼塘成功"));
-        }
-
-        if (message.startsWith("休渔期") && EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
-            // 休渔期 1,2,3,4 10-11
-            // 1,2,3,4,5 0-5,10-23
-            // 6,7 9-15,20-23
-            message = message.replace("\\", "");
-            String[] arr = message.split(" ");
-            String weekDay = arr[1];
-            String time = arr[2];
-            String[] weekDayArr = weekDay.split(",");
-            for (String week : weekDayArr) {
-                int weekNum = 0;
-                try {
-                    weekNum = Integer.parseInt(week);
-                } catch (Exception e) {
-                    subject.sendMessage(MessageUtil.formatMessageChain("week输入数字"));
-                    return ListeningStatus.LISTENING;
-                }
-                TimeRange timeRange = new TimeRange(weekNum, time);
-                timeRange.save();
+        try {
+            if (message.equals("重置鱼塘") && EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
+                // SeasonManager.clearFishRank();
+                SeasonManager.reloadFishPod(event);
+                subject.sendMessage(MessageUtil.formatMessageChain("重置鱼塘成功"));
             }
 
-            Message m = new PlainText("=====配置信息=====").plus("\r\n");
-            StringBuffer stringBuffer = new StringBuffer();
-            List<TimeRange> list = TimeRangeManager.getTimeRangeList();
-            list.forEach(timeRange -> {
-                TimeRangeManager.WEEK_TIME_RANGE_CACHE.put(timeRange.getWeekDay(), timeRange);
-                stringBuffer.append(timeRange.getDesc());
-            });
-            m = m.plus(stringBuffer);
-            subject.sendMessage(MessageUtil.formatMessageChain(m.contentToString()));
-        }
-
-        if (message.startsWith("营业时间") && EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
-            // 休渔期 1,2,3,4 10-11
-            // 1,2,3,4,5 0-5,10-23
-            // 6,7 9-15,20-23
-            message = message.replace("\\", "");
-            String[] arr = message.split(" ");
-            String weekDay = arr[1];
-            String time = arr[2];
-            String[] weekDayArr = weekDay.split(",");
-            for (String week : weekDayArr) {
-                int weekNum = 0;
-                try {
-                    weekNum = Integer.parseInt(week);
-                } catch (Exception e) {
-                    subject.sendMessage(MessageUtil.formatMessageChain("week输入数字"));
-                    return ListeningStatus.LISTENING;
-                }
-                PropTimeRange propTimeRange = new PropTimeRange(weekNum, time);
-                propTimeRange.save();
-            }
-
-            Message m = new PlainText("=====配置信息=====").plus("\r\n");
-            StringBuffer stringBuffer = new StringBuffer();
-            List<PropTimeRange> list = PropTimeRangeManager.getPropTimeRangeList();
-            list.forEach(propTimeRange -> {
-                PropTimeRangeManager.PROP_TIME_RANGE_CACHE.put(propTimeRange.getWeekDay(), propTimeRange);
-                stringBuffer.append(propTimeRange.getDesc());
-            });
-            m = m.plus(stringBuffer);
-            subject.sendMessage(MessageUtil.formatMessageChain(m.contentToString()));
-        }
-
-
-        if (message.equals("刷新道具") &&
-                EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
-            SeasonManager.reloadPropsFishCard();
-            subject.sendMessage(MessageUtil.formatMessageChain("刷新道具完成"));
-        }
-
-        if (message.startsWith("世界boss") &&
-                EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
-            //  开启
-            String code = event.getMessage().serializeToMiraiCode().replaceAll("\\\\,",",");
-            String[] codeArr = code.split(" ", 3);
-            if ("开启".equals(codeArr[1])) {
-                WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.BOSS_STATUS);
-                worldBossStatusConfig.setConfigInfo("true");
-                worldBossStatusConfig.save();
-            }
-            if ("关闭".equals(codeArr[1])) {
-                WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.BOSS_STATUS);
-                worldBossStatusConfig.setConfigInfo("false");
-                worldBossStatusConfig.save();
-            }
-
-            if ("目标尺寸".equals(codeArr[1])) {
-                int size = Integer.parseInt(codeArr[2]);
-                WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.FISH_SIZE);
-                worldBossStatusConfig.setConfigInfo(size + "");
-                worldBossStatusConfig.save();
-            }
-            if ("奖励金额".equals(codeArr[1])) {
-                double bb = Double.parseDouble(codeArr[2]);
-                WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.WDIT_BB);
-                worldBossStatusConfig.setConfigInfo(bb + "");
-                worldBossStatusConfig.save();
-            }
-            if ("币币数量奖励金额".equals(codeArr[1])) {
-                double bb = Double.parseDouble(codeArr[2]);
-                WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.WDIT_BB_COUNT);
-                worldBossStatusConfig.setConfigInfo(bb + "");
-                worldBossStatusConfig.save();
-            }
-            if ("币币概率奖励金额".equals(codeArr[1])) {
-                double bb = Double.parseDouble(codeArr[2]);
-                WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.WDIT_BB_PROP);
-                worldBossStatusConfig.setConfigInfo(bb + "");
-                worldBossStatusConfig.save();
-            }
-            // 设置达成播报时间
-            if ("达成播报".equals(codeArr[1])) {
-                String cornGoalCron = codeArr[2];
-                WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.CORN_GOAL);
-                // 刷新cron
-                WorldBossConfigManager.refreshCronStr(worldBossStatusConfig, cornGoalCron);
-            }
-            // 设置进度播报时间
-            if ("进度播报".equals(codeArr[1])) {
-                String cornGoalCron = codeArr[2];
-                WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.CORN_PROGRESS);
-                // 刷新cron
-                WorldBossConfigManager.refreshCronStr(worldBossStatusConfig, cornGoalCron);
-            }
-
-            // 设置开始播报时间
-            if ("开始播报".equals(codeArr[1])) {
-                String cornGoalCron = codeArr[2];
-                WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.CORN_OPEN);
-                // 刷新cron
-                WorldBossConfigManager.refreshCronStr(worldBossStatusConfig, cornGoalCron);
-            }
-
-            if ("开始时间".equals(codeArr[1])) {
-                String openTime = codeArr[2];
-                String nt = LocalDate.now().getYear() + openTime + "00";
-                try{
-                    LocalDateTime otime = LocalDateTime.parse(nt, Constant.FORMATTER_YYMMDDHHMMSS);
-                    String time = otime.format(Constant.FORMATTER);
-                    WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.OPEN_TIME);
-                    worldBossStatusConfig.setConfigInfo(time);
-                    worldBossStatusConfig.save();
-                }catch (Exception e){
-                    subject.sendMessage("时间格式有误");
-                    return ListeningStatus.LISTENING;
-                }
-            }
-
-            if ("结束时间".equals(codeArr[1])) {
-                String endtime = codeArr[2];
-                String nt = LocalDate.now().getYear() + endtime + "59";
-                try{
-                    LocalDateTime otime = LocalDateTime.parse(nt, Constant.FORMATTER_YYMMDDHHMMSS);
-                    String time = otime.format(Constant.FORMATTER);
-                    WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.END_TIME);
-                    worldBossStatusConfig.setConfigInfo(time);
-                    worldBossStatusConfig.save();
-                }catch (Exception e){
-                    subject.sendMessage("时间格式有误");
-                    return ListeningStatus.LISTENING;
-                }
-            }
-
-
-            if ("额外鱼尺寸".equals(codeArr[1])) {
-                String min = Double.parseDouble(codeArr[2]) + "";
-                WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.OTHER_FISH_SIZE);
-                worldBossStatusConfig.setConfigInfo(min);
-                worldBossStatusConfig.save();
-            }
-
-            if ("最后一杆奖励币币".equals(codeArr[1])) {
-                String bb = Double.parseDouble(codeArr[2]) + "";
-                WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.LAST_SHOT_BB);
-                worldBossStatusConfig.setConfigInfo(bb);
-                worldBossStatusConfig.save();
-            }
-
-            if ("最后一杆奖励道具".equals(codeArr[1])) {
-                String prop = Objects.isNull(codeArr[2]) ? "" : codeArr[2];
-                List<String> propList = Arrays.asList(prop.split(Constant.SPILT)).stream().distinct().collect(Collectors.toList());
-                List<String> propCodeList = new ArrayList<>(propList.size());
-                List<String> notExitPropList = new ArrayList<>();
-                propList.forEach(no->{
-                    String propCode = PropsType.getCode(no);
-                    if(Objects.isNull(propCode)){
-                        notExitPropList.add(no);
-                    }else {
-                        propCodeList.add(propCode);
+            if (message.startsWith("休渔期") && EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
+                // 休渔期 1,2,3,4 10-11
+                // 1,2,3,4,5 0-5,10-23
+                // 6,7 9-15,20-23
+                message = message.replace("\\", "");
+                String[] arr = message.split(" ");
+                String weekDay = arr[1];
+                String time = arr[2];
+                String[] weekDayArr = weekDay.split(",");
+                for (String week : weekDayArr) {
+                    int weekNum = 0;
+                    try {
+                        weekNum = Integer.parseInt(week);
+                    } catch (Exception e) {
+                        subject.sendMessage(MessageUtil.formatMessageChain("week输入数字"));
+                        return ListeningStatus.LISTENING;
                     }
+                    TimeRange timeRange = new TimeRange(weekNum, time);
+                    timeRange.save();
+                }
+
+                Message m = new PlainText("=====配置信息=====").plus("\r\n");
+                StringBuffer stringBuffer = new StringBuffer();
+                List<TimeRange> list = TimeRangeManager.getTimeRangeList();
+                list.forEach(timeRange -> {
+                    TimeRangeManager.WEEK_TIME_RANGE_CACHE.put(timeRange.getWeekDay(), timeRange);
+                    stringBuffer.append(timeRange.getDesc());
                 });
-                if(CollectionUtils.isNotEmpty(notExitPropList)){
-                    String commaSeparatedString = String.join(Constant.SPILT, notExitPropList);
-                    subject.sendMessage("道具不存在：" + commaSeparatedString);
-                    return ListeningStatus.LISTENING;
-                }
-                String propCodeValue =  String.join(Constant.SPILT, propCodeList);
-                WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.LAST_SHOT_PROP);
-                worldBossStatusConfig.setConfigInfo(propCodeValue);
-                worldBossStatusConfig.save();
+                m = m.plus(stringBuffer);
+                subject.sendMessage(MessageUtil.formatMessageChain(m.contentToString()));
             }
 
-            StringBuilder sb = new StringBuilder("世界模式配置如下:\r\n");
-            List<WorldBossConfig> list = WorldBossConfigManager.getWorldBossConfigList();
-            List<WorldBossEnum> worldBossEnumList = WorldBossEnum.getWorldBossEnumList();
-            worldBossEnumList.forEach(worldBossEnum -> {
-                Optional<WorldBossConfig> bossStatusConfig = list.stream().filter(keyConfig -> worldBossEnum.getKeyId() == keyConfig.getKeyId()).findFirst();
-                bossStatusConfig.ifPresent(worldBossConfig -> sb.append(worldBossEnum.getKeyDesc()).append(":").append(worldBossConfig.getConfigInfo()).append("\r\n"));
-            });
-            subject.sendMessage(sb.toString());
-            return ListeningStatus.LISTENING;
-        }
-        if (message.startsWith("boss奖励") &&
-                EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
-            //  开启
-            String code = event.getMessage().serializeToMiraiCode();
-            String[] codeArr = code.split(" ");
-
-            // 设置奖励
-            // boss奖励 code/name 概率 50
-            // boss奖励 code/name 数量 5
-            String no = codeArr[1];
-            String type = codeArr[2];
-            Integer num = Integer.parseInt(codeArr[3]);
-            String propCode = "";
-            if (Constant.FISH_NAME_BB_LIST.contains(no)) {
-                propCode = Constant.FISH_CODE_BB;
-            } else {
-                propCode = PropsType.getCode(no);
-                if (propCode == null) {
-                    Log.warning("道具系统:购买道具为空");
-                    subject.sendMessage("道具不存在");
-                    return ListeningStatus.LISTENING;
+            if (message.startsWith("营业时间") && EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
+                // 休渔期 1,2,3,4 10-11
+                // 1,2,3,4,5 0-5,10-23
+                // 6,7 9-15,20-23
+                message = message.replace("\\", "");
+                String[] arr = message.split(" ");
+                String weekDay = arr[1];
+                String time = arr[2];
+                String[] weekDayArr = weekDay.split(",");
+                for (String week : weekDayArr) {
+                    int weekNum = 0;
+                    try {
+                        weekNum = Integer.parseInt(week);
+                    } catch (Exception e) {
+                        subject.sendMessage(MessageUtil.formatMessageChain("week输入数字"));
+                        return ListeningStatus.LISTENING;
+                    }
+                    PropTimeRange propTimeRange = new PropTimeRange(weekNum, time);
+                    propTimeRange.save();
                 }
+
+                Message m = new PlainText("=====配置信息=====").plus("\r\n");
+                StringBuffer stringBuffer = new StringBuffer();
+                List<PropTimeRange> list = PropTimeRangeManager.getPropTimeRangeList();
+                list.forEach(propTimeRange -> {
+                    PropTimeRangeManager.PROP_TIME_RANGE_CACHE.put(propTimeRange.getWeekDay(), propTimeRange);
+                    stringBuffer.append(propTimeRange.getDesc());
+                });
+                m = m.plus(stringBuffer);
+                subject.sendMessage(MessageUtil.formatMessageChain(m.contentToString()));
             }
-            // PropsBase propsInfo = PropsType.getPropsInfo(propCode);
-            String typeCode = "";
-            if ("概率".equals(type)) {
-                typeCode = Constant.BOSS_PROP_PROBABILITY_TYPE;
-            } else if ("数量".equals(type)) {
-                typeCode = Constant.BOSS_PROP_COUNT_TYPE;
-            } else {
-                subject.sendMessage("类型错误");
+
+
+            if (message.equals("刷新道具") &&
+                    EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
+                SeasonManager.reloadPropsFishCard();
+                subject.sendMessage(MessageUtil.formatMessageChain("刷新道具完成"));
+            }
+
+            if (message.startsWith("世界boss") &&
+                    EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
+                //  开启
+                String code = event.getMessage().serializeToMiraiCode().replaceAll("\\\\,",",");
+                String[] codeArr = code.split(" ", 3);
+                if ("开启".equals(codeArr[1])) {
+                    WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.BOSS_STATUS);
+                    worldBossStatusConfig.setConfigInfo("true");
+                    worldBossStatusConfig.save();
+                }
+                if ("关闭".equals(codeArr[1])) {
+                    WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.BOSS_STATUS);
+                    worldBossStatusConfig.setConfigInfo("false");
+                    worldBossStatusConfig.save();
+                }
+
+                if ("目标尺寸".equals(codeArr[1])) {
+                    int size = Integer.parseInt(codeArr[2]);
+                    WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.FISH_SIZE);
+                    worldBossStatusConfig.setConfigInfo(size + "");
+                    worldBossStatusConfig.save();
+                }
+                if ("奖励金额".equals(codeArr[1])) {
+                    double bb = Double.parseDouble(codeArr[2]);
+                    WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.WDIT_BB);
+                    worldBossStatusConfig.setConfigInfo(bb + "");
+                    worldBossStatusConfig.save();
+                }
+                if ("币币数量奖励金额".equals(codeArr[1])) {
+                    double bb = Double.parseDouble(codeArr[2]);
+                    WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.WDIT_BB_COUNT);
+                    worldBossStatusConfig.setConfigInfo(bb + "");
+                    worldBossStatusConfig.save();
+                }
+                if ("币币概率奖励金额".equals(codeArr[1])) {
+                    double bb = Double.parseDouble(codeArr[2]);
+                    WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.WDIT_BB_PROP);
+                    worldBossStatusConfig.setConfigInfo(bb + "");
+                    worldBossStatusConfig.save();
+                }
+                // 设置达成播报时间
+                if ("达成播报".equals(codeArr[1])) {
+                    String cornGoalCron = codeArr[2];
+                    WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.CORN_GOAL);
+                    // 刷新cron
+                    WorldBossConfigManager.refreshCronStr(worldBossStatusConfig, cornGoalCron);
+                }
+                // 设置进度播报时间
+                if ("进度播报".equals(codeArr[1])) {
+                    String cornGoalCron = codeArr[2];
+                    WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.CORN_PROGRESS);
+                    // 刷新cron
+                    WorldBossConfigManager.refreshCronStr(worldBossStatusConfig, cornGoalCron);
+                }
+
+                // 设置开始播报时间
+                if ("开始播报".equals(codeArr[1])) {
+                    String cornGoalCron = codeArr[2];
+                    WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.CORN_OPEN);
+                    // 刷新cron
+                    WorldBossConfigManager.refreshCronStr(worldBossStatusConfig, cornGoalCron);
+                }
+
+                if ("开始时间".equals(codeArr[1])) {
+                    String openTime = codeArr[2];
+                    String nt = LocalDate.now().getYear() + openTime + "00";
+                    try{
+                        LocalDateTime otime = LocalDateTime.parse(nt, Constant.FORMATTER_YYMMDDHHMMSS);
+                        String time = otime.format(Constant.FORMATTER);
+                        WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.OPEN_TIME);
+                        worldBossStatusConfig.setConfigInfo(time);
+                        worldBossStatusConfig.save();
+                    }catch (Exception e){
+                        subject.sendMessage("时间格式有误");
+                        return ListeningStatus.LISTENING;
+                    }
+                }
+
+                if ("结束时间".equals(codeArr[1])) {
+                    String endtime = codeArr[2];
+                    String nt = LocalDate.now().getYear() + endtime + "59";
+                    try{
+                        LocalDateTime otime = LocalDateTime.parse(nt, Constant.FORMATTER_YYMMDDHHMMSS);
+                        String time = otime.format(Constant.FORMATTER);
+                        WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.END_TIME);
+                        worldBossStatusConfig.setConfigInfo(time);
+                        worldBossStatusConfig.save();
+                    }catch (Exception e){
+                        subject.sendMessage("时间格式有误");
+                        return ListeningStatus.LISTENING;
+                    }
+                }
+
+
+                if ("额外鱼尺寸".equals(codeArr[1])) {
+                    String min = Double.parseDouble(codeArr[2]) + "";
+                    WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.OTHER_FISH_SIZE);
+                    worldBossStatusConfig.setConfigInfo(min);
+                    worldBossStatusConfig.save();
+                }
+
+                if ("最后一杆奖励币币".equals(codeArr[1])) {
+                    String bb = Double.parseDouble(codeArr[2]) + "";
+                    WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.LAST_SHOT_BB);
+                    worldBossStatusConfig.setConfigInfo(bb);
+                    worldBossStatusConfig.save();
+                }
+
+                if ("最后一杆奖励道具".equals(codeArr[1])) {
+                    String prop = Objects.isNull(codeArr[2]) ? "" : codeArr[2];
+                    List<String> propList = Arrays.asList(prop.split(Constant.SPILT)).stream().distinct().collect(Collectors.toList());
+                    List<String> propCodeList = new ArrayList<>(propList.size());
+                    List<String> notExitPropList = new ArrayList<>();
+                    propList.forEach(no->{
+                        String propCode = PropsType.getCode(no);
+                        if(Objects.isNull(propCode)){
+                            notExitPropList.add(no);
+                        }else {
+                            propCodeList.add(propCode);
+                        }
+                    });
+                    if(CollectionUtils.isNotEmpty(notExitPropList)){
+                        String commaSeparatedString = String.join(Constant.SPILT, notExitPropList);
+                        subject.sendMessage("道具不存在：" + commaSeparatedString);
+                        return ListeningStatus.LISTENING;
+                    }
+                    String propCodeValue =  String.join(Constant.SPILT, propCodeList);
+                    WorldBossConfig worldBossStatusConfig = WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.LAST_SHOT_PROP);
+                    worldBossStatusConfig.setConfigInfo(propCodeValue);
+                    worldBossStatusConfig.save();
+                }
+
+                StringBuilder sb = new StringBuilder("世界模式配置如下:\r\n");
+                List<WorldBossConfig> list = WorldBossConfigManager.getWorldBossConfigList();
+                List<WorldBossEnum> worldBossEnumList = WorldBossEnum.getWorldBossEnumList();
+                worldBossEnumList.forEach(worldBossEnum -> {
+                    Optional<WorldBossConfig> bossStatusConfig = list.stream().filter(keyConfig -> worldBossEnum.getKeyId() == keyConfig.getKeyId()).findFirst();
+                    bossStatusConfig.ifPresent(worldBossConfig -> sb.append(worldBossEnum.getKeyDesc()).append(":").append(worldBossConfig.getConfigInfo()).append("\r\n"));
+                });
+                subject.sendMessage(sb.toString());
                 return ListeningStatus.LISTENING;
             }
+            if (message.startsWith("boss奖励") &&
+                    EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
+                //  开启
+                String code = event.getMessage().serializeToMiraiCode();
+                String[] codeArr = code.split(" ");
 
-            WorldPropConfig worldPropConfig = WorldBossConfigManager.getWorldPropConfigByTypeAndCode(typeCode, propCode);
-            if (Objects.isNull(worldPropConfig)) {
-                worldPropConfig = new WorldPropConfig(IdUtil.getSnowflakeNextId(), propCode, typeCode, num);
-            } else {
-                worldPropConfig.setConfigInfo(num);
-            }
-            worldPropConfig.save();
-
-            StringBuilder sb = getWorldPropInfoString();
-            subject.sendMessage(sb.toString());
-        }
-
-        if (message.startsWith("删除奖励") &&
-                EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
-            //  开启
-            String code = event.getMessage().serializeToMiraiCode();
-            String[] codeArr = code.split(" ");
-
-            // 设置奖励
-            // 删除奖励 概率 code/name
-            // 删除奖励 数量 code/name
-            String type = codeArr[1];
-            String no = codeArr[2];
-            String propCode;
-            if (Constant.FISH_NAME_BB_LIST.contains(no)) {
-                propCode = Constant.FISH_CODE_BB;
-            } else {
-                propCode = PropsType.getCode(no);
-                if (propCode == null) {
-                    Log.warning("道具系统:购买道具为空");
-                    subject.sendMessage("道具不存在");
+                // 设置奖励
+                // boss奖励 code/name 概率 50
+                // boss奖励 code/name 数量 5
+                String no = codeArr[1];
+                String type = codeArr[2];
+                Integer num = Integer.parseInt(codeArr[3]);
+                String propCode = "";
+                if (Constant.FISH_NAME_BB_LIST.contains(no)) {
+                    propCode = Constant.FISH_CODE_BB;
+                } else {
+                    propCode = PropsType.getCode(no);
+                    if (propCode == null) {
+                        Log.warning("道具系统:购买道具为空");
+                        subject.sendMessage("道具不存在");
+                        return ListeningStatus.LISTENING;
+                    }
+                }
+                // PropsBase propsInfo = PropsType.getPropsInfo(propCode);
+                String typeCode = "";
+                if ("概率".equals(type)) {
+                    typeCode = Constant.BOSS_PROP_PROBABILITY_TYPE;
+                } else if ("数量".equals(type)) {
+                    typeCode = Constant.BOSS_PROP_COUNT_TYPE;
+                } else {
+                    subject.sendMessage("类型错误");
                     return ListeningStatus.LISTENING;
                 }
-            }
-            // PropsBase propsInfo = PropsType.getPropsInfo(propCode);
-            String typeCode = "";
-            if ("概率".equals(type)) {
-                typeCode = Constant.BOSS_PROP_PROBABILITY_TYPE;
-            } else if ("数量".equals(type)) {
-                typeCode = Constant.BOSS_PROP_COUNT_TYPE;
-            } else {
-                subject.sendMessage("类型错误");
-                return ListeningStatus.LISTENING;
-            }
 
-            WorldPropConfig worldPropConfig = WorldBossConfigManager.getWorldPropConfigByTypeAndCode(typeCode, propCode);
-            if (Objects.nonNull(worldPropConfig)) {
-                worldPropConfig.remove();
+                WorldPropConfig worldPropConfig = WorldBossConfigManager.getWorldPropConfigByTypeAndCode(typeCode, propCode);
+                if (Objects.isNull(worldPropConfig)) {
+                    worldPropConfig = new WorldPropConfig(IdUtil.getSnowflakeNextId(), propCode, typeCode, num);
+                } else {
+                    worldPropConfig.setConfigInfo(num);
+                }
+                worldPropConfig.save();
+
+                StringBuilder sb = getWorldPropInfoString();
+                subject.sendMessage(sb.toString());
             }
 
-            StringBuilder sb = getWorldPropInfoString();
-            subject.sendMessage(sb.toString());
-        }
+            if (message.startsWith("删除奖励") &&
+                    EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
+                //  开启
+                String code = event.getMessage().serializeToMiraiCode();
+                String[] codeArr = code.split(" ");
 
-
-        if (message.startsWith("重置用户属性") &&
-                EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())){
-            UserManager.resetUserRgb();
-            subject.sendMessage("重置成功");
-        }
-
-        if (message.startsWith("rgb") &&
-                EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())){
-            UserManager.userRgbList(event);
-        }
-        // 设置用户属性 set rgb groupid qq R/G/B
-        if (message.startsWith("set rgb") &&
-                EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())){
-            String[] arr = message.split(" ");
-            Long groupId = Long.parseLong(arr[2]);
-            Long userId = Long.parseLong(arr[3]);
-            String rgb = arr[4];
-            UserManager.setUserRgb(event, groupId,  userId, rgb);
-        }
-        if (message.startsWith("重置赛季") &&
-                EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())){
-            // 1. 重置鱼塘
-            SeasonManager.reloadFishPod(event);
-            // 2. 更新道具
-            SeasonManager.reloadPropsFishCard();
-            // 3. 清除旧的赛季币
-            SeasonManager.clearSeasonMoney();
-            // 4. 清理用户包内道具信息
-            SeasonManager.clearUserPackOffline();
-            // 6. 点亮鱼竿纪念成就, 鱼竿重置等级
-            SeasonManager.lightUpFishRod();
-            // 7. 清理钓鱼排行榜
-            // SeasonManager.clearFishRank();
-            // 8. 用户widitbb余额 超过88888的 更新为88888
-            SeasonManager.resetWditBB();
-        }
-        if (message.startsWith("xb") &&
-                EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())){
-            try {
-                String[] arr = message.split(" ");
-                double money = Double.parseDouble(arr[1]);
-                EconomyUtil.plusMoneyToBank(sender, money);
-
-            }catch (Exception e){
-                Log.info("给我雪币 exception:"+ e.getMessage());
-            }
-        }
-        if (message.startsWith("bb") &&
-                EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())){
-            try {
-                String[] arr = message.split(" ");
-                double money = Double.parseDouble(arr[1]);
-                EconomyUtil.plusMoneyToUser(sender, money);
-
-            }catch (Exception e){
-               Log.info("给我币币 exception:"+ e.getMessage());
-            }
-        }
-
-        // 增加道具 add pack
-        // ap groupId qq prop 4
-        // ap groupId qq prop
-
-        // 删除道具 remove pack
-        // rp groupid qq prop 4
-        if ((message.startsWith("ap") || message.startsWith("rp")) &&
-                EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
-            try {
-                String[] arr = message.split(" ");
-                if (!(arr.length == 4 || arr.length == 5)) {
-                    subject.sendMessage("请输入： ap groupId qq prop 4 或者 ap groupId qq prop");
+                // 设置奖励
+                // 删除奖励 概率 code/name
+                // 删除奖励 数量 code/name
+                String type = codeArr[1];
+                String no = codeArr[2];
+                String propCode;
+                if (Constant.FISH_NAME_BB_LIST.contains(no)) {
+                    propCode = Constant.FISH_CODE_BB;
+                } else {
+                    propCode = PropsType.getCode(no);
+                    if (propCode == null) {
+                        Log.warning("道具系统:购买道具为空");
+                        subject.sendMessage("道具不存在");
+                        return ListeningStatus.LISTENING;
+                    }
+                }
+                // PropsBase propsInfo = PropsType.getPropsInfo(propCode);
+                String typeCode = "";
+                if ("概率".equals(type)) {
+                    typeCode = Constant.BOSS_PROP_PROBABILITY_TYPE;
+                } else if ("数量".equals(type)) {
+                    typeCode = Constant.BOSS_PROP_COUNT_TYPE;
+                } else {
+                    subject.sendMessage("类型错误");
                     return ListeningStatus.LISTENING;
                 }
-                String type = arr[0];
-                Long groupId = null;
-                Long qq = null;
-                String prop = "";
-                Integer num = null;
-                if (arr.length == 5) {
-                    groupId = Long.parseLong(arr[1]);
-                    qq = Long.parseLong(arr[2]);
-                    prop = arr[3];
-                    num = Integer.parseInt(arr[4]);
-                }
-                if (arr.length == 4) {
-                    groupId = Long.parseLong(arr[1]);
-                    qq = Long.parseLong(arr[2]);
-                    prop = arr[3];
-                    num = 1;
-                }
-                // 给某人背包新增道具
-                BackpackManager.updateUserPropForGroup(event, groupId, qq, prop, num, type);
-            } catch (Exception e) {
-                Log.info("增加/删除 道具 add pack exception:" + e.getMessage());
-            }
-        }
 
+                WorldPropConfig worldPropConfig = WorldBossConfigManager.getWorldPropConfigByTypeAndCode(typeCode, propCode);
+                if (Objects.nonNull(worldPropConfig)) {
+                    worldPropConfig.remove();
+                }
+
+                StringBuilder sb = getWorldPropInfoString();
+                subject.sendMessage(sb.toString());
+            }
+
+
+            if (message.startsWith("重置用户属性") &&
+                    EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())){
+                UserManager.resetUserRgb();
+                subject.sendMessage("重置成功");
+            }
+
+            if (message.startsWith("rgb") &&
+                    EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())){
+                UserManager.userRgbList(event);
+            }
+            // 设置用户属性 setRgb groupid qq R/G/B
+            if (message.startsWith("setRgb") &&
+                    EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())){
+                String[] arr = message.split(" ");
+                Long groupId = Long.parseLong(arr[1]);
+                Long userId = Long.parseLong(arr[2]);
+                String rgb = arr[3];
+                UserManager.setUserRgb(event, groupId,  userId, rgb);
+            }
+            if (message.startsWith("重置赛季") &&
+                    EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())){
+                // 1. 重置鱼塘
+                SeasonManager.reloadFishPod(event);
+                // 2. 更新道具
+                SeasonManager.reloadPropsFishCard();
+                // 3. 清除旧的赛季币
+                SeasonManager.clearSeasonMoney();
+                // 4. 清理用户包内道具信息
+                SeasonManager.clearUserPackOffline();
+                // 6. 点亮鱼竿纪念成就, 鱼竿重置等级
+                SeasonManager.lightUpFishRod();
+                // 7. 清理钓鱼排行榜
+                // SeasonManager.clearFishRank();
+                // 8. 用户widitbb余额 超过88888的 更新为88888
+                SeasonManager.resetWditBB();
+            }
+            if (message.startsWith("xb") &&
+                    EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())){
+                try {
+                    String[] arr = message.split(" ");
+                    double money = Double.parseDouble(arr[1]);
+                    EconomyUtil.plusMoneyToBank(sender, money);
+
+                }catch (Exception e){
+                    Log.info("给我雪币 exception:"+ e.getMessage());
+                }
+            }
+            if (message.startsWith("bb") &&
+                    EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())){
+                try {
+                    String[] arr = message.split(" ");
+                    double money = Double.parseDouble(arr[1]);
+                    EconomyUtil.plusMoneyToUser(sender, money);
+
+                }catch (Exception e){
+                    Log.info("给我币币 exception:"+ e.getMessage());
+                }
+            }
+
+            // 增加道具 add pack
+            // ap groupId qq prop 4
+            // ap groupId qq prop
+
+            // 删除道具 remove pack
+            // rp groupid qq prop 4
+            if ((message.startsWith("ap") || message.startsWith("rp")) &&
+                    EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
+                try {
+                    String[] arr = message.split(" ");
+                    if (!(arr.length == 4 || arr.length == 5)) {
+                        subject.sendMessage("请输入： ap groupId qq prop 4 或者 ap groupId qq prop");
+                        return ListeningStatus.LISTENING;
+                    }
+                    String type = arr[0];
+                    Long groupId = null;
+                    Long qq = null;
+                    String prop = "";
+                    Integer num = null;
+                    if (arr.length == 5) {
+                        groupId = Long.parseLong(arr[1]);
+                        qq = Long.parseLong(arr[2]);
+                        prop = arr[3];
+                        num = Integer.parseInt(arr[4]);
+                    }
+                    if (arr.length == 4) {
+                        groupId = Long.parseLong(arr[1]);
+                        qq = Long.parseLong(arr[2]);
+                        prop = arr[3];
+                        num = 1;
+                    }
+                    // 给某人背包新增道具
+                    BackpackManager.updateUserPropForGroup(event, groupId, qq, prop, num, type);
+                } catch (Exception e) {
+                    Log.info("增加/删除 道具 add pack exception:" + e.getMessage());
+                }
+            }
+        }catch (Exception e){
+            subject.sendMessage(MessageUtil.formatMessageChain("程序发生异常@@"+ e.getMessage()));
+        }
         return ListeningStatus.LISTENING;
     }
 

@@ -6,8 +6,9 @@ import cn.chahuyun.economy.entity.team.Team;
 import cn.chahuyun.economy.utils.HibernateUtil;
 import cn.chahuyun.economy.utils.MessageUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONArray;
-import cn.hutool.json.JSONUtil;
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.NonUniqueResultException;
+import jakarta.persistence.criteria.Predicate;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.event.events.MessageEvent;
@@ -111,38 +112,36 @@ public class TeamManager {
     }
 
     private static Team getTeamByTwoUserInfo(Long senderId, Long qq, Long groupId) {
-        List<Team> list = HibernateUtil.factory.fromSession(session -> {
-            HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
-            JpaCriteriaQuery<Team> query = builder.createQuery(Team.class);
-            JpaRoot<Team> from = query.from(Team.class);
-            query.select(from);
-            query.where(
-                    builder.equal(from.get("teamOwner"), senderId),
-                    builder.equal(from.get("teamMember"), qq),
-                    builder.equal(from.get("groupId"), groupId)
-            );
-            return session.createQuery(query).list();
-        });
-        if (CollectionUtils.isNotEmpty(list)) {
-            return list.get(0);
+        Team team = null;
+        try {
+            team = HibernateUtil.factory.fromSession(session -> {
+                HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
+                JpaCriteriaQuery<Team> query = builder.createQuery(Team.class);
+                JpaRoot<Team> from = query.from(Team.class);
+                query.select(from);
+
+                Predicate condition1 = builder.and(
+                        builder.equal(from.get("teamOwner"), senderId),
+                        builder.equal(from.get("teamMember"), qq),
+                        builder.equal(from.get("groupId"), groupId)
+                );
+
+                Predicate condition2 = builder.and(
+                        builder.equal(from.get("teamOwner"), qq),
+                        builder.equal(from.get("teamMember"), senderId),
+                        builder.equal(from.get("groupId"), groupId)
+                );
+
+                query.where(builder.or(condition1, condition2));
+
+                return session.createQuery(query).getSingleResult();
+            });
+        } catch (NoResultException | NonUniqueResultException e) {
+            // 处理异常情况
+            return team;
         }
 
-        List<Team> list2 = HibernateUtil.factory.fromSession(session -> {
-            HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
-            JpaCriteriaQuery<Team> query = builder.createQuery(Team.class);
-            JpaRoot<Team> from = query.from(Team.class);
-            query.select(from);
-            query.where(
-                    builder.equal(from.get("teamOwner"), qq),
-                    builder.equal(from.get("teamMember"), senderId),
-                    builder.equal(from.get("groupId"), groupId)
-            );
-            return session.createQuery(query).list();
-        });
-        if (CollectionUtils.isNotEmpty(list2)) {
-            return list2.get(0);
-        }
-        return null;
+        return team;
     }
 
     /**
