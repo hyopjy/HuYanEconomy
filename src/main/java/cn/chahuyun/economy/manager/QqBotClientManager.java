@@ -29,7 +29,10 @@ public class QqBotClientManager {
     }
 
     public static String getSession() {
+        // locacl
         String verifyKey = "INITKEYOHBbUoxm";
+        // online
+        // INITKEYrWF9441z
         VerifySessionDto verifySession = QqBotClientManager.getQqBotClient().getVerifySession(verifyKey);
         if (Objects.nonNull(verifySession) && SUCCESS_CODE.equals(verifySession.getCode())) {
             return verifySession.getSession();
