@@ -483,6 +483,17 @@ public class RandomMoneyListener extends SimpleListenerHost {
                     Log.info("给我币币 exception:"+ e.getMessage());
                 }
             }
+            // 设置鱼竿等级
+            // 设置鱼竿等级 groupId qq 44
+            // fishlevel -> fl
+            if (message.startsWith("fishlevel") &&
+                    EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
+                String[] arr = message.split(" ");
+                Long groupId = Long.parseLong(arr[1]);
+                Long qq = Long.parseLong(arr[2]);
+                Integer rodLevel = Integer.parseInt(arr[3]);
+                 FishInfoManager.updateUserRodLevel(event ,groupId, qq, rodLevel);
+            }
 
             // 增加道具 add pack (ap groupId qq prop 4 |ap groupId qq prop) 删除道具 remove pack  rp groupid qq prop 4
             if ((message.startsWith("ap") || message.startsWith("rp")) &&
