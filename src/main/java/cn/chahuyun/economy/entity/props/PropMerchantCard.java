@@ -9,6 +9,12 @@ import java.io.Serializable;
  */
 public class PropMerchantCard extends PropsBase implements Serializable {
 
+
+    // 可能有币币购买、
+    // 可能有赛季币购买、
+    // 可能有道具兑换
+    // 神秘商人的商品会有打包商品，如：100币币作为一个打包品，每次可以使用100000赛季币购买一份
+
     // 道具类型 bb 赛季币 道具
     private String priceType;
 
@@ -39,8 +45,4 @@ public class PropMerchantCard extends PropsBase implements Serializable {
     // 购买方式 币币购买 赛季币购买
     private double price;
 
-    // 可能有币币购买、
-    // 可能有赛季币购买、
-    // 可能有道具兑换
-    // 神秘商人的商品会有打包商品，如：100币币作为一个打包品，每次可以使用100000赛季币购买一份
 }

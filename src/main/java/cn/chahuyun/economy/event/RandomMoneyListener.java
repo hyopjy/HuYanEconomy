@@ -9,13 +9,10 @@ import cn.chahuyun.economy.entity.PropTimeRange;
 import cn.chahuyun.economy.entity.TimeRange;
 import cn.chahuyun.economy.entity.boss.WorldBossConfig;
 import cn.chahuyun.economy.entity.boss.WorldPropConfig;
-import cn.chahuyun.economy.entity.fish.Fish;
-import cn.chahuyun.economy.entity.fish.FishRanking;
+import cn.chahuyun.economy.entity.merchant.MysteriousMerchantConfig;
 import cn.chahuyun.economy.entity.props.PropsBase;
 import cn.chahuyun.economy.manager.*;
-import cn.chahuyun.economy.plugin.FishManager;
-import cn.chahuyun.economy.plugin.FishPondManager;
-import cn.chahuyun.economy.plugin.PluginManager;
+
 import cn.chahuyun.economy.plugin.PropsType;
 import cn.chahuyun.economy.utils.*;
 import cn.hutool.core.util.IdUtil;
@@ -31,6 +28,7 @@ import net.mamoe.mirai.event.events.UserMessageEvent;
 import net.mamoe.mirai.message.data.Message;
 import net.mamoe.mirai.message.data.PlainText;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.query.criteria.HibernateCriteriaBuilder;
 import org.hibernate.query.criteria.JpaCriteriaQuery;
 import org.hibernate.query.criteria.JpaRoot;
@@ -190,7 +188,6 @@ public class RandomMoneyListener extends SimpleListenerHost {
                 m = m.plus(stringBuffer);
                 subject.sendMessage(MessageUtil.formatMessageChain(m.contentToString()));
             }
-
 
             if (message.equals("刷新道具") &&
                     EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
@@ -428,7 +425,6 @@ public class RandomMoneyListener extends SimpleListenerHost {
                 subject.sendMessage(sb.toString());
             }
 
-
             if (message.startsWith("重置用户属性") &&
                     EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())){
                 UserManager.resetUserRgb();
@@ -488,12 +484,7 @@ public class RandomMoneyListener extends SimpleListenerHost {
                 }
             }
 
-            // 增加道具 add pack
-            // ap groupId qq prop 4
-            // ap groupId qq prop
-
-            // 删除道具 remove pack
-            // rp groupid qq prop 4
+            // 增加道具 add pack (ap groupId qq prop 4 |ap groupId qq prop) 删除道具 remove pack  rp groupid qq prop 4
             if ((message.startsWith("ap") || message.startsWith("rp")) &&
                     EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
                 try {
@@ -524,6 +515,80 @@ public class RandomMoneyListener extends SimpleListenerHost {
                 } catch (Exception e) {
                     Log.info("增加/删除 道具 add pack exception:" + e.getMessage());
                 }
+            }
+
+            if (message.startsWith("神秘商人") &&
+                    EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
+                //  神秘商人 开启
+                String code = event.getMessage().serializeToMiraiCode().replaceAll("\\\\,",",");
+                String[] codeArr = code.split(" ", 3);
+                if ("开启".equals(codeArr[1])) {
+                    MysteriousMerchantConfig config = MysteriousMerchantManager.open();
+                    String sb = "神秘商人基本设置 是否开启：" + config.getStatus() + "限制购买次数：" + config.getBuyCount();
+                    subject.sendMessage(sb);
+                }
+                // 神秘商人 关闭
+                if ("关闭".equals(codeArr[1])) {
+                    MysteriousMerchantConfig config = MysteriousMerchantManager.close();
+                    String sb = "神秘商人基本设置 是否开启：" + config.getStatus() + "限制购买次数：" + config.getBuyCount();
+                    subject.sendMessage(sb);
+                }
+
+                // 神秘商人 限购次数 2
+                if ("限购次数".equals(codeArr[1])) {
+                    Integer buyCount = Integer.parseInt(codeArr[2]);
+                    MysteriousMerchantConfig config = MysteriousMerchantManager.setBuyCount(buyCount);
+                    String sb = "神秘商人基本设置 是否开启：" + config.getStatus() + "限制购买次数：" + config.getBuyCount();
+                    subject.sendMessage(sb);
+                }
+
+                if ("限购次数".equals(codeArr[1])) {
+                    Integer buyCount = Integer.parseInt(codeArr[2]);
+                    MysteriousMerchantConfig config = MysteriousMerchantManager.setBuyCount(buyCount);
+                    String sb = "神秘商人基本设置 是否开启：" + config.getStatus() + "限制购买次数：" + config.getBuyCount();
+                    subject.sendMessage(sb);
+                }
+
+                if ("设置规则".equals(codeArr[1])) {
+//                   设置规则 14,17,21 15% 10(几分钟消失)  83,77,65,92(商品编码范围) 2(几种道具)  1-3(随机道具库存)
+                    List<String> hourList = Arrays.asList(StringUtils.split(codeArr[2] , ","));
+                    // 过多久消失
+                    Integer passMinute = Integer.parseInt(codeArr[3]);
+                    // 概率
+                    Integer probability = Integer.parseInt(codeArr[4]);
+                    // 商品
+                    List<String> propCodeList = Arrays.asList(StringUtils.split(codeArr[5] , ","))
+                            .stream().map(codeStr->{
+                                String propCode =  PropsType.getCode(codeStr);
+                                if(Objects.nonNull(propCode)){
+                                    return propCode;
+                                }
+                                return null;
+                            })
+                            .filter(Objects::nonNull).collect(Collectors.toList());
+                    // 随机几种
+                    Integer randomProp = Integer.parseInt(codeArr[6]);
+                    // 随机库存数量
+                    String[] storedPropCode = StringUtils.split(codeArr[7] , "-");
+                    // 最小库存数
+                    Integer minStored = Integer.parseInt(storedPropCode[0]);
+                    // 最大库存数
+                    Integer maxStored = Integer.parseInt(storedPropCode[1]);
+
+                    // 配置信息
+//                    MysteriousMerchantSetting config = MysteriousMerchantManager.setting(hourList, propCodeList, randomProp, minStored, maxStored);
+
+                    // 商品列表
+//                    List<MysteriousMerchantGoods>
+
+
+                }
+
+                //  神秘商人 开启
+                //  神秘商人 关闭
+                //  神秘商人 限购次数 2
+                //  神秘商人 设置规则 14,17,21 15% 10(几分钟消失)  83-92(商品编码范围) 2(几种道具)  1-3(随机道具库存)
+                return ListeningStatus.LISTENING;
             }
         }catch (Exception e){
             subject.sendMessage(MessageUtil.formatMessageChain("程序发生异常@@"+ e.getMessage()));
