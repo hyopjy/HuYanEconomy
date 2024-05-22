@@ -47,11 +47,6 @@ public class MysteriousMerchantSetting implements Serializable {
     private String goodCodeStr;
 
     /**
-     * 上架商品限制数量
-     */
-    private Integer goodLimit;
-
-    /**
      * 随机几种商品
      */
     private Integer randomGoodCount;

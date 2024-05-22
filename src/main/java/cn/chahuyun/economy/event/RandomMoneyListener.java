@@ -10,6 +10,7 @@ import cn.chahuyun.economy.entity.TimeRange;
 import cn.chahuyun.economy.entity.boss.WorldBossConfig;
 import cn.chahuyun.economy.entity.boss.WorldPropConfig;
 import cn.chahuyun.economy.entity.merchant.MysteriousMerchantConfig;
+import cn.chahuyun.economy.entity.merchant.MysteriousMerchantSetting;
 import cn.chahuyun.economy.entity.props.PropsBase;
 import cn.chahuyun.economy.manager.*;
 
@@ -483,7 +484,7 @@ public class RandomMoneyListener extends SimpleListenerHost {
                     Log.info("给我币币 exception:"+ e.getMessage());
                 }
             }
-            // 设置鱼竿等级
+
             // 设置鱼竿等级 groupId qq 44
             // fishlevel -> fl
             if (message.startsWith("fishlevel") &&
@@ -534,12 +535,14 @@ public class RandomMoneyListener extends SimpleListenerHost {
                 String code = event.getMessage().serializeToMiraiCode().replaceAll("\\\\,",",");
                 String[] codeArr = code.split(" ", 3);
                 if ("开启".equals(codeArr[1])) {
+                    // todo 启动定时任务
                     MysteriousMerchantConfig config = MysteriousMerchantManager.open();
                     String sb = "神秘商人基本设置 是否开启：" + config.getStatus() + "限制购买次数：" + config.getBuyCount();
                     subject.sendMessage(sb);
                 }
                 // 神秘商人 关闭
                 if ("关闭".equals(codeArr[1])) {
+                    // todo 删除定时任务
                     MysteriousMerchantConfig config = MysteriousMerchantManager.close();
                     String sb = "神秘商人基本设置 是否开启：" + config.getStatus() + "限制购买次数：" + config.getBuyCount();
                     subject.sendMessage(sb);
@@ -561,7 +564,7 @@ public class RandomMoneyListener extends SimpleListenerHost {
                 }
 
                 if ("设置规则".equals(codeArr[1])) {
-//                   设置规则 14,17,21 15% 10(几分钟消失)  83,77,65,92(商品编码范围) 2(几种道具)  1-3(随机道具库存)
+//                   设置规则 14,17,21 10(几分钟消失)  15%(概率) 83,77,65,92(商品编码范围) 2(几种道具)  1-3(随机道具库存)
                     List<String> hourList = Arrays.asList(StringUtils.split(codeArr[2] , ","));
                     // 过多久消失
                     Integer passMinute = Integer.parseInt(codeArr[3]);
@@ -587,10 +590,10 @@ public class RandomMoneyListener extends SimpleListenerHost {
                     Integer maxStored = Integer.parseInt(storedPropCode[1]);
 
                     // 配置信息
-//                    MysteriousMerchantSetting config = MysteriousMerchantManager.setting(hourList, propCodeList, randomProp, minStored, maxStored);
+                    MysteriousMerchantSetting config = MysteriousMerchantManager.setting(hourList, passMinute, probability, propCodeList, randomProp, minStored, maxStored);
 
                     // 商品列表
-//                    List<MysteriousMerchantGoods>
+//                    List<MysteriousMerchantGoods> goodList = MysteriousMerchantManager.createGoodsListByConfig(config);
 
 
                 }
