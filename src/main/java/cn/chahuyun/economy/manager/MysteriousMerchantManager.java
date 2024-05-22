@@ -1,13 +1,14 @@
 package cn.chahuyun.economy.manager;
 
-import cn.chahuyun.economy.entity.boss.WorldBossConfig;
 import cn.chahuyun.economy.entity.merchant.MysteriousMerchantConfig;
+import cn.chahuyun.economy.entity.merchant.MysteriousMerchantSetting;
 import cn.chahuyun.economy.utils.HibernateUtil;
 import net.mamoe.mirai.event.events.MessageEvent;
 import org.hibernate.query.criteria.HibernateCriteriaBuilder;
 import org.hibernate.query.criteria.JpaCriteriaQuery;
 import org.hibernate.query.criteria.JpaRoot;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -94,8 +95,21 @@ public class MysteriousMerchantManager {
      *
      * @param event
      */
-    public static void setting(MessageEvent event){
-    //    设置神秘商人 14,17,21 15% 10(几分钟消失)  83-92(商品编码范围) 2(几种道具)  1-3(随机道具库存)
+    public static MysteriousMerchantSetting setting(List<String> hourList,
+                                                    Integer passMinute,
+                                                    Integer probability,
+                                                    List<String> goodCodeList, Integer randomProp, Integer minStored, Integer maxStored) {
+        //    设置神秘商人 14,17,21 10(几分钟消失) 15%   83-92(商品编码范围) 2(几种道具)  1-3(随机道具库存)
+        MysteriousMerchantSetting config = new MysteriousMerchantSetting();
+        config.setHourStr(String.join(",", hourList));
+        config.setPassMinute(passMinute);
+        config.setProbability(probability);
+        config.setGoodCodeStr(String.join(",", goodCodeList));
+//        config.setRandomProp(randomProp);
+//        config.setMinStored(minStored);
+//        config.setMaxStored(maxStored);
+//        config.save();
+        return config;
 
     }
 
@@ -119,6 +133,8 @@ public class MysteriousMerchantManager {
     public static void exchange(MessageEvent event){
         //    兑换(想个新命令)
     }
+
+
 
     // 道具背包 展示神秘商店标志
 }
