@@ -1,6 +1,14 @@
 package cn.chahuyun.economy.manager;
 
+import cn.chahuyun.economy.entity.boss.WorldBossConfig;
+import cn.chahuyun.economy.entity.merchant.MysteriousMerchantConfig;
+import cn.chahuyun.economy.utils.HibernateUtil;
 import net.mamoe.mirai.event.events.MessageEvent;
+import org.hibernate.query.criteria.HibernateCriteriaBuilder;
+import org.hibernate.query.criteria.JpaCriteriaQuery;
+import org.hibernate.query.criteria.JpaRoot;
+
+import java.util.Objects;
 
 /**
  * 神秘商人管理
@@ -24,19 +32,61 @@ public class MysteriousMerchantManager {
     /**
      * 开启神秘商人
      *
-     * @param event
      */
-    public static void open(MessageEvent event){
+    public static MysteriousMerchantConfig open(){
     //    开启神秘商人
+        MysteriousMerchantConfig config = getMysteriousMerchantConfigByKey(1L);
+        if(Objects.isNull(config)){
+            config = new MysteriousMerchantConfig();
+            config.setBuyCount(1);
+        }
+        config.setStatus(true);
+        config.saveOrUpdate();
+        return config;
     }
 
     /**
      * 关闭神秘商人
      *
-     * @param event
+
      */
-    public static void close(MessageEvent event){
+    public static MysteriousMerchantConfig close(){
     //    关闭神秘商人
+        MysteriousMerchantConfig config = getMysteriousMerchantConfigByKey(1L);
+        if(Objects.isNull(config)){
+            config = new MysteriousMerchantConfig();
+            config.setBuyCount(1);
+        }
+        config.setStatus(false);
+        config.saveOrUpdate();
+        return config;
+    }
+
+    /**
+     * 设置限购次数
+     * @return
+     */
+    public static MysteriousMerchantConfig setBuyCount(Integer buyCount){
+        //    关闭神秘商人
+        MysteriousMerchantConfig config = getMysteriousMerchantConfigByKey(1L);
+        if(Objects.isNull(config)){
+            config = new MysteriousMerchantConfig();
+            config.setStatus(false);
+        }
+        config.setBuyCount(buyCount);
+        config.saveOrUpdate();
+        return config;
+    }
+
+    public static MysteriousMerchantConfig getMysteriousMerchantConfigByKey(Long configId) {
+        return HibernateUtil.factory.fromSession(session -> {
+            HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
+            JpaCriteriaQuery<MysteriousMerchantConfig> query = builder.createQuery(MysteriousMerchantConfig.class);
+            JpaRoot<MysteriousMerchantConfig> from = query.from(MysteriousMerchantConfig.class);
+            query.where(builder.equal(from.get("configId"), configId));
+            query.select(from);
+            return session.createQuery(query).getSingleResultOrNull();
+        });
     }
 
     /**

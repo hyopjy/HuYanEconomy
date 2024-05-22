@@ -24,12 +24,17 @@ public class MysteriousMerchantSetting implements Serializable {
     /**
      * 开始小时数
      */
-    private Integer hour;
+    private String hourStr;
 
     /**
      * 开始分钟数
      */
-    private Integer minute;
+    private String minuteStr;
+
+    /**
+     * 概率
+     */
+    private Integer probability;
 
     /**
      * 过多久消失

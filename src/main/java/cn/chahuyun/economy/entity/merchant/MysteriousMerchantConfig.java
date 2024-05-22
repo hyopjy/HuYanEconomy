@@ -1,5 +1,7 @@
 package cn.chahuyun.economy.entity.merchant;
 
+import cn.chahuyun.economy.utils.HibernateUtil;
+import cn.chahuyun.economy.utils.Log;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,7 +20,6 @@ public class MysteriousMerchantConfig implements Serializable {
     private static final long serialVersionUID = 982053508122807405L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long configId;
 
     // 开启/关闭
@@ -28,7 +29,7 @@ public class MysteriousMerchantConfig implements Serializable {
      * 0 关闭
      * 1 开启
      */
-    private Integer status;
+    private Boolean status;
 
 
     /**
@@ -36,6 +37,15 @@ public class MysteriousMerchantConfig implements Serializable {
      */
     private Integer buyCount;
 
-
+    public boolean saveOrUpdate() {
+        try {
+            this.configId = 1L;
+            HibernateUtil.factory.fromTransaction(session -> session.merge(this));
+        } catch (Exception e) {
+            Log.error("神秘商人:更新", e);
+            return false;
+        }
+        return true;
+    }
 
 }
