@@ -26,6 +26,7 @@ import net.mamoe.mirai.message.data.Message;
 import net.mamoe.mirai.message.data.PlainText;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.RandomUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -80,7 +81,7 @@ public class WorldBossGoalTask implements Task {
         // 最后一杆奖励道具
         List<String>  lastShotPropCodeList = new ArrayList<>();
         WorldBossConfig lastShotPropCodeConfig =  WorldBossConfigManager.getWorldBossConfigByKey(WorldBossEnum.LAST_SHOT_PROP);
-        if(Objects.nonNull(lastShotPropCodeConfig)){
+        if(Objects.nonNull(lastShotPropCodeConfig) && StringUtils.isNotBlank(lastShotPropCodeConfig.getConfigInfo())){
             lastShotPropCodeList = Arrays.asList(lastShotPropCodeConfig.getConfigInfo().split(Constant.SPILT));
         }
 
@@ -171,7 +172,13 @@ public class WorldBossGoalTask implements Task {
                     // 道具
                     List<String> propNameList = new ArrayList<>();
                     lastShotPropCodeList.forEach(propCode->{
+                        if(StringUtils.isBlank(propCode)){
+                            return;
+                        }
                         PropsBase propsInfo = PropsType.getPropsInfo(propCode);
+                        if(Objects.isNull(propsInfo)){
+                            return;
+                        }
                         UserInfo userInfo = UserManager.getUserInfo(member);
                         PluginManager.getPropsManager().addProp(userInfo, propsInfo);
                     });
