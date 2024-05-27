@@ -98,14 +98,14 @@ public class MysteriousMerchantManager {
     public static MysteriousMerchantSetting setting(List<String> hourList,
                                                     Integer passMinute,
                                                     Integer probability,
-                                                    List<String> goodCodeList, Integer randomProp, Integer minStored, Integer maxStored) {
+                                                    List<String> goodCodeList, Integer randomCount, Integer minStored, Integer maxStored) {
         //    设置神秘商人 14,17,21 10(几分钟消失) 15%   83-92(商品编码范围) 2(几种道具)  1-3(随机道具库存)
         MysteriousMerchantSetting config = new MysteriousMerchantSetting();
         config.setHourStr(String.join(",", hourList));
         config.setPassMinute(passMinute);
         config.setProbability(probability);
         config.setGoodCodeStr(String.join(",", goodCodeList));
-//        config.setRandomProp(randomProp);
+        config.setRandomGoodCount(randomCount);
 //        config.setMinStored(minStored);
 //        config.setMaxStored(maxStored);
 //        config.save();

@@ -581,7 +581,7 @@ public class RandomMoneyListener extends SimpleListenerHost {
                             })
                             .filter(Objects::nonNull).collect(Collectors.toList());
                     // 随机几种
-                    Integer randomProp = Integer.parseInt(codeArr[6]);
+                    Integer randomCount = Integer.parseInt(codeArr[6]);
                     // 随机库存数量
                     String[] storedPropCode = StringUtils.split(codeArr[7] , "-");
                     // 最小库存数
@@ -590,7 +590,7 @@ public class RandomMoneyListener extends SimpleListenerHost {
                     Integer maxStored = Integer.parseInt(storedPropCode[1]);
 
                     // 配置信息
-                    MysteriousMerchantSetting config = MysteriousMerchantManager.setting(hourList, passMinute, probability, propCodeList, randomProp, minStored, maxStored);
+                    MysteriousMerchantSetting config = MysteriousMerchantManager.setting(hourList, passMinute, probability, propCodeList, randomCount, minStored, maxStored);
 
                     // 商品列表
 //                    List<MysteriousMerchantGoods> goodList = MysteriousMerchantManager.createGoodsListByConfig(config);
