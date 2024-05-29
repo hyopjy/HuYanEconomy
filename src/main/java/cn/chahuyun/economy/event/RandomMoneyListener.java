@@ -535,30 +535,22 @@ public class RandomMoneyListener extends SimpleListenerHost {
                 String[] codeArr = code.split(" ", 3);
                 MysteriousMerchantSetting config = null;
                 if ("开启".equals(codeArr[1])) {
-                    // todo 启动定时任务
                     config = MysteriousMerchantManager.open();
+                    if(Objects.isNull(config)) {
+                        subject.sendMessage("请先设置");
+                    }
                 }
                 // 神秘商人 关闭
                 if ("关闭".equals(codeArr[1])) {
-                    // todo 删除定时任务
                     config = MysteriousMerchantManager.close();
-                    String sb = "神秘商人基本设置 是否开启：" + config.getStatus() + "限制购买次数：" + config.getBuyCount();
-                    subject.sendMessage(sb);
-                }
-
-                // 神秘商人 限购次数 2
-                if ("限购次数".equals(codeArr[1])) {
-                    Integer buyCount = Integer.parseInt(codeArr[2]);
-                    config = MysteriousMerchantManager.setBuyCount(buyCount);
-                }
-
-                if ("限购次数".equals(codeArr[1])) {
-                    Integer buyCount = Integer.parseInt(codeArr[2]);
-                    config = MysteriousMerchantManager.setBuyCount(buyCount);
+                    if(Objects.isNull(config)) {
+                        subject.sendMessage("请先设置");
+                    }
                 }
 
                 if ("设置规则".equals(codeArr[1])) {
-//                   设置规则 14,17,21 10(几分钟消失)  15%(概率) 83,77,65,92(商品编码范围) 2(几种道具)  1-3(随机道具库存)
+//                  神秘商人 设置规则 14,17,21    10(几分钟消失)  15%(概率) 83,77,65,92(商品编码范围) 2(几种道具)  1-3(随机道具库存)
+                    // 小时数量
                     List<String> hourList = Arrays.asList(StringUtils.split(codeArr[2] , ","));
                     // 过多久消失
                     Integer passMinute = Integer.parseInt(codeArr[3]);
@@ -583,11 +575,13 @@ public class RandomMoneyListener extends SimpleListenerHost {
                     // 最大库存数
                     Integer maxStored = Integer.parseInt(storedPropCode[1]);
 
+                    // 限制购买次数
+                    Integer buyCount = 1;
                     // 配置信息
                     config = MysteriousMerchantManager.setting(hourList, passMinute,
-                            probability, goodCodeList, randomGoodCount, minStored, maxStored);
+                            probability, goodCodeList, randomGoodCount, minStored, maxStored, buyCount);
                     // 启动config任务
-                    MysteriousMerchantManager.configRunTask(config);
+                    MysteriousMerchantManager.settingRunTask(config);
                 }
 
                 //  神秘商人 开启

@@ -31,12 +31,26 @@ public class MysteriousMerchantGoods implements Serializable {
     private String goodCode;
 
     /**
-     * 商品限制数量
+     * 商品数量
      */
-    private Integer goodLimit;
+    private Integer goodStored;
 
     /**
      * 已出售
      */
     private Integer sold;
+
+    /**
+     * 限购次数
+     */
+    private Integer buyCount;
+
+    /**
+     * 开始小时数
+     */
+    private Integer hour;
+
+    private Integer startMinutes;
+
+    private Integer endMinutes;
 }
