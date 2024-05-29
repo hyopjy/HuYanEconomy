@@ -1,14 +1,19 @@
 package cn.chahuyun.economy.manager;
 
 import cn.chahuyun.economy.constant.Constant;
+import cn.chahuyun.economy.entity.merchant.MysteriousMerchantGoods;
 import cn.chahuyun.economy.entity.merchant.MysteriousMerchantSetting;
 import cn.chahuyun.economy.utils.HibernateUtil;
 import cn.hutool.cron.CronUtil;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaDelete;
+import jakarta.persistence.criteria.Root;
 import net.mamoe.mirai.event.events.MessageEvent;
 import org.hibernate.query.criteria.HibernateCriteriaBuilder;
 import org.hibernate.query.criteria.JpaCriteriaQuery;
 import org.hibernate.query.criteria.JpaRoot;
 
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -33,24 +38,36 @@ public class MysteriousMerchantManager {
     // 神秘商人的商品会有打包商品，如：100币币作为一个打包品，每次可以使用100000赛季币购买一份
     //7.具体的商品列表、回复文案请等我！！！
 
+    //
+//    ◈日常任务
+//　      完成当日的日常任务，可以获得额外道具日常币×1
+//       包括：签到，面罩34三次，购买狗的姐姐2一次（在完成的时候消息提示：恭喜@用户获得波波日常币×1）
+//
+//    ◈被狗的姐姐2选中后，背包内增加心选礼盒×1
+//         狗的姐姐2文案：[狗的姐姐使用成功]
+//    @使用者 搭讪的姐姐选择了幸运数字18
+//    @用户 被姐姐成功俘获，ATM姬自愿交出了2646币币，但获得了心选礼盒×1
+//
+//            ◈上钩保护动物（手钓和钓鱼机）后背包内增加动物保护徽章×1
     /**
      * 开启神秘商人
      *
      */
     public static MysteriousMerchantSetting open(){
     //    开启神秘商人
-        MysteriousMerchantSetting config = geMysteriousMerchantSettingByKey(1L);
-        if(Objects.isNull(config)){
-            config = new MysteriousMerchantSetting();
-            config.setSettingId(1L);
-            config.setBuyCount(1);
-        }else{
-            closeTask(config);
+        MysteriousMerchantSetting setting = geMysteriousMerchantSettingByKey(1L);
+        if(Objects.isNull(setting)){
+            return null;
         }
-        config.setStatus(true);
-        config.saveOrUpdate();
-        runTask(config);
-        return config;
+        if(setting.getStatus()){
+            return setting;
+        }
+        setting.setStatus(true);
+        setting.saveOrUpdate();
+
+        closeTask(setting);
+        runTask(setting);
+        return setting;
     }
 
     /**
@@ -60,35 +77,20 @@ public class MysteriousMerchantManager {
      */
     public static MysteriousMerchantSetting close(){
     //    关闭神秘商人
-        MysteriousMerchantSetting config = geMysteriousMerchantSettingByKey(1L);
-        if(Objects.isNull(config)){
-            config = new MysteriousMerchantSetting();
-            config.setSettingId(1L);
-            config.setBuyCount(1);
+        MysteriousMerchantSetting setting = geMysteriousMerchantSettingByKey(1L);
+        if(Objects.isNull(setting)){
+            return null;
         }
-        config.setStatus(false);
-        config.saveOrUpdate();
-        closeTask(config);
-        return config;
-    }
-
-    /**
-     * 设置限购次数
-     * @return
-     */
-    public static MysteriousMerchantSetting setBuyCount(Integer buyCount){
-        //    关闭神秘商人
-        MysteriousMerchantSetting config = geMysteriousMerchantSettingByKey(1L);
-        if(Objects.isNull(config)){
-            config = new MysteriousMerchantSetting();
-            config.setSettingId(1L);
-            config.setStatus(false);
+        if(!setting.getStatus()){
+            return setting;
         }
-        config.setBuyCount(buyCount);
-        config.saveOrUpdate();
-        return config;
-    }
 
+        setting.setStatus(false);
+        setting.saveOrUpdate();
+        deleteGoodBySettingId(setting.getSettingId());
+        closeTask(setting);
+        return setting;
+    }
 
     /**
      * 设置神秘商人base
@@ -100,14 +102,14 @@ public class MysteriousMerchantManager {
                                                     List<String> goodCodeList,
                                                     Integer randomGoodCount,
                                                     Integer minStored,
-                                                    Integer maxStored) {
+                                                    Integer maxStored,
+                                                    Integer buyCount) {
         //    设置神秘商人 14,17,21 10(几分钟消失) 15%   83-92(商品编码范围) 2(几种道具)  1-3(随机道具库存)
         MysteriousMerchantSetting config = geMysteriousMerchantSettingByKey(1L);
         if(Objects.isNull(config)){
             config = new MysteriousMerchantSetting();
             config.setSettingId(1L);
-            config.setStatus(false);
-            config.setBuyCount(1);
+            config.setStatus(true);
         }
         config.setHourStr(String.join(",", hourList));
         config.setPassMinute(passMinute);
@@ -116,6 +118,7 @@ public class MysteriousMerchantManager {
         config.setRandomGoodCount(randomGoodCount);
         config.setMinStored(minStored);
         config.setMaxStored(maxStored);
+        config.setBuyCount(buyCount);
         config.saveOrUpdate();
         return config;
 
@@ -138,10 +141,7 @@ public class MysteriousMerchantManager {
      * @param setting
      * @return
      */
-    public static void configRunTask(MysteriousMerchantSetting setting) {
-        if(Objects.isNull(setting)){
-            return;
-        }
+    public static void settingRunTask(MysteriousMerchantSetting setting) {
         Long settingId = setting.getSettingId();
 
         List<Integer> hourList = Arrays.stream(setting.getHourStr().split(","))
@@ -158,7 +158,7 @@ public class MysteriousMerchantManager {
             String endCronKey = getEndKey(settingId, hour, endMinutes);
             CronUtil.remove(startCronKey);
             CronUtil.remove(endCronKey);
-            runTask(startCronKey, endCronKey, settingId, hour, startMinutes, endMinutes);
+            runTask(setting);
         }
 
     }
@@ -204,26 +204,42 @@ public class MysteriousMerchantManager {
 
     }
 
-    private static void runTask(String startCronKey, String endCronKey, Long settingId, Integer hour, Integer startMinutes, Integer endMinutes) {
-        String startCron = "";
-        String endCron = "";
-        List<String> cronList = List.of(worldBossCornDay.getConfigInfo().split("｜"));
-        for (int i = 0; i < cronList.size(); i++) {
-            String cronKey = worldBossCornDay.getKeyId() + "-" + worldBossCornDay.getKeyString() + "-" + (i + 1);
-            CronUtil.remove(cronKey);
-            if (WorldBossEnum.CORN_PROGRESS.getKeyId() == worldBossCornDay.getKeyId()) {
-                WorldBossProcessTask task = new WorldBossProcessTask();
-                CronUtil.schedule(cronKey, cronList.get(i), task);
-            }
-            if (WorldBossEnum.CORN_GOAL.getKeyId() == worldBossCornDay.getKeyId()) {
-                WorldBossGoalTask task = new WorldBossGoalTask();
-                CronUtil.schedule(cronKey, cronList.get(i), task);
-            }
-            if (WorldBossEnum.CORN_OPEN.getKeyId() == worldBossCornDay.getKeyId()) {
-                WorldBossOpenTask task = new WorldBossOpenTask();
-                CronUtil.schedule(cronKey, cronList.get(i), task);
-            }
+    private static void runTask(MysteriousMerchantSetting setting) {
+        // 启动任务
+        int startMinutes = getStartMinutes();
+        int endMinutes = getEndMinutes(setting);
+        Long settingId = setting.getSettingId();
+        List<Integer> hourList = Arrays.stream(setting.getHourStr().split(","))
+                .mapToInt(Integer::parseInt)
+                .boxed()
+                .collect(Collectors.toList());
+
+        for (int i = 0; i < hourList.size(); i++) {
+            Integer hour = hourList.get(i);
+            String startCronKey = getStartKey(settingId, hour, startMinutes);
+            String endCronKey = getEndKey(settingId, hour, endMinutes);
+            // task
+            MysteriousMerchantOpenTask openTask = new MysteriousMerchantOpenTask(setting, hour);
+            MysteriousMerchantEndTask endTask = new MysteriousMerchantEndTask(setting, hour);
+            // cron
+            String startCron = generateDailyCronExpression(hour, startMinutes);
+            String endCron = generateDailyCronExpression(hour, endMinutes);
+
+            CronUtil.schedule(startCronKey, startCron, openTask);
+            CronUtil.schedule(endCronKey, endCron, endTask);
         }
+
+    }
+
+    /**
+     * 定时任务表达式生成
+     *
+     * @param hour
+     * @param minutes
+     * @return
+     */
+    public static String generateDailyCronExpression(int hour, int minutes) {
+        return MessageFormat.format("0 {0} {1} * * ?", minutes, hour);
     }
 
 
@@ -251,4 +267,17 @@ public class MysteriousMerchantManager {
 
 
     // 道具背包 展示神秘商店标志
+
+    // 商品根据settingId删除
+    public static void deleteGoodBySettingId(Long settingId) {
+        HibernateUtil.factory.fromSession(session -> {
+            CriteriaBuilder builder = session.getCriteriaBuilder();
+            CriteriaDelete<MysteriousMerchantGoods> deleteQuery = builder.createCriteriaDelete(MysteriousMerchantGoods.class);
+            Root<MysteriousMerchantGoods> root = deleteQuery.from(MysteriousMerchantGoods.class);
+            deleteQuery.where(builder.equal(root.get("settingId"), settingId));
+            session.createQuery(deleteQuery).executeUpdate();
+            return null;
+        });
+    }
+
 }
