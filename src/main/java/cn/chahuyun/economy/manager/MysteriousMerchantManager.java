@@ -1,15 +1,18 @@
 package cn.chahuyun.economy.manager;
 
-import cn.chahuyun.economy.entity.merchant.MysteriousMerchantConfig;
+import cn.chahuyun.economy.constant.Constant;
 import cn.chahuyun.economy.entity.merchant.MysteriousMerchantSetting;
 import cn.chahuyun.economy.utils.HibernateUtil;
+import cn.hutool.cron.CronUtil;
 import net.mamoe.mirai.event.events.MessageEvent;
 import org.hibernate.query.criteria.HibernateCriteriaBuilder;
 import org.hibernate.query.criteria.JpaCriteriaQuery;
 import org.hibernate.query.criteria.JpaRoot;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * 神秘商人管理
@@ -34,15 +37,19 @@ public class MysteriousMerchantManager {
      * 开启神秘商人
      *
      */
-    public static MysteriousMerchantConfig open(){
+    public static MysteriousMerchantSetting open(){
     //    开启神秘商人
-        MysteriousMerchantConfig config = getMysteriousMerchantConfigByKey(1L);
+        MysteriousMerchantSetting config = geMysteriousMerchantSettingByKey(1L);
         if(Objects.isNull(config)){
-            config = new MysteriousMerchantConfig();
+            config = new MysteriousMerchantSetting();
+            config.setSettingId(1L);
             config.setBuyCount(1);
+        }else{
+            closeTask(config);
         }
         config.setStatus(true);
         config.saveOrUpdate();
+        runTask(config);
         return config;
     }
 
@@ -51,15 +58,17 @@ public class MysteriousMerchantManager {
      *
 
      */
-    public static MysteriousMerchantConfig close(){
+    public static MysteriousMerchantSetting close(){
     //    关闭神秘商人
-        MysteriousMerchantConfig config = getMysteriousMerchantConfigByKey(1L);
+        MysteriousMerchantSetting config = geMysteriousMerchantSettingByKey(1L);
         if(Objects.isNull(config)){
-            config = new MysteriousMerchantConfig();
+            config = new MysteriousMerchantSetting();
+            config.setSettingId(1L);
             config.setBuyCount(1);
         }
         config.setStatus(false);
         config.saveOrUpdate();
+        closeTask(config);
         return config;
     }
 
@@ -67,11 +76,12 @@ public class MysteriousMerchantManager {
      * 设置限购次数
      * @return
      */
-    public static MysteriousMerchantConfig setBuyCount(Integer buyCount){
+    public static MysteriousMerchantSetting setBuyCount(Integer buyCount){
         //    关闭神秘商人
-        MysteriousMerchantConfig config = getMysteriousMerchantConfigByKey(1L);
+        MysteriousMerchantSetting config = geMysteriousMerchantSettingByKey(1L);
         if(Objects.isNull(config)){
-            config = new MysteriousMerchantConfig();
+            config = new MysteriousMerchantSetting();
+            config.setSettingId(1L);
             config.setStatus(false);
         }
         config.setBuyCount(buyCount);
@@ -79,39 +89,143 @@ public class MysteriousMerchantManager {
         return config;
     }
 
-    public static MysteriousMerchantConfig getMysteriousMerchantConfigByKey(Long configId) {
+
+    /**
+     * 设置神秘商人base
+     *
+     */
+    public static MysteriousMerchantSetting setting(List<String> hourList,
+                                                    Integer passMinute,
+                                                    Integer probability,
+                                                    List<String> goodCodeList,
+                                                    Integer randomGoodCount,
+                                                    Integer minStored,
+                                                    Integer maxStored) {
+        //    设置神秘商人 14,17,21 10(几分钟消失) 15%   83-92(商品编码范围) 2(几种道具)  1-3(随机道具库存)
+        MysteriousMerchantSetting config = geMysteriousMerchantSettingByKey(1L);
+        if(Objects.isNull(config)){
+            config = new MysteriousMerchantSetting();
+            config.setSettingId(1L);
+            config.setStatus(false);
+            config.setBuyCount(1);
+        }
+        config.setHourStr(String.join(",", hourList));
+        config.setPassMinute(passMinute);
+        config.setProbability(probability);
+        config.setGoodCodeStr(String.join(",", goodCodeList));
+        config.setRandomGoodCount(randomGoodCount);
+        config.setMinStored(minStored);
+        config.setMaxStored(maxStored);
+        config.saveOrUpdate();
+        return config;
+
+    }
+
+    public static MysteriousMerchantSetting geMysteriousMerchantSettingByKey(Long settingId) {
         return HibernateUtil.factory.fromSession(session -> {
             HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
-            JpaCriteriaQuery<MysteriousMerchantConfig> query = builder.createQuery(MysteriousMerchantConfig.class);
-            JpaRoot<MysteriousMerchantConfig> from = query.from(MysteriousMerchantConfig.class);
-            query.where(builder.equal(from.get("configId"), configId));
+            JpaCriteriaQuery<MysteriousMerchantSetting> query = builder.createQuery(MysteriousMerchantSetting.class);
+            JpaRoot<MysteriousMerchantSetting> from = query.from(MysteriousMerchantSetting.class);
+            query.where(builder.equal(from.get("settingId"), settingId));
             query.select(from);
             return session.createQuery(query).getSingleResultOrNull();
         });
     }
 
     /**
-     * 设置神秘商人base
+     * 商品列表创建 及创建task
      *
-     * @param event
+     * @param setting
+     * @return
      */
-    public static MysteriousMerchantSetting setting(List<String> hourList,
-                                                    Integer passMinute,
-                                                    Integer probability,
-                                                    List<String> goodCodeList, Integer randomCount, Integer minStored, Integer maxStored) {
-        //    设置神秘商人 14,17,21 10(几分钟消失) 15%   83-92(商品编码范围) 2(几种道具)  1-3(随机道具库存)
-        MysteriousMerchantSetting config = new MysteriousMerchantSetting();
-        config.setHourStr(String.join(",", hourList));
-        config.setPassMinute(passMinute);
-        config.setProbability(probability);
-        config.setGoodCodeStr(String.join(",", goodCodeList));
-        config.setRandomGoodCount(randomCount);
-//        config.setMinStored(minStored);
-//        config.setMaxStored(maxStored);
-//        config.save();
-        return config;
+    public static void configRunTask(MysteriousMerchantSetting setting) {
+        if(Objects.isNull(setting)){
+            return;
+        }
+        Long settingId = setting.getSettingId();
+
+        List<Integer> hourList = Arrays.stream(setting.getHourStr().split(","))
+                .mapToInt(Integer::parseInt)
+                .boxed()
+                .collect(Collectors.toList());
+
+        int startMinutes = getStartMinutes();
+        int endMinutes = getEndMinutes(setting);
+
+        for (int i = 0; i < hourList.size(); i++) {
+            Integer hour = hourList.get(i);
+            String startCronKey = getStartKey(settingId, hour, startMinutes);
+            String endCronKey = getEndKey(settingId, hour, endMinutes);
+            CronUtil.remove(startCronKey);
+            CronUtil.remove(endCronKey);
+            runTask(startCronKey, endCronKey, settingId, hour, startMinutes, endMinutes);
+        }
 
     }
+    public static int getStartMinutes() {
+        return 30;
+    }
+
+    public static int getEndMinutes(MysteriousMerchantSetting setting) {
+        return getStartMinutes() + setting.getPassMinute();
+    }
+
+    public static String getStartKey(Long settingId, Integer hour, Integer minutes) {
+        return getKey("start", settingId, hour, minutes);
+    }
+
+    public static String getEndKey(Long settingId, Integer hour, Integer minutes) {
+        return getKey("end", settingId, hour, minutes);
+    }
+
+    public static String getKey(String prefix, Long settingId, Integer hour, Integer minutes) {
+        return "mm:" + prefix + Constant.SPILT + settingId + Constant.SPILT + hour + Constant.SPILT + minutes;
+    }
+    public static void closeTask(MysteriousMerchantSetting config) {
+        if(Objects.isNull(config)){
+            return;
+        }
+        Long settingId = config.getSettingId();
+        List<Integer> hourList = Arrays.stream(config.getHourStr().split(","))
+                .mapToInt(Integer::parseInt)
+                .boxed()
+                .collect(Collectors.toList());
+
+        int startMinutes = getStartMinutes();
+        int endMinutes = getEndMinutes(config);
+
+        for (int i = 0; i < hourList.size(); i++) {
+            Integer hour = hourList.get(i);
+            String startCronKey = getStartKey(settingId, hour, startMinutes);
+            String endCronKey = getEndKey(settingId, hour, endMinutes);
+            CronUtil.remove(startCronKey);
+            CronUtil.remove(endCronKey);
+        }
+
+    }
+
+    private static void runTask(String startCronKey, String endCronKey, Long settingId, Integer hour, Integer startMinutes, Integer endMinutes) {
+        String startCron = "";
+        String endCron = "";
+        List<String> cronList = List.of(worldBossCornDay.getConfigInfo().split("｜"));
+        for (int i = 0; i < cronList.size(); i++) {
+            String cronKey = worldBossCornDay.getKeyId() + "-" + worldBossCornDay.getKeyString() + "-" + (i + 1);
+            CronUtil.remove(cronKey);
+            if (WorldBossEnum.CORN_PROGRESS.getKeyId() == worldBossCornDay.getKeyId()) {
+                WorldBossProcessTask task = new WorldBossProcessTask();
+                CronUtil.schedule(cronKey, cronList.get(i), task);
+            }
+            if (WorldBossEnum.CORN_GOAL.getKeyId() == worldBossCornDay.getKeyId()) {
+                WorldBossGoalTask task = new WorldBossGoalTask();
+                CronUtil.schedule(cronKey, cronList.get(i), task);
+            }
+            if (WorldBossEnum.CORN_OPEN.getKeyId() == worldBossCornDay.getKeyId()) {
+                WorldBossOpenTask task = new WorldBossOpenTask();
+                CronUtil.schedule(cronKey, cronList.get(i), task);
+            }
+        }
+    }
+
 
     /**
      * 设置神秘商人

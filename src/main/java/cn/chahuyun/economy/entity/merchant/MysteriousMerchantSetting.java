@@ -1,5 +1,7 @@
 package cn.chahuyun.economy.entity.merchant;
 
+import cn.chahuyun.economy.utils.HibernateUtil;
+import cn.chahuyun.economy.utils.Log;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,8 +20,20 @@ public class MysteriousMerchantSetting implements Serializable {
     private static final long serialVersionUID = 6353309591300277475L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long settingId;
+
+    /**
+     * 0 关闭
+     * 1 开启
+     */
+    private Boolean status;
+
+
+    /**
+     * 限购次数
+     */
+    private Integer buyCount;
+
 
     /**
      * 开始小时数
@@ -27,19 +41,14 @@ public class MysteriousMerchantSetting implements Serializable {
     private String hourStr;
 
     /**
-     * 开始分钟数
+     * 过多久消失
      */
-    private String minuteStr;
+    private Integer passMinute;
 
     /**
      * 概率
      */
     private Integer probability;
-
-    /**
-     * 过多久消失
-     */
-    private Integer passMinute;
 
     /**
      * 上架商品列表
@@ -51,4 +60,20 @@ public class MysteriousMerchantSetting implements Serializable {
      */
     private Integer randomGoodCount;
 
+    // 最小随机库存数
+    private Integer minStored;
+
+    // 最大库存数
+    private Integer maxStored;
+
+
+    public boolean saveOrUpdate() {
+        try {
+            HibernateUtil.factory.fromTransaction(session -> session.merge(this));
+        } catch (Exception e) {
+            Log.error("神秘商人:更新", e);
+            return false;
+        }
+        return true;
+    }
 }

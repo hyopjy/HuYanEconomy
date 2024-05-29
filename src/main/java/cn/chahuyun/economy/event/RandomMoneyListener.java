@@ -9,7 +9,6 @@ import cn.chahuyun.economy.entity.PropTimeRange;
 import cn.chahuyun.economy.entity.TimeRange;
 import cn.chahuyun.economy.entity.boss.WorldBossConfig;
 import cn.chahuyun.economy.entity.boss.WorldPropConfig;
-import cn.chahuyun.economy.entity.merchant.MysteriousMerchantConfig;
 import cn.chahuyun.economy.entity.merchant.MysteriousMerchantSetting;
 import cn.chahuyun.economy.entity.props.PropsBase;
 import cn.chahuyun.economy.manager.*;
@@ -534,16 +533,15 @@ public class RandomMoneyListener extends SimpleListenerHost {
                 //  神秘商人 开启
                 String code = event.getMessage().serializeToMiraiCode().replaceAll("\\\\,",",");
                 String[] codeArr = code.split(" ", 3);
+                MysteriousMerchantSetting config = null;
                 if ("开启".equals(codeArr[1])) {
                     // todo 启动定时任务
-                    MysteriousMerchantConfig config = MysteriousMerchantManager.open();
-                    String sb = "神秘商人基本设置 是否开启：" + config.getStatus() + "限制购买次数：" + config.getBuyCount();
-                    subject.sendMessage(sb);
+                    config = MysteriousMerchantManager.open();
                 }
                 // 神秘商人 关闭
                 if ("关闭".equals(codeArr[1])) {
                     // todo 删除定时任务
-                    MysteriousMerchantConfig config = MysteriousMerchantManager.close();
+                    config = MysteriousMerchantManager.close();
                     String sb = "神秘商人基本设置 是否开启：" + config.getStatus() + "限制购买次数：" + config.getBuyCount();
                     subject.sendMessage(sb);
                 }
@@ -551,16 +549,12 @@ public class RandomMoneyListener extends SimpleListenerHost {
                 // 神秘商人 限购次数 2
                 if ("限购次数".equals(codeArr[1])) {
                     Integer buyCount = Integer.parseInt(codeArr[2]);
-                    MysteriousMerchantConfig config = MysteriousMerchantManager.setBuyCount(buyCount);
-                    String sb = "神秘商人基本设置 是否开启：" + config.getStatus() + "限制购买次数：" + config.getBuyCount();
-                    subject.sendMessage(sb);
+                    config = MysteriousMerchantManager.setBuyCount(buyCount);
                 }
 
                 if ("限购次数".equals(codeArr[1])) {
                     Integer buyCount = Integer.parseInt(codeArr[2]);
-                    MysteriousMerchantConfig config = MysteriousMerchantManager.setBuyCount(buyCount);
-                    String sb = "神秘商人基本设置 是否开启：" + config.getStatus() + "限制购买次数：" + config.getBuyCount();
-                    subject.sendMessage(sb);
+                    config = MysteriousMerchantManager.setBuyCount(buyCount);
                 }
 
                 if ("设置规则".equals(codeArr[1])) {
@@ -571,7 +565,7 @@ public class RandomMoneyListener extends SimpleListenerHost {
                     // 概率
                     Integer probability = Integer.parseInt(codeArr[4]);
                     // 商品
-                    List<String> propCodeList = Arrays.asList(StringUtils.split(codeArr[5] , ","))
+                    List<String> goodCodeList = Arrays.asList(StringUtils.split(codeArr[5] , ","))
                             .stream().map(codeStr->{
                                 String propCode =  PropsType.getCode(codeStr);
                                 if(Objects.nonNull(propCode)){
@@ -581,7 +575,7 @@ public class RandomMoneyListener extends SimpleListenerHost {
                             })
                             .filter(Objects::nonNull).collect(Collectors.toList());
                     // 随机几种
-                    Integer randomCount = Integer.parseInt(codeArr[6]);
+                    Integer randomGoodCount = Integer.parseInt(codeArr[6]);
                     // 随机库存数量
                     String[] storedPropCode = StringUtils.split(codeArr[7] , "-");
                     // 最小库存数
@@ -590,18 +584,33 @@ public class RandomMoneyListener extends SimpleListenerHost {
                     Integer maxStored = Integer.parseInt(storedPropCode[1]);
 
                     // 配置信息
-                    MysteriousMerchantSetting config = MysteriousMerchantManager.setting(hourList, passMinute, probability, propCodeList, randomCount, minStored, maxStored);
-
-                    // 商品列表
-//                    List<MysteriousMerchantGoods> goodList = MysteriousMerchantManager.createGoodsListByConfig(config);
-
-
+                    config = MysteriousMerchantManager.setting(hourList, passMinute,
+                            probability, goodCodeList, randomGoodCount, minStored, maxStored);
+                    // 启动config任务
+                    MysteriousMerchantManager.configRunTask(config);
                 }
 
                 //  神秘商人 开启
                 //  神秘商人 关闭
                 //  神秘商人 限购次数 2
                 //  神秘商人 设置规则 14,17,21 15% 10(几分钟消失)  83-92(商品编码范围) 2(几种道具)  1-3(随机道具库存)
+                if(Objects.isNull(config)){
+                    subject.sendMessage("神秘商人信息为空");
+                    return ListeningStatus.LISTENING;
+                }
+                String sb = "神秘商人设置信息\r\n"
+                        + "是否开启：" + config.getStatus() + "\r\n"
+                        + "限制购买次数：" + config.getBuyCount() + "\r\n"
+                        + "开始小时数：" + config.getHourStr() + "\r\n"
+                        + "过多久消失：" + config.getPassMinute() + "\r\n"
+                        + "概率：" + config.getProbability()+ "\r\n"
+                        + "上架商品列表：" + config.getGoodCodeStr() + "\r\n"
+                        + "随机几种商品：" + config.getRandomGoodCount() + "\r\n"
+                        + "随机几种商品：" + config.getRandomGoodCount() + "\r\n"
+                        + "最小随机库存数：" + config.getMinStored()+ "\r\n"
+                        + "最大随机库存数：" + config.getMaxStored()+ "\r\n"
+                        ;
+                subject.sendMessage(sb);
                 return ListeningStatus.LISTENING;
             }
         }catch (Exception e){
