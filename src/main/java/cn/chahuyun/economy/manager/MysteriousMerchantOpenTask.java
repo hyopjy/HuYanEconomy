@@ -136,10 +136,11 @@ public class MysteriousMerchantOpenTask implements Task {
         String startMinutePad = StringUtils.leftPad(startMinutes+"", 2, StringPool.ZERO);
         String endMinutePad = StringUtils.leftPad(endMinutes+"", 2, StringPool.ZERO);
 
-        StringBuilder message = new StringBuilder("神秘商人出现！\r\n");
-        message.append("时间 (" + hourPad + ":" + startMinutePad + "~" + hourPad + ":" + endMinutePad + ") \r\n");
-        message.append("限制兑换次数:" + buyCount +"(次) \r\n");
-        message.append("出现可兑换道具如下:\r\n");
+        StringBuilder message = new StringBuilder("叮叮当~神秘人背着球球的百宝袋出现了！\r\n" +
+                "“我这些都是千金不易的宝贝，趁球球还没发现，我就便宜卖给你们了。”\r\n");
+//        message.append("时间 (" + hourPad + ":" + startMinutePad + "~" + hourPad + ":" + endMinutePad + ") \r\n");
+//        message.append("限制兑换次数:" + buyCount +"(次) \r\n");
+//        message.append("出现可兑换道具如下:\r\n");
         List<MysteriousMerchantShop> finalUpshopGoodsList = upshopGoodsList;
         goodUpList.stream().forEach(good->{
             Optional<MysteriousMerchantShop> shopGoodOptional = finalUpshopGoodsList.stream()

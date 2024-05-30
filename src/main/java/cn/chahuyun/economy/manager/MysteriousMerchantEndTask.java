@@ -71,10 +71,11 @@ public class MysteriousMerchantEndTask implements Task {
         List<MysteriousMerchantShop> shopGoodsList = MysteriousMerchantManager.getMysteriousMerchantShopByGoodCodeList(goodCodeList);
 
         // 根据群聊播报-当前商品剩余量 及 兑换人列表
-        StringBuilder message = new StringBuilder("神秘商人走咯！\r\n");
-        message.append("时间 (" + hourPad + ":" + startMinutePad + "~" + hourPad + ":" + endMinutePad + ") \r\n");
-        message.append("限制兑换次数:" + buyCount +"(次) \r\n");
-        message.append("兑换道具剩余情况如下:\r\n");
+        StringBuilder message = new StringBuilder("“球球来了！快跑！”\r\n" +
+                "“什么啊，我这些都是取的，神秘商人的事，怎么能算偷呢？”\r\n");
+//        message.append("时间 (" + hourPad + ":" + startMinutePad + "~" + hourPad + ":" + endMinutePad + ") \r\n");
+//        message.append("限制兑换次数:" + buyCount +"(次) \r\n");
+//        message.append("兑换道具剩余情况如下:\r\n");
         goodUpList.stream().forEach(good->{
             Optional<MysteriousMerchantShop> shopGoodOptional = shopGoodsList.stream()
                     .filter(shop-> good.getGoodCode().equals(shop.getGoodCode())).findFirst();
