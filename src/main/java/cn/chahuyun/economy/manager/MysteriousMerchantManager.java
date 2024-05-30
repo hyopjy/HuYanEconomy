@@ -308,6 +308,7 @@ public class MysteriousMerchantManager {
 
     public static void exchange(MessageEvent event){
         //    兑换(想个新命令)
+        // 兑换放入redis缓存  根据小时数
     }
 
     // 商品根据settingId删除
