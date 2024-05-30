@@ -114,4 +114,9 @@ public class SeasonManager {
         CompetitionSeasonManager.resetWditBB();
         Log.info("重置wditbb");
     }
+
+    public static void importShopInfo() {
+        MysteriousMerchantManager.importShopInfo();
+        Log.info("神秘商品导入");
+    }
 }

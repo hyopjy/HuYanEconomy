@@ -1,22 +1,26 @@
 package cn.chahuyun.economy.manager;
 
+import cn.chahuyun.economy.HuYanEconomy;
 import cn.chahuyun.economy.constant.Constant;
+import cn.chahuyun.economy.entity.merchant.ExchangeRecordsLog;
 import cn.chahuyun.economy.entity.merchant.MysteriousMerchantGoods;
 import cn.chahuyun.economy.entity.merchant.MysteriousMerchantSetting;
+import cn.chahuyun.economy.entity.merchant.MysteriousMerchantShop;
 import cn.chahuyun.economy.utils.HibernateUtil;
 import cn.hutool.cron.CronUtil;
+import cn.hutool.poi.excel.ExcelReader;
+import cn.hutool.poi.excel.ExcelUtil;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaDelete;
 import jakarta.persistence.criteria.Root;
 import net.mamoe.mirai.event.events.MessageEvent;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.query.criteria.HibernateCriteriaBuilder;
 import org.hibernate.query.criteria.JpaCriteriaQuery;
 import org.hibernate.query.criteria.JpaRoot;
 
 import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -49,13 +53,22 @@ public class MysteriousMerchantManager {
 //    @用户 被姐姐成功俘获，ATM姬自愿交出了2646币币，但获得了心选礼盒×1
 //
 //            ◈上钩保护动物（手钓和钓鱼机）后背包内增加动物保护徽章×1
+
+    private static final Long SETTING_ID = 1L;
+
+    public static final Integer CHANGE_TYPE_PROP = 0;
+    public static final Integer CHANGE_TYPE_BB = 1;
+
+    public static final Integer CHANGE_TYPE_SEASON = 2;
+
+
     /**
      * 开启神秘商人
      *
      */
     public static MysteriousMerchantSetting open(){
     //    开启神秘商人
-        MysteriousMerchantSetting setting = geMysteriousMerchantSettingByKey(1L);
+        MysteriousMerchantSetting setting = geMysteriousMerchantSettingByKey(SETTING_ID);
         if(Objects.isNull(setting)){
             return null;
         }
@@ -77,7 +90,7 @@ public class MysteriousMerchantManager {
      */
     public static MysteriousMerchantSetting close(){
     //    关闭神秘商人
-        MysteriousMerchantSetting setting = geMysteriousMerchantSettingByKey(1L);
+        MysteriousMerchantSetting setting = geMysteriousMerchantSettingByKey(SETTING_ID);
         if(Objects.isNull(setting)){
             return null;
         }
@@ -87,7 +100,7 @@ public class MysteriousMerchantManager {
 
         setting.setStatus(false);
         setting.saveOrUpdate();
-        deleteGoodBySettingId(setting.getSettingId());
+        deleteGoodBySettingId(setting.getSettingId(), null);
         closeTask(setting);
         return setting;
     }
@@ -105,16 +118,16 @@ public class MysteriousMerchantManager {
                                                     Integer maxStored,
                                                     Integer buyCount) {
         //    设置神秘商人 14,17,21 10(几分钟消失) 15%   83-92(商品编码范围) 2(几种道具)  1-3(随机道具库存)
-        MysteriousMerchantSetting config = geMysteriousMerchantSettingByKey(1L);
+        MysteriousMerchantSetting config = geMysteriousMerchantSettingByKey(SETTING_ID);
         if(Objects.isNull(config)){
             config = new MysteriousMerchantSetting();
-            config.setSettingId(1L);
+            config.setSettingId(SETTING_ID);
             config.setStatus(true);
         }
-        config.setHourStr(String.join(",", hourList));
+        config.setHourStr(String.join(Constant.SPILT, hourList));
         config.setPassMinute(passMinute);
         config.setProbability(probability);
-        config.setGoodCodeStr(String.join(",", goodCodeList));
+        config.setGoodCodeStr(String.join(Constant.SPILT, goodCodeList));
         config.setRandomGoodCount(randomGoodCount);
         config.setMinStored(minStored);
         config.setMaxStored(maxStored);
@@ -242,42 +255,152 @@ public class MysteriousMerchantManager {
         return MessageFormat.format("0 {0} {1} * * ?", minutes, hour);
     }
 
-
     /**
-     * 设置神秘商人
-     *
-     * @param event
+     * 神秘商品导入
      */
-    public static void buyShop(MessageEvent event){
-        //    神秘商人商店 (excel导入)
+    public static void importShopInfo(){
+        /**
+         * 查出数据库有的神秘商品
+         */
+        // 删除神秘商品
+        HibernateUtil.factory.fromSession(session -> {
+            CriteriaBuilder builder = session.getCriteriaBuilder();
+            CriteriaDelete<MysteriousMerchantShop> deleteQuery = builder.createCriteriaDelete(MysteriousMerchantShop.class);
+            Root<MysteriousMerchantShop> root = deleteQuery.from(MysteriousMerchantShop.class);
+            // 执行删除操作
+            session.createQuery(deleteQuery).executeUpdate();
+            return null;
+        });
+        deleteGoodBySettingId(SETTING_ID, null);
+        // 读取excel
+        List<MysteriousMerchantShop> excelData = getExcelData();
+        List<MysteriousMerchantShop> saveShop = excelData.stream().map(data -> {
+            if (StringUtils.isNotEmpty(data.getProp2Code())) {
+                data.setChangeType(CHANGE_TYPE_PROP);
+            } else if (StringUtils.isNotEmpty(data.getProp2Code())) {
+                data.setChangeType(CHANGE_TYPE_BB);
+            } else if (StringUtils.isNotEmpty(data.getProp2Code())) {
+                data.setChangeType(CHANGE_TYPE_SEASON);
+            } else {
+                return null;
+            }
+            return data;
+        }).collect(Collectors.toList()).stream().filter(Objects::nonNull).collect(Collectors.toList());
+
+        // 保存
+        saveShopGoodList(saveShop);
     }
 
-    public static void exchangeShop(MessageEvent event){
-        //    神秘商人兑换商店 (excel导入)
-    }
-
-    public static void buy(MessageEvent event){
-        //    购买(想个新命令)
+    private static List<MysteriousMerchantShop> getExcelData() {
+        HuYanEconomy instance = HuYanEconomy.INSTANCE;
+        ExcelReader reader = ExcelUtil.getReader(instance.getResourceAsStream("fish.xlsx"), 2);
+        Map<String, String> map = new HashMap<>();
+        map.put("编号", "goodCode");
+        map.put("道具编号", "prop1Code");
+        map.put("其他道具", "prop2Code");
+        map.put("其他道具数量", "prop2Count");
+        map.put("币币", "bbCount");
+        map.put("赛季币", "seasonMoney");
+        List<MysteriousMerchantShop> list = reader.setHeaderAlias(map).readAll(MysteriousMerchantShop.class);
+        reader.close();
+        return list;
     }
 
     public static void exchange(MessageEvent event){
         //    兑换(想个新命令)
     }
 
-
-
-    // 道具背包 展示神秘商店标志
-
     // 商品根据settingId删除
-    public static void deleteGoodBySettingId(Long settingId) {
+    public static void deleteGoodBySettingId(Long settingId , Long groupId) {
         HibernateUtil.factory.fromSession(session -> {
             CriteriaBuilder builder = session.getCriteriaBuilder();
             CriteriaDelete<MysteriousMerchantGoods> deleteQuery = builder.createCriteriaDelete(MysteriousMerchantGoods.class);
             Root<MysteriousMerchantGoods> root = deleteQuery.from(MysteriousMerchantGoods.class);
+
+            // 添加 settingId 的约束条件
             deleteQuery.where(builder.equal(root.get("settingId"), settingId));
+
+            // 如果 groupId 不为 null，则同时添加 groupId 的约束条件
+            if (Objects.nonNull(groupId)) {
+                deleteQuery.where(builder.equal(root.get("groupId"), groupId));
+            }
+            // 执行删除操作
             session.createQuery(deleteQuery).executeUpdate();
             return null;
         });
+
+        // 兑换记录一并删除
+        deleteExchangeRecordsLogBySettingId(settingId, groupId);
+    }
+
+    public static List<MysteriousMerchantGoods> getGoodBySettingId(Long settingId, Long groupId) {
+        return HibernateUtil.factory.fromSession(session -> {
+            HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
+            JpaCriteriaQuery<MysteriousMerchantGoods> query = builder.createQuery(MysteriousMerchantGoods.class);
+            JpaRoot<MysteriousMerchantGoods> goods = query.from(MysteriousMerchantGoods.class);
+            query.select(goods).where(
+                    builder.equal(goods.get("settingId"), settingId),
+                    builder.equal(goods.get("groupId"), groupId)
+            );
+            return session.createQuery(query).list();
+        });
+    }
+    /**
+     * 删除用户兑换记录
+     * @param settingId
+     * @return
+     */
+    public static void deleteExchangeRecordsLogBySettingId(Long settingId, Long groupId) {
+        HibernateUtil.factory.fromSession(session -> {
+            CriteriaBuilder builder = session.getCriteriaBuilder();
+            CriteriaDelete<ExchangeRecordsLog> deleteQuery = builder.createCriteriaDelete(ExchangeRecordsLog.class);
+            Root<ExchangeRecordsLog> root = deleteQuery.from(ExchangeRecordsLog.class);
+
+            // 添加 settingId 的约束条件
+            deleteQuery.where(builder.equal(root.get("settingId"), settingId));
+
+            // 如果 groupId 不为 null，则同时添加 groupId 的约束条件
+            if (Objects.nonNull(groupId)) {
+                deleteQuery.where(builder.equal(root.get("groupId"), groupId));
+            }
+
+            // 执行删除操作
+            session.createQuery(deleteQuery).executeUpdate();
+            return null;
+        });
+    }
+
+    /**
+     * 查询指定的商品列表
+     *
+     * @param goodCodeList
+     * @return
+     */
+    public static List<MysteriousMerchantShop> getMysteriousMerchantShopByGoodCodeList(List<String> goodCodeList) {
+        return HibernateUtil.factory.fromSession(session -> {
+            HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
+            JpaCriteriaQuery<MysteriousMerchantShop> query = builder.createQuery(MysteriousMerchantShop.class);
+            JpaRoot<MysteriousMerchantShop> shop = query.from(MysteriousMerchantShop.class);
+            query.select(shop).where(builder.in(shop.get("goodCode")).value(goodCodeList));
+            query.orderBy(builder.asc(shop.get("goodCode"))); // 按照 goodCode 正序排序
+            return session.createQuery(query).list();
+        });
+    }
+
+    public static String getShopGoodCode(String codeStr) {
+        return codeStr;
+    }
+
+    /**
+     * 保存当前生成的商品信息
+     *
+     * @param goodUpList
+     */
+    public static void saveGoodUpList(List<MysteriousMerchantGoods> goodUpList) {
+        goodUpList.stream().forEach(MysteriousMerchantGoods::saveOrUpdate);
+    }
+    public static void saveShopGoodList(List<MysteriousMerchantShop> shopList) {
+        shopList.stream().forEach(MysteriousMerchantShop::saveOrUpdate);
     }
 
 }

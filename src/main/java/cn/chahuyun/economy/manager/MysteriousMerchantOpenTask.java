@@ -1,21 +1,24 @@
 package cn.chahuyun.economy.manager;
 
 import cn.chahuyun.economy.HuYanEconomy;
+import cn.chahuyun.economy.constant.Constant;
 import cn.chahuyun.economy.entity.merchant.MysteriousMerchantGoods;
 import cn.chahuyun.economy.entity.merchant.MysteriousMerchantSetting;
-import cn.chahuyun.economy.entity.props.PropsFishCard;
-import cn.chahuyun.economy.plugin.PropsType;
+import cn.chahuyun.economy.entity.merchant.MysteriousMerchantShop;
+import cn.chahuyun.economy.entity.props.PropsBase;
+import cn.chahuyun.economy.entity.props.factory.PropsCardFactory;
 import cn.chahuyun.economy.utils.Log;
 import cn.chahuyun.economy.utils.RandomHelperUtil;
+import cn.hutool.core.util.RandomUtil;
 import cn.hutool.cron.task.Task;
 import jodd.util.StringPool;
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.Group;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class MysteriousMerchantOpenTask implements Task {
 
@@ -61,30 +64,73 @@ public class MysteriousMerchantOpenTask implements Task {
             if(Objects.isNull(group)){
                 return;
             }
-            taskRunByStartGroupId(groupId, bot, group);
+            taskRunByStartGroupId(groupId, group);
         });
 
     }
 
-    private void taskRunByStartGroupId(Long groupId, Bot bot, Group group) {
-        Integer prop = setting.getProbability();
+    private void taskRunByStartGroupId(Long groupId, Group group) {
+        Integer probability = setting.getProbability();
         /**
          * 判断概率
          */
-        Boolean appear = RandomHelperUtil.checkRandomByProp(prop);
-        if(!appear){
+        Boolean appear = RandomHelperUtil.checkRandomByProp(probability);
+        if(!setting.getStatus() || !appear){
             return;
         }
-        // 查询神秘商人系列道具
-        List<PropsFishCard> propsFishCards = new ArrayList<PropsFishCard>();
+        // 限购次数
+        Integer buyCount = setting.getBuyCount();
+        // 上架商品列表
+        List<String> goodCodeList = Arrays.asList(setting.getGoodCodeStr().split(Constant.SPILT));
+        // 随机商品数量
+        Integer randomGoodCount = setting.getRandomGoodCount();
+        // 随机库存最小
+        Integer minStored = setting.getMinStored();
+        // 随机库存最大
+        Integer maxStored = setting.getMaxStored();
 
         Integer startMinutes = MysteriousMerchantManager.getStartMinutes();
         Integer endMinutes = MysteriousMerchantManager.getEndMinutes(setting);
 
-        // 生成商品列表
-        List<MysteriousMerchantGoods> goodsList = new ArrayList<>();
-        // 随机-几种
-        // 随机库存
+        // 获取商店商品信息
+        List<MysteriousMerchantShop> shopGoodsList = MysteriousMerchantManager.getMysteriousMerchantShopByGoodCodeList(goodCodeList);
+
+        List<MysteriousMerchantShop> upshopGoodsList = new ArrayList<>();
+        if(CollectionUtils.isEmpty(shopGoodsList)){
+            return;
+        }
+        if(shopGoodsList.size() <= setting.getRandomGoodCount()){
+            upshopGoodsList = shopGoodsList;
+        }else {
+            // 随机-几种
+            // 首先打乱列表
+            Collections.shuffle(shopGoodsList);
+            // 然后从打乱后的列表中获取前 numberOfRandomElements 个元素
+            upshopGoodsList = shopGoodsList.subList(0, randomGoodCount)
+                   .stream().sorted(Comparator.comparing(MysteriousMerchantShop::getGoodCode))
+                   .collect(Collectors.toList());
+        }
+
+        List<MysteriousMerchantGoods> goodUpList = new ArrayList<>(upshopGoodsList.size());
+        upshopGoodsList.forEach(shopGood->{
+            MysteriousMerchantGoods goods = new MysteriousMerchantGoods();
+            goods.setSettingId(setting.getSettingId());
+            goods.setGroupId(groupId);
+            goods.setGoodCode(shopGood.getGoodCode());
+            Integer store = RandomUtil.randomInt(minStored, maxStored + 1);
+            goods.setGoodStored(store);
+            goods.setSold(0);
+            goods.setHour(hour);
+            goods.setStartMinutes(startMinutes);
+            goods.setEndMinutes(endMinutes);
+            goodUpList.add(goods);
+        });
+
+        // 新增前 先删除 hour+minutes的配置
+        MysteriousMerchantManager.deleteGoodBySettingId(setting.getSettingId(), groupId);
+        // 保存商品信息
+        MysteriousMerchantManager.saveGoodUpList(goodUpList);
+
 
         String hourPad = StringUtils.leftPad(hour+"", 2, StringPool.ZERO);
         String startMinutePad = StringUtils.leftPad(startMinutes+"", 2, StringPool.ZERO);
@@ -92,8 +138,40 @@ public class MysteriousMerchantOpenTask implements Task {
 
         StringBuilder message = new StringBuilder("神秘商人出现！\r\n");
         message.append("时间 (" + hourPad + ":" + startMinutePad + "~" + hourPad + ":" + endMinutePad + ") \r\n");
-        message.append("限购次数:" + setting.getBuyCount() +"(次) \r\n");
-        message.append("出现道具如下:\r\n");
+        message.append("限制兑换次数:" + buyCount +"(次) \r\n");
+        message.append("出现可兑换道具如下:\r\n");
+        List<MysteriousMerchantShop> finalUpshopGoodsList = upshopGoodsList;
+        goodUpList.stream().forEach(good->{
+            Optional<MysteriousMerchantShop> shopGoodOptional = finalUpshopGoodsList.stream()
+                    .filter(shop-> good.getGoodCode().equals(shop.getGoodCode())).findFirst();
+            if(!shopGoodOptional.isPresent()){
+                return;
+            }
+            message.append("-----------------------\r\n");
+            MysteriousMerchantShop shopGood = shopGoodOptional.get();
+            message.append("商品信息:\r\n");
+            message.append("编码： [" + shopGood.getGoodCode() + "] \r\n");
+            PropsBase props1Base = PropsCardFactory.INSTANCE.getPropsBase(shopGood.getProp1Code());
+            message.append("道具名：" + props1Base.getName() + "\r\n");
+            message.append("兑换条件:\r\n");
+            // 道具兑换
+            if(shopGood.getChangeType().equals(MysteriousMerchantManager.CHANGE_TYPE_PROP)){
+                PropsBase propsBase = PropsCardFactory.INSTANCE.getPropsBase(shopGood.getProp2Code());
+                message.append(propsBase.getName() + "(" + shopGood.getProp2Count() + ") \r\n");
+            }
+            // bb兑换
+            if(shopGood.getChangeType().equals(MysteriousMerchantManager.CHANGE_TYPE_BB)){
+                message.append(SeasonCommonInfoManager.getBBMoney() + "(" + shopGood.getBbCount() + ") \r\n");
+            }
+            // 赛季币兑换
+            if(shopGood.getChangeType().equals(MysteriousMerchantManager.CHANGE_TYPE_SEASON)){
+                message.append(SeasonCommonInfoManager.getSeasonMoney() + "(" + shopGood.getSeasonMoney() + ") \r\n");
+            }
+            message.append("商品库存: " + good.getGoodStored() + "\r\n");
+//            message.append("已售出: " + good.getSold()+ "\r\n");
+
+            message.append("-----------------------\r\n");
+        });
         group.sendMessage(message.toString());
 
     }

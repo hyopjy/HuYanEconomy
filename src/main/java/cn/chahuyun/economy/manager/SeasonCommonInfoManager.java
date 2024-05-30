@@ -4,6 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SeasonCommonInfoManager {
+    /**
+     *
+     *
+     * @return
+     */
+    public static String getBBMoney(){
+        return "bb";
+    }
 
     /**
      * 获取当前赛季币信息

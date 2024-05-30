@@ -195,6 +195,12 @@ public class RandomMoneyListener extends SimpleListenerHost {
                 subject.sendMessage(MessageUtil.formatMessageChain("刷新道具完成"));
             }
 
+            if (message.equals("导入神秘商品") &&
+                    EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
+                SeasonManager.importShopInfo();
+                subject.sendMessage(MessageUtil.formatMessageChain("导入神秘商品"));
+            }
+
             if (message.startsWith("世界boss") &&
                     EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
                 //  开启
@@ -460,6 +466,8 @@ public class RandomMoneyListener extends SimpleListenerHost {
                 // SeasonManager.clearFishRank();
                 // 8. 用户widitbb余额 超过88888的 更新为88888
                 SeasonManager.resetWditBB();
+                // 9. 神秘商品更新
+                SeasonManager.importShopInfo();
             }
             if (message.startsWith("xb") &&
                     EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())){
@@ -551,17 +559,17 @@ public class RandomMoneyListener extends SimpleListenerHost {
                 if ("设置规则".equals(codeArr[1])) {
 //                  神秘商人 设置规则 14,17,21    10(几分钟消失)  15%(概率) 83,77,65,92(商品编码范围) 2(几种道具)  1-3(随机道具库存)
                     // 小时数量
-                    List<String> hourList = Arrays.asList(StringUtils.split(codeArr[2] , ","));
+                    List<String> hourList = Arrays.asList(StringUtils.split(codeArr[2] , Constant.MM_SPILT));
                     // 过多久消失
                     Integer passMinute = Integer.parseInt(codeArr[3]);
                     // 概率
                     Integer probability = Integer.parseInt(codeArr[4]);
                     // 商品
-                    List<String> goodCodeList = Arrays.asList(StringUtils.split(codeArr[5] , ","))
+                    List<String> goodCodeList = Arrays.asList(StringUtils.split(codeArr[5] , Constant.MM_SPILT))
                             .stream().map(codeStr->{
-                                String propCode =  PropsType.getCode(codeStr);
-                                if(Objects.nonNull(propCode)){
-                                    return propCode;
+                                String goodCode =  MysteriousMerchantManager.getShopGoodCode(codeStr);
+                                if(Objects.nonNull(goodCode)){
+                                    return goodCode;
                                 }
                                 return null;
                             })
@@ -569,7 +577,7 @@ public class RandomMoneyListener extends SimpleListenerHost {
                     // 随机几种
                     Integer randomGoodCount = Integer.parseInt(codeArr[6]);
                     // 随机库存数量
-                    String[] storedPropCode = StringUtils.split(codeArr[7] , "-");
+                    String[] storedPropCode = StringUtils.split(codeArr[7] , Constant.SPILT);
                     // 最小库存数
                     Integer minStored = Integer.parseInt(storedPropCode[0]);
                     // 最大库存数
