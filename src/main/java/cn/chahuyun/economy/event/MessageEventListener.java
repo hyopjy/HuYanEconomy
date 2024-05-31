@@ -365,6 +365,13 @@ public class MessageEventListener extends SimpleListenerHost {
                 return;
             }
 
+            // 抢购 SS01
+            String exchangeShopRegex = "抢购 (\\S+)?|buying (\\S+)?";
+            if (Pattern.matches(exchangeShopRegex, code)) {
+                Log.info("神秘商店兑换");
+                MysteriousMerchantManager.exchange(event);
+                return;
+            }
         } catch (Exception exception) {
             Log.error("发生异常！！！:" + exception.getMessage());
         }

@@ -7,13 +7,17 @@ import cn.chahuyun.economy.entity.merchant.MysteriousMerchantGoods;
 import cn.chahuyun.economy.entity.merchant.MysteriousMerchantSetting;
 import cn.chahuyun.economy.entity.merchant.MysteriousMerchantShop;
 import cn.chahuyun.economy.utils.HibernateUtil;
+import cn.chahuyun.economy.utils.Log;
 import cn.hutool.cron.CronUtil;
 import cn.hutool.poi.excel.ExcelReader;
 import cn.hutool.poi.excel.ExcelUtil;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaDelete;
 import jakarta.persistence.criteria.Root;
+import net.mamoe.mirai.contact.Contact;
+import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.event.events.MessageEvent;
+import net.mamoe.mirai.message.data.MessageChain;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.query.criteria.HibernateCriteriaBuilder;
 import org.hibernate.query.criteria.JpaCriteriaQuery;
@@ -21,6 +25,7 @@ import org.hibernate.query.criteria.JpaRoot;
 
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -61,6 +66,14 @@ public class MysteriousMerchantManager {
 
     public static final Integer CHANGE_TYPE_SEASON = 2;
 
+    public static final Map<String, MysteriousMerchantShop> SHOP_GOODS_MAP = new ConcurrentHashMap<>();
+
+    public static void init(){
+        // 加载商品信息
+        reloadShopListMap();
+        // 开启定时任务
+        open();
+    }
 
     /**
      * 开启神秘商人
@@ -259,9 +272,6 @@ public class MysteriousMerchantManager {
      * 神秘商品导入
      */
     public static void importShopInfo(){
-        /**
-         * 查出数据库有的神秘商品
-         */
         // 删除神秘商品
         HibernateUtil.factory.fromSession(session -> {
             CriteriaBuilder builder = session.getCriteriaBuilder();
@@ -289,6 +299,27 @@ public class MysteriousMerchantManager {
 
         // 保存
         saveShopGoodList(saveShop);
+
+        reloadShopListMap();
+    }
+
+    public static void reloadShopListMap() {
+        /**
+         * 查出数据库有的神秘商品
+         */
+        SHOP_GOODS_MAP.clear();
+
+        List<MysteriousMerchantShop> shopGoodList =  HibernateUtil.factory.fromSession(session -> {
+            HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
+            JpaCriteriaQuery<MysteriousMerchantShop> query = builder.createQuery(MysteriousMerchantShop.class);
+            JpaRoot<MysteriousMerchantShop> shop = query.from(MysteriousMerchantShop.class);
+            query.orderBy(builder.asc(shop.get("goodCode"))); // 按照 goodCode 正序排序
+            return session.createQuery(query).list();
+        });
+
+        shopGoodList.forEach(shopGood->{
+            SHOP_GOODS_MAP.put(shopGood.getGoodCode(),shopGood);
+        });
     }
 
     private static List<MysteriousMerchantShop> getExcelData() {
@@ -306,9 +337,38 @@ public class MysteriousMerchantManager {
         return list;
     }
 
-    public static void exchange(MessageEvent event){
-        //    兑换(想个新命令)
+    public synchronized static void exchange(MessageEvent event){
+        Contact subject = event.getSubject();
+        Group group = null;
+        if(subject instanceof Group){
+            group = (Group) subject;
+        }
+        if(Objects.isNull(group)){
+            return;
+        }
+        String[] s = event.getMessage().serializeToMiraiCode().split(" ");
+        if (s.length != 2) {
+            Log.error("[抢购 格式不正确]");
+            return;
+        }
+        String goodCode = s[1];
+        MysteriousMerchantShop shop = MysteriousMerchantManager.getShopGoodCode(goodCode);
+        if(Objects.isNull(shop)){
+            return;
+        }
+        // 库存数量先放入redis中
+        // redis进行-1
+        // 判断当前商品是否在出售中
+        // 判断剩余量（redis）
+
+
+        // 获取userId
+        Long senderId = event.getSender().getId();
+
+        // 查询兑换编码
         // 兑换放入redis缓存  根据小时数
+
+        MessageChain message = event.getMessage();
     }
 
     // 商品根据settingId删除
@@ -388,8 +448,8 @@ public class MysteriousMerchantManager {
         });
     }
 
-    public static String getShopGoodCode(String codeStr) {
-        return codeStr;
+    public static MysteriousMerchantShop getShopGoodCode(String codeStr) {
+        return SHOP_GOODS_MAP.get(codeStr);
     }
 
     /**
@@ -398,7 +458,10 @@ public class MysteriousMerchantManager {
      * @param goodUpList
      */
     public static void saveGoodUpList(List<MysteriousMerchantGoods> goodUpList) {
-        goodUpList.stream().forEach(MysteriousMerchantGoods::saveOrUpdate);
+        for(MysteriousMerchantGoods good : goodUpList){
+            good.saveOrUpdate();
+            //
+        }
     }
     public static void saveShopGoodList(List<MysteriousMerchantShop> shopList) {
         shopList.stream().forEach(MysteriousMerchantShop::saveOrUpdate);

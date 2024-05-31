@@ -10,6 +10,7 @@ import cn.chahuyun.economy.entity.TimeRange;
 import cn.chahuyun.economy.entity.boss.WorldBossConfig;
 import cn.chahuyun.economy.entity.boss.WorldPropConfig;
 import cn.chahuyun.economy.entity.merchant.MysteriousMerchantSetting;
+import cn.chahuyun.economy.entity.merchant.MysteriousMerchantShop;
 import cn.chahuyun.economy.entity.props.PropsBase;
 import cn.chahuyun.economy.manager.*;
 
@@ -567,9 +568,9 @@ public class RandomMoneyListener extends SimpleListenerHost {
                     // 商品
                     List<String> goodCodeList = Arrays.asList(StringUtils.split(codeArr[5] , Constant.MM_SPILT))
                             .stream().map(codeStr->{
-                                String goodCode =  MysteriousMerchantManager.getShopGoodCode(codeStr);
-                                if(Objects.nonNull(goodCode)){
-                                    return goodCode;
+                                MysteriousMerchantShop shopGood =  MysteriousMerchantManager.getShopGoodCode(codeStr);
+                                if(Objects.nonNull(shopGood)){
+                                    return shopGood.getGoodCode();
                                 }
                                 return null;
                             })
