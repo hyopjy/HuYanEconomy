@@ -2,12 +2,20 @@ package cn.chahuyun.economy.manager;
 
 import cn.chahuyun.economy.HuYanEconomy;
 import cn.chahuyun.economy.constant.Constant;
+import cn.chahuyun.economy.entity.UserBackpack;
+import cn.chahuyun.economy.entity.UserInfo;
 import cn.chahuyun.economy.entity.merchant.ExchangeRecordsLog;
 import cn.chahuyun.economy.entity.merchant.MysteriousMerchantGoods;
 import cn.chahuyun.economy.entity.merchant.MysteriousMerchantSetting;
 import cn.chahuyun.economy.entity.merchant.MysteriousMerchantShop;
+import cn.chahuyun.economy.entity.props.PropsBase;
+import cn.chahuyun.economy.entity.props.factory.PropsCardFactory;
+import cn.chahuyun.economy.plugin.PluginManager;
+import cn.chahuyun.economy.redis.RedisUtils;
+import cn.chahuyun.economy.utils.EconomyUtil;
 import cn.chahuyun.economy.utils.HibernateUtil;
 import cn.chahuyun.economy.utils.Log;
+import cn.chahuyun.economy.utils.MessageUtil;
 import cn.hutool.cron.CronUtil;
 import cn.hutool.poi.excel.ExcelReader;
 import cn.hutool.poi.excel.ExcelUtil;
@@ -18,10 +26,13 @@ import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.message.data.MessageChain;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.compress.utils.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.query.criteria.HibernateCriteriaBuilder;
 import org.hibernate.query.criteria.JpaCriteriaQuery;
 import org.hibernate.query.criteria.JpaRoot;
+import org.redisson.Redisson;
 
 import java.text.MessageFormat;
 import java.util.*;
@@ -65,6 +76,12 @@ public class MysteriousMerchantManager {
     public static final Integer CHANGE_TYPE_BB = 1;
 
     public static final Integer CHANGE_TYPE_SEASON = 2;
+
+    public static final String SHOP_GOOD_KEY = "shop:good:redis:key:";
+
+    public static final String SHOP_GOOD_USER_KEY = "shop:good:user:redis:key:";
+
+    public static final Integer MAX_RETRY_COUNT = 2;
 
     public static final Map<String, MysteriousMerchantShop> SHOP_GOODS_MAP = new ConcurrentHashMap<>();
 
@@ -339,6 +356,7 @@ public class MysteriousMerchantManager {
 
     public synchronized static void exchange(MessageEvent event){
         Contact subject = event.getSubject();
+        MessageChain message = event.getMessage();
         Group group = null;
         if(subject instanceof Group){
             group = (Group) subject;
@@ -346,6 +364,11 @@ public class MysteriousMerchantManager {
         if(Objects.isNull(group)){
             return;
         }
+        UserInfo userInfo = UserManager.getUserInfo(event.getSender());
+        if(Objects.isNull(userInfo)){
+            return;
+        }
+
         String[] s = event.getMessage().serializeToMiraiCode().split(" ");
         if (s.length != 2) {
             Log.error("[抢购 格式不正确]");
@@ -353,22 +376,152 @@ public class MysteriousMerchantManager {
         }
         String goodCode = s[1];
         MysteriousMerchantShop shop = MysteriousMerchantManager.getShopGoodCode(goodCode);
-        if(Objects.isNull(shop)){
+        if(Objects.isNull(shop) || Objects.isNull(shop.getChangeType())){
             return;
         }
-        // 库存数量先放入redis中
-        // redis进行-1
-        // 判断当前商品是否在出售中
-        // 判断剩余量（redis）
 
+        // 查询商品是否在售
+        MysteriousMerchantGoods goods = MysteriousMerchantManager.getShopGoodByGoodCode(goodCode, group.getId());
+        if(Objects.isNull(goods)){
+            subject.sendMessage(MessageUtil.formatMessageChain(message, "商品暂未上架"));
+            return;
+        }
 
-        // 获取userId
+        String shopGoodRedisKey = getShopGoodRedisKey(goods);
+        int stored = (Integer) Optional.ofNullable(RedisUtils.getKeyObject(shopGoodRedisKey)).orElse(0);
+        if (stored <= 0) {
+            subject.sendMessage(MessageUtil.formatMessageChain(message, "已售罄"));
+            return;
+        }
+        // 查询是否已经购买
         Long senderId = event.getSender().getId();
+        String shopGoodUserRedisKey = getShopGoodUserRedisKey(goods, senderId);
+        if(Objects.nonNull(RedisUtils.getKeyObject(shopGoodUserRedisKey))){
+            subject.sendMessage(MessageUtil.formatMessageChain(message, "限购"));
+            return;
+        }
+        // redis增加库存
+        RedisUtils.setKeyObject(shopGoodRedisKey, stored - 1);
+        RedisUtils.setKeyObject(shopGoodUserRedisKey, 1);
 
-        // 查询兑换编码
-        // 兑换放入redis缓存  根据小时数
+        // 用户新增道具
+        PropsBase prop1Code = PropsCardFactory.INSTANCE.getPropsBase(shop.getProp1Code());
 
-        MessageChain message = event.getMessage();
+
+        // 判断抢购规则
+        if(CHANGE_TYPE_PROP.equals(shop.getChangeType())){
+            // 查询用户背包
+           List<UserBackpack> prop2List =  Optional.ofNullable(userInfo.getBackpacks()).orElse(Lists.newArrayList())
+                    .stream().filter(back-> back.getPropsCode().equals(shop.getProp2Code()))
+                    .collect(Collectors.toList());
+            if (CollectionUtils.isEmpty(prop2List) || prop2List.size() < shop.getProp2Count()) {
+                RedisUtils.setKeyObject(shopGoodRedisKey, stored + 1);
+                RedisUtils.deleteKeyString(shopGoodUserRedisKey);
+                return;
+            }
+            // 用户减去兑换的道具
+            for (int i = 0; i < shop.getProp2Count(); i++) {
+                PropsBase propsBase = PropsCardFactory.INSTANCE.getPropsBase(shop.getProp2Code());
+                PluginManager.getPropsManager().deleteProp(userInfo, propsBase);
+            }
+
+        }
+
+        if(CHANGE_TYPE_BB.equals(shop.getChangeType())){
+            double userMoney  = EconomyUtil.getMoneyByUser(event.getSender());
+            if(userMoney < shop.getBbCount()){
+                RedisUtils.setKeyObject(shopGoodRedisKey, stored + 1);
+                RedisUtils.deleteKeyString(shopGoodUserRedisKey);
+                return;
+            }
+            if (!EconomyUtil.minusMoneyToUser(event.getSender(), shop.getBbCount())) {
+                Log.warning("道具系统:减少余额失败!");
+                subject.sendMessage("系统出错，请联系主人!");
+                return;
+            }
+        }
+
+        if(CHANGE_TYPE_SEASON.equals(shop.getChangeType())){
+            double userBankMoney  = EconomyUtil.getMoneyByBank(event.getSender());
+            if(userBankMoney < shop.getSeasonMoney()){
+                RedisUtils.setKeyObject(shopGoodRedisKey, stored + 1);
+                RedisUtils.deleteKeyString(shopGoodUserRedisKey);
+                return;
+            }
+            if (!EconomyUtil.minusMoneyToBank(event.getSender(), shop.getSeasonMoney())) {
+                Log.warning("道具系统:减少余额失败!");
+                subject.sendMessage("系统出错，请联系主人!");
+                return;
+            }
+        }
+        // 更新库存
+        if(!updateShopGoodsStore(goods)){
+            RedisUtils.setKeyObject(shopGoodRedisKey, stored + 1);
+            RedisUtils.deleteKeyString(shopGoodUserRedisKey);
+            return;
+        }
+        // 增加用户抢购记录
+        addExchangeRecordsLog(SETTING_ID,goodCode, group.getId(), senderId);
+
+        // 增加道具
+        PluginManager.getPropsManager().addProp(userInfo, prop1Code);
+        // 发送消息
+        String content = String.format("恭喜%s抢购到了了%s", event.getSender().getNick(), prop1Code.getName());
+        subject.sendMessage(MessageUtil.formatMessageChain(message, content));
+    }
+
+    private static void addExchangeRecordsLog(Long settingId, String goodCode, long groupId, Long senderId) {
+        ExchangeRecordsLog log = new ExchangeRecordsLog();
+        log.setSettingId(settingId);
+        log.setGroupId(groupId);
+        log.setUserId(senderId);
+        log.setGoodCode(goodCode);
+        log.saveOrUpdate();
+    }
+
+    private static Boolean updateShopGoodsStore(MysteriousMerchantGoods goods) {
+        int retryCount = 0;
+        while (retryCount < MAX_RETRY_COUNT) {
+            try {
+                return HibernateUtil.factory.fromTransaction(session -> {
+                    MysteriousMerchantGoods storedGoods = session.get(MysteriousMerchantGoods.class, goods.getGoodCode());
+                    if (storedGoods != null) {
+                        if (storedGoods.getGoodStored() > 0) {
+                            // 库存减1
+                            storedGoods.setGoodStored(storedGoods.getGoodStored() - 1);
+                            session.update(storedGoods);
+                            return true;
+                        } else {
+                            Log.error("库存不足");
+                        }
+                    } else {
+                        Log.error("商品不存在");
+                    }
+                    return false;
+                });
+            } catch (Exception e) {
+                retryCount++;
+                if (retryCount >= MAX_RETRY_COUNT) {
+                    Log.error("更新库存失败，达到最大重试次数");
+                    return false;
+                }
+            }
+        }
+        return false;
+    }
+
+
+    private static MysteriousMerchantGoods getShopGoodByGoodCode(String goodCode, long groupId) {
+        return HibernateUtil.factory.fromSession(session -> {
+            HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
+            JpaCriteriaQuery<MysteriousMerchantGoods> query = builder.createQuery(MysteriousMerchantGoods.class);
+            JpaRoot<MysteriousMerchantGoods> goods = query.from(MysteriousMerchantGoods.class);
+            query.select(goods).where(
+                    builder.equal(goods.get("goodCode"), goodCode),
+                    builder.equal(goods.get("groupId"), groupId)
+            );
+            return session.createQuery(query).getSingleResultOrNull();
+        });
     }
 
     // 商品根据settingId删除
@@ -387,11 +540,19 @@ public class MysteriousMerchantManager {
             }
             // 执行删除操作
             session.createQuery(deleteQuery).executeUpdate();
+
             return null;
         });
 
         // 兑换记录一并删除
         deleteExchangeRecordsLogBySettingId(settingId, groupId);
+
+        // 删除缓存
+        List<String> shopGoodKeys  = RedisUtils.getLikeRedisKeys(getShopGoodRedisKeyPrefix(settingId, groupId));
+        shopGoodKeys.forEach(RedisUtils::deleteKeyString);
+
+        List<String> shopGoodUserKeys  = RedisUtils.getLikeRedisKeys(getShopGoodUserRedisKeyPrefix(settingId, groupId));
+        shopGoodUserKeys.forEach(RedisUtils::deleteKeyString);
     }
 
     public static List<MysteriousMerchantGoods> getGoodBySettingId(Long settingId, Long groupId) {
@@ -461,8 +622,26 @@ public class MysteriousMerchantManager {
         for(MysteriousMerchantGoods good : goodUpList){
             good.saveOrUpdate();
             //
+            String redisKey = getShopGoodRedisKey(good);
+            RedisUtils.setKeyObject(redisKey, good.getGoodStored());
         }
     }
+
+    public static String getShopGoodRedisKey(MysteriousMerchantGoods goods){
+        return getShopGoodRedisKeyPrefix(goods.getSettingId(), goods.getGroupId()) +  goods.getGoodCode();
+    }
+    public static String getShopGoodRedisKeyPrefix(Long settingId, Long groupId){
+        return SHOP_GOOD_KEY + settingId + groupId;
+    }
+
+    public static String getShopGoodUserRedisKey(MysteriousMerchantGoods goods, Long userId){
+        return getShopGoodUserRedisKeyPrefix(goods.getSettingId(), goods.getGroupId()) + goods.getGoodCode() + userId;
+    }
+
+    public static String getShopGoodUserRedisKeyPrefix(Long settingId, Long groupId){
+        return SHOP_GOOD_USER_KEY + settingId + groupId;
+    }
+
     public static void saveShopGoodList(List<MysteriousMerchantShop> shopList) {
         shopList.stream().forEach(MysteriousMerchantShop::saveOrUpdate);
     }
