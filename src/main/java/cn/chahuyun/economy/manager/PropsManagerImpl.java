@@ -24,6 +24,7 @@ import org.redisson.api.RBloomFilter;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * 道具管理<p>
@@ -34,7 +35,7 @@ import java.util.stream.Collectors;
 public class PropsManagerImpl implements PropsManager {
 
 
-   private static final Map<String, List<String>> PROP_EXCHANGE = new HashMap<>(6);
+   private static final Map<String, List<String>> PROP_EXCHANGE = new HashMap<>(10);
    static {
        // FBPFK
        List<String> bfpfkList = new ArrayList<>(5);
@@ -117,6 +118,23 @@ public class PropsManagerImpl implements PropsManager {
        uranusList.add("FISH-82");
        PROP_EXCHANGE.put("FISH-62", uranusList);
 
+
+
+       List<String> FISH_95_LIST = new ArrayList<>(10);
+       FISH_95_LIST.add("FISH-83");
+       FISH_95_LIST.add("FISH-84");
+       FISH_95_LIST.add("FISH-85");
+       FISH_95_LIST.add("FISH-86");
+       FISH_95_LIST.add("FISH-87");
+       FISH_95_LIST.add("FISH-88");
+       FISH_95_LIST.add("FISH-89");
+       FISH_95_LIST.add("FISH-90");
+       FISH_95_LIST.add("FISH-91");
+       FISH_95_LIST.add("FISH-92");
+       FISH_95_LIST.add("FISH-93");
+       FISH_95_LIST.add("FISH-94");
+       PROP_EXCHANGE.put("FISH-95", FISH_95_LIST);
+
    }
 
     /**
@@ -196,7 +214,7 @@ public class PropsManagerImpl implements PropsManager {
      * @date 2022/11/15 15:44
      */
     @Override
-    public <E extends PropsBase> List<E> getPropsByUserFromCode(UserInfo userInfo, String code, Class<E> clazz) {
+    public <E extends PropsBase> List<E> getPropsByUserFromCode(UserInfo userInfo, Class<E> clazz) {
         List<UserBackpack> backpacks = userInfo.getBackpacks();
         if (backpacks == null || backpacks.size() == 0) {
             return new ArrayList<>();
@@ -359,7 +377,7 @@ public class PropsManagerImpl implements PropsManager {
                 FishInfo userFishInfo = userInfo.getFishInfo();
                 cost = 60 * userFishInfo.getRodLevel() + 200;
             }
-            if ("FISH-2".equals(card.getCode()) || "FISH-30".equals(card.getCode())) {
+            if ( "FISH-30".equals(card.getCode())) {
                 if(num != 1){
                     messages.append(new PlainText("["  + propsInfo.getName() + "]每人每天限制购买1个"));
                     subject.sendMessage(messages.build());
@@ -372,6 +390,20 @@ public class PropsManagerImpl implements PropsManager {
                     subject.sendMessage(messages.build());
                     return;
                 }
+            }
+            if("FISH-2".equals(card.getCode())){
+                if(num > 2){
+                    messages.append(new PlainText("["  + propsInfo.getName() + "]每人每天最大购买2个"));
+                    subject.sendMessage(messages.build());
+                    return;
+                }
+                if(RedisUtils.getDogSisterCount(subject.getId(), sender.getId()) >= 2){
+                    messages.append(new PlainText("["  + propsInfo.getName() + "]每人每天最大购买2个"));
+                    subject.sendMessage(messages.build());
+                    return;
+                }
+                IntStream.range(0, num)
+                        .forEach(i -> RedisUtils.addDogSisterCount(subject.getId(), sender.getId()));
             }
             // 如果是购买wditbb
             if("FISH-51".equals(card.getCode())){
@@ -504,7 +536,7 @@ public class PropsManagerImpl implements PropsManager {
         }
         UserInfo userInfo = UserManager.getUserInfo(sender);
         if (propCode.startsWith("FISH-")) {
-            List<PropsFishCard> propsByUserFromCode = getPropsByUserFromCode(userInfo, propCode, PropsFishCard.class);
+            List<PropsFishCard> propsByUserFromCode = getPropsByUserFromCode(userInfo, PropsFishCard.class);
             if (propsByUserFromCode.size() == 0) {
                 subject.sendMessage(messages.append("你的包里没有道具!").build());
                 return;

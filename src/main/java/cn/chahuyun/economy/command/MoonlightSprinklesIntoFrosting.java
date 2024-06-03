@@ -3,12 +3,10 @@ package cn.chahuyun.economy.command;
 import cn.chahuyun.economy.factory.AbstractPropUsage;
 import cn.chahuyun.economy.utils.EconomyUtil;
 import net.mamoe.mirai.contact.User;
-import net.mamoe.mirai.message.data.Message;
 import net.mamoe.mirai.message.data.MessageChainBuilder;
-import net.mamoe.mirai.message.data.PlainText;
 import net.mamoe.mirai.message.data.QuoteReply;
 
-public class TheShellTrumpet extends AbstractPropUsage {
+public class MoonlightSprinklesIntoFrosting extends AbstractPropUsage {
     @Override
     public boolean checkOrder() {
         return this.checkOrderDefault();
@@ -17,15 +15,13 @@ public class TheShellTrumpet extends AbstractPropUsage {
     @Override
     public void excute() {
         User sender = event.getSender();
-
         // 自己获得
-        EconomyUtil.plusMoneyToUser(sender, 151515);
+        EconomyUtil.plusMoneyToUser(sender, 7800000);
 
         subject.sendMessage(new MessageChainBuilder().append(new QuoteReply(event.getMessage()))
-                .append(propsCard.getName() + "使用成功").append("\r\n")
-                .append("成功获得151515币币").append("\r\n")
-                .append("----------")
-                .append("开始吹响一段贼难听的《小螺号》🎵🎵 \r\n")
+                .append(propsCard.getName() + "使用成功")
+                .append("成功获得7800000币币")
+                .append("\r\n")
                 .append(propsCard.getContent())
                 .build());
     }

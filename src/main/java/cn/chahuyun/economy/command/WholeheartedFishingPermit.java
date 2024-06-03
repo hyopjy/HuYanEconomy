@@ -48,18 +48,18 @@ public class WholeheartedFishingPermit extends AbstractPropUsage {
         buff.setNum(5);
         List<BuffProperty> properties = new ArrayList<>(1);
         BuffProperty property1 = new BuffProperty(BuffPropsEnum.OTHER_FISH.getName(), "other");
-        BuffProperty property2 = new BuffProperty(BuffPropsEnum.DIFFICULTY_MIN.getName(), 30);
-        BuffProperty property3 = new BuffProperty(BuffPropsEnum.RANK_MIN.getName(), 2);
+//        BuffProperty property2 = new BuffProperty(BuffPropsEnum.DIFFICULTY_MIN.getName(), 30);
+//        BuffProperty property3 = new BuffProperty(BuffPropsEnum.RANK_MIN.getName(), 2);
         properties.add(property1);
-        properties.add(property2);
-        properties.add(property3);
+//        properties.add(property2);
+//        properties.add(property3);
         buff.setProperties(properties);
 
         CacheUtils.addBuff(group.getId(), sender.getId(), buff);
 
         subject.sendMessage(new MessageChainBuilder().append(new QuoteReply(event.getMessage()))
                 .append(propsCard.getName() + "使用成功").append("\r\n")
-                .append("之后的5次钓鱼都会额外上钩一条鱼，且额外增加difficultymin30，rankmin2")
+                .append("之后的5次钓鱼都会额外上钩一条鱼")
                 .build());
     }
 }

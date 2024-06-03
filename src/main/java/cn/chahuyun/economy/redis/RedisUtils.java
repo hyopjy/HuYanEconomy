@@ -31,7 +31,7 @@ public class RedisUtils {
         RBucket<String> bucket = RedissonConfig.getRedisson().getBucket(key);
         bucket.set(value, time, timeUnit);
     }
-    public static void setKeyObject(String key, Object value) {
+    public synchronized static void setKeyObject(String key, Object value) {
         RBucket<Object> bucket = RedissonConfig.getRedisson().getBucket(key);
         bucket.set(value);
     }
@@ -196,6 +196,21 @@ public class RedisUtils {
         } else {
             return 0;
         }
+    }
+
+
+    public static List<String> getLikeRedisKeys(String keyPrefix){
+        // 获取 RKeys 对象
+        RKeys keys =  RedissonConfig.getRedisson().getKeys();
+
+        // 进行模糊匹配
+        Iterable<String> keyList = keys.getKeysByPattern(keyPrefix + "*");
+
+        // 将匹配到的key转换为List
+        List<String> resultList = new ArrayList<>();
+        keyList.forEach(resultList::add);
+
+        return resultList;
     }
 
 }

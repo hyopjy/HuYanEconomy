@@ -19,12 +19,12 @@ public class SeasonCommonInfoManager {
      * @return
      */
     public static String getSeasonMoney(){
-       return "雪币";
+       return "可乐";
     }
 
     public static List<String> getSeasonMoneyNameList(){
         List<String> str = new ArrayList<>(1);
-        str.add("雪币");
+        str.add("可乐");
         return str;
     }
 

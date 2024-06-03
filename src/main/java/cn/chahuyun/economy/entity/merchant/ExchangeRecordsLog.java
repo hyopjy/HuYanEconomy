@@ -1,5 +1,7 @@
 package cn.chahuyun.economy.entity.merchant;
 
+import cn.chahuyun.economy.utils.HibernateUtil;
+import cn.chahuyun.economy.utils.Log;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -43,4 +45,13 @@ public class ExchangeRecordsLog implements Serializable {
     private String goodCode;
 
 
+    public boolean saveOrUpdate() {
+        try {
+            HibernateUtil.factory.fromTransaction(session -> session.merge(this));
+        } catch (Exception e) {
+            Log.error("神秘商人:更新", e);
+            return false;
+        }
+        return true;
+    }
 }

@@ -39,7 +39,7 @@ public interface PropsManager {
      * @param code     道具编码
      * @return
      */
-    <E extends PropsBase> List<E> getPropsByUserFromCode(UserInfo userInfo, String code, Class<E> clazz);
+    <E extends PropsBase> List<E> getPropsByUserFromCode(UserInfo userInfo, Class<E> clazz);
 
     /**
      * 删除 [用户] 对应的 [道具]
