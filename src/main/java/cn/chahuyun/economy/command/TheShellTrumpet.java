@@ -19,11 +19,11 @@ public class TheShellTrumpet extends AbstractPropUsage {
         User sender = event.getSender();
 
         // 自己获得
-        EconomyUtil.plusMoneyToUser(sender, 15150);
+        EconomyUtil.plusMoneyToUser(sender, 151515);
 
         subject.sendMessage(new MessageChainBuilder().append(new QuoteReply(event.getMessage()))
                 .append(propsCard.getName() + "使用成功").append("\r\n")
-                .append("成功获得15150币币").append("\r\n")
+                .append("成功获得151515币币").append("\r\n")
                 .append("----------")
                 .append("开始吹响一段贼难听的《小螺号》🎵🎵 \r\n")
                 .append(propsCard.getContent())
