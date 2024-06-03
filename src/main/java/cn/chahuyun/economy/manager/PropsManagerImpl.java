@@ -197,7 +197,7 @@ public class PropsManagerImpl implements PropsManager {
      * @date 2022/11/15 15:44
      */
     @Override
-    public <E extends PropsBase> List<E> getPropsByUserFromCode(UserInfo userInfo, String code, Class<E> clazz) {
+    public <E extends PropsBase> List<E> getPropsByUserFromCode(UserInfo userInfo, Class<E> clazz) {
         List<UserBackpack> backpacks = userInfo.getBackpacks();
         if (backpacks == null || backpacks.size() == 0) {
             return new ArrayList<>();
@@ -519,7 +519,7 @@ public class PropsManagerImpl implements PropsManager {
         }
         UserInfo userInfo = UserManager.getUserInfo(sender);
         if (propCode.startsWith("FISH-")) {
-            List<PropsFishCard> propsByUserFromCode = getPropsByUserFromCode(userInfo, propCode, PropsFishCard.class);
+            List<PropsFishCard> propsByUserFromCode = getPropsByUserFromCode(userInfo, PropsFishCard.class);
             if (propsByUserFromCode.size() == 0) {
                 subject.sendMessage(messages.append("你的包里没有道具!").build());
                 return;
