@@ -307,6 +307,10 @@ public class FbUserManager  {
             if (BadgeInfoManager.getCount(group.getId(), userInfo.getQq(), FishSignConstant.FISH_ROD_LEVEL) > 0) {
                 drawFishSign(pen, FishSignConstant.FISH_ROD_LEVEL, null, 80, 1321, 0, 0);
             }
+
+//            if (BadgeInfoManager.getCount(group.getId(), userInfo.getQq(), FishSignConstant.FISH_95) > 0) {
+//                drawFishSign(pen, FishSignConstant.FISH_95, null, 264, 1311, 0, 0);
+//            }
             //关闭窗体，释放部分资源
             pen.dispose();
             return image;

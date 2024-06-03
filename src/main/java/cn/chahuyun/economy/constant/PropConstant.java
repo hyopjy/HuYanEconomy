@@ -48,4 +48,6 @@ public interface PropConstant {
     String WDIT_BB_4_0 = "WDITBB4.0";
 
     String ULNS_2324 = "《乌拉诺斯2324》";
+
+    String MOONLIGHT_SPRINKLES_INTO_FROSTING = "《月光洒为糖霜》";
 }

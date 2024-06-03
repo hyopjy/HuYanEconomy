@@ -35,7 +35,7 @@ import java.util.stream.IntStream;
 public class PropsManagerImpl implements PropsManager {
 
 
-   private static final Map<String, List<String>> PROP_EXCHANGE = new HashMap<>(6);
+   private static final Map<String, List<String>> PROP_EXCHANGE = new HashMap<>(10);
    static {
        // FBPFK
        List<String> bfpfkList = new ArrayList<>(5);
@@ -117,6 +117,23 @@ public class PropsManagerImpl implements PropsManager {
        uranusList.add("FISH-81");
        uranusList.add("FISH-82");
        PROP_EXCHANGE.put("FISH-62", uranusList);
+
+
+
+       List<String> FISH_95_LIST = new ArrayList<>(10);
+       FISH_95_LIST.add("FISH-83");
+       FISH_95_LIST.add("FISH-84");
+       FISH_95_LIST.add("FISH-85");
+       FISH_95_LIST.add("FISH-86");
+       FISH_95_LIST.add("FISH-87");
+       FISH_95_LIST.add("FISH-88");
+       FISH_95_LIST.add("FISH-89");
+       FISH_95_LIST.add("FISH-90");
+       FISH_95_LIST.add("FISH-91");
+       FISH_95_LIST.add("FISH-92");
+       FISH_95_LIST.add("FISH-93");
+       FISH_95_LIST.add("FISH-94");
+       PROP_EXCHANGE.put("FISH-95", FISH_95_LIST);
 
    }
 

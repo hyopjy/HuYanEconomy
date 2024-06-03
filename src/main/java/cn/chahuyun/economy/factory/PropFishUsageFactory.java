@@ -107,4 +107,8 @@ public class PropFishUsageFactory {
     public IPropUsage createULNS_2324() {
         return new Ulns2324();
     }
+
+    public IPropUsage createMoonlightSprinklesIntoFrosting() {
+        return new MoonlightSprinklesIntoFrosting();
+    }
 }
