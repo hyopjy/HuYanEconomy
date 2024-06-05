@@ -490,7 +490,7 @@ public class PropsManagerImpl implements PropsManager {
         money = EconomyUtil.getMoneyByBank(sender);
 
         // 判断是否是姐狗
-        if("FISH-2".equals(propsInfo.getCode()) || "FISH-30".equals(propsInfo.getCode())){
+        if("FISH-30".equals(propsInfo.getCode())){
             RBloomFilter rBloomFilter = RedisUtils.initOneDayPropBloomFilter(subject.getId(), propsInfo.getCode());
             rBloomFilter.add(sender.getId());
         }

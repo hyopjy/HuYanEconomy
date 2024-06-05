@@ -213,4 +213,14 @@ public class RedisUtils {
         return resultList;
     }
 
+    public static RBloomFilter<Long> dailyWorkBloomFilterInit(Long groupId) {
+        String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        String key = "dailyWork" + today + RedisKeyConstant.COLON_SPILT + groupId;
+        RBloomFilter<Long> rBloomFilter = RedissonConfig.getRedisson().getBloomFilter(key);
+        // 初始化预期插入的数据量为10000和期望误差率为0.01
+        rBloomFilter.tryInit(100, 0.01);
+        rBloomFilter.expire(24, TimeUnit.HOURS);
+        return rBloomFilter;
+    }
+
 }

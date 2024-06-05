@@ -2,7 +2,13 @@ package cn.chahuyun.economy.event;
 
 import cn.chahuyun.config.EconomyEventConfig;
 import cn.chahuyun.config.RegexConst;
+import cn.chahuyun.economy.constant.DailyPropCode;
+import cn.chahuyun.economy.entity.UserInfo;
+import cn.chahuyun.economy.entity.props.PropsBase;
+import cn.chahuyun.economy.entity.props.factory.PropsCardFactory;
 import cn.chahuyun.economy.manager.GamesManager;
+import cn.chahuyun.economy.manager.UserManager;
+import cn.chahuyun.economy.plugin.PluginManager;
 import cn.chahuyun.economy.redis.RedisUtils;
 import cn.chahuyun.economy.utils.*;
 import kotlin.coroutines.CoroutineContext;
@@ -17,8 +23,10 @@ import net.mamoe.mirai.event.events.EventCancelledException;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.message.data.MessageSource;
 import org.jetbrains.annotations.NotNull;
+import org.redisson.api.RBloomFilter;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -101,7 +109,34 @@ public class EconomyEventListener extends SimpleListenerHost {
 //            event.intercept();
 //            return ListeningStatus.LISTENING;
 //        }
+        // 校验日常任务
+        checkUserDailyWork(event, subject);
         return ListeningStatus.LISTENING;
+    }
+
+    private void checkUserDailyWork(GroupMessageEvent event, Contact subject) {
+        Long userId = event.getSender().getId();
+        Long groupId = subject.getId();
+        RBloomFilter<Long> rBloomFilter =  RedisUtils.dailyWorkBloomFilterInit(groupId);
+        if(rBloomFilter.contains(userId)){
+            return;
+        }
+        // 面罩34三次
+        Boolean maskCount = CacheUtils.checkMaskCountKey(groupId, userId);
+        // 购买币币51
+        Boolean by51Count = RedisUtils.getWditBBCount(groupId, userId) > 0;
+        //  签到
+        UserInfo userInfo = UserManager.getUserInfo(event.getSender());
+        Boolean sign = false;
+        if (Objects.nonNull(userInfo) && userInfo.sign()) {
+            sign = true;
+        }
+        if(maskCount && by51Count && sign){
+            rBloomFilter.add(userId);
+            PropsBase propsBase = PropsCardFactory.INSTANCE.getPropsBase(DailyPropCode.FISH_101);
+            PluginManager.getPropsManager().addProp(userInfo, propsBase);
+            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "恭喜你获得" + propsBase.getName() + "x1"));
+        }
     }
 
     private boolean getCheck(RegexConst regexOrderConst, String code) {
