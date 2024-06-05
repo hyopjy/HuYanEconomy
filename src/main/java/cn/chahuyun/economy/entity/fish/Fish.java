@@ -67,6 +67,11 @@ public class Fish implements Serializable {
     private String rgb;
 
     /**
+     * 是否是保护动物
+     */
+    private Boolean protecting;
+
+    /**
      * 获取鱼的尺寸<p>
      *
      * @param winning 当难度随机到200时，尺寸+20%

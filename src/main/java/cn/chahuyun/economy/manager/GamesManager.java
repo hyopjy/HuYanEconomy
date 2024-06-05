@@ -2,7 +2,7 @@ package cn.chahuyun.economy.manager;
 
 import cn.chahuyun.economy.HuYanEconomy;
 import cn.chahuyun.economy.constant.BuffPropsEnum;
-import cn.chahuyun.economy.constant.Constant;
+import cn.chahuyun.economy.constant.DailyPropCode;
 import cn.chahuyun.economy.dto.AutomaticFish;
 import cn.chahuyun.economy.dto.Buff;
 import cn.chahuyun.economy.entity.UserBackpack;
@@ -14,6 +14,7 @@ import cn.chahuyun.economy.entity.fish.FishRanking;
 import cn.chahuyun.economy.entity.props.PropsBase;
 import cn.chahuyun.economy.entity.props.PropsFishCard;
 import cn.chahuyun.economy.entity.props.factory.PropsCardFactory;
+import cn.chahuyun.economy.plugin.PluginManager;
 import cn.chahuyun.economy.plugin.PropsType;
 import cn.chahuyun.economy.utils.*;
 import cn.hutool.core.date.DateUnit;
@@ -353,6 +354,7 @@ public class GamesManager {
 
     private static void sendFishInfoMessage(UserInfo userInfo, User user, Contact subject, FishPond fishPond,
                                             Fish fish, int dimensions, int money, double v,String buffDesc, MessageChainBuilder messages ) {
+
         v = NumberUtil.round(v, 2).doubleValue();
         if (EconomyUtil.plusMoneyToBank(user, v)
                 && EconomyUtil.plusMoneyToBankForId(fishPond.getCode(), fishPond.getDescription(),
@@ -361,6 +363,13 @@ public class GamesManager {
             String format = String.format("\r\n" + buffDesc + "起竿咯！\r\n%s\r\n等级:%s\r\n单价:%s\r\n尺寸:%d\r\n总金额:%d\r\n" +
                             "收益:%s\r\n%s\r\n",
                     fish.getName(), fish.getLevel(), fish.getPrice(), dimensions, money, v+"", fish.getDescription());
+            if (fish.getProtecting()) {
+                // 添加道具
+                PropsBase propsBase = PropsCardFactory.INSTANCE.getPropsBase(DailyPropCode.FISH_103);
+                PluginManager.getPropsManager().addProp(userInfo, propsBase);
+                format += "获得" + propsBase.getName() + "x1\r\n";
+            }
+
 //            MessageChainBuilder messages = new MessageChainBuilder();
             messages.append(new PlainText(format));
           //  subject.sendMessage(messages.build());
@@ -368,6 +377,8 @@ public class GamesManager {
             subject.sendMessage("钓鱼失败!");
             playerCooling.remove(userInfo.getQq());
         }
+
+
     }
 
     public static Boolean checkUserPay(User user) {
@@ -704,6 +715,12 @@ public class GamesManager {
             String message = String.format("[鱼]%s|等级:%s|单价:%s|尺寸:%d|总金额:%d|收益:%s", fish.getName(), fish.getLevel(),
                     fish.getPrice(),
                     dimensions, money, v + "");
+            if(fish.getProtecting()){
+                PropsBase propsBase = PropsCardFactory.INSTANCE.getPropsBase(DailyPropCode.FISH_103);
+                UserInfo userInfo = UserManager.getUserInfo(user);
+                PluginManager.getPropsManager().addProp(userInfo, propsBase);
+                message += "|" + propsBase.getName() + "x1";
+            }
             return new AutomaticFish(fish.getName(), message, money, v,"");
         } else {
             return new AutomaticFish("[鱼呢]", "鱼溜了", 0, 0,"");

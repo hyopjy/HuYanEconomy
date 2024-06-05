@@ -91,6 +91,7 @@ public class FishManager {
         map.put("难度", "difficulty");
         map.put("特殊标记", "special");
         map.put("属性", "rgb");
+        map.put("保护动物", "protecting");
         List<Fish> fishList = reader.setHeaderAlias(map).readAll(Fish.class);
         for (Fish fish : fishList) {
             HibernateUtil.factory.fromTransaction(session -> session.merge(fish));
