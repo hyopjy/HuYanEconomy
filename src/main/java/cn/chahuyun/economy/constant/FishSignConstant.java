@@ -51,6 +51,7 @@ public class FishSignConstant {
         strings.add(FISH_39);
         strings.add(FISH_49);
         strings.add(FISH_62);
+        strings.add(FISH_95);
         return strings;
     }
 }

@@ -2,6 +2,7 @@ package cn.chahuyun.economy.event;
 
 import cn.chahuyun.config.EconomyEventConfig;
 import cn.chahuyun.economy.constant.Constant;
+import cn.chahuyun.economy.constant.FishSignConstant;
 import cn.chahuyun.economy.constant.WorldBossEnum;
 import cn.chahuyun.economy.entity.LotteryInfo;
 
@@ -494,7 +495,6 @@ public class RandomMoneyListener extends SimpleListenerHost {
             }
 
             // 设置鱼竿等级 groupId qq 44
-            // fishlevel -> fl
             if (message.startsWith("fishlevel") &&
                     EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
                 String[] arr = message.split(" ");
@@ -502,6 +502,25 @@ public class RandomMoneyListener extends SimpleListenerHost {
                 Long qq = Long.parseLong(arr[2]);
                 Integer rodLevel = Integer.parseInt(arr[3]);
                  FishInfoManager.updateUserRodLevel(event ,groupId, qq, rodLevel);
+            }
+
+            // 增加成就 groupId qq 11
+            if (message.startsWith("增加成就") &&
+                    EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
+                String[] arr = message.split(" ");
+                Long groupId = Long.parseLong(arr[1]);
+                Long qq = Long.parseLong(arr[2]);
+                String propNumber = arr[3];
+
+                String propCode = PropsType.getCode(propNumber);
+                if(!Objects.isNull(propCode)){
+                    String signCode = propCode.toUpperCase(Locale.ROOT);
+                    // 成就
+                    if (FishSignConstant.getSignPropCode().contains(signCode)) {
+                        BadgeInfoManager.updateOrInsertBadgeInfo(groupId, qq, signCode, null, null);
+                    }
+                }
+
             }
 
             // 增加道具 add pack (ap groupId qq prop 4 |ap groupId qq prop) 删除道具 remove pack  rp groupid qq prop 4
