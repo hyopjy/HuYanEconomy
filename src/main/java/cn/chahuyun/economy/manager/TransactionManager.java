@@ -605,12 +605,11 @@ public class TransactionManager {
     }
 
     private static String changeMessage(Transaction transaction, Group group, String type) {
-        PropsBase initiatePropsInfo = PropsType.getPropsInfo(transaction.getInitiatePropCode());
-        PropsFishCard card = (PropsFishCard) initiatePropsInfo;
-
         StringBuilder sb = new StringBuilder();
-        sb.append("道具：").append(card.getName()).append("x").append(transaction.getInitiatePropCount()).append("\r\n");
         if("Initiate".equals(type)){
+            PropsBase initiatePropsInfo = PropsType.getPropsInfo(transaction.getInitiatePropCode());
+            PropsFishCard card = (PropsFishCard) initiatePropsInfo;
+            sb.append("道具：").append(card.getName()).append("x").append(transaction.getInitiatePropCount()).append("\r\n");
             String transactionPropName = "";
             if(Constant.FISH_CODE_BB.equals(transaction.getTransactionCode())){
                 transactionPropName = Constant.FISH_NAME_BB_LIST.get(0);
@@ -626,14 +625,18 @@ public class TransactionManager {
         }
 
         if("Transaction".equals(type)){
+            PropsBase initiatePropsInfo = PropsType.getPropsInfo(transaction.getTransactionCode());
+            PropsFishCard card = (PropsFishCard) initiatePropsInfo;
+            sb.append("道具：").append(card.getName()).append("x").append(transaction.getTransactionCount()).append("\r\n");
+
             String initiatePropName = "";
             if(Constant.FISH_CODE_BB.equals(transaction.getInitiatePropCode())){
                 initiatePropName = Constant.FISH_NAME_BB_LIST.get(0);
             }else if(Constant.FISH_CODE_SEASON.equals(transaction.getInitiatePropCode())){
                 initiatePropName = SeasonCommonInfoManager.getSeasonMoneyNameList().get(0);
             }else {
-                PropsBase transactionPropsInfo = PropsType.getPropsInfo(transaction.getInitiatePropCode());
-                PropsFishCard cardTransaction = (PropsFishCard) transactionPropsInfo;
+                PropsBase initiatePropCodePropsInfo = PropsType.getPropsInfo(transaction.getInitiatePropCode());
+                PropsFishCard cardTransaction = (PropsFishCard) initiatePropCodePropsInfo;
                 initiatePropName = cardTransaction.getName();
             }
             sb.append("发起人：").append(new At(transaction.getInitiateUserId()).getDisplay(group)).append("\r\n");;
