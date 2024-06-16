@@ -4,7 +4,6 @@ import cn.chahuyun.economy.HuYanEconomy;
 import cn.chahuyun.economy.constant.FishSignConstant;
 import cn.chahuyun.economy.entity.UserInfo;
 import cn.chahuyun.economy.entity.badge.BadgeInfo;
-import cn.chahuyun.economy.redis.RedisUtils;
 import cn.chahuyun.economy.utils.CacheUtils;
 import cn.chahuyun.economy.utils.EconomyUtil;
 import cn.chahuyun.economy.utils.Log;
@@ -130,7 +129,7 @@ public class FbUserManager  {
                 userImageStream.reset();
                 BufferedImage avatarRounder = UserManager.makeRoundedCorner(avatar, 50);
                 //写入头像
-                pen.drawImage(avatarRounder, 195, 285, null);
+                pen.drawImage(avatarRounder, 208, 202, null);
             }
 
             String userInfoName = userInfo.getName();
@@ -163,63 +162,49 @@ public class FbUserManager  {
                 fontSize = 20;
                 pen.setFont(new Font("黑体", Font.BOLD, fontSize));
                 String arr1 = userInfoName.substring(0,6);
-                pen.drawString(arr1, 174, 400);
+                pen.drawString(arr1, 169, 300);
 
                 String arr2 = userInfoName.substring(6);
-                pen.drawString(arr2, 174, 422);
+                pen.drawString(arr2, 169, 324);
             } else {
                 fontSize = 30;
                 pen.setFont(new Font("黑体", Font.BOLD, fontSize));
-                pen.drawString(userInfoName, 174, 408);
+                pen.drawString(userInfoName, 238, 296);
             }
             // 设置画笔字体样式为黑体，粗体
             pen.setColor(Color.white);
+
             fontSize = 20;
             pen.setFont(new Font("黑体", Font.PLAIN, fontSize));
             //id
              // String rgb = StringUtils.isBlank(userInfo.getRgb()) ? "" : userInfo.getRgb();
           //  pen.drawString(String.valueOf(userInfo.getQq() + "("+rgb+")"),195, 450);
-            pen.drawString(String.valueOf(userInfo.getQq()),195, 450);
-
+            pen.drawString(String.valueOf(userInfo.getQq()),198, 349);
             pen.setColor(Color.black);
 
-//            String format;
-//            if (userInfo.getSignTime() == null) {
-//                format = "暂未签到";
-//
-//            } else {
-//                format = DateUtil.format(userInfo.getSignTime(), "yyyy-MM-dd HH:mm:ss");
-//            }
-//            //签到时间
-//            pen.setFont(new Font("黑体", Font.PLAIN, 18));
-//            pen.drawString(format, 232, 825);
-            //连签次数
-            pen.drawString(String.valueOf(userInfo.getSignNumber()), 370, 724);
-            //其他称号
-//            pen.drawString("暂无", 172, 400);
-
             double money = EconomyUtil.getMoneyByUser(user);
-            double bank = EconomyUtil.getMoneyByBank(user);
             //写入金币
             if (String.valueOf(money).length() > 5) {
                 fontSize = 15;
             }
             pen.setFont(new Font("黑体", Font.PLAIN, fontSize));
             //写入总金币
-            pen.drawString(String.valueOf(money), 100, 620);
-
-            fontSize = 20;
-            pen.setFont(new Font("黑体", Font.PLAIN, fontSize));
-            //写入今日获得
-            pen.drawString(String.valueOf(userInfo.getSignEarnings()), 81, 724);
+            pen.drawString(String.valueOf(money), 74, 510);
 
             //写入银行
+            double bank = EconomyUtil.getMoneyByBank(user);
+            fontSize = 20;
             if (String.valueOf(bank).length() > 5) {
                 fontSize = 15;
             }
             pen.setFont(new Font("黑体", Font.PLAIN, fontSize));
             //写入银行金币
-            pen.drawString(String.valueOf(bank), 320, 620);
+            pen.drawString(String.valueOf(bank), 304, 508);
+
+            fontSize = 20;
+            pen.setFont(new Font("黑体", Font.PLAIN, fontSize));
+            //写入今日获得
+            pen.drawString(String.valueOf(userInfo.getSignEarnings()), 61, 617);
 
             fontSize = 20;
             double bankEarnings = userInfo.getBankEarnings();
@@ -229,29 +214,46 @@ public class FbUserManager  {
             }
             pen.setFont(new Font("黑体", Font.PLAIN, fontSize));
             //写入银行收益金币
-            pen.drawString(String.valueOf(bankEarnings), 219, 724);
+            pen.drawString(String.valueOf(bankEarnings), 213, 617);
+
+            //连签次数
+            pen.drawString(String.valueOf(userInfo.getSignNumber()), 372, 617);
+
+            // 特殊成/成就
+            if (BadgeInfoManager.getCount(group.getId(), userInfo.getQq(), FishSignConstant.FISH_SPECIAL) > 0) {
+                BadgeInfo badgeInfo = BadgeInfoManager.getBadgeInfo(group.getId(), userInfo.getQq(),  FishSignConstant.FISH_SPECIAL);
+                if(Objects.nonNull(badgeInfo)){
+                    if(badgeInfo.getContent().length() > 10){
+                        pen.setFont(new Font("黑体", Font.BOLD, 15));
+                        pen.drawString(badgeInfo.getContent().substring(0,12) +"...", 180, 690);
+                    }else {
+                        pen.setFont(new Font("黑体", Font.BOLD, 20));
+                        pen.drawString(badgeInfo.getContent(), 180, 685);
+                    }
+                }
+            }
 
             // 设置徽章
             Long fish31 = Optional.ofNullable(userInfo.getBackpacks()).orElse(new ArrayList<>()).stream()
                     .filter(userBackpack -> Objects.nonNull(userBackpack) &&
                             FishSignConstant.FISH_31.equals(userBackpack.getPropsCode().toUpperCase(Locale.ROOT))).count();
             if (fish31 > 0) {
-                drawFishSign(pen, FishSignConstant.FISH_31, fish31, 56, 849, 144, 911);
+                drawFishSign(pen, FishSignConstant.FISH_31, fish31, 56, 750, 144, 810);
             } else {
                 pen.setFont(new Font("黑体", Font.BOLD, 20));
                 //写入数量
-                pen.drawString(0 + "", 144, 911);
+                pen.drawString(0 + "", 144, 810);
             }
 
             Long fish32 = Optional.ofNullable(userInfo.getBackpacks()).orElse(new ArrayList<>()).stream()
                     .filter(userBackpack -> Objects.nonNull(userBackpack) &&
                             FishSignConstant.FISH_32.equals(userBackpack.getPropsCode().toUpperCase(Locale.ROOT))).count();
             if (fish32 > 0) {
-                drawFishSign(pen, FishSignConstant.FISH_32, fish32, 192, 846, 272, 909);
+                drawFishSign(pen, FishSignConstant.FISH_32, fish32, 193, 744, 269, 810);
             } else {
                 pen.setFont(new Font("黑体", Font.BOLD, 20));
                 //写入数量
-                pen.drawString(0 + "", 272, 909);
+                pen.drawString(0 + "", 269, 810);
             }
             Long fish33 = Optional.ofNullable(userInfo.getBackpacks())
                     .orElse(new ArrayList<>()).stream()
@@ -259,58 +261,51 @@ public class FbUserManager  {
                             FishSignConstant.FISH_33.equals(userBackpack.getPropsCode().
                                     toUpperCase(Locale.ROOT))).count();
             if (fish33 > 0) {
-                drawFishSign(pen, FishSignConstant.FISH_33, fish33, 319, 846, 396, 909);
+                drawFishSign(pen, FishSignConstant.FISH_33, fish33, 321, 745, 389, 810);
             } else {
                 pen.setFont(new Font("黑体", Font.BOLD, 20));
                 //写入数量
-                pen.drawString(0 + "", 396, 909);
+                pen.drawString(0 + "", 389, 810);
             }
 
-            if (BadgeInfoManager.getCount(group.getId(), userInfo.getQq(), FishSignConstant.FISH_SPECIAL) > 0) {
-                BadgeInfo badgeInfo = BadgeInfoManager.getBadgeInfo(group.getId(), userInfo.getQq(),  FishSignConstant.FISH_SPECIAL);
-                if(Objects.nonNull(badgeInfo)){
-                    if(badgeInfo.getContent().length() > 10){
-                        pen.setFont(new Font("黑体", Font.BOLD, 15));
-                        pen.drawString(badgeInfo.getContent().substring(0,10) +"...", 190, 787);
-                    }else {
-                        pen.setFont(new Font("黑体", Font.BOLD, 20));
-                        pen.drawString(badgeInfo.getContent(), 190, 787);
-                    }
-                }
-            }
 
-            // 90 85
+            // HKFB
             if (BadgeInfoManager.getCount(group.getId(), userInfo.getQq(), FishSignConstant.FISH_17) > 0) {
-                drawFishSign(pen, FishSignConstant.FISH_17, null, 55, 978, 0, 0);
+                drawFishSign(pen, FishSignConstant.FISH_17, null, 57, 879, 0, 0);
             }
-
+            // FBPFK
             if (BadgeInfoManager.getCount(group.getId(), userInfo.getQq(), FishSignConstant.FISH_15) > 0) {
-                drawFishSign(pen, FishSignConstant.FISH_15, null, 136, 967, 0, 0);
+                drawFishSign(pen, FishSignConstant.FISH_15, null, 137, 868, 0, 0);
             }
-
+            // FBTNK
             if (BadgeInfoManager.getCount(group.getId(), userInfo.getQq(), FishSignConstant.FISH_16) > 0) {
-                drawFishSign(pen, FishSignConstant.FISH_16, null, 237, 968, 0, 0);
+                drawFishSign(pen, FishSignConstant.FISH_16, null, 237, 869, 0, 0);
             }
-
+            // 鱼
             if (BadgeInfoManager.getCount(group.getId(), userInfo.getQq(), FishSignConstant.FISH_20) > 0) {
-                drawFishSign(pen, FishSignConstant.FISH_20, null, 352, 984, 0, 0);
+                drawFishSign(pen, FishSignConstant.FISH_20, null, 354, 884, 0, 0);
             }
-            if (BadgeInfoManager.getCount(group.getId(), userInfo.getQq(), FishSignConstant.FISH_39) > 0) {
-               drawFishSign(pen, FishSignConstant.FISH_39, null, 203, 1134, 0, 0);
+            // 体育生艺术生
+            if (BadgeInfoManager.getCount(group.getId(), userInfo.getQq(), FishSignConstant.FISH_49)  >  0) {
+                drawFishSign(pen, FishSignConstant.FISH_49, null, 49, 1032, 0, 0);
             }
-            if (BadgeInfoManager.getCount(group.getId(), userInfo.getQq(), FishSignConstant.FISH_49) > 0) {
-                drawFishSign(pen, FishSignConstant.FISH_49, null, 70, 1125, 0, 0);
+            // wditbb4.0
+            if (BadgeInfoManager.getCount(group.getId(), userInfo.getQq(), FishSignConstant.FISH_39) >  0) {
+               drawFishSign(pen, FishSignConstant.FISH_39, null, 138, 1043, 0, 0);
             }
-            if (BadgeInfoManager.getCount(group.getId(), userInfo.getQq(), FishSignConstant.FISH_62) > 0) {
-                drawFishSign(pen, FishSignConstant.FISH_62, null, 264, 1311, 0, 0);
+            // 99鱼竿
+            if (BadgeInfoManager.getCount(group.getId(), userInfo.getQq(), FishSignConstant.FISH_ROD_LEVEL) >  0) {
+                drawFishSign(pen, FishSignConstant.FISH_ROD_LEVEL, null, 267, 1037, 0, 0);
             }
-            if (BadgeInfoManager.getCount(group.getId(), userInfo.getQq(), FishSignConstant.FISH_ROD_LEVEL) > 0) {
-                drawFishSign(pen, FishSignConstant.FISH_ROD_LEVEL, null, 80, 1321, 0, 0);
+            // us2024
+            if (BadgeInfoManager.getCount(group.getId(), userInfo.getQq(), FishSignConstant.FISH_62) >  0) {
+                drawFishSign(pen, FishSignConstant.FISH_62, null, 346, 1042, 0, 0);
             }
 
-//            if (BadgeInfoManager.getCount(group.getId(), userInfo.getQq(), FishSignConstant.FISH_95) > 0) {
-//                drawFishSign(pen, FishSignConstant.FISH_95, null, 264, 1311, 0, 0);
-//            }
+            // 95
+            if (BadgeInfoManager.getCount(group.getId(), userInfo.getQq(), FishSignConstant.FISH_95) > 0) {
+                drawFishSign(pen, FishSignConstant.FISH_95, null, 214, 1210, 0, 0);
+            }
             //关闭窗体，释放部分资源
             pen.dispose();
             return image;

@@ -41,7 +41,7 @@ public final class HuYanEconomy extends JavaPlugin {
 
     public static final ConcurrentHashMap<Integer, InputStream> INPUT_STREAM_MAP = new ConcurrentHashMap<>(6);
 
-    public static final ConcurrentHashMap<String, InputStream> SIGN_STREAM_MAP = new ConcurrentHashMap<>(9);
+    public static final ConcurrentHashMap<String, InputStream> SIGN_STREAM_MAP = new ConcurrentHashMap<>(10);
 
     /**
      * 插件所属bot

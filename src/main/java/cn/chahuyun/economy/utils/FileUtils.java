@@ -59,6 +59,7 @@ public class FileUtils {
         HuYanEconomy.SIGN_STREAM_MAP.put("FISH-49", getByteArrayInputStream("FISH-49.png"));
         HuYanEconomy.SIGN_STREAM_MAP.put("FISH-62", getByteArrayInputStream("FISH-62.png"));
         HuYanEconomy.SIGN_STREAM_MAP.put("FISH-ROD-LEVEL", getByteArrayInputStream("FISH-ROD-LEVEL.png"));
+        HuYanEconomy.SIGN_STREAM_MAP.put("FISH-95", getByteArrayInputStream("FISH-95.png"));
     }
 
     public static ByteArrayInputStream getByteArrayInputStream(String key) {
