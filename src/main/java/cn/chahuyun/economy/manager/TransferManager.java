@@ -14,6 +14,7 @@ import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.NormalMember;
 import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.event.events.MessageEvent;
+import net.mamoe.mirai.event.events.UserMessageEvent;
 import net.mamoe.mirai.message.data.At;
 import net.mamoe.mirai.message.data.MessageChain;
 import net.mamoe.mirai.message.data.SingleMessage;
@@ -225,5 +226,25 @@ public class TransferManager {
 
          turnMoneyUser(event, subject, user, group, money, qq);
 
+    }
+
+    public static void subUseMoney(UserMessageEvent event, Long groupId, Long qq, Double bbCount) {
+        Contact subject = event.getSubject();
+
+        // 获取机器人所在群聊
+        Group group = event.getBot().getGroup(groupId);
+        if(Objects.isNull(group)){
+            subject.sendMessage("机器人暂未加入该群聊：" + groupId);
+            return;
+        }
+        // 指定用户
+        NormalMember member = group.get(qq);
+        if(Objects.isNull(member)){
+            subject.sendMessage("指定用户不存在：" + qq);
+            return;
+        }
+        // 扣减
+        EconomyUtil.minusMoneyToUser(member, bbCount);
+        subject.sendMessage( "扣减" + qq + "--"+ bbCount + "成功");
     }
 }

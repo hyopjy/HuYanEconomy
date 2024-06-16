@@ -556,6 +556,25 @@ public class RandomMoneyListener extends SimpleListenerHost {
                 }
             }
 
+            // 扣减 bb groupid qq number
+            if ((message.startsWith("扣减") &&
+                    EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId()))) {
+                try {
+                    String[] arr = message.split(" ");
+                    if (!(arr.length == 5)) {
+                        subject.sendMessage("请输入： 扣减 bb qq number");
+                        return ListeningStatus.LISTENING;
+                    }
+                    Long groupId = Long.parseLong(arr[2]);
+                    Long qq = Long.parseLong(arr[3]);
+                    Double bbCount = Double.parseDouble(arr[4]);
+                    // 给某人背包新增道具
+                    TransferManager.subUseMoney(event, groupId, qq, bbCount);
+                } catch (Exception e) {
+                    Log.info("扣减 bb exception:" + e.getMessage());
+                }
+            }
+
             if (message.startsWith("神秘商人") &&
                     EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
                 //  神秘商人 开启

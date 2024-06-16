@@ -101,14 +101,16 @@ public class BackpackManager {
             subject.sendMessage("指定用户不存在：" + qq);
             return;
         }
-        UserInfo userInfo = UserManager.getUserInfo(member);
         PropsBase propsBase = PropsCardFactory.INSTANCE.getPropsBase(propCode);
+
         int number = num;
         while (number != 0) {
             if("ap".equals(type)){
+                UserInfo userInfo = UserManager.getUserInfo(member);
                 PluginManager.getPropsManager().addProp(userInfo, propsBase);
             }
             if("rp".equals(type)){
+                UserInfo userInfo = UserManager.getUserInfo(member);
                 PluginManager.getPropsManager().deleteProp(userInfo, propsBase);
             }
             number--;
