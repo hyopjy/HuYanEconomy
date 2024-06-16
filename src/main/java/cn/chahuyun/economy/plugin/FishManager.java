@@ -76,7 +76,7 @@ public class FishManager {
      */
     public static void reloadFish() {
         HuYanEconomy instance = HuYanEconomy.INSTANCE;
-        ExcelReader reader = ExcelUtil.getReader(instance.getResourceAsStream("fish.xlsx"));
+        ExcelReader reader = ExcelUtil.getReader(instance.getResourceAsStream("fish_2406.xlsx"));
         Map<String, String> map = new HashMap<>();
         map.put("等级", "level");
         map.put("名称", "name");

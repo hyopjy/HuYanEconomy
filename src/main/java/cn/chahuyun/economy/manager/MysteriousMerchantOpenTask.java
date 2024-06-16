@@ -45,27 +45,33 @@ public class MysteriousMerchantOpenTask implements Task {
     @Override
     public void execute() {
         // 是否开启神秘商人
+
         if(!setting.getStatus()){
             return;
         }
         Bot bot = HuYanEconomy.INSTANCE.getBotInstance();
         if(Objects.isNull(bot)){
-            Log.info("WorldBossOpenTask-end. bot为空");
+            Log.info("MysteriousMerchantOpenTask-start. bot为空");
             return;
         }
-        // 判断是否可以出现神秘商人
-        List<Long> groupIdList = new ArrayList<>();
-        groupIdList.add(758085692L);
-        groupIdList.add(835186488L);
-        groupIdList.add(878074795L);
-        groupIdList.add(227265762L);
-        groupIdList.forEach(groupId->{
-            Group group =  bot.getGroup(groupId);
-            if(Objects.isNull(group)){
-                return;
-            }
-            taskRunByStartGroupId(groupId, group);
-        });
+        try{
+            // 判断是否可以出现神秘商人
+            List<Long> groupIdList = new ArrayList<>();
+            groupIdList.add(758085692L);
+            groupIdList.add(835186488L);
+            groupIdList.add(878074795L);
+            groupIdList.add(227265762L);
+            groupIdList.forEach(groupId->{
+                Group group =  bot.getGroup(groupId);
+                if(Objects.isNull(group)){
+                    return;
+                }
+                taskRunByStartGroupId(groupId, group);
+            });
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
 
     }
 
@@ -81,7 +87,7 @@ public class MysteriousMerchantOpenTask implements Task {
         // 限购次数
         Integer buyCount = setting.getBuyCount();
         // 上架商品列表
-        List<String> goodCodeList = Arrays.asList(setting.getGoodCodeStr().split(Constant.SPILT));
+        List<String> goodCodeList = Arrays.asList(setting.getGoodCodeStr().split(Constant.MM_SPILT));
         // 随机商品数量
         Integer randomGoodCount = setting.getRandomGoodCount();
         // 随机库存最小
@@ -95,7 +101,7 @@ public class MysteriousMerchantOpenTask implements Task {
         // 获取商店商品信息
         List<MysteriousMerchantShop> shopGoodsList = MysteriousMerchantManager.getMysteriousMerchantShopByGoodCodeList(goodCodeList);
 
-        List<MysteriousMerchantShop> upshopGoodsList = new ArrayList<>();
+        List<MysteriousMerchantShop> upshopGoodsList;
         if(CollectionUtils.isEmpty(shopGoodsList)){
             return;
         }
@@ -120,14 +126,14 @@ public class MysteriousMerchantOpenTask implements Task {
             Integer store = RandomUtil.randomInt(minStored, maxStored + 1);
             goods.setGoodStored(store);
             goods.setSold(0);
-            goods.setHour(hour);
+            goods.setOpenHour(hour);
             goods.setStartMinutes(startMinutes);
             goods.setEndMinutes(endMinutes);
             goodUpList.add(goods);
         });
 
         // 新增前 先删除 hour+minutes的配置
-        MysteriousMerchantManager.deleteGoodBySettingId(setting.getSettingId(), groupId);
+       MysteriousMerchantManager.deleteGoodBySettingId(setting.getSettingId(), groupId);
         // 保存商品信息
         MysteriousMerchantManager.saveGoodUpList(goodUpList);
 
@@ -136,43 +142,45 @@ public class MysteriousMerchantOpenTask implements Task {
         String startMinutePad = StringUtils.leftPad(startMinutes+"", 2, StringPool.ZERO);
         String endMinutePad = StringUtils.leftPad(endMinutes+"", 2, StringPool.ZERO);
 
-        StringBuilder message = new StringBuilder("叮叮当~神秘人背着球球的百宝袋出现了！\r\n" +
+        StringBuilder message = new StringBuilder("\uD83E\uDEE5叮叮当~神秘人背着球球的百宝袋出现了！\r\n" +
                 "“我这些都是千金不易的宝贝，趁球球还没发现，我就便宜卖给你们了。”\r\n");
 //        message.append("时间 (" + hourPad + ":" + startMinutePad + "~" + hourPad + ":" + endMinutePad + ") \r\n");
 //        message.append("限制兑换次数:" + buyCount +"(次) \r\n");
 //        message.append("出现可兑换道具如下:\r\n");
         List<MysteriousMerchantShop> finalUpshopGoodsList = upshopGoodsList;
+        message.append("商品信息:\r\n");
+        message.append("-----------------------\r\n");
         goodUpList.stream().forEach(good->{
             Optional<MysteriousMerchantShop> shopGoodOptional = finalUpshopGoodsList.stream()
                     .filter(shop-> good.getGoodCode().equals(shop.getGoodCode())).findFirst();
             if(!shopGoodOptional.isPresent()){
                 return;
             }
-            message.append("-----------------------\r\n");
+
             MysteriousMerchantShop shopGood = shopGoodOptional.get();
-            message.append("商品信息:\r\n");
             message.append("编码： [" + shopGood.getGoodCode() + "] \r\n");
             PropsBase props1Base = PropsCardFactory.INSTANCE.getPropsBase(shopGood.getProp1Code());
             message.append("道具名：" + props1Base.getName() + "\r\n");
-            message.append("兑换条件:\r\n");
+            message.append("兑换条件: ");
             // 道具兑换
             if(shopGood.getChangeType().equals(MysteriousMerchantManager.CHANGE_TYPE_PROP)){
                 PropsBase propsBase = PropsCardFactory.INSTANCE.getPropsBase(shopGood.getProp2Code());
-                message.append(propsBase.getName() + "(" + shopGood.getProp2Count() + ") \r\n");
+                message.append(propsBase.getName() + "x" + shopGood.getProp2Count() + " \r\n");
             }
             // bb兑换
             if(shopGood.getChangeType().equals(MysteriousMerchantManager.CHANGE_TYPE_BB)){
-                message.append(SeasonCommonInfoManager.getBBMoney() + "(" + shopGood.getBbCount() + ") \r\n");
+                message.append(SeasonCommonInfoManager.getBBMoney() + "x" + shopGood.getBbCount() + " \r\n");
             }
             // 赛季币兑换
             if(shopGood.getChangeType().equals(MysteriousMerchantManager.CHANGE_TYPE_SEASON)){
-                message.append(SeasonCommonInfoManager.getSeasonMoney() + "(" + shopGood.getSeasonMoney() + ") \r\n");
+                message.append(SeasonCommonInfoManager.getSeasonMoney() + "x" + shopGood.getSeasonMoney() + " \r\n");
             }
             message.append("商品库存: " + good.getGoodStored() + "\r\n");
 //            message.append("已售出: " + good.getSold()+ "\r\n");
 
             message.append("-----------------------\r\n");
         });
+
         group.sendMessage(message.toString());
 
     }

@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
-
 /**
  * 当前兑换列表
  */
@@ -40,29 +39,34 @@ public class MysteriousMerchantGoods implements Serializable {
     /**
      * 商品库存
      */
-    private Integer goodStored;
+    private int goodStored;
 
     /**
      * 已出售
      */
-    private Integer sold;
+    private int sold;
 
     /**
      * 开始小时数
      */
-    private Integer hour;
+    private Integer openHour;
 
     private Integer startMinutes;
 
     private Integer endMinutes;
 
-    public boolean saveOrUpdate() {
+    public void saveOrUpdate() {
         try {
             HibernateUtil.factory.fromTransaction(session -> session.merge(this));
         } catch (Exception e) {
             Log.error("神秘商人:更新", e);
-            return false;
         }
-        return true;
+    }
+
+    public void remove() {
+        HibernateUtil.factory.fromTransaction(session -> {
+            session.remove(this);
+            return null;
+        });
     }
 }

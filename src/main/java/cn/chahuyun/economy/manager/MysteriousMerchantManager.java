@@ -19,9 +19,7 @@ import cn.chahuyun.economy.utils.MessageUtil;
 import cn.hutool.cron.CronUtil;
 import cn.hutool.poi.excel.ExcelReader;
 import cn.hutool.poi.excel.ExcelUtil;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaDelete;
-import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.*;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.event.events.MessageEvent;
@@ -30,11 +28,10 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.compress.utils.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.query.criteria.HibernateCriteriaBuilder;
+import org.hibernate.query.criteria.JpaCriteriaDelete;
 import org.hibernate.query.criteria.JpaCriteriaQuery;
 import org.hibernate.query.criteria.JpaRoot;
-import org.redisson.Redisson;
 
-import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -100,9 +97,11 @@ public class MysteriousMerchantManager {
     //    开启神秘商人
         MysteriousMerchantSetting setting = geMysteriousMerchantSettingByKey(SETTING_ID);
         if(Objects.isNull(setting)){
+            Log.info("MysteriousMerchantManager-->setting is null");
             return null;
         }
-        if(setting.getStatus()){
+        if(!setting.getStatus()){
+            Log.info("MysteriousMerchantManager-->setting status is false");
             return setting;
         }
         setting.setStatus(true);
@@ -110,6 +109,7 @@ public class MysteriousMerchantManager {
 
         closeTask(setting);
         runTask(setting);
+        Log.info("MysteriousMerchantManager-->神秘商人开启成功");
         return setting;
     }
 
@@ -153,11 +153,13 @@ public class MysteriousMerchantManager {
             config = new MysteriousMerchantSetting();
             config.setSettingId(SETTING_ID);
             config.setStatus(true);
+        }else {
+            MysteriousMerchantManager.closeTask(config);
         }
         config.setHourStr(String.join(Constant.SPILT, hourList));
         config.setPassMinute(passMinute);
         config.setProbability(probability);
-        config.setGoodCodeStr(String.join(Constant.SPILT, goodCodeList));
+        config.setGoodCodeStr(String.join(Constant.MM_SPILT, goodCodeList));
         config.setRandomGoodCount(randomGoodCount);
         config.setMinStored(minStored);
         config.setMaxStored(maxStored);
@@ -185,25 +187,7 @@ public class MysteriousMerchantManager {
      * @return
      */
     public static void settingRunTask(MysteriousMerchantSetting setting) {
-        Long settingId = setting.getSettingId();
-
-        List<Integer> hourList = Arrays.stream(setting.getHourStr().split(","))
-                .mapToInt(Integer::parseInt)
-                .boxed()
-                .collect(Collectors.toList());
-
-        int startMinutes = getStartMinutes();
-        int endMinutes = getEndMinutes(setting);
-
-        for (int i = 0; i < hourList.size(); i++) {
-            Integer hour = hourList.get(i);
-            String startCronKey = getStartKey(settingId, hour, startMinutes);
-            String endCronKey = getEndKey(settingId, hour, endMinutes);
-            CronUtil.remove(startCronKey);
-            CronUtil.remove(endCronKey);
-            runTask(setting);
-        }
-
+        runTask(setting);
     }
     public static int getStartMinutes() {
         return 30;
@@ -214,11 +198,11 @@ public class MysteriousMerchantManager {
     }
 
     public static String getStartKey(Long settingId, Integer hour, Integer minutes) {
-        return getKey("start", settingId, hour, minutes);
+        return getKey("mmm:start", settingId, hour, minutes);
     }
 
     public static String getEndKey(Long settingId, Integer hour, Integer minutes) {
-        return getKey("end", settingId, hour, minutes);
+        return getKey("mmm:end", settingId, hour, minutes);
     }
 
     public static String getKey(String prefix, Long settingId, Integer hour, Integer minutes) {
@@ -229,7 +213,7 @@ public class MysteriousMerchantManager {
             return;
         }
         Long settingId = config.getSettingId();
-        List<Integer> hourList = Arrays.stream(config.getHourStr().split(","))
+        List<Integer> hourList = Arrays.stream(config.getHourStr().split(Constant.SPILT))
                 .mapToInt(Integer::parseInt)
                 .boxed()
                 .collect(Collectors.toList());
@@ -252,7 +236,7 @@ public class MysteriousMerchantManager {
         int startMinutes = getStartMinutes();
         int endMinutes = getEndMinutes(setting);
         Long settingId = setting.getSettingId();
-        List<Integer> hourList = Arrays.stream(setting.getHourStr().split(","))
+        List<Integer> hourList = Arrays.stream(setting.getHourStr().split(Constant.SPILT))
                 .mapToInt(Integer::parseInt)
                 .boxed()
                 .collect(Collectors.toList());
@@ -268,10 +252,26 @@ public class MysteriousMerchantManager {
             String startCron = generateDailyCronExpression(hour, startMinutes);
             String endCron = generateDailyCronExpression(hour, endMinutes);
 
+
+            CronUtil.remove(startCronKey);
+            CronUtil.remove(endCronKey);
+
             CronUtil.schedule(startCronKey, startCron, openTask);
             CronUtil.schedule(endCronKey, endCron, endTask);
+            Log.info("MysteriousMerchantManager-runTask-startCron:" + startCron );
+            Log.info("MysteriousMerchantManager-runTask-endCron:" + endCron );
+
         }
 
+//        String startCron = "0/10 * * * * ?";
+//        String endCron = "0/25 * * * * ?";
+//        MysteriousMerchantOpenTask openTask = new MysteriousMerchantOpenTask(setting, 23);
+//        MysteriousMerchantEndTask endTask = new MysteriousMerchantEndTask(setting, 23);
+//        CronUtil.remove("222222");
+//        CronUtil.remove("222222111");
+//
+//        CronUtil.schedule("222222", startCron, openTask);
+//        CronUtil.schedule("222222111", endCron, endTask);
     }
 
     /**
@@ -282,7 +282,7 @@ public class MysteriousMerchantManager {
      * @return
      */
     public static String generateDailyCronExpression(int hour, int minutes) {
-        return MessageFormat.format("0 {0} {1} * * ?", minutes, hour);
+        return  String.format("0 %d %d * * ?", minutes, hour);
     }
 
     /**
@@ -290,15 +290,22 @@ public class MysteriousMerchantManager {
      */
     public static void importShopInfo(){
         // 删除神秘商品
-        HibernateUtil.factory.fromSession(session -> {
-            CriteriaBuilder builder = session.getCriteriaBuilder();
-            CriteriaDelete<MysteriousMerchantShop> deleteQuery = builder.createCriteriaDelete(MysteriousMerchantShop.class);
-            Root<MysteriousMerchantShop> root = deleteQuery.from(MysteriousMerchantShop.class);
-            // 执行删除操作
-            session.createQuery(deleteQuery).executeUpdate();
-            return null;
-        });
-        deleteGoodBySettingId(SETTING_ID, null);
+        try {
+            HibernateUtil.factory.fromTransaction(session -> {
+                HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
+                JpaCriteriaDelete<MysteriousMerchantShop> delete = builder.createCriteriaDelete(MysteriousMerchantShop.class);
+                Root<MysteriousMerchantShop> e = delete.from(MysteriousMerchantShop.class);
+                return session.createQuery(delete).executeUpdate();
+            });
+
+            deleteGoodBySettingId(SETTING_ID, null);
+        } catch (Exception e) {
+            // 处理异常
+            e.printStackTrace();
+            // 或者记录日志
+            // logger.error("删除神秘商品时出错：" + e.getMessage(), e);
+        }
+
         // 读取excel
         List<MysteriousMerchantShop> excelData = getExcelData();
         List<MysteriousMerchantShop> saveShop = excelData.stream().map(data -> {
@@ -341,7 +348,7 @@ public class MysteriousMerchantManager {
 
     private static List<MysteriousMerchantShop> getExcelData() {
         HuYanEconomy instance = HuYanEconomy.INSTANCE;
-        ExcelReader reader = ExcelUtil.getReader(instance.getResourceAsStream("fish.xlsx"), 2);
+        ExcelReader reader = ExcelUtil.getReader(instance.getResourceAsStream("fish_2406.xlsx"), 2);
         Map<String, String> map = new HashMap<>();
         map.put("编号", "goodCode");
         map.put("道具编号", "prop1Code");
@@ -390,6 +397,7 @@ public class MysteriousMerchantManager {
         String shopGoodRedisKey = getShopGoodRedisKey(goods);
         int stored = (Integer) Optional.ofNullable(RedisUtils.getKeyObject(shopGoodRedisKey)).orElse(0);
         if (stored <= 0) {
+            RedisUtils.setKeyObject(shopGoodRedisKey, 0);
             subject.sendMessage(MessageUtil.formatMessageChain(message, "已售罄"));
             return;
         }
@@ -397,11 +405,11 @@ public class MysteriousMerchantManager {
         Long senderId = event.getSender().getId();
         String shopGoodUserRedisKey = getShopGoodUserRedisKey(goods, senderId);
         if(Objects.nonNull(RedisUtils.getKeyObject(shopGoodUserRedisKey))){
-            subject.sendMessage(MessageUtil.formatMessageChain(message, "限购"));
+            subject.sendMessage(MessageUtil.formatMessageChain(message, "限购喽"));
             return;
         }
         // redis增加库存
-        RedisUtils.setKeyObject(shopGoodRedisKey, stored - 1);
+        RedisUtils.setKeyObject(shopGoodRedisKey, (int)RedisUtils.getKeyObject(shopGoodRedisKey) - 1);
         RedisUtils.setKeyObject(shopGoodUserRedisKey, 1);
 
         // 用户新增道具
@@ -415,7 +423,7 @@ public class MysteriousMerchantManager {
                     .stream().filter(back-> back.getPropsCode().equals(shop.getProp2Code()))
                     .collect(Collectors.toList());
             if (CollectionUtils.isEmpty(prop2List) || prop2List.size() < shop.getProp2Count()) {
-                RedisUtils.setKeyObject(shopGoodRedisKey, stored + 1);
+                RedisUtils.setKeyObject(shopGoodRedisKey, (int)RedisUtils.getKeyObject(shopGoodRedisKey) + 1);
                 RedisUtils.deleteKeyString(shopGoodUserRedisKey);
                 return;
             }
@@ -430,7 +438,7 @@ public class MysteriousMerchantManager {
         if(CHANGE_TYPE_BB.equals(shop.getChangeType())){
             double userMoney  = EconomyUtil.getMoneyByUser(event.getSender());
             if(userMoney < shop.getBbCount()){
-                RedisUtils.setKeyObject(shopGoodRedisKey, stored + 1);
+                RedisUtils.setKeyObject(shopGoodRedisKey, (int)RedisUtils.getKeyObject(shopGoodRedisKey) + 1);
                 RedisUtils.deleteKeyString(shopGoodUserRedisKey);
                 return;
             }
@@ -444,7 +452,7 @@ public class MysteriousMerchantManager {
         if(CHANGE_TYPE_SEASON.equals(shop.getChangeType())){
             double userBankMoney  = EconomyUtil.getMoneyByBank(event.getSender());
             if(userBankMoney < shop.getSeasonMoney()){
-                RedisUtils.setKeyObject(shopGoodRedisKey, stored + 1);
+                RedisUtils.setKeyObject(shopGoodRedisKey, (int)RedisUtils.getKeyObject(shopGoodRedisKey) + 1);
                 RedisUtils.deleteKeyString(shopGoodUserRedisKey);
                 return;
             }
@@ -456,7 +464,7 @@ public class MysteriousMerchantManager {
         }
         // 更新库存
         if(!updateShopGoodsStore(goods)){
-            RedisUtils.setKeyObject(shopGoodRedisKey, stored + 1);
+            RedisUtils.setKeyObject(shopGoodRedisKey, (int)RedisUtils.getKeyObject(shopGoodRedisKey) + 1);
             RedisUtils.deleteKeyString(shopGoodUserRedisKey);
             return;
         }
@@ -466,7 +474,7 @@ public class MysteriousMerchantManager {
         // 增加道具
         PluginManager.getPropsManager().addProp(userInfo, prop1Code);
         // 发送消息
-        String content = String.format("恭喜%s抢购到了了%s", event.getSender().getNick(), prop1Code.getName());
+        String content = String.format("\uD83C\uDF89恭喜%s抢购到了了%s", event.getSender().getNick(), prop1Code.getName());
         subject.sendMessage(MessageUtil.formatMessageChain(message, content));
     }
 
@@ -484,11 +492,12 @@ public class MysteriousMerchantManager {
         while (retryCount < MAX_RETRY_COUNT) {
             try {
                 return HibernateUtil.factory.fromTransaction(session -> {
-                    MysteriousMerchantGoods storedGoods = session.get(MysteriousMerchantGoods.class, goods.getGoodCode());
+                    MysteriousMerchantGoods storedGoods = session.get(MysteriousMerchantGoods.class, goods.getId());
                     if (storedGoods != null) {
                         if (storedGoods.getGoodStored() > 0) {
                             // 库存减1
                             storedGoods.setGoodStored(storedGoods.getGoodStored() - 1);
+                            storedGoods.setSold(storedGoods.getSold() + 1);
                             session.update(storedGoods);
                             return true;
                         } else {
@@ -526,24 +535,23 @@ public class MysteriousMerchantManager {
 
     // 商品根据settingId删除
     public static void deleteGoodBySettingId(Long settingId , Long groupId) {
-        HibernateUtil.factory.fromSession(session -> {
-            CriteriaBuilder builder = session.getCriteriaBuilder();
-            CriteriaDelete<MysteriousMerchantGoods> deleteQuery = builder.createCriteriaDelete(MysteriousMerchantGoods.class);
-            Root<MysteriousMerchantGoods> root = deleteQuery.from(MysteriousMerchantGoods.class);
-
-            // 添加 settingId 的约束条件
-            deleteQuery.where(builder.equal(root.get("settingId"), settingId));
-
-            // 如果 groupId 不为 null，则同时添加 groupId 的约束条件
+        List<MysteriousMerchantGoods> list = HibernateUtil.factory.fromSession(session -> {
+            HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
+            JpaCriteriaQuery<MysteriousMerchantGoods> query = builder.createQuery(MysteriousMerchantGoods.class);
+            JpaRoot<MysteriousMerchantGoods> from = query.from(MysteriousMerchantGoods.class);
+            query.select(from);
             if (Objects.nonNull(groupId)) {
-                deleteQuery.where(builder.equal(root.get("groupId"), groupId));
+                query.where(builder.equal(from.get("settingId"), settingId), builder.equal(from.get("groupId"), groupId));
+            }else{
+                query.where(builder.equal(from.get("settingId"), settingId));
             }
-            // 执行删除操作
-            session.createQuery(deleteQuery).executeUpdate();
-
-            return null;
+            return session.createQuery(query).list();
         });
-
+        Log.info("deleteGoodBySettingId - 上次剩余数量：" + list.size());
+        if(CollectionUtils.isNotEmpty(list)){
+            Log.info("delete");
+            list.forEach(MysteriousMerchantGoods::remove);
+        }
         // 兑换记录一并删除
         deleteExchangeRecordsLogBySettingId(settingId, groupId);
 
@@ -573,23 +581,23 @@ public class MysteriousMerchantManager {
      * @return
      */
     public static void deleteExchangeRecordsLogBySettingId(Long settingId, Long groupId) {
-        HibernateUtil.factory.fromSession(session -> {
-            CriteriaBuilder builder = session.getCriteriaBuilder();
-            CriteriaDelete<ExchangeRecordsLog> deleteQuery = builder.createCriteriaDelete(ExchangeRecordsLog.class);
-            Root<ExchangeRecordsLog> root = deleteQuery.from(ExchangeRecordsLog.class);
-
-            // 添加 settingId 的约束条件
-            deleteQuery.where(builder.equal(root.get("settingId"), settingId));
-
-            // 如果 groupId 不为 null，则同时添加 groupId 的约束条件
+        List<ExchangeRecordsLog> list = HibernateUtil.factory.fromSession(session -> {
+            HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
+            JpaCriteriaQuery<ExchangeRecordsLog> query = builder.createQuery(ExchangeRecordsLog.class);
+            JpaRoot<ExchangeRecordsLog> from = query.from(ExchangeRecordsLog.class);
+            query.select(from);
             if (Objects.nonNull(groupId)) {
-                deleteQuery.where(builder.equal(root.get("groupId"), groupId));
+                query.where(builder.equal(from.get("settingId"), settingId), builder.equal(from.get("groupId"), groupId));
+            }else{
+                query.where(builder.equal(from.get("settingId"), settingId));
             }
-
-            // 执行删除操作
-            session.createQuery(deleteQuery).executeUpdate();
-            return null;
+            return session.createQuery(query).list();
         });
+
+        if(CollectionUtils.isNotEmpty(list)){
+            list.forEach(ExchangeRecordsLog::remove);
+        }
+
     }
 
     /**

@@ -54,4 +54,11 @@ public class ExchangeRecordsLog implements Serializable {
         }
         return true;
     }
+
+    public void remove() {
+        HibernateUtil.factory.fromTransaction(session -> {
+            session.remove(this);
+            return null;
+        });
+    }
 }

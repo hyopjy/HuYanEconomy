@@ -1,6 +1,7 @@
 package cn.chahuyun.economy.manager;
 
 import cn.chahuyun.economy.aop.PropUtils;
+import cn.chahuyun.economy.constant.DailyPropCode;
 import cn.chahuyun.economy.constant.FishSignConstant;
 import cn.chahuyun.economy.entity.UserBackpack;
 import cn.chahuyun.economy.entity.UserInfo;
@@ -441,6 +442,8 @@ public class PropsManagerImpl implements PropsManager {
                     RedisUtils.setWditBBCount(subject.getId(), sender.getId(),count + num );
                     messages.append("成功购买" + num + " " + "获得" + num + " " + card.getName() + " 你还有" + (30000 - (count + num)) + "额度");
                     subject.sendMessage(messages.build());
+
+                    SeasonManager.checkUserDailyWork(event, subject);
                     return;
                 }
 
@@ -553,48 +556,16 @@ public class PropsManagerImpl implements PropsManager {
                     return;
                 }
                 PropUtils.excute(card, userInfo, event);
+
+                if(propCode.equals(DailyPropCode.FISH_34)){
+                    SeasonManager.checkUserDailyWork(event, subject);
+                }
             } else {
                 subject.sendMessage(messages.append("你的包里没有这个道具!").build());
             }
 
         }
 
-
-
-
-
-
-//        PropsBase prop = null;
-//        if (propCode.startsWith("FISH-")) {
-//            assert userInfo != null;
-//            List<PropsFishCard> propsByUserFromCode = getPropsByUserFromCode(userInfo, propCode, PropsFishCard.class);
-//            if (propsByUserFromCode.size() == 0) {
-//                subject.sendMessage(messages.append("你的包里没有这个道具!").build());
-//                return;
-//            }
-//            if(Objects.nonNull(CacheUtils.USER_USE_CARD.get(userInfo.getQq())) && CacheUtils.USER_USE_CARD.get(userInfo.getQq())){
-//                subject.sendMessage(messages.append("你正在使用道具!").build());
-//                return;
-//            }
-//            CacheUtils.USER_USE_CARD.put(userInfo.getQq(),true);
-//            for (PropsFishCard propsCard : propsByUserFromCode) {
-//                prop = propsCard;
-//                if (num == 0) {
-//                    break;
-//                }
-//                PropUsage usage = PropUsage.getPropUsage(propsCard, userInfo, event);
-//
-//                if(!usage.checkOrder(code)){
-//                    break;
-//                }
-//                // 执行特效
-//                if(Objects.nonNull(usage)){
-//                    usage.execute(1);
-//                }
-//                deleteProp(userInfo,prop, 1);
-//                num--;
-//            }
-//        }
     }
 
     /**

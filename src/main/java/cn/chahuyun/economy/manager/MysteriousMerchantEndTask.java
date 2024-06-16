@@ -54,7 +54,13 @@ public class MysteriousMerchantEndTask implements Task {
     private void taskRunByEndGroupId(Long groupId, Bot bot, Group group) {
         List<MysteriousMerchantGoods> goodUpList = MysteriousMerchantManager.getGoodBySettingId(setting.getSettingId(), groupId);
         // 查询是否有商品信息
-        if (!setting.getStatus() || !CollectionUtils.isEmpty(goodUpList)) {
+        if (!setting.getStatus() || CollectionUtils.isEmpty(goodUpList)) {
+            StringBuilder message = new StringBuilder("“球球来了！快跑！”\r\n" +
+                    "“什么啊，我这些都是取的，神秘商人的事，怎么能算偷呢？”\r\n");
+            // 删除
+            MysteriousMerchantManager.deleteGoodBySettingId(setting.getSettingId(), groupId);
+
+            group.sendMessage(message.toString());
             return;
         }
         // 限购次数
@@ -88,13 +94,15 @@ public class MysteriousMerchantEndTask implements Task {
             message.append("编码： [" + shopGood.getGoodCode() + "] \r\n");
             PropsBase props1Base = PropsCardFactory.INSTANCE.getPropsBase(shopGood.getProp1Code());
             message.append("道具名：" + props1Base.getName() + "\r\n");
-            message.append("兑换条件:\r\n");
             message.append("商品库存: " + good.getGoodStored() + "\r\n");
             message.append("已兑换: " + good.getSold()+ "\r\n");
             // todo 兑换人列表
             message.append("-----------------------\r\n");
         });
+
         // 删除
         MysteriousMerchantManager.deleteGoodBySettingId(setting.getSettingId(), groupId);
+
+        group.sendMessage(message.toString());
     }
 }

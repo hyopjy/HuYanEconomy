@@ -184,7 +184,7 @@ public class PluginManager {
 
     private static List<PropsFishCard> getExcelData() {
         HuYanEconomy instance = HuYanEconomy.INSTANCE;
-        ExcelReader reader = ExcelUtil.getReader(instance.getResourceAsStream("fish.xlsx"), 1);
+        ExcelReader reader = ExcelUtil.getReader(instance.getResourceAsStream("fish_2406.xlsx"), 1);
         Map<String, String> map = new HashMap<>();
         map.put("编号", "code");
         map.put("道具", "name");

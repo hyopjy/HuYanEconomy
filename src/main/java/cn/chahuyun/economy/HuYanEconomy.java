@@ -66,8 +66,8 @@ public final class HuYanEconomy extends JavaPlugin {
                 .info("壶言经济")
                 .author("Moyuyanli")
                 //忽略依赖版本 true 可选依赖 false 必须依赖
-                .dependsOn("xyz.cssxsh.mirai.plugin.mirai-hibernate-plugin", false)
-                .dependsOn("xyz.cssxsh.mirai.plugin.mirai-economy-core", false)
+                .dependsOn("xyz.cssxsh.mirai.plugin.mirai-hibernate-plugin", true)
+                .dependsOn("xyz.cssxsh.mirai.plugin.mirai-economy-core", true)
                 .dependsOn("cn.chahuyun.HuYanSession", true)
                 .dependsOn("net.mamoe.mirai-api-http", true)
                 .build());
@@ -107,6 +107,7 @@ public final class HuYanEconomy extends JavaPlugin {
             // 赛季信息停止定时任务
             // CompetitionSeasonManager.seasonInit();
             WorldBossConfigManager.init();
+            MysteriousMerchantManager.init();
             // 延迟队列init
             RedisUtils.initDelay();
             eventEventChannel.registerListenerHost(new EconomyEventListener());

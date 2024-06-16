@@ -559,8 +559,8 @@ public class RandomMoneyListener extends SimpleListenerHost {
             if (message.startsWith("神秘商人") &&
                     EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
                 //  神秘商人 开启
-                String code = event.getMessage().serializeToMiraiCode().replaceAll("\\\\,",",");
-                String[] codeArr = code.split(" ", 3);
+                String code = event.getMessage().serializeToMiraiCode().replaceAll("\\\\","").toString();
+                String[] codeArr = code.split(" ");
                 MysteriousMerchantSetting config = null;
                 if ("开启".equals(codeArr[1])) {
                     config = MysteriousMerchantManager.open();
@@ -585,7 +585,7 @@ public class RandomMoneyListener extends SimpleListenerHost {
                     // 概率
                     Integer probability = Integer.parseInt(codeArr[4]);
                     // 商品
-                    List<String> goodCodeList = Arrays.asList(StringUtils.split(codeArr[5] , Constant.MM_SPILT))
+                    List<String> goodCodeList = Arrays.asList(codeArr[5].split(Constant.MM_SPILT))
                             .stream().map(codeStr->{
                                 MysteriousMerchantShop shopGood =  MysteriousMerchantManager.getShopGoodCode(codeStr);
                                 if(Objects.nonNull(shopGood)){
@@ -597,7 +597,7 @@ public class RandomMoneyListener extends SimpleListenerHost {
                     // 随机几种
                     Integer randomGoodCount = Integer.parseInt(codeArr[6]);
                     // 随机库存数量
-                    String[] storedPropCode = StringUtils.split(codeArr[7] , Constant.SPILT);
+                    String[] storedPropCode = codeArr[7].split(Constant.SPILT);
                     // 最小库存数
                     Integer minStored = Integer.parseInt(storedPropCode[0]);
                     // 最大库存数
@@ -636,6 +636,7 @@ public class RandomMoneyListener extends SimpleListenerHost {
                 return ListeningStatus.LISTENING;
             }
         }catch (Exception e){
+            e.printStackTrace();
             subject.sendMessage(MessageUtil.formatMessageChain("程序发生异常@@"+ e.getMessage()));
         }
         return ListeningStatus.LISTENING;

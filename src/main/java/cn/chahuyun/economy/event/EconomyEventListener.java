@@ -58,7 +58,6 @@ public class EconomyEventListener extends SimpleListenerHost {
             return ListeningStatus.LISTENING;
         }
         // 设置30分钟发言缓存
-//        RedisUtils.setSisterUserList(event.getGroup().getId(), event.getSender().getId());
         SisterDogCommand.getInstance().fireClickEvent(event.getGroup().getId(), event.getSender().getId());
 
         if(CacheUtils.checkTimeCacheKey(event.getGroup().getId(),event.getSender().getId())
@@ -109,34 +108,7 @@ public class EconomyEventListener extends SimpleListenerHost {
 //            event.intercept();
 //            return ListeningStatus.LISTENING;
 //        }
-        // 校验日常任务
-        checkUserDailyWork(event, subject);
         return ListeningStatus.LISTENING;
-    }
-
-    private void checkUserDailyWork(GroupMessageEvent event, Contact subject) {
-        Long userId = event.getSender().getId();
-        Long groupId = subject.getId();
-        RBloomFilter<Long> rBloomFilter =  RedisUtils.dailyWorkBloomFilterInit(groupId);
-        if(rBloomFilter.contains(userId)){
-            return;
-        }
-        // 面罩34三次
-        Boolean maskCount = CacheUtils.checkMaskCountKey(groupId, userId);
-        // 购买币币51
-        Boolean by51Count = RedisUtils.getWditBBCount(groupId, userId) > 0;
-        //  签到
-        UserInfo userInfo = UserManager.getUserInfo(event.getSender());
-        Boolean sign = false;
-        if (Objects.nonNull(userInfo) && userInfo.sign()) {
-            sign = true;
-        }
-        if(maskCount && by51Count && sign){
-            rBloomFilter.add(userId);
-            PropsBase propsBase = PropsCardFactory.INSTANCE.getPropsBase(DailyPropCode.FISH_101);
-            PluginManager.getPropsManager().addProp(userInfo, propsBase);
-            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "恭喜你获得" + propsBase.getName() + "x1"));
-        }
     }
 
     private boolean getCheck(RegexConst regexOrderConst, String code) {

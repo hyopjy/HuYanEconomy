@@ -20,8 +20,6 @@ import org.jetbrains.annotations.NotNull;
 
 import org.redisson.api.RLock;
 
-import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -83,6 +81,7 @@ public class MessageEventListener extends SimpleListenerHost {
                 case "sign":
                     Log.info("签到指令");
                     SignManager.sign(event);
+                    SeasonManager.checkUserDailyWork(event, subject);
                     return;
                 case "个人信息":
                 case "info":

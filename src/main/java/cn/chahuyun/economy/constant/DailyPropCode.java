@@ -19,4 +19,5 @@ public interface DailyPropCode {
     public static final String FISH_103 = "FISH-103";
 
 
+    public static final String FISH_34 = "FISH-34";
 }
