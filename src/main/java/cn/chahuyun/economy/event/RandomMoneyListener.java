@@ -127,6 +127,22 @@ public class RandomMoneyListener extends SimpleListenerHost {
                 subject.sendMessage(MessageUtil.formatMessageChain("重置鱼塘成功"));
             }
 
+//            if (message.equals("刷新表格") && EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
+             if (message.equals("刷新表格")) {
+                 // 重置鱼塘
+                 subject.sendMessage(MessageUtil.formatMessageChain("开始加载"));
+                SeasonManager.reloadFishPod(event);
+                subject.sendMessage(MessageUtil.formatMessageChain("重置鱼塘成功"));
+
+                // 刷新道具
+                SeasonManager.reloadPropsFishCard();
+                subject.sendMessage(MessageUtil.formatMessageChain("刷新道具完成"));
+
+                // 神秘商品
+                SeasonManager.importShopInfo();
+                subject.sendMessage(MessageUtil.formatMessageChain("神秘商品更新完成"));
+            }
+
             if (message.startsWith("休渔期") && EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
                 // 休渔期 1,2,3,4 10-11
                 // 1,2,3,4,5 0-5,10-23
