@@ -68,4 +68,6 @@ public interface Constant {
     String SPILT = "-";
 
     String MM_SPILT = ",";
+
+    String MM_PROP_START = "SS-";
 }

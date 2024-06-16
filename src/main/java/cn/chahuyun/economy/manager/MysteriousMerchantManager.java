@@ -382,6 +382,9 @@ public class MysteriousMerchantManager {
             return;
         }
         String goodCode = s[1];
+        if(!goodCode.startsWith(Constant.MM_PROP_START)){
+            goodCode = Constant.MM_PROP_START + goodCode;
+        }
         MysteriousMerchantShop shop = MysteriousMerchantManager.getShopGoodCode(goodCode);
         if(Objects.isNull(shop) || Objects.isNull(shop.getChangeType())){
             return;

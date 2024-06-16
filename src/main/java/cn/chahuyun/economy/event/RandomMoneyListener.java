@@ -587,6 +587,11 @@ public class RandomMoneyListener extends SimpleListenerHost {
                     // 商品
                     List<String> goodCodeList = Arrays.asList(codeArr[5].split(Constant.MM_SPILT))
                             .stream().map(codeStr->{
+
+                                if(!codeStr.startsWith(Constant.MM_PROP_START)){
+                                    codeStr = Constant.MM_PROP_START + codeStr;
+                                }
+
                                 MysteriousMerchantShop shopGood =  MysteriousMerchantManager.getShopGoodCode(codeStr);
                                 if(Objects.nonNull(shopGood)){
                                     return shopGood.getGoodCode();
