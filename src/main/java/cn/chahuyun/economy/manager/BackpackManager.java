@@ -8,6 +8,7 @@ import cn.chahuyun.economy.entity.props.factory.PropsCardFactory;
 import cn.chahuyun.economy.plugin.PluginManager;
 import cn.chahuyun.economy.plugin.PropsType;
 import cn.chahuyun.economy.utils.HibernateUtil;
+import cn.chahuyun.economy.utils.Log;
 import jakarta.persistence.criteria.Root;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Group;
@@ -38,7 +39,9 @@ public class BackpackManager {
         List<String> offLinePropList = getOfflinePropCodeList();
 //        List<UserBackpack> userBackpacks = listBackPackByFishType(offLinePropList);
 //        userBackpacks.stream().forEach(UserBackpack::remove);
-        deleteUserPackByCode(offLinePropList);
+
+        int aa =  deleteUserPackByCode(offLinePropList);
+        Log.info("[清理背包下架道具信息]下架道具" + offLinePropList.size() + "删除道具记录" + aa);
     }
 
     private static Integer deleteUserPackByCode(List<String> offLinePropList) {
