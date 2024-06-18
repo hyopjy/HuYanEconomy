@@ -34,7 +34,7 @@ public class SeasonCommonInfoManager {
      * @return
      */
     public static Integer getMaxFishRodLevel(){
-        return 134;
+        return 161;
     }
 
     /**
