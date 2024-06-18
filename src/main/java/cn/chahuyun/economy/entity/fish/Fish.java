@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 鱼
@@ -94,4 +95,7 @@ public class Fish implements Serializable {
         }
     }
 
+    public Boolean getProtecting() {
+        return !Objects.isNull(protecting) && protecting;
+    }
 }
