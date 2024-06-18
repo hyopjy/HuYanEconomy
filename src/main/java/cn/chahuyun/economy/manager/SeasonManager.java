@@ -4,6 +4,7 @@ package cn.chahuyun.economy.manager;
 import cn.chahuyun.economy.constant.DailyPropCode;
 import cn.chahuyun.economy.constant.FishSignConstant;
 import cn.chahuyun.economy.dto.BadgeFishInfoDto;
+import cn.chahuyun.economy.entity.UserBackpack;
 import cn.chahuyun.economy.entity.UserInfo;
 import cn.chahuyun.economy.entity.fish.Fish;
 import cn.chahuyun.economy.entity.fish.FishRanking;
@@ -17,13 +18,16 @@ import cn.chahuyun.economy.utils.CacheUtils;
 import cn.chahuyun.economy.utils.HibernateUtil;
 import cn.chahuyun.economy.utils.Log;
 import cn.chahuyun.economy.utils.MessageUtil;
+import jakarta.persistence.criteria.Root;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.event.events.UserMessageEvent;
 import org.hibernate.query.criteria.HibernateCriteriaBuilder;
+import org.hibernate.query.criteria.JpaCriteriaDelete;
 import org.hibernate.query.criteria.JpaCriteriaQuery;
 import org.redisson.api.RBloomFilter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -151,5 +155,19 @@ public class SeasonManager {
             PluginManager.getPropsManager().addProp(userInfo, propsBase);
             subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "恭喜你获得" + propsBase.getName() + "x1"));
         }
+    }
+
+    public static Integer clearPropCode(String propCode) {
+        List<String> propCodeList = new ArrayList<String>();
+        propCodeList.add(propCode);
+        int p =  HibernateUtil.factory.fromTransaction(session -> {
+            HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
+            JpaCriteriaDelete<UserBackpack> delete = builder.createCriteriaDelete(UserBackpack.class);
+            Root<UserBackpack> e = delete.from(UserBackpack.class);
+            delete.where(builder.in(e.get("propsCode")).value(propCodeList));
+            return session.createQuery(delete).executeUpdate();
+        });
+        Log.info("清理"+ propCode + ":"+ p);
+        return p;
     }
 }
