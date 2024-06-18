@@ -408,14 +408,14 @@ public class PropsManagerImpl implements PropsManager {
             }
             // 如果是购买wditbb
             if("FISH-51".equals(card.getCode())){
-                if(num > 30000){
-                    messages.append(new PlainText("["  + propsInfo.getName() + "]每人每天限制购买30000个"));
+                if(num > 100000){
+                    messages.append(new PlainText("["  + propsInfo.getName() + "]每人每天限制购买100000个"));
                     subject.sendMessage(messages.build());
                     return;
                 }
                 Double count = RedisUtils.getWditBBCount(subject.getId(), sender.getId());
-                if(count + num > 30000){
-                    messages.append(new PlainText("["  + propsInfo.getName() + "]每人每天限制购买30000个,目前你已经购买了" + count + "个"));
+                if(count + num > 100000){
+                    messages.append(new PlainText("["  + propsInfo.getName() + "]每人每天限制购买100000个,目前你已经购买了" + count + "个"));
                     subject.sendMessage(messages.build());
                     return;
                 }

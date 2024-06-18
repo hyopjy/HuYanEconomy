@@ -3,6 +3,7 @@ package cn.chahuyun.economy.utils;
 import cn.chahuyun.economy.entity.PropTimeRange;
 import cn.chahuyun.economy.entity.TimeRange;
 import cn.chahuyun.economy.manager.PropTimeRangeManager;
+import cn.chahuyun.economy.manager.SeasonCommonInfoManager;
 import cn.chahuyun.economy.manager.TimeRangeManager;
 import org.apache.commons.lang3.RandomUtils;;
 
@@ -43,9 +44,21 @@ public class DateUtil {
         String ddCode = "27";
         String mask = "面罩";
         String maskCode = "34";
+        String seasonMoney = SeasonCommonInfoManager.getSeasonMoney();
+        String seasonCode = "51";
 
-        if (code.contains(dd) || code.contains(ddCode) || code.contains(mask) || code.contains(maskCode)) {
-            return true;
+        List<String> outOfBuy = new ArrayList<>();
+        outOfBuy.add(dd);
+        outOfBuy.add(ddCode);
+        outOfBuy.add(mask);
+        outOfBuy.add(maskCode);
+        outOfBuy.add(seasonMoney);
+        outOfBuy.add(seasonCode);
+
+        for (String item : outOfBuy) {
+            if (code.contains(item)) {
+                return true;
+            }
         }
         try {
             LocalDateTime now = LocalDateTime.now();
