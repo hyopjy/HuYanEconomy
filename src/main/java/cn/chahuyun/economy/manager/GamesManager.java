@@ -157,8 +157,8 @@ public class GamesManager {
         //随机睡眠
         try {
             // 15-90
-           Thread.sleep(RandomUtil.randomInt(15 * 60 * 1000, 90 * 60 * 1000));
-            //      Thread.sleep(RandomUtil.randomInt(100, 6000));
+            Thread.sleep(RandomUtil.randomInt(15 * 60 * 1000, 90 * 60 * 1000));
+            //  Thread.sleep(RandomUtil.randomInt(100, 6000));
         } catch (InterruptedException e) {
             Log.debug(e);
         }

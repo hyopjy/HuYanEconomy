@@ -137,7 +137,6 @@ public class FbUserManager  {
             //如果是群 根据管理员信息改变颜色
             if (user instanceof Member) {
                 MemberPermission permission = ((Member) user).getPermission();
-                Log.info("uer:"+user.getId() +"userPermission:"+permission.getLevel());
                 if (permission.getLevel() == MemberPermission.OWNER.getLevel()) {
                     pen.setColor(Color.YELLOW);
                 } else if (permission.getLevel() == MemberPermission.ADMINISTRATOR.getLevel()) {
@@ -169,7 +168,7 @@ public class FbUserManager  {
             } else {
                 fontSize = 30;
                 pen.setFont(new Font("黑体", Font.BOLD, fontSize));
-                pen.drawString(userInfoName, 238, 296);
+                pen.drawString(userInfoName, 182, 309);
             }
             // 设置画笔字体样式为黑体，粗体
             pen.setColor(Color.white);
