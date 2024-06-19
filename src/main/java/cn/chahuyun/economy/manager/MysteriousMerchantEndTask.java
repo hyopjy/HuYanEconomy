@@ -55,12 +55,12 @@ public class MysteriousMerchantEndTask implements Task {
         List<MysteriousMerchantGoods> goodUpList = MysteriousMerchantManager.getGoodBySettingId(setting.getSettingId(), groupId);
         // 查询是否有商品信息
         if (!setting.getStatus() || CollectionUtils.isEmpty(goodUpList)) {
-            StringBuilder message = new StringBuilder("“球球来了！快跑！”\r\n" +
-                    "“什么啊，我这些都是取的，神秘商人的事，怎么能算偷呢？”\r\n");
+//            StringBuilder message = new StringBuilder("“球球来了！快跑！”\r\n" +
+//                    "“什么啊，我这些都是取的，神秘商人的事，怎么能算偷呢？”\r\n");
             // 删除
             MysteriousMerchantManager.deleteGoodBySettingId(setting.getSettingId(), groupId);
 
-            group.sendMessage(message.toString());
+//            group.sendMessage(message.toString());
             return;
         }
         // 限购次数
