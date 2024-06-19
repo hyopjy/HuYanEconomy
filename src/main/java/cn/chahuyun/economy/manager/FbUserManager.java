@@ -233,39 +233,39 @@ public class FbUserManager  {
             }
 
             // 设置徽章
-            Long fish31 = Optional.ofNullable(userInfo.getBackpacks()).orElse(new ArrayList<>()).stream()
-                    .filter(userBackpack -> Objects.nonNull(userBackpack) &&
-                            FishSignConstant.FISH_31.equals(userBackpack.getPropsCode().toUpperCase(Locale.ROOT))).count();
-            if (fish31 > 0) {
-                drawFishSign(pen, FishSignConstant.FISH_31, fish31, 56, 750, 144, 810);
-            } else {
-                pen.setFont(new Font("黑体", Font.BOLD, 20));
-                //写入数量
-                pen.drawString(0 + "", 144, 810);
-            }
-
-            Long fish32 = Optional.ofNullable(userInfo.getBackpacks()).orElse(new ArrayList<>()).stream()
-                    .filter(userBackpack -> Objects.nonNull(userBackpack) &&
-                            FishSignConstant.FISH_32.equals(userBackpack.getPropsCode().toUpperCase(Locale.ROOT))).count();
-            if (fish32 > 0) {
-                drawFishSign(pen, FishSignConstant.FISH_32, fish32, 193, 744, 269, 810);
-            } else {
-                pen.setFont(new Font("黑体", Font.BOLD, 20));
-                //写入数量
-                pen.drawString(0 + "", 269, 810);
-            }
-            Long fish33 = Optional.ofNullable(userInfo.getBackpacks())
-                    .orElse(new ArrayList<>()).stream()
-                    .filter(userBackpack -> Objects.nonNull(userBackpack) &&
-                            FishSignConstant.FISH_33.equals(userBackpack.getPropsCode().
-                                    toUpperCase(Locale.ROOT))).count();
-            if (fish33 > 0) {
-                drawFishSign(pen, FishSignConstant.FISH_33, fish33, 321, 745, 389, 810);
-            } else {
-                pen.setFont(new Font("黑体", Font.BOLD, 20));
-                //写入数量
-                pen.drawString(0 + "", 389, 810);
-            }
+//            Long fish31 = Optional.ofNullable(userInfo.getBackpacks()).orElse(new ArrayList<>()).stream()
+//                    .filter(userBackpack -> Objects.nonNull(userBackpack) &&
+//                            FishSignConstant.FISH_31.equals(userBackpack.getPropsCode().toUpperCase(Locale.ROOT))).count();
+//            if (fish31 > 0) {
+//                drawFishSign(pen, FishSignConstant.FISH_31, fish31, 56, 750, 144, 810);
+//            } else {
+//                pen.setFont(new Font("黑体", Font.BOLD, 20));
+//                //写入数量
+//                pen.drawString(0 + "", 144, 810);
+//            }
+//
+//            Long fish32 = Optional.ofNullable(userInfo.getBackpacks()).orElse(new ArrayList<>()).stream()
+//                    .filter(userBackpack -> Objects.nonNull(userBackpack) &&
+//                            FishSignConstant.FISH_32.equals(userBackpack.getPropsCode().toUpperCase(Locale.ROOT))).count();
+//            if (fish32 > 0) {
+//                drawFishSign(pen, FishSignConstant.FISH_32, fish32, 193, 744, 269, 810);
+//            } else {
+//                pen.setFont(new Font("黑体", Font.BOLD, 20));
+//                //写入数量
+//                pen.drawString(0 + "", 269, 810);
+//            }
+//            Long fish33 = Optional.ofNullable(userInfo.getBackpacks())
+//                    .orElse(new ArrayList<>()).stream()
+//                    .filter(userBackpack -> Objects.nonNull(userBackpack) &&
+//                            FishSignConstant.FISH_33.equals(userBackpack.getPropsCode().
+//                                    toUpperCase(Locale.ROOT))).count();
+//            if (fish33 > 0) {
+//                drawFishSign(pen, FishSignConstant.FISH_33, fish33, 321, 745, 389, 810);
+//            } else {
+//                pen.setFont(new Font("黑体", Font.BOLD, 20));
+//                //写入数量
+//                pen.drawString(0 + "", 389, 810);
+//            }
 
 
             // HKFB

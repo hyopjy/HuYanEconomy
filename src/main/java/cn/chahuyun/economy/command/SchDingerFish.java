@@ -71,8 +71,8 @@ public class SchDingerFish extends AbstractPropUsage {
         int randomIndex = RandomUtil.randomInt(tradablePropCode.size());
         // 获取随机元素
         PropsFishCard randomPropsFishCard = tradablePropCode.get(randomIndex);
-        // 减去道具
-        PluginManager.getPropsManager().deleteProp(targetUserInfo, randomPropsFishCard);
+        // 不减去道具
+//        PluginManager.getPropsManager().deleteProp(targetUserInfo, randomPropsFishCard);
 
 
         // 发送者获得道具
