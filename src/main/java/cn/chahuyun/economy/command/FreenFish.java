@@ -32,11 +32,11 @@ public class FreenFish extends AbstractPropUsage {
         User sender = event.getSender();
 
         // 自己获得
-        EconomyUtil.plusMoneyToUser(sender, 8080);
+        EconomyUtil.plusMoneyToUser(sender, 80808);
 
         subject.sendMessage(new MessageChainBuilder().append(new QuoteReply(event.getMessage()))
                 .append(propsCard.getName() + "使用成功").append("\r\n")
-                .append("成功获得8080币币")
+                .append("成功获得80808币币")
                 .append("----------")
                 .append("开始讲述《福丽恩》的故事 \r\n")
                 .append(propsCard.getContent())

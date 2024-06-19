@@ -32,11 +32,11 @@ public class BeckyFish extends AbstractPropUsage {
         User sender = event.getSender();
 
         // 自己获得
-        EconomyUtil.plusMoneyToUser(sender, 12050);
+        EconomyUtil.plusMoneyToUser(sender, 120505);
 
         subject.sendMessage(new MessageChainBuilder().append(new QuoteReply(event.getMessage()))
                 .append(propsCard.getName() + "使用成功").append("\r\n")
-                .append("成功获得12050币币").append("\r\n")
+                .append("成功获得120505币币").append("\r\n")
                 .append("----------")
                 .append("开始讲述《阿慕壮》的故事 \r\n")
                 .append(propsCard.getContent())

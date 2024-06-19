@@ -29,9 +29,11 @@ public class Glassbead extends AbstractPropUsage {
 
         String no = PropsType.getNo(propsCard.getCode());
 
-        String match = "使用 (" + propsCard.getName() + "|" + no + ")(\\[mirai:at:\\d+]( )\\d( )*) ";
+        String match = "使用 (" + propsCard.getName() + "|" + no + ")(\\[mirai:at:\\d+]( )\\d( )*)";
+        String match1 = "使用 (" + propsCard.getName() + "|" + no + ")(\\[mirai:at:\\d+]( )*)";
+
         String code = event.getMessage().serializeToMiraiCode();
-        if(!Pattern.matches(match, code)){
+        if(!(Pattern.matches(match, code) ||  Pattern.matches(match1, code))){
             subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "请输入正确的命令[使用 " + propsCard.getName() + "或者" + no + "@指定对象]"));
             return false;
         }
@@ -43,8 +45,8 @@ public class Glassbead extends AbstractPropUsage {
             }
         }
         String[] s = code.split(" ");
-        if(s.length > 3){
-            this.num = Integer.parseInt(s[3]);
+        if(s.length > 2){
+            this.num = Integer.parseInt(s[2]);
         }else {
             this.num = 1;
         }
@@ -70,10 +72,10 @@ public class Glassbead extends AbstractPropUsage {
         EconomyUtil.minusMoneyToUser(sender, money);
 
         subject.sendMessage(new MessageChainBuilder().append(new QuoteReply(event.getMessage()))
-                .append(propsCard.getName() + "使用成功").append("\r\n")
+                .append(propsCard.getName() + "使用成功 ").append("\r\n")
                 .append(new At(sender.getId()).getDisplay(group))
-                .append("功打赏") .append(new At(target).getDisplay(group))
-                .append( money + "玻璃珠！老板大气！")
+                .append(" 成功打赏") .append(new At(target).getDisplay(group))
+                .append( " " + money + "玻璃珠！老板大气！")
                 .build());
     }
 
