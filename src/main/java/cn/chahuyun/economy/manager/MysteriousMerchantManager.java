@@ -383,7 +383,9 @@ public class MysteriousMerchantManager {
         }
         String goodCode = s[1];
         if(!goodCode.startsWith(Constant.MM_PROP_START)){
-            goodCode = Constant.MM_PROP_START + goodCode;
+            subject.sendMessage(MessageUtil.formatMessageChain(message, "请输入完整号码SS-xxx"));;
+//            goodCode = Constant.MM_PROP_START + goodCode;
+            return;
         }
         MysteriousMerchantShop shop = MysteriousMerchantManager.getShopGoodCode(goodCode);
         if(Objects.isNull(shop) || Objects.isNull(shop.getChangeType())){
@@ -477,7 +479,7 @@ public class MysteriousMerchantManager {
         // 增加道具
         PluginManager.getPropsManager().addProp(userInfo, prop1Code);
         // 发送消息
-        String content = String.format("\uD83C\uDF89恭喜%s抢购到了了%s", event.getSender().getNick(), prop1Code.getName());
+        String content = String.format("\uD83C\uDF89恭喜%s抢购到了了%s", group.get(event.getSender().getId()).getNameCard(), prop1Code.getName());
         subject.sendMessage(MessageUtil.formatMessageChain(message, content));
     }
 
