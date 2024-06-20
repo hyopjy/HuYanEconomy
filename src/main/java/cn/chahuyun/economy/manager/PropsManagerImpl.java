@@ -633,14 +633,7 @@ public class PropsManagerImpl implements PropsManager {
 //            iNodes.add(bot, new PlainText(format));
 //        }
 
-        Map<String, List<PropsBase>> propsBaseMap = propsBaseList.stream()
-                .collect(Collectors.groupingBy(PropsBase::getCode,
-                        Collectors.collectingAndThen(
-                                Collectors.toList(),
-                                list -> list.stream()
-                                        .sorted(Comparator.comparing(PropsBase::getName)) // 根据name属性排序
-                                        .collect(Collectors.toList())
-                        )));
+        Map<String, List<PropsBase>> propsBaseMap = propsBaseList.stream().collect(Collectors.groupingBy(PropsBase::getCode));
         propsBaseMap = sortMapByKey(propsBaseMap);
         for (Map.Entry<String, List<PropsBase>> entry : propsBaseMap.entrySet()) {
             String no = PropsType.getNo(entry.getKey());
@@ -852,11 +845,30 @@ public class PropsManagerImpl implements PropsManager {
         if (map == null || map.isEmpty()) {
             return null;
         }
+        // FISH-1
+        // FISH-101
+        // FISH-2
         Map<String, List<PropsBase>> sortMap = new TreeMap<String, List<PropsBase>>(new MapKeyComparator());
         sortMap.putAll(map);
         return sortMap;
     }
 
 }
+class MapKeyComparator implements Comparator<String> {
+    @Override
+    public int compare(String key1, String key2) {
+        // Extract the numeric part from the keys
+        int num1 = extractNumber(key1);
+        int num2 = extractNumber(key2);
 
+        // Compare the numeric parts
+        return Integer.compare(num1, num2);
+    }
+
+    private int extractNumber(String key) {
+        // Assuming the format "FISH-<number>"
+        String[] parts = key.split("-");
+        return Integer.parseInt(parts[1]);
+    }
+}
 

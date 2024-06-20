@@ -96,8 +96,8 @@ public class PropsFishCard extends PropsBase implements Serializable {
         }
         return String.format(
                 "道具%s:%s\r\n" +
-                "价格\r\n" +
-                "描述:\r\n", this.getCode(), this.getName(), price, this.getDescription());
+                "价格:%s\r\n" +
+                "描述:%s\r\n", this.getCode(), this.getName(), price, this.getDescription());
     }
 
     /**
