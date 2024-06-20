@@ -283,7 +283,8 @@ public class PropsManagerImpl implements PropsManager {
        // iNodes.add(bot, new PlainText("道具系统"));
         propCard.add(bot, new PlainText("道具卡商店"));
         Set<String> strings = PropsType.getProps().keySet();
-        for (String string : strings) {
+        List<String> stringsSort = strings.stream().sorted().collect(Collectors.toList());
+        for (String string : stringsSort) {
             if (string.startsWith("K-")) {
                 String propInfo = String.format("道具编号:%s\n", PropsType.getNo(string));
                 propInfo += PropsType.getPropsInfo(string).toString();
@@ -293,21 +294,19 @@ public class PropsManagerImpl implements PropsManager {
                 if(PropsType.getPropsInfo(string) instanceof PropsFishCard){
                     PropsFishCard propsFishCard =(PropsFishCard)PropsType.getPropsInfo(string);
                     if(propsFishCard.getBuy() && !propsFishCard.getOffShelf()){
-                        String propInfo = String.format("道具编号:%s\n", PropsType.getNo(string));
-                        propInfo += PropsType.getPropsInfo(string).toString();
+                        String propInfo = PropsType.getPropsInfo(string).toString();
                         propCard.add(bot, new PlainText(propInfo));
                     }
                 }
             }
         }
         propCard.add(bot, new PlainText("兑换商店"));
-        for (String string : strings) {
+        for (String string : stringsSort) {
             if (string.startsWith("FISH-")) {
                 if(PropsType.getPropsInfo(string) instanceof PropsFishCard){
                     PropsFishCard propsFishCard =(PropsFishCard)PropsType.getPropsInfo(string);
                     if(propsFishCard.getExchange() && !propsFishCard.getOffShelf()){
-                        String propInfo = String.format("道具编号:%s\n", PropsType.getNo(string));
-                        propInfo += PropsType.getPropsInfo(string).toString();
+                        String propInfo = PropsType.getPropsInfo(string).toString();
                         propCard.add(bot, new PlainText(propInfo));
                     }
                 }
@@ -582,7 +581,8 @@ public class PropsManagerImpl implements PropsManager {
         UserInfo userInfo = UserManager.getUserInfo(sender);
 
         assert userInfo != null;
-        List<PropsBase> propsByUser = getPropsByUser(userInfo).stream().filter(Objects::nonNull).collect(Collectors.toList());
+        List<PropsBase> propsByUser = getPropsByUser(userInfo)
+                .stream().filter(Objects::nonNull).collect(Collectors.toList());
         if (propsByUser.size() == 0) {
             subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "你的背包空荡荡的..."));
             return;
@@ -633,15 +633,22 @@ public class PropsManagerImpl implements PropsManager {
 //            iNodes.add(bot, new PlainText(format));
 //        }
 
-        Map<String, List<PropsBase>> propsBaseMap = propsBaseList.stream().collect(Collectors.groupingBy(PropsBase::getCode));
+        Map<String, List<PropsBase>> propsBaseMap = propsBaseList.stream()
+                .collect(Collectors.groupingBy(PropsBase::getCode,
+                        Collectors.collectingAndThen(
+                                Collectors.toList(),
+                                list -> list.stream()
+                                        .sorted(Comparator.comparing(PropsBase::getName)) // 根据name属性排序
+                                        .collect(Collectors.toList())
+                        )));
         propsBaseMap = sortMapByKey(propsBaseMap);
         for (Map.Entry<String, List<PropsBase>> entry : propsBaseMap.entrySet()) {
             String no = PropsType.getNo(entry.getKey());
             Optional<PropsBase> propsBases = entry.getValue().stream().findAny();
             if(propsBases.isPresent()){
                 PropsBase p = propsBases.get();
-                 String format = String.format("道具编号:%s\r\n道具名称:%s\r\n道具描述:%s\r\n道具数量:%s\r\n",
-                         no, p.getName(), p.getDescription(),entry.getValue().size());
+                String format = String.format("道具%s:%s\r\n道具描述:%s\r\n道具数量:%s",
+                        no, p.getName(), p.getDescription(), entry.getValue().size());
                 iNodes.add(bot, new PlainText(format));
             }
         }
