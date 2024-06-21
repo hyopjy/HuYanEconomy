@@ -69,7 +69,7 @@ public class Glassbead extends AbstractPropUsage {
         NormalMember targetMember = group.get(target);
         EconomyUtil.plusMoneyToUser(targetMember, money);
         // 自己减少
-        EconomyUtil.minusMoneyToUser(sender, money);
+//        EconomyUtil.minusMoneyToUser(sender, money);
 
         subject.sendMessage(new MessageChainBuilder().append(new QuoteReply(event.getMessage()))
                 .append(propsCard.getName() + "使用成功 ").append("\r\n")
