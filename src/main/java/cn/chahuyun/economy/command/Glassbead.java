@@ -66,7 +66,7 @@ public class Glassbead extends AbstractPropUsage {
             return;
         }
         // 目标用户增加
-        NormalMember targetMember = group.get(sender.getId());
+        NormalMember targetMember = group.get(target);
         EconomyUtil.plusMoneyToUser(targetMember, money);
         // 自己减少
         EconomyUtil.minusMoneyToUser(sender, money);
