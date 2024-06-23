@@ -44,7 +44,7 @@ public abstract class PropsBase implements Serializable {
     /**
      * 道具价值
      */
-    private Integer cost;
+    private int cost;
     /**
      * 是否可以叠加物品
      */

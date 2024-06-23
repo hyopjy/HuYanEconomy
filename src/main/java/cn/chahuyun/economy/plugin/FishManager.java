@@ -1,6 +1,7 @@
 package cn.chahuyun.economy.plugin;
 
 import cn.chahuyun.economy.HuYanEconomy;
+import cn.chahuyun.economy.constant.Constant;
 import cn.chahuyun.economy.entity.fish.Fish;
 import cn.chahuyun.economy.utils.HibernateUtil;
 import cn.hutool.core.collection.CollectionUtil;
@@ -76,7 +77,7 @@ public class FishManager {
      */
     public static void reloadFish() {
         HuYanEconomy instance = HuYanEconomy.INSTANCE;
-        ExcelReader reader = ExcelUtil.getReader(instance.getResourceAsStream("fish_2406.xlsx"));
+        ExcelReader reader = ExcelUtil.getReader(Constant.EXCEL_URL, 0);
         Map<String, String> map = new HashMap<>();
         map.put("等级", "level");
         map.put("名称", "name");

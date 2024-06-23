@@ -2,6 +2,7 @@ package cn.chahuyun.economy.plugin;
 
 import cn.chahuyun.config.ConfigData;
 import cn.chahuyun.economy.HuYanEconomy;
+import cn.chahuyun.economy.constant.Constant;
 import cn.chahuyun.economy.entity.props.PropsFishCard;
 import cn.chahuyun.economy.manager.PropsManager;
 import cn.chahuyun.economy.manager.PropsManagerImpl;
@@ -90,7 +91,8 @@ public class PluginManager {
         List<PropsFishCard> propsFishConfigList = getExcelData();
         propsFishConfigList.stream().forEach(propsFishConfig -> {
             PropsFishCard propsFishCard = new PropsFishCard(propsFishConfig.getCode(),
-                    propsFishConfig.getName(), propsFishConfig.getCost(),
+                    propsFishConfig.getName(),
+                    propsFishConfig.getCost(),
                     propsFishConfig.getDescription(),
                     propsFishConfig.getFishDesc(),
                     propsFishConfig.getContent(),
@@ -184,7 +186,7 @@ public class PluginManager {
 
     private static List<PropsFishCard> getExcelData() {
         HuYanEconomy instance = HuYanEconomy.INSTANCE;
-        ExcelReader reader = ExcelUtil.getReader(instance.getResourceAsStream("fish_2406.xlsx"), 1);
+        ExcelReader reader = ExcelUtil.getReader(Constant.EXCEL_URL, 1);
         Map<String, String> map = new HashMap<>();
         map.put("编号", "code");
         map.put("道具", "name");

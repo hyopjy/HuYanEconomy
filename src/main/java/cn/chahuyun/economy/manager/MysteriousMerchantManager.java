@@ -348,7 +348,7 @@ public class MysteriousMerchantManager {
 
     private static List<MysteriousMerchantShop> getExcelData() {
         HuYanEconomy instance = HuYanEconomy.INSTANCE;
-        ExcelReader reader = ExcelUtil.getReader(instance.getResourceAsStream("fish_2406.xlsx"), 2);
+        ExcelReader reader = ExcelUtil.getReader(Constant.EXCEL_URL, 2);
         Map<String, String> map = new HashMap<>();
         map.put("编号", "goodCode");
         map.put("道具编号", "prop1Code");

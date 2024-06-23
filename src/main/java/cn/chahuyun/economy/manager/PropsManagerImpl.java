@@ -439,7 +439,7 @@ public class PropsManagerImpl implements PropsManager {
                     return;
                 }else {
                     RedisUtils.setWditBBCount(subject.getId(), sender.getId(),count + num );
-                    messages.append("成功购买" + num + " " + "获得" + num + " " + card.getName() + " 你还有" + (30000 - (count + num)) + "额度");
+                    messages.append("成功购买" + num + " " + "获得" + num + " " + card.getName() + " 你还有" + (100000 - (count + num)) + "额度");
                     subject.sendMessage(messages.build());
 
                     SeasonManager.checkUserDailyWork(event, subject);
