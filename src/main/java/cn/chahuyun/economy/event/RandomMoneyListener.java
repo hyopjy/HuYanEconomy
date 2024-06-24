@@ -30,6 +30,7 @@ import net.mamoe.mirai.event.events.UserMessageEvent;
 import net.mamoe.mirai.message.data.Message;
 import net.mamoe.mirai.message.data.PlainText;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.compress.utils.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.query.criteria.HibernateCriteriaBuilder;
 import org.hibernate.query.criteria.JpaCriteriaQuery;
@@ -615,28 +616,19 @@ public class RandomMoneyListener extends SimpleListenerHost {
                 }
 
                 if ("设置规则".equals(codeArr[1])) {
-//                  神秘商人 设置规则 14,17,21    10(几分钟消失)  15%(概率) 83,77,65,92(商品编码范围) 2(几种道具)  1-3(随机道具库存)
+//                  神秘商人 设置规则 14,17,21    10(几分钟消失)  15%(概率) 1-52/0(商品编码范围) 2(几种道具)  1-3(随机道具库存)
                     // 小时数量
                     List<String> hourList = Arrays.asList(StringUtils.split(codeArr[2] , Constant.MM_SPILT));
                     // 过多久消失
                     Integer passMinute = Integer.parseInt(codeArr[3]);
                     // 概率
                     Integer probability = Integer.parseInt(codeArr[4]);
+
                     // 商品
-                    List<String> goodCodeList = Arrays.asList(codeArr[5].split(Constant.MM_SPILT))
-                            .stream().map(codeStr->{
+                    // 如果包含0 则是所有商品列表
+                    // 如果xx-xx
+                    List<String> goodCodeList = getGoodCodeListByCodeString(codeArr[5]);
 
-                                if(!codeStr.startsWith(Constant.MM_PROP_START)){
-                                    codeStr = Constant.MM_PROP_START + codeStr;
-                                }
-
-                                MysteriousMerchantShop shopGood =  MysteriousMerchantManager.getShopGoodCode(codeStr);
-                                if(Objects.nonNull(shopGood)){
-                                    return shopGood.getGoodCode();
-                                }
-                                return null;
-                            })
-                            .filter(Objects::nonNull).collect(Collectors.toList());
                     // 随机几种
                     Integer randomGoodCount = Integer.parseInt(codeArr[6]);
                     // 随机库存数量
@@ -683,6 +675,34 @@ public class RandomMoneyListener extends SimpleListenerHost {
             subject.sendMessage(MessageUtil.formatMessageChain("程序发生异常@@"+ e.getMessage()));
         }
         return ListeningStatus.LISTENING;
+    }
+
+    private List<String> getGoodCodeListByCodeString(String codeStr) {
+        if("0".equals(codeStr)){
+            return new ArrayList<>(Optional.of(MysteriousMerchantManager.SHOP_GOODS_MAP).orElse(new HashMap<>()).keySet());
+        }
+        String[] codeArr = codeStr.split(Constant.SPILT);
+        if(codeArr.length !=2){
+            return Lists.newArrayList();
+        }
+
+        int startCode = Integer.parseInt(codeArr[0]);
+        int endCode = Integer.parseInt(codeArr[0]);
+
+        if(startCode > endCode){
+            int temp = startCode;
+            startCode = endCode;
+            endCode = temp;
+        }
+        List<String> goodCodeList = new ArrayList<>();
+        for(int i = startCode; i <= endCode ; i++ ){
+            String shopCodeStr = Constant.MM_PROP_START + i;
+            MysteriousMerchantShop shopGood =  MysteriousMerchantManager.getShopGoodCode(shopCodeStr);
+            if(Objects.nonNull(shopGood)){
+                goodCodeList.add(shopGood.getGoodCode());
+            }
+        }
+        return goodCodeList;
     }
 
     @NotNull
