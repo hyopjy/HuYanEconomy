@@ -125,10 +125,10 @@ public class UserInfo implements Serializable {
         }
         //获取签到时间，向后偏移一天
         Calendar calendar = CalendarUtil.calendar(DateUtil.offsetDay(getSignTime(), 1));
-        //设置时间为 04:00:00
-        calendar.set(Calendar.HOUR_OF_DAY, 4);
+        //设置时间为 00:00:30
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.SECOND, 30);
         Date time = calendar.getTime();
         //获取小时数差
         long between = DateUtil.between(time, new Date(), DateUnit.MINUTE, false);
