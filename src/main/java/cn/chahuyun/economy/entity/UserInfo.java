@@ -16,6 +16,8 @@ import net.mamoe.mirai.console.permission.AbstractPermitteeId;
 import net.mamoe.mirai.contact.User;
 
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 /**
@@ -114,7 +116,6 @@ public class UserInfo implements Serializable {
      * @date 2022/11/14 10:16
      */
     public boolean sign() {
-//        if (true) return true;
         //如果签到时间为空->新用户 第一次签到
         if (this.getSignTime() == null) {
             this.setSign(true);
@@ -123,23 +124,18 @@ public class UserInfo implements Serializable {
             HibernateUtil.factory.fromTransaction(session -> session.merge(this));
             return true;
         }
-        //获取签到时间，向后偏移一天
-        Calendar calendar = CalendarUtil.calendar(DateUtil.offsetDay(getSignTime(), 1));
-        //设置时间为 00:00:30
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 30);
-        Date time = calendar.getTime();
-        //获取小时数差
-        long between = DateUtil.between(time, new Date(), DateUnit.MINUTE, false);
-        Log.debug("账户:(" + this.getQq() + ")签到时差->" + between);
-        //时间还在24小时之内  则为负数
-        if (between < 0) {
+        // 今天是否已经签到
+        LocalDate nowDay = LocalDate.now();
+        LocalDate sign = DateUtil.toLocalDateTime(signTime).toLocalDate();
+        if(nowDay.equals(sign)){
             return false;
-        } else if (between <= 1440) {
+        }
+
+        long daysBetween = ChronoUnit.DAYS.between(sign, nowDay);
+        if (daysBetween == 1L) {
             this.setSignNumber(this.getSignNumber() + 1);
             this.setOldSignNumber(0);
-        } else {
+        }else {
             this.setOldSignNumber(this.getSignNumber());
             this.setSignNumber(1);
         }

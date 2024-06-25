@@ -479,7 +479,7 @@ public class MysteriousMerchantManager {
         // 增加道具
         PluginManager.getPropsManager().addProp(userInfo, prop1Code);
         // 发送消息
-        String content = String.format("\uD83C\uDF89恭喜%s抢购到了了%s", group.get(event.getSender().getId()).getNameCard(), prop1Code.getName());
+        String content = String.format("\uD83C\uDF89恭喜%s抢购到了%s", group.get(event.getSender().getId()).getNameCard(), prop1Code.getName());
         subject.sendMessage(MessageUtil.formatMessageChain(message, content));
     }
 

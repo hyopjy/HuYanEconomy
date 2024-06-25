@@ -44,6 +44,10 @@ public class Glassbead extends AbstractPropUsage {
                 this.target = at.getTarget();
             }
         }
+        if(this.target.equals(event.getSender().getId())){
+            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "打赏人不能是自己"));
+            return false;
+        }
         String[] s = code.split(" ");
         if(s.length > 2){
             this.num = Integer.parseInt(s[2]);
@@ -75,7 +79,7 @@ public class Glassbead extends AbstractPropUsage {
                 .append(propsCard.getName() + "使用成功 ").append("\r\n")
                 .append(new At(sender.getId()).getDisplay(group))
                 .append(" 成功打赏") .append(new At(target).getDisplay(group))
-                .append( " " + money + "玻璃珠！老板大气！")
+                .append( " " + num + "颗玻璃珠！老板大气！")
                 .build());
     }
 
