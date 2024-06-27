@@ -54,6 +54,7 @@ public class UserInfo implements Serializable {
     /**
      * 签到状态
      */
+    @Getter
     private boolean sign;
     /**
      * 签到时间
@@ -164,13 +165,6 @@ public class UserInfo implements Serializable {
         return true;
     }
 
-
-    public boolean isSign() {
-        String now = DateUtil.format(new Date(), "yyyy-MM-dd") + " 04:00:00";
-        DateTime nowDate = DateUtil.parse(now);
-        long between = DateUtil.between(nowDate, signTime, DateUnit.HOUR, false);
-        return between > 0;
-    }
 
     /**
      * 获取钓鱼信息<p>

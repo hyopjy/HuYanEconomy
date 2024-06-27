@@ -146,10 +146,10 @@ public class SeasonManager {
         //  签到
         UserInfo userInfo = UserManager.getUserInfo(event.getSender());
         Boolean sign = false;
-        if (Objects.nonNull(userInfo) && !userInfo.sign()) {
+        if (Objects.nonNull(userInfo) && userInfo.isSign()) {
             sign = true;
         }
-        if(maskCount && by51Count && sign){
+        if(maskCount && by51Count && sign ){
             rBloomFilter.add(userId);
             PropsBase propsBase = PropsCardFactory.INSTANCE.getPropsBase(DailyPropCode.FISH_101);
             PluginManager.getPropsManager().addProp(userInfo, propsBase);
