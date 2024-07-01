@@ -167,16 +167,15 @@ public class GamesManager {
         // 溜鱼增加difficultymin，之前的difficultymin=1+根号(14*RodLevel)
         int difficultyMin = (int) (1 + Math.sqrt(userFishInfo.getRodLevel() * 14));
         int difficultyMax = 99 + userFishInfo.getRodLevel();
-//        int rankMin = 1;
-//        int rankMax = userFishInfo.getRodLevel() / 9;
+        int rankMin = 1;
+        int rankMax = userFishInfo.getRodLevel() / 9;
 
 
         Log.info("[fishing-start]" +
                 ",difficultyMin:" + difficultyMin +
-                ",difficultyMax:" + difficultyMax
-//                + ",rankMin:" + rankMin
-//               + ",rankMax:" + rankMax
-        );
+                ",difficultyMax:" + difficultyMax +
+                ",rankMin:" + rankMin +
+                ",rankMax:" + rankMax);
         subject.sendMessage(MessageUtils.newChain(new At(user.getId()), new PlainText("有动静了，快来！")));
         //开始拉扯
         while (true) {
@@ -232,19 +231,18 @@ public class GamesManager {
         // 结束时 计算buff
         difficultyMin = difficultyMin + addDifficultyMin;
         difficultyMax = Math.max(difficultyMin, difficultyMax + 1);
-//        rankMin = rankMin + addRankMin;
-//        //roll等级
-//        int rank = rankMin;
-//        if (rankMin != rankMax + 1) {
-//            rank = RandomUtil.randomInt(Math.min(rankMin, rankMax + 1), Math.max(rankMin, rankMax + 1));
-//        }
-        int rank = RandomUtil.randomInt(difficultyMin, difficultyMax);
+        rankMin = rankMin + addRankMin;
+        //roll等级
+        int rank = rankMin;
+        if (rankMin != rankMax + 1) {
+            rank = RandomUtil.randomInt(Math.min(rankMin, rankMax + 1), Math.max(rankMin, rankMax + 1));
+        }
         Log.info("[buff]-addDifficultyMin:" + addDifficultyMin + ",addRankMin:" + addRankMin);
         Log.info("[fishing-end]" +
                 ",difficultyMin:" + difficultyMin +
                 ",difficultyMax:" + difficultyMax +
-//                 ",rankMin:" + rankMin +
-//                ",rankMax:" + rankMax +
+                ",rankMin:" + rankMin +
+                ",rankMax:" + rankMax +
                 ",rank:" + rank);
 
 
@@ -600,29 +598,28 @@ public class GamesManager {
         // 溜鱼增加difficultymin，之前的difficultymin=1+根号(14*RodLevel)
         int difficultyMin = (int) (1 + Math.sqrt(userFishInfo.getRodLevel() * 14));
         int difficultyMax = 99 + userFishInfo.getRodLevel();
-//        int rankMin = 1;
-//        int rankMax = userFishInfo.getRodLevel() / 9;
+        int rankMin = 1;
+        int rankMax = userFishInfo.getRodLevel() / 9;
 
         Log.info("[fishing-start] "
                 +",difficultyMin:" + difficultyMin
                 +",difficultyMax:" + difficultyMax
-//                +",rankMin:" + rankMin
-//                +",rankMax:" + rankMax
-        );
+                +",rankMin:" + rankMin
+                +",rankMax:" + rankMax);
 
         //roll等级
-//        int rank = rankMin;
-//        if (rankMin != rankMax + 1) {
-//            rank = RandomUtil.randomInt(Math.min(rankMin, rankMax + 1), Math.max(rankMin, rankMax + 1));
-//        }
-        int rank = RandomUtil.randomInt(difficultyMin, difficultyMax);
+        int rank = rankMin;
+        if (rankMin != rankMax + 1) {
+            rank = RandomUtil.randomInt(Math.min(rankMin, rankMax + 1), Math.max(rankMin, rankMax + 1));
+        }
 
         Log.info("[fishing-end]" +
                 ",difficultyMin:" + difficultyMin +
                 ",difficultyMax:" + difficultyMax +
-//                ",rankMin:" + rankMin +
-//                ",rankMax:" + rankMax +
+                ",rankMin:" + rankMin +
+                ",rankMax:" + rankMax +
                 ",rank:" + rank);
+
         //彩蛋
         boolean winning = false;
         Fish fish;
