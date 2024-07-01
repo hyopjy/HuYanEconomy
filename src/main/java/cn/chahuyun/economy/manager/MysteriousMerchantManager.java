@@ -435,7 +435,8 @@ public class MysteriousMerchantManager {
             // 用户减去兑换的道具
             for (int i = 0; i < shop.getProp2Count(); i++) {
                 PropsBase propsBase = PropsCardFactory.INSTANCE.getPropsBase(shop.getProp2Code());
-                PluginManager.getPropsManager().deleteProp(userInfo, propsBase);
+                UserInfo currentUserInfo = UserManager.getUserInfo(event.getSender());
+                PluginManager.getPropsManager().deleteProp(currentUserInfo, propsBase);
             }
 
         }
