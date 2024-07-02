@@ -57,8 +57,6 @@ public class EconomyEventListener extends SimpleListenerHost {
                 || event.getBot().getId() == event.getSender().getId()) {
             return ListeningStatus.LISTENING;
         }
-        // 设置30分钟发言缓存
-        SisterDogCommand.getInstance().fireClickEvent(event.getGroup().getId(), event.getSender().getId());
 
         if(CacheUtils.checkTimeCacheKey(event.getGroup().getId(),event.getSender().getId())
                 || CacheUtils.checkSchDingerFishKey(event.getGroup().getId(),event.getSender().getId())
@@ -69,6 +67,10 @@ public class EconomyEventListener extends SimpleListenerHost {
             }
             event.intercept();
         }
+
+        // 设置30分钟发言缓存
+        SisterDogCommand.getInstance().fireClickEvent(event.getGroup().getId(), event.getSender().getId());
+
         Contact subject = event.getSubject();
         String code = event.getMessage().serializeToMiraiCode();
         if(("钓鱼".equals(code) || "抛竿".equals(code)) && event.getGroup().getId() == 758085692){
