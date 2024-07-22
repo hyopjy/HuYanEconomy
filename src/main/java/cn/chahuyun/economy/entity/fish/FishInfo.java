@@ -95,7 +95,7 @@ public class FishInfo implements Serializable {
         int upMoney = 1;
         if (getRodLevel() == 0) {
             return isMoney(user, moneyByUser, upMoney);
-        } else if (1 <= getRodLevel() && getRodLevel() <= SeasonCommonInfoManager.getMaxFishRodLevel()) {
+        } else if (1 <= getRodLevel() && getRodLevel() < SeasonCommonInfoManager.getMaxFishRodLevel()) {
             upMoney = SeasonCommonInfoManager.getFishRodPrice() * getRodLevel() * getLevel();
             return isMoney(user, moneyByUser, upMoney);
         } else {
