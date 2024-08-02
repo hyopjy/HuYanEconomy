@@ -89,7 +89,7 @@ public class FishManager {
         map.put("尺寸2阶", "dimensions2");
         map.put("尺寸3阶", "dimensions3");
         map.put("尺寸4阶", "dimensions4");
-        map.put("难度", "difficulty");
+        map.put("难度系数", "difficulty");
         map.put("特殊标记", "special");
         map.put("属性", "rgb");
         map.put("保护动物", "protecting");

@@ -56,7 +56,7 @@ public class Fish implements Serializable {
     /**
      * 难度
      */
-    private int difficulty;
+    private double difficulty;
     /**
      * 特殊标记
      */
