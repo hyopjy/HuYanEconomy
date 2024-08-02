@@ -26,4 +26,9 @@ public class RandomHelperUtil {
         int random = RandomUtils.nextInt(1, 101);
         return random <= prop;
     }
+
+    public static boolean checkRandomByProp(Double prop) {
+        double random = RandomUtils.nextDouble(1, 101);
+        return random <= prop;
+    }
 }

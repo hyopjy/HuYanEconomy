@@ -29,6 +29,7 @@ import net.mamoe.mirai.contact.NormalMember;
 import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.message.data.*;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.query.criteria.HibernateCriteriaBuilder;
 import org.hibernate.query.criteria.JpaCriteriaQuery;
@@ -151,10 +152,7 @@ public class GamesManager {
         String start = String.format("%s开始钓鱼\n鱼塘:%s\n等级:%s\n最低鱼竿等级:%s\n%s", userName, fishPond.getName(), fishPond.getPondLevel(), fishPond.getMinLevel(), fishPond.getDescription());
         subject.sendMessage(start);
         Log.info(String.format("%s消耗%s币币开始钓鱼", userInfo.getName(), Optional.ofNullable(userPay.get(user.getId())).orElse(0.0)));
-
-      //  String[] errorMessages = new String[]{"钓鱼失败:哎呀，风吹的……", "钓鱼失败:哎呀，眼花了……", "钓鱼失败:bobo摇头", "钓鱼失败:呀！切线了！", "钓鱼失败:什么都没有钓上来！"};
-
-        //随机睡眠
+        // 睡眠等待
         try {
             // 15-90
             Thread.sleep(RandomUtil.randomInt(15 * 60 * 1000, 90 * 60 * 1000));
@@ -162,22 +160,8 @@ public class GamesManager {
         } catch (InterruptedException e) {
             Log.debug(e);
         }
-
-        // 困难度
-        // 溜鱼增加difficultymin，之前的difficultymin=1+根号(14*RodLevel)
-        int difficultyMin = (int) (1 + Math.sqrt(userFishInfo.getRodLevel() * 14));
-        int difficultyMax = 99 + userFishInfo.getRodLevel();
-        int rankMin = 1;
-        int rankMax = userFishInfo.getRodLevel() / 9;
-
-
-        Log.info("[fishing-start]" +
-                ",difficultyMin:" + difficultyMin +
-                ",difficultyMax:" + difficultyMax +
-                ",rankMin:" + rankMin +
-                ",rankMax:" + rankMax);
         subject.sendMessage(MessageUtils.newChain(new At(user.getId()), new PlainText("有动静了，快来！")));
-        //开始拉扯
+        // 等待用户输入 收起提竿杆
         while (true) {
             MessageEvent newMessage = ShareUtils.getNextMessageEventFromUser(user, subject, false);
             String nextMessageCode = newMessage.getMessage().serializeToMiraiCode();
@@ -205,9 +189,17 @@ public class GamesManager {
          */
         List<Fish> fishList = new ArrayList<>();
 
-        // 拉扯
+        // 计算rank
+        int rankMin = 1;
+        int rankMax = userFishInfo.getRodLevel() / 9;
+
+        Log.info("[fishing-start]" +
+                ",rankMin:" + rankMin +
+                ",rankMax:" + rankMax);
+
+        // 是否结束钓鱼循环
         boolean rankStatus = true;
-        // 钓鱼buff
+        // 钓鱼buff-额外一条鱼
         boolean otherFishB = false;
         int addDifficultyMin = 0;
         int addRankMin = 0;
@@ -226,6 +218,7 @@ public class GamesManager {
                 List<Fish> levelFishList = fishPond.getFishList(specialLevel);
                 Fish special = levelFishList.stream().filter(fish -> specialFish.equals(fish.getName())).findFirst().get();
                 fishList.add(special);
+                // 上钩指定的鱼-直接上钩 不去拉扯
                 rankStatus = false;
             }
             // 额外增加一条鱼
@@ -238,9 +231,6 @@ public class GamesManager {
             BuffUtils.reduceBuffCount(group.getId(), userInfo.getQq());
         }
 
-        // 结束时 计算buff
-        difficultyMin = difficultyMin + addDifficultyMin;
-        difficultyMax = Math.max(difficultyMin, difficultyMax + 1);
         rankMin = rankMin + addRankMin;
         //roll等级
         int rank = rankMin;
@@ -249,12 +239,9 @@ public class GamesManager {
         }
         Log.info("[buff]-addDifficultyMin:" + addDifficultyMin + ",addRankMin:" + addRankMin);
         Log.info("[fishing-end]" +
-                ",difficultyMin:" + difficultyMin +
-                ",difficultyMax:" + difficultyMax +
                 ",rankMin:" + rankMin +
                 ",rankMax:" + rankMax +
                 ",rank:" + rank);
-
 
         while (rankStatus) {
             if (rank == 0) {
@@ -262,16 +249,11 @@ public class GamesManager {
                 userFishInfo.switchStatus();
                 return;
             }
-            //roll难度
-            int difficulty = RandomUtil.randomInt(difficultyMin, difficultyMax + 1);
-
             //在所有鱼中拿到对应的鱼等级
             List<Fish> levelFishList = fishPond.getFishList(rank);
-            //过滤掉难度不够的鱼 以及 rgb为空 和 用户对应rgb的鱼列表
-            List<Fish> collect;
-            collect = levelFishList.stream().filter(it ->
-                            it.getDifficulty() <= difficulty &&
-                                    (StringUtils.isBlank(it.getRgb()) || it.getRgb().equalsIgnoreCase(userInfo.getRgb()))
+            // 获取到 rgb为空 和 用户对应rgb的鱼列表
+            List<Fish> collect =  levelFishList.stream().filter(it -> (StringUtils.isBlank(it.getRgb())
+                    || it.getRgb().equalsIgnoreCase(userInfo.getRgb()))
             ).collect(Collectors.toList());
             //如果没有了
             int size = collect.size();
@@ -280,11 +262,28 @@ public class GamesManager {
                 rank--;
                 continue;
             }
-            fishList.add(collect.get(RandomUtil.randomInt(size > 6 ? size - 6 : 0, size)));
+            // 判断当前 等级内鱼难度系数
+            // 特殊鱼
+            List<Fish> filterFish;
+            List<Fish> specialFishList = collect.stream()
+                    .filter(it -> it.getDifficulty() != 1 && checkProperty(it.getDifficulty(), userFishInfo.getRodLevel()))
+                    .collect(Collectors.toList());
+            if(CollectionUtils.isNotEmpty(specialFishList)){
+                size = specialFishList.size();
+                filterFish = specialFishList;
+            }else {
+                List<Fish> nomarlFishList = collect.stream()
+                        .filter(it -> it.getDifficulty() == 1)
+                        .collect(Collectors.toList());
+                size = nomarlFishList.size();
+                filterFish = nomarlFishList;
+            }
+
+            fishList.add(filterFish.get(RandomUtil.randomInt(0, size)));
             // 额外增加一条鱼
             if (otherFishB) {
                 Log.info("额外增加一条鱼");
-                fishList.add(collect.get(RandomUtil.randomInt(size > 6 ? size - 6 : 0, size)));
+                fishList.add(filterFish.get(RandomUtil.randomInt(0, size)));
             }
             rankStatus = false;
             // break;
@@ -355,6 +354,13 @@ public class GamesManager {
 
         subject.sendMessage(messages.build());
         userFishInfo.switchStatus();
+    }
+
+    private static boolean checkProperty(double difficulty, int rodLevel) {
+        // 计算概率 是否获得
+        // 概率=系数/2×(rodlevel/161)×π/10
+        double probability = difficulty / 2 * (rodLevel / 161) * Math.PI / 10;
+        return RandomHelperUtil.checkRandomByProp(probability);
     }
 
     private static void sendFishInfoMessage(UserInfo userInfo, User user, Contact subject, FishPond fishPond,
@@ -600,15 +606,10 @@ public class GamesManager {
             Log.error("[自动钓鱼机-发生异常] fishPon null");
             return new AutomaticFish("[鱼呢]", "切线了", 0, 0,"");
         }
-        // 溜鱼增加difficultymin，之前的difficultymin=1+根号(14*RodLevel)
-        int difficultyMin = (int) (1 + Math.sqrt(userFishInfo.getRodLevel() * 14));
-        int difficultyMax = 99 + userFishInfo.getRodLevel();
         int rankMin = 1;
         int rankMax = userFishInfo.getRodLevel() / 9;
 
         Log.info("[fishing-start] "
-                +",difficultyMin:" + difficultyMin
-                +",difficultyMax:" + difficultyMax
                 +",rankMin:" + rankMin
                 +",rankMax:" + rankMax);
 
@@ -619,8 +620,6 @@ public class GamesManager {
         }
 
         Log.info("[fishing-end]" +
-                ",difficultyMin:" + difficultyMin +
-                ",difficultyMax:" + difficultyMax +
                 ",rankMin:" + rankMin +
                 ",rankMax:" + rankMax +
                 ",rank:" + rank);
@@ -631,16 +630,12 @@ public class GamesManager {
             if (rank == 0) {
                 return new AutomaticFish("[鱼呢]", "切线了", 0, 0,"");
             }
-            //roll难度
-            int difficulty = RandomUtil.randomInt(difficultyMin, difficultyMax + 1);
 
             //在所有鱼中拿到对应的鱼等级
             List<Fish> levelFishList = fishPond.getFishList(rank);
             //过滤掉难度不够的鱼 以及 rgb为空 和 用户对应rgb的鱼列表
             List<Fish> collect;
-            collect = levelFishList.stream().filter(it ->
-                    it.getDifficulty() <= difficulty &&
-                            (StringUtils.isBlank(it.getRgb()) || it.getRgb().equalsIgnoreCase(userInfo.getRgb()))
+            collect = levelFishList.stream().filter(it -> (StringUtils.isBlank(it.getRgb()) || it.getRgb().equalsIgnoreCase(userInfo.getRgb()))
             ).collect(Collectors.toList());
             //如果没有了
             int size = collect.size();
@@ -649,7 +644,22 @@ public class GamesManager {
                 rank--;
                 continue;
             }
-            fish = collect.get(RandomUtil.randomInt(size > 6 ? size - 6 : 0, size));
+            List<Fish> filterFish;
+            List<Fish> specialFishList = collect.stream()
+                    .filter(it -> it.getDifficulty() != 1 && checkProperty(it.getDifficulty(), userFishInfo.getRodLevel()))
+                    .collect(Collectors.toList());
+            if(CollectionUtils.isNotEmpty(specialFishList)){
+                size = specialFishList.size();
+                filterFish = specialFishList;
+            }else {
+                List<Fish> nomarlFishList = collect.stream()
+                        .filter(it -> it.getDifficulty() == 1)
+                        .collect(Collectors.toList());
+                size = nomarlFishList.size();
+                filterFish = nomarlFishList;
+            }
+
+            fish = filterFish.get(RandomUtil.randomInt(0, size));
             break;
         }
 
