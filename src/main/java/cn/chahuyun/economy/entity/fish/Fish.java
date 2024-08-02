@@ -75,10 +75,9 @@ public class Fish implements Serializable {
     /**
      * 获取鱼的尺寸<p>
      *
-     * @param winning 当难度随机到200时，尺寸+20%
      * @return 鱼的尺寸
      */
-    public int getDimensions(boolean winning) {
+    public int getDimensions() {
         int i = RandomUtil.randomInt(0, 101);
         int randomInt;
         if (i >= 90) {
@@ -88,11 +87,7 @@ public class Fish implements Serializable {
         } else {
             randomInt = RandomUtil.randomInt(dimensions1, dimensions2 == dimensions1 ? dimensions2 + 1 : dimensions2);
         }
-        if (winning) {
-            return (int) (randomInt + (randomInt * 0.2));
-        } else {
-            return randomInt;
-        }
+        return randomInt;
     }
 
     public Boolean getProtecting() {

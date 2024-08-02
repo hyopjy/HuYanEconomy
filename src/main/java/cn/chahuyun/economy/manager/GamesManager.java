@@ -204,8 +204,7 @@ public class GamesManager {
          *
          */
         List<Fish> fishList = new ArrayList<>();
-        //彩蛋
-        boolean winning = false;
+
         // 拉扯
         boolean rankStatus = true;
         // 钓鱼buff
@@ -281,10 +280,6 @@ public class GamesManager {
                 rank--;
                 continue;
             }
-            //难度>=200 触发彩蛋
-            if (difficulty >= 200) {
-                winning = true;
-            }
             fishList.add(collect.get(RandomUtil.randomInt(size > 6 ? size - 6 : 0, size)));
             // 额外增加一条鱼
             if (otherFishB) {
@@ -295,13 +290,12 @@ public class GamesManager {
             // break;
         }
         String finalBuffName = buffName;
-        boolean finalWinning = winning;
         Group finalGroup = group;
         MessageChainBuilder messages = new MessageChainBuilder();
         messages.append(new At(userInfo.getQq()));
         fishList.forEach(fish->{
             //roll尺寸
-            int dimensions = fish.getDimensions(finalWinning);
+            int dimensions = fish.getDimensions();
             int money = fish.getPrice() * dimensions;
             double v = money * (1 - fishPond.getRebate());
 
@@ -632,7 +626,6 @@ public class GamesManager {
                 ",rank:" + rank);
 
         //彩蛋
-        boolean winning = false;
         Fish fish;
         while (true) {
             if (rank == 0) {
@@ -656,17 +649,13 @@ public class GamesManager {
                 rank--;
                 continue;
             }
-            //难度>=200 触发彩蛋
-            if (difficulty >= 200) {
-                winning = true;
-            }
             fish = collect.get(RandomUtil.randomInt(size > 6 ? size - 6 : 0, size));
             break;
         }
 
         AutomaticFish automaticFish;
         //roll尺寸
-        int dimensions = fish.getDimensions(winning);
+        int dimensions = fish.getDimensions();
         int money = fish.getPrice() * dimensions;
         double v = money * (1 - fishPond.getRebate());
 
