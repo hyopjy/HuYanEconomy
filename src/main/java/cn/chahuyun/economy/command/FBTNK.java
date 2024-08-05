@@ -46,7 +46,7 @@ public class FBTNK extends AbstractPropUsage {
         buff.setCount(5);
         buff.setNum(5);
         List<BuffProperty> properties = new ArrayList<>(2);
-        BuffProperty property1 = new BuffProperty(BuffPropsEnum.DIFFICULTY_MIN.getName(), 66);
+        BuffProperty property1 = new BuffProperty(BuffPropsEnum.DIFFICULTY_MIN.getName(), 0.12);
         BuffProperty property2 = new BuffProperty(BuffPropsEnum.RANK_MIN.getName(), 6);
         properties.add(property1);
         properties.add(property2);

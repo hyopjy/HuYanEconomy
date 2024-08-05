@@ -201,14 +201,14 @@ public class GamesManager {
         boolean rankStatus = true;
         // 钓鱼buff-额外一条鱼
         boolean otherFishB = false;
-        int addDifficultyMin = 0;
+        double addDifficultyMin;
         int addRankMin = 0;
         String buffName = "";
         Buff buff = CacheUtils.getBuff(group.getId(), userInfo.getQq());
         if (Objects.nonNull(buff)) {
             buffName = buff.getBuffName() + "-第" + ((buff.getNum() - buff.getCount() + 1)) + "杆";
             // 增加difficult
-            addDifficultyMin = BuffUtils.getIntegerPropValue(buff, BuffPropsEnum.DIFFICULTY_MIN.getName());
+            addDifficultyMin = BuffUtils.getDoublePropValue(buff, BuffPropsEnum.DIFFICULTY_MIN.getName());
             // 增加rankMin
             addRankMin = BuffUtils.getIntegerPropValue(buff, BuffPropsEnum.RANK_MIN.getName());
             // 上钩指定的鱼
@@ -229,6 +229,8 @@ public class GamesManager {
             }
             // 减去buff
             BuffUtils.reduceBuffCount(group.getId(), userInfo.getQq());
+        } else {
+            addDifficultyMin = 0;
         }
 
         rankMin = rankMin + addRankMin;
@@ -266,7 +268,7 @@ public class GamesManager {
             // 特殊鱼
             List<Fish> filterFish;
             List<Fish> specialFishList = collect.stream()
-                    .filter(it -> it.getDifficulty() != 1 && checkProperty(it.getDifficulty(), userFishInfo.getRodLevel()))
+                    .filter(it -> it.getDifficulty() != 1 && checkProperty(it.getDifficulty(), userFishInfo.getRodLevel(), addDifficultyMin))
                     .collect(Collectors.toList());
             if(CollectionUtils.isNotEmpty(specialFishList)){
                 size = specialFishList.size();
@@ -356,10 +358,10 @@ public class GamesManager {
         userFishInfo.switchStatus();
     }
 
-    private static boolean checkProperty(double difficulty, int rodLevel) {
+    private static boolean checkProperty(double difficulty, int rodLevel, double addDifficultyMin) {
         // 计算概率 是否获得
         // 概率=系数/2×(rodlevel/161)×π/10
-        double probability = difficulty / 2 * (rodLevel / 161) * Math.PI / 10;
+        double probability = (difficulty + addDifficultyMin) / 2 * ((double) rodLevel / 161) * Math.PI / 10;
         return RandomHelperUtil.checkRandomByProp(probability);
     }
 
@@ -646,7 +648,7 @@ public class GamesManager {
             }
             List<Fish> filterFish;
             List<Fish> specialFishList = collect.stream()
-                    .filter(it -> it.getDifficulty() != 1 && checkProperty(it.getDifficulty(), userFishInfo.getRodLevel()))
+                    .filter(it -> it.getDifficulty() != 1 && checkProperty(it.getDifficulty(), userFishInfo.getRodLevel(), 0))
                     .collect(Collectors.toList());
             if(CollectionUtils.isNotEmpty(specialFishList)){
                 size = specialFishList.size();

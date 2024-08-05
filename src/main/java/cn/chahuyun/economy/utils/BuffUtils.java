@@ -21,6 +21,18 @@ public class BuffUtils {
         return 0;
     }
 
+    public static double getDoublePropValue(Buff buff, String propKey) {
+        Optional<BuffProperty> property = buff.getProperties().stream()
+                .filter(prop -> propKey.equals(prop.getPropertyKey())).findAny();
+        if(property.isPresent()){
+            Object p = property.get().getPropertyValue();
+            if(p instanceof Integer){
+                return (double) p;
+            }
+        }
+        return 0;
+    }
+
     public static synchronized void reduceBuffCount(long id, long qq) {
         Buff buff = CacheUtils.getBuff(id, qq);
         if (Objects.nonNull(buff)) {
