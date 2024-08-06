@@ -7,6 +7,7 @@ import cn.chahuyun.economy.entity.UserInfo;
 import cn.chahuyun.economy.entity.props.PropsBase;
 import cn.chahuyun.economy.entity.props.factory.PropsCardFactory;
 import cn.chahuyun.economy.manager.GamesManager;
+import cn.chahuyun.economy.manager.SportManager;
 import cn.chahuyun.economy.manager.UserManager;
 import cn.chahuyun.economy.plugin.PluginManager;
 import cn.chahuyun.economy.redis.RedisUtils;
@@ -110,6 +111,18 @@ public class EconomyEventListener extends SimpleListenerHost {
 //            event.intercept();
 //            return ListeningStatus.LISTENING;
 //        }
+        String messageType1 = "轮盘";
+        String messageType2 = "决斗";
+        if(event.getMessage().contains(messageType1)){
+            // 判断是否正在参赛
+            SportManager.checkCanSport(messageType1);
+        }
+
+        if(event.getMessage().contains(messageType2)){
+            // 判断是否正在参赛
+            SportManager.checkCanSport(messageType2);
+
+        }
         return ListeningStatus.LISTENING;
     }
 
