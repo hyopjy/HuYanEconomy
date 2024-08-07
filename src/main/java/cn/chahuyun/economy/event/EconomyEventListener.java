@@ -67,6 +67,7 @@ public class EconomyEventListener extends SimpleListenerHost {
                 e.printStackTrace();
             }
             event.intercept();
+            return ListeningStatus.LISTENING;
         }
 
         // 设置30分钟发言缓存
