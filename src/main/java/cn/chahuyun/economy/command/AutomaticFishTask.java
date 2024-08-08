@@ -8,6 +8,7 @@ import cn.chahuyun.economy.entity.fish.AutomaticFishUser;
 import cn.chahuyun.economy.manager.GamesManager;
 import cn.chahuyun.economy.utils.CacheUtils;
 import cn.chahuyun.economy.utils.Log;
+import cn.chahuyun.economy.utils.MessageSendUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.cron.CronUtil;
 import cn.hutool.cron.task.Task;
@@ -100,14 +101,17 @@ public class AutomaticFishTask implements Task {
                 }
                 message.append("-----------\r\n");
             });
-            m = m.plus(message);
-            group.sendMessage(m);
+
             // 删除缓存
             CacheUtils.removeAutomaticFishBuff(group.getId(), user.getId());
             // 删除存储的
             automaticFishUser.remove();
             // 删除定时任务
             CronUtil.remove(id);
+
+
+            m = m.plus(message);
+            MessageSendUtil.sendGroupMessage(group, m);
         }
         Log.info("[自动钓鱼机-执行完成]");
     }
