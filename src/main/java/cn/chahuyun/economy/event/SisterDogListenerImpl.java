@@ -19,7 +19,6 @@ import net.mamoe.mirai.message.data.*;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -97,7 +96,7 @@ public class SisterDogListenerImpl implements SisterDogListener {
         EconomyUtil.plusMoneyToUser(sender, money);
 
         // 目标用户
-        PropsBase prop102Code = PropsCardFactory.INSTANCE.getPropsBase(DailyPropCode.FISH_102);
+        PropsBase prop102Code = PropsCardFactory.INSTANCE.getPropsBase(DailyPropCode.FISH_97);
         // 增加道具
         PluginManager.getPropsManager().addProp(UserManager.getUserInfo(lastMember), prop102Code);
 

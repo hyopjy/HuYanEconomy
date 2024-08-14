@@ -151,7 +151,7 @@ public class SeasonManager {
         }
         if(maskCount && by51Count && sign ){
             rBloomFilter.add(userId);
-            PropsBase propsBase = PropsCardFactory.INSTANCE.getPropsBase(DailyPropCode.FISH_101);
+            PropsBase propsBase = PropsCardFactory.INSTANCE.getPropsBase(DailyPropCode.FISH_96);
             PluginManager.getPropsManager().addProp(userInfo, propsBase);
             subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "恭喜你获得" + propsBase.getName() + "x1"));
         }

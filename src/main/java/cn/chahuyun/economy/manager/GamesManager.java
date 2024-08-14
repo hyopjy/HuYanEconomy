@@ -378,7 +378,7 @@ public class GamesManager {
                     fish.getName(), fish.getLevel(), fish.getPrice(), dimensions, money, v+"", fish.getDescription());
             if (fish.getProtecting()) {
                 // 添加道具
-                PropsBase propsBase = PropsCardFactory.INSTANCE.getPropsBase(DailyPropCode.FISH_103);
+                PropsBase propsBase = PropsCardFactory.INSTANCE.getPropsBase(DailyPropCode.FISH_98);
                 PluginManager.getPropsManager().addProp(userInfo, propsBase);
                 format += "获得" + propsBase.getName() + "x1\r\n";
             }
@@ -729,7 +729,7 @@ public class GamesManager {
                     fish.getPrice(),
                     dimensions, money, v + "");
             if(fish.getProtecting()){
-                PropsBase propsBase = PropsCardFactory.INSTANCE.getPropsBase(DailyPropCode.FISH_103);
+                PropsBase propsBase = PropsCardFactory.INSTANCE.getPropsBase(DailyPropCode.FISH_98);
                 UserInfo userInfo = UserManager.getUserInfo(user);
                 PluginManager.getPropsManager().addProp(userInfo, propsBase);
                 message += "|" + propsBase.getName() + "x1";
