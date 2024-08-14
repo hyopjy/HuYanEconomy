@@ -28,6 +28,9 @@ public class RandomHelperUtil {
     }
 
     public static boolean checkRandomByProp(Double prop) {
+        if(prop > 100){
+            return true;
+        }
         double random = RandomUtils.nextDouble(1, 101);
         return random <= prop;
     }

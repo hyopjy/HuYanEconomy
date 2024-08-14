@@ -85,10 +85,10 @@ public class FishManager {
         map.put("单价", "price");
         map.put("最小尺寸", "dimensionsMin");
         map.put("最大尺寸", "dimensionsMax");
-        map.put("尺寸1阶", "dimensions1");
-        map.put("尺寸2阶", "dimensions2");
-        map.put("尺寸3阶", "dimensions3");
-        map.put("尺寸4阶", "dimensions4");
+//        map.put("尺寸1阶", "dimensions1");
+//        map.put("尺寸2阶", "dimensions2");
+//        map.put("尺寸3阶", "dimensions3");
+//        map.put("尺寸4阶", "dimensions4");
         map.put("难度系数", "difficulty");
         map.put("特殊标记", "special");
         map.put("属性", "rgb");

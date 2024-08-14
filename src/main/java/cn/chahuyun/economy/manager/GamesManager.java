@@ -361,7 +361,7 @@ public class GamesManager {
     private static boolean checkProperty(double difficulty, int rodLevel, double addDifficultyMin) {
         // 计算概率 是否获得
         // 概率=系数/2×(rodlevel/161)×π/10
-        double probability = (difficulty + addDifficultyMin) / 2 * ((double) rodLevel / 161) * Math.PI / 10;
+        double probability = ((difficulty + addDifficultyMin) / 2 * ((double) rodLevel / 161) * Math.PI / 10) * 100;
         return RandomHelperUtil.checkRandomByProp(probability);
     }
 

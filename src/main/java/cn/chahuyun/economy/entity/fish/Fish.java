@@ -78,16 +78,18 @@ public class Fish implements Serializable {
      * @return 鱼的尺寸
      */
     public int getDimensions() {
-        int i = RandomUtil.randomInt(0, 101);
-        int randomInt;
-        if (i >= 90) {
-            randomInt = RandomUtil.randomInt(dimensions3, dimensions4 == dimensions3 ? dimensions4 + 1 : dimensions4);
-        } else if (i >= 70) {
-            randomInt = RandomUtil.randomInt(dimensions2, dimensions3 == dimensions2 ? dimensions3 + 1 : dimensions3);
-        } else {
-            randomInt = RandomUtil.randomInt(dimensions1, dimensions2 == dimensions1 ? dimensions2 + 1 : dimensions2);
-        }
-        return randomInt;
+//        int i = RandomUtil.randomInt(0, 101);
+//        int randomInt;
+//        if (i >= 90) {
+//            randomInt = RandomUtil.randomInt(dimensions3, dimensions4 == dimensions3 ? dimensions4 + 1 : dimensions4);
+//        } else if (i >= 70) {
+//            randomInt = RandomUtil.randomInt(dimensions2, dimensions3 == dimensions2 ? dimensions3 + 1 : dimensions3);
+//        } else {
+//            randomInt = RandomUtil.randomInt(dimensions1, dimensions2 == dimensions1 ? dimensions2 + 1 : dimensions2);
+//        }
+//        return randomInt;
+
+        return RandomUtil.randomInt(dimensionsMin, dimensionsMax + 1);
     }
 
     public Boolean getProtecting() {
