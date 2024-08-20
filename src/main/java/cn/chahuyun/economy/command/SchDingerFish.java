@@ -70,13 +70,8 @@ public class SchDingerFish extends AbstractPropUsage {
         if(CollectionUtils.isEmpty(tradablePropCode)){
             return;
         }
-
-        // 不减去道具
-//        PluginManager.getPropsManager().deleteProp(targetUserInfo, randomPropsFishCard);
-
-        List<UserBackpack> targetPack  = Optional.ofNullable(targetUserInfo.getBackpacks()).orElse(Lists.newArrayList());
-        int count = (int) targetPack.stream().map(UserBackpack::getPropsCode).distinct().count();
-        if (count < 3) {
+        int count = (int) tradablePropCode.stream().map(PropsFishCard::getCode).distinct().count();
+        if (count < 5) {
             subject.sendMessage(new MessageChainBuilder().append(new QuoteReply(event.getMessage()))
                     .append(propsCard.getName()).append("使用成功").append("\r\n")
                     .append(new At(target).getDisplay(group)).append("获得「薛定谔」buff，发送的所有消息都会被撤回")
