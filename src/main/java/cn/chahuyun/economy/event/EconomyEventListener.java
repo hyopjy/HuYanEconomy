@@ -2,14 +2,8 @@ package cn.chahuyun.economy.event;
 
 import cn.chahuyun.config.EconomyEventConfig;
 import cn.chahuyun.config.RegexConst;
-import cn.chahuyun.economy.constant.DailyPropCode;
-import cn.chahuyun.economy.entity.UserInfo;
-import cn.chahuyun.economy.entity.props.PropsBase;
-import cn.chahuyun.economy.entity.props.factory.PropsCardFactory;
 import cn.chahuyun.economy.manager.GamesManager;
-import cn.chahuyun.economy.manager.UserManager;
-import cn.chahuyun.economy.plugin.PluginManager;
-import cn.chahuyun.economy.redis.RedisUtils;
+import cn.chahuyun.economy.manager.RodeoManager;
 import cn.chahuyun.economy.utils.*;
 import kotlin.coroutines.CoroutineContext;
 import net.mamoe.mirai.console.command.CommandSender;
@@ -107,22 +101,12 @@ public class EconomyEventListener extends SimpleListenerHost {
                 checkUserMoney(event, subject, regexOrderConst);
             }
         }
-//        if (event.getMessage().contains("开车")) {
-//            event.intercept();
-//            return ListeningStatus.LISTENING;
-//        }
-//        String messageType1 = "轮盘";
-//        String messageType2 = "决斗";
-//        if(event.getMessage().contains(messageType1)){
-//            // 判断是否正在参赛
-//            SportManager.checkCanSport(messageType1);
-//        }
-//
-//        if(event.getMessage().contains(messageType2)){
-//            // 判断是否正在参赛
-//            SportManager.checkCanSport(messageType2);
-//
-//        }
+
+        // 校验用户是否正在比赛中，则可以发送 决斗和轮盘命令
+        if (!RodeoManager.checkUserInRodeo(event.getGroup().getId(), event.getSender().getId())) {
+            event.intercept();
+            return ListeningStatus.LISTENING;
+        }
         return ListeningStatus.LISTENING;
     }
 
