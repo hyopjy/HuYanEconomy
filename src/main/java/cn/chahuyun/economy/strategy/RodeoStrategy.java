@@ -1,6 +1,7 @@
 package cn.chahuyun.economy.strategy;
 
 import cn.chahuyun.economy.entity.rodeo.Rodeo;
+import net.mamoe.mirai.event.events.UserMessageEvent;
 
 public interface RodeoStrategy {
 
@@ -19,4 +20,5 @@ public interface RodeoStrategy {
      */
     public void endGame(Rodeo rodeo);
 
+    Rodeo checkOrderAndGetRodeo(UserMessageEvent event, String[] messageArr);
 }

@@ -61,7 +61,7 @@ public class RodeoSuperSmashBrothersStrategy extends RodeoAbstractStrategy {
 
     @Override
     public void record(Rodeo rodeo) {
-
+        // 存入输家
     }
 
     @Override

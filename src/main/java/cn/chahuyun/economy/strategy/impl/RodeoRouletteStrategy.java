@@ -7,6 +7,7 @@ import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import net.mamoe.mirai.contact.Group;
+import net.mamoe.mirai.event.events.UserMessageEvent;
 import net.mamoe.mirai.message.data.At;
 import net.mamoe.mirai.message.data.Message;
 import net.mamoe.mirai.message.data.PlainText;
@@ -54,11 +55,12 @@ public class RodeoRouletteStrategy extends RodeoAbstractStrategy {
 
     @Override
     public void record(Rodeo rodeo) {
-
+        // 存入输家
     }
 
     @Override
     public void endGame(Rodeo rodeo) {
 
     }
+
 }

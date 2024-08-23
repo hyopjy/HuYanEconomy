@@ -4,11 +4,15 @@ import cn.chahuyun.economy.constant.Constant;
 import cn.chahuyun.economy.entity.rodeo.Rodeo;
 import cn.chahuyun.economy.entity.rodeo.RodeoRecord;
 import cn.chahuyun.economy.strategy.RodeoFactory;
+import cn.chahuyun.economy.utils.HibernateUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.cron.CronUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
+import org.hibernate.query.criteria.HibernateCriteriaBuilder;
+import org.hibernate.query.criteria.JpaCriteriaQuery;
+import org.hibernate.query.criteria.JpaRoot;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -79,13 +83,6 @@ public class RodeoManager {
     public static Map<String, Rodeo> CURRENT_SPORTS = new ConcurrentHashMap<>();
 
 
-    /**
-     * 判断是否可以比赛
-     * @param
-     */
-    public static void checkCanSport(String messageType) {
-    }
-
     public static boolean checkUserInRodeo(long groupId, long userId) {
 //        String taskKey = rodeo.getGroupId() +
 //                Constant.SPILT2 + rodeo.getDay() +
@@ -125,27 +122,70 @@ public class RodeoManager {
             return false;
         }
         Long id = rodeo.getId();
-        List<RodeoRecord> records =RodeoRecordManager.getRecordsByRodeoId(id);
+        List<RodeoRecord> records = RodeoRecordManager.getRecordsByRodeoId(id);
         if(CollectionUtils.isEmpty(records)){
             return false;
         }
 
-        if(records.size() ==  rodeo.getRound()){
+        // 从记录中提取局数并找出最大局数
+        Integer maxTurns = records.stream()
+                .map(RodeoRecord::getTurns)
+                .max(Comparator.naturalOrder()).orElse(0);
+        // 决斗存入赢+输的场次
+        if (maxTurns == rodeo.getRound()) {
             return true;
         }
 
-        // 如果打7局 ， 每一局都会有失败者
-        // 只要记录失败次数为 7 / 2  = 3 说明已经失败
-        // 记录的是输的次数
-        int roundLoseCount = rodeo.getRound()/ 2 ;
-        Map<String, Long> userRecordCount = records.stream()
-                .collect(Collectors.groupingBy(RodeoRecord::getPlayer, Collectors.counting()));
+        // 如果打5局 ， 每一局都会有赢家和胜利者
+        // 只要记录胜利次数为 5 / 2 + 1   = 2 说明已经胜利
 
-        Map<String, Long> filteredUserRecordCount = userRecordCount.entrySet().stream()
-                .filter(entry -> entry.getValue() >= roundLoseCount)
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        // 查询出来有输家
-        return MapUtils.isNotEmpty(filteredUserRecordCount);
+        // 查询最大场次
+        //  1 0     1
+        //  1 0     2
+        //  0 1     3
+        //  1 0     4
+        //  0 0     5
+
+        // 1 1
+        // 1 2
+        // 2 2
+        // 3 2
+        // 3 0
+        // 3 1
+        List<String> winnerPlayers = new ArrayList<String>();
+        List<String> losePlayers = new ArrayList<String>();
+        // 局数
+        Map<Integer, List<RodeoRecord>> recordsByTurns = records.stream()
+                .collect(Collectors.groupingBy(RodeoRecord::getTurns));
+        recordsByTurns.forEach((turns, recordList) -> {
+            Optional<RodeoRecord> winnerOptional = recordList.stream().filter(r-> Objects.isNull(r.getForbiddenSpeech()) || r.getForbiddenSpeech().equals(0)).findAny();
+            winnerOptional.ifPresent(rodeoRecord -> winnerPlayers.add(rodeoRecord.getPlayer()));
+
+            Optional<RodeoRecord> loseOptional = recordList.stream().filter(r->  r.getForbiddenSpeech() > 0).findAny();
+            loseOptional.ifPresent(rodeoRecord -> losePlayers.add(rodeoRecord.getPlayer()));
+        });
+        // 3 0
+        // 记录的是赢的次数
+        int roundWinCount = (rodeo.getRound() / 2) + 1 ;
+        return winnerPlayers.size() == roundWinCount;
+    }
+
+    //  判断存在的数据 时间是否有交叉
+    public static boolean checkDateAndTime(String day, String startTime, String endTime) {
+        List<Rodeo> exitsRodeo = getRodeoByDay(day);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime newStart = LocalDateTime.parse(day + " " + startTime, formatter);
+        LocalDateTime newEnd = LocalDateTime.parse(day + " " + endTime, formatter);
+
+        for (Rodeo rodeo : exitsRodeo) {
+            LocalDateTime existingStart = LocalDateTime.parse(rodeo.getStartTime(), formatter);
+            LocalDateTime existingEnd = LocalDateTime.parse(rodeo.getEndTime(), formatter);
+            if (newStart.isBefore(existingEnd) && newEnd.isAfter(existingStart)) {
+                return false; // 时间段有交叉
+            }
+        }
+        return true; // 时间段无交叉
     }
 
     public void init(){
@@ -156,31 +196,8 @@ public class RodeoManager {
         // CURRENT_SPORTS.put
     }
 
-    //[groupId] 决斗 场次名称 2024-08-23 15:18-14:38 934415751,952746839 5
-    public void setSport(Long groupId, String venue, String date, String startTime, String endTime, String players, int round, String playingMethod){
-        // todo check 是否存在 时间是否有交叉
-        if(checkDateAndTime(date, startTime, endTime)){
-            return;
-        }
 
-        // todo 用户时间是否冲突
-//        if(checkUserAndTime(date, startTime, endTime)){
-//            return;
-//        }
-
-        Rodeo rodeo = new Rodeo(groupId, venue,  date, startTime, endTime, players, round, playingMethod);
-        rodeo.saveOrUpdate();
-        // 启动定时任务
-        runTask(rodeo);
-    }
-
-
-
-    private boolean checkDateAndTime(String date, String startTime, String endTime) {
-        return true;
-    }
-
-    private static void runTask(Rodeo rodeo) {
+    public static void runTask(Rodeo rodeo) {
         if(Objects.isNull(rodeo)){
             return;
         }
@@ -234,4 +251,20 @@ public class RodeoManager {
         return seconds + " " + minutes + " " + hourStr + " " + dayStr + " " + monthStr + " ?";
     }
 
+
+    /**
+     * 根据日期查赛场
+     * @param day
+     * @return
+     */
+    public static List<Rodeo> getRodeoByDay(String day) {
+        return HibernateUtil.factory.fromSession(session -> {
+            HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
+            JpaCriteriaQuery<Rodeo> query = builder.createQuery(Rodeo.class);
+            JpaRoot<Rodeo> from = query.from(Rodeo.class);
+            query.where(builder.equal(from.get("day"), day));
+            query.select(from);
+            return session.createQuery(query).list();
+        });
+    }
 }

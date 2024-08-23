@@ -20,6 +20,9 @@ public class Rodeo implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    // 玩法（决斗、轮盘、大乱斗）
+    private String playingMethod;
+
     // 群组id
     private Long groupId;
 
@@ -27,9 +30,6 @@ public class Rodeo implements Serializable {
     @Column(columnDefinition = "text")
     private String venue;
 
-    // 选手 -- 按照逗号分割的多方
-    @Column(columnDefinition = "text")
-    private String players;
 
     // 配置日期   2024-08-23
     private String day;
@@ -40,17 +40,23 @@ public class Rodeo implements Serializable {
     // 时间段
     private String endTime;
 
+
+    // 选手 -- 按照逗号分割的多方
+    @Column(columnDefinition = "text")
+    private String players;
+
     // 局数
     private int round;
 
-    // 玩法（决斗、轮盘、大乱斗）
-    private String playingMethod;
+
 
 
     public Rodeo() {
     }
 
-    public Rodeo(Long groupId, String venue, String day, String startTime, String endTime, String players, int round, String playingMethod) {
+    public Rodeo(Long groupId, String venue,
+                 String day, String startTime, String endTime,
+                 String players, int round, String playingMethod) {
         this.groupId = groupId;
         this.setVenue(venue);
         this.day = day;

@@ -10,8 +10,7 @@ public class RodeoFactory {
     public static final String ROULETTE = "轮盘";
     public static final String SUPER_SMASH_BROTHERS = "大乱斗";
 
-    public static RodeoStrategy createRodeoDuelStrategy(Rodeo rodeo){
-        String playingMethod = rodeo.getPlayingMethod();
+    public static RodeoStrategy createRodeoDuelStrategy(String playingMethod){
         if(DUEL.equals(playingMethod)){
             return new RodeoDuelStrategy();
         }

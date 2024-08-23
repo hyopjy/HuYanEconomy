@@ -2,6 +2,7 @@ package cn.chahuyun.economy.entity.rodeo;
 
 import cn.chahuyun.economy.utils.HibernateUtil;
 import cn.chahuyun.economy.utils.Log;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -22,7 +23,7 @@ public class RodeoRecord {
     private Long rodeoId;
 
     /**
-     * 禁言人员
+     * 玩家
      */
     private String player;
 
@@ -35,6 +36,12 @@ public class RodeoRecord {
      * 第几局
      */
     private Integer turns;
+
+    /**
+     * 比赛描述
+     */
+    @Column(columnDefinition = "text")
+    private String rodeoDesc;
 
     public boolean saveOrUpdate() {
         try {

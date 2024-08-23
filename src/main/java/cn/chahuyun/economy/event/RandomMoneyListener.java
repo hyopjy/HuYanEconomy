@@ -13,9 +13,12 @@ import cn.chahuyun.economy.entity.boss.WorldPropConfig;
 import cn.chahuyun.economy.entity.merchant.MysteriousMerchantSetting;
 import cn.chahuyun.economy.entity.merchant.MysteriousMerchantShop;
 import cn.chahuyun.economy.entity.props.PropsBase;
+import cn.chahuyun.economy.entity.rodeo.Rodeo;
 import cn.chahuyun.economy.manager.*;
 
 import cn.chahuyun.economy.plugin.PropsType;
+import cn.chahuyun.economy.strategy.RodeoFactory;
+import cn.chahuyun.economy.strategy.RodeoStrategy;
 import cn.chahuyun.economy.utils.*;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.RandomUtil;
@@ -670,6 +673,26 @@ public class RandomMoneyListener extends SimpleListenerHost {
                 subject.sendMessage(sb);
                 return ListeningStatus.LISTENING;
             }
+
+
+            //    决斗
+            // 决斗 groupId 场次名称 2024-08-23 15:18-14:38 934415751,952746839 5
+            // 轮盘 groupId 场次名称 2024-08-23 15:18-14:38 934415751,952746839,123456,788522
+            // 大乱斗 groupId 场次名称 2024-08-23 15:18-14:38 934415751,952746839,123456,788522
+            if ((message.startsWith("决斗") || message.startsWith("轮盘") || message.startsWith("大乱斗"))
+                    && EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
+                String[] messageArr = message.split(" ");
+                RodeoStrategy strategy = RodeoFactory.createRodeoDuelStrategy(messageArr[0]);
+                if (Objects.isNull(strategy)) {
+                    subject.sendMessage("请输入正确命令");
+                    return ListeningStatus.LISTENING;
+                }
+                // UserMessageEvent event
+                Rodeo rodeo = strategy.checkOrderAndGetRodeo(event, messageArr);
+                if (Objects.isNull(rodeo)) {
+                    return ListeningStatus.LISTENING;
+                }
+            }
         }catch (Exception e){
             e.printStackTrace();
             subject.sendMessage(MessageUtil.formatMessageChain("程序发生异常@@"+ e.getMessage()));
@@ -697,7 +720,7 @@ public class RandomMoneyListener extends SimpleListenerHost {
         List<String> goodCodeList = new ArrayList<>();
         for(int i = startCode; i <= endCode ; i++ ){
             String shopCodeStr = Constant.MM_PROP_START + i;
-            MysteriousMerchantShop shopGood =  MysteriousMerchantManager.getShopGoodCode(shopCodeStr);
+            MysteriousMerchantShop shopGood = MysteriousMerchantManager.getShopGoodCode(shopCodeStr);
             if(Objects.nonNull(shopGood)){
                 goodCodeList.add(shopGood.getGoodCode());
             }

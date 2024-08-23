@@ -22,7 +22,7 @@ public class RodeoEndTask implements Task {
     public void execute() {
         // 获取比赛结果
         RodeoManager.CURRENT_SPORTS.remove(cronKey, rodeo);
-        RodeoStrategy strategy =  RodeoFactory.createRodeoDuelStrategy(rodeo);
+        RodeoStrategy strategy =  RodeoFactory.createRodeoDuelStrategy(rodeo.getPlayingMethod());
         if(Objects.isNull(strategy)){
             return;
         }

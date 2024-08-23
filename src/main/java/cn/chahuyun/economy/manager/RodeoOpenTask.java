@@ -20,7 +20,7 @@ public class RodeoOpenTask implements Task {
     @Override
     public void execute() {
         RodeoManager.CURRENT_SPORTS.put(cronKey, rodeo);
-        RodeoStrategy strategy =  RodeoFactory.createRodeoDuelStrategy(rodeo);
+        RodeoStrategy strategy =  RodeoFactory.createRodeoDuelStrategy(rodeo.getPlayingMethod());
         if(Objects.isNull(strategy)){
             return;
         }

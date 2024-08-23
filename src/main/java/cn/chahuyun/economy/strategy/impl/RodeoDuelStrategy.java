@@ -2,8 +2,8 @@ package cn.chahuyun.economy.strategy.impl;
 
 import cn.chahuyun.economy.constant.Constant;
 import cn.chahuyun.economy.entity.rodeo.Rodeo;
-import cn.chahuyun.economy.strategy.impl.RodeoAbstractStrategy;
 import net.mamoe.mirai.contact.Group;
+import net.mamoe.mirai.event.events.UserMessageEvent;
 import net.mamoe.mirai.message.data.At;
 import net.mamoe.mirai.message.data.Message;
 import net.mamoe.mirai.message.data.PlainText;
@@ -58,6 +58,7 @@ public class RodeoDuelStrategy extends RodeoAbstractStrategy {
     public void record(Rodeo rodeo) {
         // 用户同一时间段 只能参加一场比赛
         // 每个时间段只有一场比赛
+        // 存入输、赢家
 
     }
 
@@ -67,4 +68,5 @@ public class RodeoDuelStrategy extends RodeoAbstractStrategy {
 
         // todo 关闭决斗权限
     }
+
 }
