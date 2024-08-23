@@ -55,7 +55,7 @@ public class RodeoDuelStrategy extends RodeoAbstractStrategy {
     }
 
     @Override
-    public void record(Rodeo rodeo, String player, Integer ForbiddenSpeech) {
+    public void record(Rodeo rodeo) {
         // 用户同一时间段 只能参加一场比赛
         // 每个时间段只有一场比赛
 
