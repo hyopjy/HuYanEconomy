@@ -132,7 +132,7 @@ public class RodeoManager {
                 .map(RodeoRecord::getTurns)
                 .max(Comparator.naturalOrder()).orElse(0);
         // 决斗存入赢+输的场次
-        if (maxTurns == rodeo.getRound()) {
+        if (maxTurns.equals(rodeo.getRound())) {
             return true;
         }
 

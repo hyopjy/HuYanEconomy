@@ -2,6 +2,8 @@ package cn.chahuyun.economy.strategy.impl;
 
 import cn.chahuyun.economy.constant.Constant;
 import cn.chahuyun.economy.entity.rodeo.Rodeo;
+import cn.chahuyun.economy.entity.rodeo.RodeoRecord;
+import cn.chahuyun.economy.manager.RodeoRecordManager;
 import cn.chahuyun.economy.strategy.impl.RodeoAbstractStrategy;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUnit;
@@ -11,6 +13,11 @@ import net.mamoe.mirai.event.events.UserMessageEvent;
 import net.mamoe.mirai.message.data.At;
 import net.mamoe.mirai.message.data.Message;
 import net.mamoe.mirai.message.data.PlainText;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * 轮盘
@@ -60,7 +67,47 @@ public class RodeoRouletteStrategy extends RodeoAbstractStrategy {
 
     @Override
     public void endGame(Rodeo rodeo) {
+        Group group = getBotGroup(rodeo.getGroupId());
+        if(group == null){
+            return;
+        }
+        Long rodeoId = rodeo.getId();
 
+        List<RodeoRecord> records = RodeoRecordManager.getRecordsByRodeoId(rodeoId);
+
+        Map<String, Long> sumByPlayer = records.stream()
+                .collect(Collectors.groupingBy(
+                        RodeoRecord::getPlayer,
+                        Collectors.summingLong(record -> Optional.ofNullable(record.getForbiddenSpeech()).orElse(0))
+                ));
+
+        List<Map.Entry<String, Long>> sortedEntries = sumByPlayer.entrySet().stream()
+                .sorted(Map.Entry.comparingByValue())
+                .toList();
+
+        //【
+//        [比赛场次名]结束，得分表如下：
+//    B-3
+//    C-2
+//    D-1
+//    A-0
+//    @A共被禁言[秒]
+//    @B共被禁言[秒]
+//    @C共被禁言[秒]
+//    @D共被禁言[秒]
+//            】
+
+//        String messageFormat = """
+//                %s,%s,%s未进行任何比赛
+//            """;
+//        PlainText  message = new PlainText("[比赛场次名]结束，得分表如下：\r\n");
+//
+//        // Print or use the sorted entries
+//        sortedEntries.forEach(entry ->
+//                System.out.println(entry.getKey() + ": " + entry.getValue())
+//        );
+//
+//        group.sendMessage(new PlainText(message));
     }
 
 }

@@ -2,11 +2,16 @@ package cn.chahuyun.economy.strategy.impl;
 
 import cn.chahuyun.economy.constant.Constant;
 import cn.chahuyun.economy.entity.rodeo.Rodeo;
+import cn.chahuyun.economy.entity.rodeo.RodeoRecord;
+import cn.chahuyun.economy.manager.RodeoRecordManager;
 import net.mamoe.mirai.contact.Group;
-import net.mamoe.mirai.event.events.UserMessageEvent;
 import net.mamoe.mirai.message.data.At;
 import net.mamoe.mirai.message.data.Message;
 import net.mamoe.mirai.message.data.PlainText;
+import org.apache.commons.collections4.CollectionUtils;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 决斗
@@ -65,6 +70,63 @@ public class RodeoDuelStrategy extends RodeoAbstractStrategy {
     @Override
     public void endGame(Rodeo rodeo) {
 
+//            2.该场比赛结束后，统计双方的得分和总被禁言时长
+//【
+//        [比赛场次名]结束，恭喜胜者@B以[3:1]把对手@A鸡哔！🔫
+//    @B共被禁言[秒]
+//    @A共被禁言[秒]
+//    菜！就！多！练！
+//            】
+        Group group = getBotGroup(rodeo.getGroupId());
+        if(group == null){
+            return;
+        }
+
+        Long rodeoId = rodeo.getId();
+        String[] players = rodeo.getPlayers().split(Constant.MM_SPILT);
+        Long player1 = Long.parseLong(players[0]);
+        Long player2 = Long.parseLong(players[1]);
+
+        List<RodeoRecord> records = RodeoRecordManager.getRecordsByRodeoId(rodeoId);
+        if(CollectionUtils.isEmpty(records)){
+            String messageFormat = """
+                %s,%s,%s未进行任何比赛
+            """;
+            String message = String.format(messageFormat, rodeo.getVenue(),
+                    new At(player1).getDisplay(group), new At(player2).getDisplay(group));
+            group.sendMessage(new PlainText(message));
+            return ;
+        }
+
+        List<RodeoRecord> winnerPlayers = new ArrayList<RodeoRecord>();
+        List<RodeoRecord> losePlayers = new ArrayList<RodeoRecord>();
+        // 局数
+        Map<Integer, List<RodeoRecord>> recordsByTurns = records.stream()
+                .collect(Collectors.groupingBy(RodeoRecord::getTurns));
+        recordsByTurns.forEach((turns, recordList) -> {
+            Optional<RodeoRecord> winnerOptional = recordList.stream().filter(r-> Objects.isNull(r.getForbiddenSpeech()) || r.getForbiddenSpeech().equals(0)).findAny();
+            winnerOptional.ifPresent(winnerPlayers::add);
+
+            Optional<RodeoRecord> loseOptional = recordList.stream().filter(r->  r.getForbiddenSpeech() > 0).findAny();
+            loseOptional.ifPresent(losePlayers::add);
+        });
+
+
+        // 决斗存入赢+输的场次
+        String messageFormat = """
+                    %s结束，恭喜胜者%s以[%s:%s]把对手%s鸡哔！🔫
+                    %s共被禁言%s
+                    %s共被禁言%s
+                    菜！就！多！练！
+                """;
+        Long winner = Long.parseLong(winnerPlayers.get(0).getPlayer());
+        Long lose = Long.parseLong(losePlayers.get(0).getPlayer());
+        Long winnerTimeSum = winnerPlayers.stream().mapToLong(obj -> Optional.ofNullable(obj.getForbiddenSpeech()).orElse(0)).sum();
+        Long loseTimeSum = winnerPlayers.stream().mapToLong(obj -> Optional.ofNullable(obj.getForbiddenSpeech()).orElse(0)).sum();
+        String message = String.format(messageFormat, rodeo.getVenue(), new At(winner).getDisplay(group),
+                winnerPlayers.size(), losePlayers.size(), new At(lose).getDisplay(group), new At(winner).getDisplay(group),
+                winnerTimeSum, new At(lose).getDisplay(group), loseTimeSum);
+        group.sendMessage(new PlainText(message));
 
         // todo 关闭决斗权限
     }
