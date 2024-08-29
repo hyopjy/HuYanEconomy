@@ -162,4 +162,9 @@ public class RodeoDuelStrategy extends RodeoAbstractStrategy {
         RodeoManager.removeExpRodeoList();
     }
 
+    @Override
+    public RodeoRecordGameInfoDto analyzeMessage(String message) {
+        return null;
+    }
+
 }

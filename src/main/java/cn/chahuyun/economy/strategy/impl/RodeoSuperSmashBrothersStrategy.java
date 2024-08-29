@@ -135,4 +135,9 @@ public class RodeoSuperSmashBrothersStrategy extends RodeoAbstractStrategy {
 
         RodeoManager.removeExpRodeoList();
     }
+
+    @Override
+    public RodeoRecordGameInfoDto analyzeMessage(String message) {
+        return null;
+    }
 }

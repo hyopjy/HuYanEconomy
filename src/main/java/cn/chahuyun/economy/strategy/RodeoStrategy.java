@@ -22,4 +22,12 @@ public interface RodeoStrategy {
     public void endGame(Rodeo rodeo);
 
     Rodeo checkOrderAndGetRodeo(UserMessageEvent event, String[] messageArr);
+
+    /**
+     * 解析消息
+     *
+     * @param message
+     * @return
+     */
+    RodeoRecordGameInfoDto analyzeMessage(String message);
 }
