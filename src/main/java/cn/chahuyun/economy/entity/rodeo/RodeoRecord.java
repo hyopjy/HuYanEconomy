@@ -2,10 +2,7 @@ package cn.chahuyun.economy.entity.rodeo;
 
 import cn.chahuyun.economy.utils.HibernateUtil;
 import cn.chahuyun.economy.utils.Log;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,6 +12,7 @@ import lombok.Setter;
 @Setter
 public class RodeoRecord {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     /**

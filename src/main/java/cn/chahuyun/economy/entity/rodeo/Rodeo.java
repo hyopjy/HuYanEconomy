@@ -34,7 +34,7 @@ public class Rodeo implements Serializable {
     // 配置日期   2024-08-23
     private String day;
 
-    // 时间段        10:15
+    // 时间段  10:15:00
     private String startTime;
 
     // 时间段
@@ -47,8 +47,6 @@ public class Rodeo implements Serializable {
 
     // 局数
     private int round;
-
-
 
 
     public Rodeo() {

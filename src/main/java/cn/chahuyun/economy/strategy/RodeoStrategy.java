@@ -1,5 +1,6 @@
 package cn.chahuyun.economy.strategy;
 
+import cn.chahuyun.economy.dto.RodeoRecordGameInfoDto;
 import cn.chahuyun.economy.entity.rodeo.Rodeo;
 import net.mamoe.mirai.event.events.UserMessageEvent;
 
@@ -13,7 +14,7 @@ public interface RodeoStrategy {
     /**
      * 记录
      */
-    public void record(Rodeo rodeo);
+    public void record(Rodeo rodeo, RodeoRecordGameInfoDto dto);
 
     /**
      * 结算

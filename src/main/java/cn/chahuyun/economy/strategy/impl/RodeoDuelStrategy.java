@@ -1,8 +1,10 @@
 package cn.chahuyun.economy.strategy.impl;
 
 import cn.chahuyun.economy.constant.Constant;
+import cn.chahuyun.economy.dto.RodeoRecordGameInfoDto;
 import cn.chahuyun.economy.entity.rodeo.Rodeo;
 import cn.chahuyun.economy.entity.rodeo.RodeoRecord;
+import cn.chahuyun.economy.manager.RodeoManager;
 import cn.chahuyun.economy.manager.RodeoRecordManager;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.message.data.At;
@@ -55,15 +57,42 @@ public class RodeoDuelStrategy extends RodeoAbstractStrategy {
         m.plus(message2);
         group.sendMessage(m);
 
+
         // todo 开始决斗权限
 
     }
 
     @Override
-    public void record(Rodeo rodeo) {
+    public void record(Rodeo rodeo, RodeoRecordGameInfoDto dto) {
         // 用户同一时间段 只能参加一场比赛
         // 每个时间段只有一场比赛
         // 存入输、赢家
+        // 记录第几局
+        // 获取当前最大的局数
+        if(RodeoManager.isDuelOver(rodeo)){
+            return;
+        }
+        Integer maxRound = RodeoRecordManager.getMaxTurnsByRodeoId(rodeo.getId());
+        if(maxRound >= rodeo.getRound()){
+            return;
+        }
+        Integer currentRound = maxRound +1;
+        RodeoRecord winnerRodeoRecord = new RodeoRecord();
+        winnerRodeoRecord.setRodeoId(rodeo.getId());
+        winnerRodeoRecord.setPlayer(dto.getWinner());
+        winnerRodeoRecord.setForbiddenSpeech(0);
+        winnerRodeoRecord.setTurns(currentRound);
+        winnerRodeoRecord.setRodeoDesc(dto.getRodeoDesc());
+        winnerRodeoRecord.saveOrUpdate();
+
+
+        RodeoRecord loseRodeoRecord = new RodeoRecord();
+        loseRodeoRecord.setRodeoId(rodeo.getId());
+        loseRodeoRecord.setPlayer(dto.getLoser());
+        loseRodeoRecord.setForbiddenSpeech(dto.getForbiddenSpeech());
+        loseRodeoRecord.setTurns(currentRound);
+        loseRodeoRecord.setRodeoDesc(dto.getRodeoDesc());
+        loseRodeoRecord.saveOrUpdate();
 
     }
 
@@ -129,6 +158,8 @@ public class RodeoDuelStrategy extends RodeoAbstractStrategy {
         group.sendMessage(new PlainText(message));
 
         // todo 关闭决斗权限
+
+        RodeoManager.removeExpRodeoList();
     }
 
 }

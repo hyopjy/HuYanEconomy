@@ -89,7 +89,6 @@ public class RodeoManager {
 //                Constant.SPILT2 + rodeo.getStartTime() +
 //                Constant.SPILT2 + rodeo.getEndTime() +
 //                Constant.SPILT2 + rodeo.getPlayers();
-
         Set<String> keys = CURRENT_SPORTS.keySet();
         for (String key : keys) {
             if(key.startsWith(groupId+"")){
@@ -111,13 +110,35 @@ public class RodeoManager {
         return false;
     }
 
+    public static Rodeo getCurrent(long groupId, long userId){
+        Set<String> keys = CURRENT_SPORTS.keySet();
+        for (String key : keys) {
+            if(key.startsWith(groupId+"")){
+                String[] taskKeyArr = key.split(Constant.SPILT2);
+                if(taskKeyArr.length != 5){
+                    return null;
+                }
+                String[] playersArr = taskKeyArr[4].split(Constant.MM_SPILT);
+                for(String p1: playersArr){
+                    if(p1.equals(userId+"")){
+                        // 判断决斗胜负是否已经分出
+                        if (!RodeoManager.isDuelOver(CURRENT_SPORTS.get(key))) {
+                            return CURRENT_SPORTS.get(key);
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     /**
      * 判断决斗的胜负是否已经分出
      *
      * @param rodeo
      * @return
      */
-    private static boolean isDuelOver(Rodeo rodeo) {
+    public static boolean isDuelOver(Rodeo rodeo) {
         if(!RodeoFactory.DUEL.equals(rodeo.getPlayingMethod())){
             return false;
         }
@@ -188,12 +209,43 @@ public class RodeoManager {
         return true; // 时间段无交叉
     }
 
-    public void init(){
-        // 删除今天时间之前的数据
-
+    public static void init(){
+        // 删除结束时间小于当前时间的数据
+        removeExpRodeoList();
         // 启动有效的任务
+        List<Rodeo> list = getRodeoList();
+        list.forEach(RodeoManager::runTask);
+    }
 
-        // CURRENT_SPORTS.put
+    public static void removeExpRodeoList() {
+        LocalDateTime now = LocalDateTime.now();
+        List<Rodeo> list = getRodeoList();
+        List<Rodeo> expRodeo = list.stream().map(l -> {
+            String endTime = l.getDay() + " " + l.getEndTime();
+            // 17.05
+            LocalDateTime end = LocalDateTime.parse(endTime);
+            if (end.isBefore(now)) {
+                return l;
+            }
+            return null;
+        }).filter(Objects::nonNull).toList();
+
+        List<Long> rodeoIds = expRodeo.stream().map(Rodeo::getId).collect(Collectors.toList());
+        List<RodeoRecord> records = RodeoRecordManager.getRodeoRecordByRodeoIds(rodeoIds);
+
+        records.forEach(RodeoRecord::remove);
+        expRodeo.forEach(Rodeo::remove);
+    }
+
+
+    public static List<Rodeo> getRodeoList(){
+        return HibernateUtil.factory.fromSession(session -> {
+            HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
+            JpaCriteriaQuery<Rodeo> query = builder.createQuery(Rodeo.class);
+            JpaRoot<Rodeo> from = query.from(Rodeo.class);
+            query.select(from);
+            return session.createQuery(query).list();
+        });
     }
 
 
