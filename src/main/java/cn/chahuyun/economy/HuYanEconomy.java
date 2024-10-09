@@ -116,6 +116,7 @@ public final class HuYanEconomy extends JavaPlugin {
             eventEventChannel.registerListenerHost(new MessageEventListener());
             eventEventChannel.registerListenerHost(new DriverCarEventListener());
             eventEventChannel.registerListenerHost(new RandomMoneyListener());
+//            eventEventChannel.registerListenerHost(new BotPostSendEventListener());
             PowerManager.init(eventEventChannel);
             Log.info("事件已监听!");
         }

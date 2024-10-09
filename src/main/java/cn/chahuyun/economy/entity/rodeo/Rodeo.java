@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 /**
@@ -16,6 +17,9 @@ import java.io.Serializable;
 @Getter
 @Setter
 public class Rodeo implements Serializable {
+
+    private static final long serialVersionUID = -5567255189132869882L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -32,6 +36,7 @@ public class Rodeo implements Serializable {
 
 
     // 配置日期   2024-08-23
+    @Column(name = "_day")
     private String day;
 
     // 时间段  10:15:00

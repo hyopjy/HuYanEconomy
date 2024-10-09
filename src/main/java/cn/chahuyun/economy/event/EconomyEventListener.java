@@ -103,10 +103,10 @@ public class EconomyEventListener extends SimpleListenerHost {
         }
 
         // 校验用户是否正在比赛中，则可以发送 决斗和轮盘命令
-        if (!RodeoManager.checkUserInRodeo(event.getGroup().getId(), event.getSender().getId())) {
-            event.intercept();
-            return ListeningStatus.LISTENING;
-        }
+//        if (!RodeoManager.checkUserInRodeo(event.getGroup().getId(), event.getSender().getId())) {
+//            event.intercept();
+//            return ListeningStatus.LISTENING;
+//        }
         return ListeningStatus.LISTENING;
     }
 

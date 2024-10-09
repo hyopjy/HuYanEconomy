@@ -32,14 +32,8 @@ public class RodeoDuelStrategy extends RodeoAbstractStrategy {
 //        [@A ]与[@B ]正式展开决斗的巅峰对决！⚔[N]局比赛，谁将笑傲鱼塘🤺，谁又将菜然神伤🥬？
 //        】
 
-        String messageFormat1 = """
-        东风吹，战鼓擂，决斗场上怕过谁！
-        新的🏟[%s]已确定于[%s-%s]开战！
-        """;
-        String messageFormat2 = """
-         
-         正式展开决斗的巅峰对决！⚔[%s]局比赛，谁将笑傲鱼塘🤺，谁又将菜然神伤🥬？
-        """;
+        String messageFormat1 = "\r\n东风吹，战鼓擂，决斗场上怕过谁！ \r\n 新的🏟[%s]已确定于[%s-%s]开战！ \r\n";
+        String messageFormat2 = "\r\n正式展开决斗的巅峰对决！⚔[%s]局比赛，谁将笑傲鱼塘🤺，谁又将菜然神伤🥬？\r\n";
 
         String[] players = rodeo.getPlayers().split(Constant.MM_SPILT);
         Long player1 = Long.parseLong(players[0]);
@@ -118,9 +112,7 @@ public class RodeoDuelStrategy extends RodeoAbstractStrategy {
 
         List<RodeoRecord> records = RodeoRecordManager.getRecordsByRodeoId(rodeoId);
         if(CollectionUtils.isEmpty(records)){
-            String messageFormat = """
-                %s,%s,%s未进行任何比赛
-            """;
+            String messageFormat = "\r\n %s,%s,%s未进行任何比赛 \r\n";
             String message = String.format(messageFormat, rodeo.getVenue(),
                     new At(player1).getDisplay(group), new At(player2).getDisplay(group));
             group.sendMessage(new PlainText(message));
@@ -142,12 +134,7 @@ public class RodeoDuelStrategy extends RodeoAbstractStrategy {
 
 
         // 决斗存入赢+输的场次
-        String messageFormat = """
-                    %s结束，恭喜胜者%s以[%s:%s]把对手%s鸡哔！🔫
-                    %s共被禁言%s
-                    %s共被禁言%s
-                    菜！就！多！练！
-                """;
+        String messageFormat = "\r\n %s结束，恭喜胜者%s以[%s:%s]把对手%s鸡哔！🔫\r\n %s共被禁言%s \r\n %s共被禁言%s \r\n 菜！就！多！练！ ";
         Long winner = Long.parseLong(winnerPlayers.get(0).getPlayer());
         Long lose = Long.parseLong(losePlayers.get(0).getPlayer());
         Long winnerTimeSum = winnerPlayers.stream().mapToLong(obj -> Optional.ofNullable(obj.getForbiddenSpeech()).orElse(0)).sum();

@@ -674,25 +674,6 @@ public class RandomMoneyListener extends SimpleListenerHost {
                 return ListeningStatus.LISTENING;
             }
 
-
-            //    决斗
-            // 决斗 groupId 场次名称 2024-08-23 15:18-14:38 934415751,952746839 5
-            // 轮盘 groupId 场次名称 2024-08-23 15:18-14:38 934415751,952746839,123456,788522
-            // 大乱斗 groupId 场次名称 2024-08-23 15:18-14:38 934415751,952746839,123456,788522
-            if ((message.startsWith("决斗") || message.startsWith("轮盘") || message.startsWith("大乱斗"))
-                    && EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
-                String[] messageArr = message.split(" ");
-                RodeoStrategy strategy = RodeoFactory.createRodeoDuelStrategy(messageArr[0]);
-                if (Objects.isNull(strategy)) {
-                    subject.sendMessage("请输入正确命令");
-                    return ListeningStatus.LISTENING;
-                }
-                // UserMessageEvent event
-                Rodeo rodeo = strategy.checkOrderAndGetRodeo(event, messageArr);
-                if (Objects.isNull(rodeo)) {
-                    return ListeningStatus.LISTENING;
-                }
-            }
         }catch (Exception e){
             e.printStackTrace();
             subject.sendMessage(MessageUtil.formatMessageChain("程序发生异常@@"+ e.getMessage()));

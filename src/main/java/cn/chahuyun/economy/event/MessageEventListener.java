@@ -371,6 +371,25 @@ public class MessageEventListener extends SimpleListenerHost {
                 MysteriousMerchantManager.exchange(event);
                 return;
             }
+
+            //    决斗
+            // 决斗 groupId 场次名称 2024-08-23 15:18-14:38 934415751,952746839 5
+            // 轮盘 groupId 场次名称 2024-08-23 15:18-14:38 934415751,952746839,123456,788522
+            // 大乱斗 groupId 场次名称 2024-08-23 15:18-14:38 934415751,952746839,123456,788522
+//            if ((code.startsWith("决斗") || code.startsWith("轮盘") || code.startsWith("大乱斗"))
+//                    && EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
+//                String[] messageArr = code.split(" ");
+//                RodeoStrategy strategy = RodeoFactory.createRodeoDuelStrategy(messageArr[0]);
+//                if (Objects.isNull(strategy)) {
+//                    subject.sendMessage("请输入正确命令");
+//                    return;
+//                }
+//                // UserMessageEvent event
+//                Rodeo rodeo = strategy.checkOrderAndGetRodeo(event, messageArr);
+//                if (Objects.isNull(rodeo)) {
+//                    return;
+//                }
+//            }
         } catch (Exception exception) {
             Log.error("发生异常！！！:" + exception.getMessage());
         }

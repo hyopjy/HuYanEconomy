@@ -10,7 +10,7 @@ import cn.chahuyun.economy.utils.Log;
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Group;
-import net.mamoe.mirai.event.events.UserMessageEvent;
+import net.mamoe.mirai.event.events.MessageEvent;
 
 import java.util.Objects;
 
@@ -30,7 +30,7 @@ public abstract class RodeoAbstractStrategy implements RodeoStrategy {
     // 轮盘 groupId 场次名称 2024-08-23 15:18-14:38 934415751,952746839,123456,788522
     // 大乱斗 groupId 场次名称 2024-08-23 15:18-14:38 934415751,952746839,123456,788522
     @Override
-    public Rodeo checkOrderAndGetRodeo(UserMessageEvent event, String[] messageArr) {
+    public Rodeo checkOrderAndGetRodeo(MessageEvent event, String[] messageArr) {
         Contact subject = event.getSubject();
         // 玩法（决斗、轮盘、大乱斗）
         String playingMethod= messageArr[0];

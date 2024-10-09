@@ -29,15 +29,9 @@ public class RodeoRouletteStrategy extends RodeoAbstractStrategy {
             return;
         }
 
-        String messageFormat1= """
-            东风吹，战鼓擂，轮盘赛上怕过谁！
-            新的🏟[%s]正式开战！比赛时长[%s]，参赛选手有：
-        """;
+        String messageFormat1= "\r\n东风吹，战鼓擂，轮盘赛上怕过谁！\r\n新的🏟[%s]正式开战！比赛时长[%s]，参赛选手有： \r\n";
 
-        String messageFormat2= """
-            
-            轮盘比赛正式打响！🔫[%s]的比赛，谁将笑傲鱼塘🤺，谁又将菜然神伤🥬？
-        """;
+        String messageFormat2= "\r\n轮盘比赛正式打响！🔫[%s]的比赛，谁将笑傲鱼塘🤺，谁又将菜然神伤🥬？\r\n";
 
         String[] players = rodeo.getPlayers().split(Constant.MM_SPILT);
 

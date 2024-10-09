@@ -110,7 +110,7 @@ public class RodeoManager {
         return false;
     }
 
-    public static Rodeo getCurrent(long groupId, long userId){
+    public static Rodeo getCurrent(long groupId, List<Long> atUser){
         Set<String> keys = CURRENT_SPORTS.keySet();
         for (String key : keys) {
             if(key.startsWith(groupId+"")){
@@ -119,8 +119,12 @@ public class RodeoManager {
                     return null;
                 }
                 String[] playersArr = taskKeyArr[4].split(Constant.MM_SPILT);
+                // 轮盘当前时段只有一个
+                // 决斗 当前两个用户只有一个
+                // todo 判断时间
+                // todo 判断用户
                 for(String p1: playersArr){
-                    if(p1.equals(userId+"")){
+                    if(atUser.contains(p1+"")){
                         // 判断决斗胜负是否已经分出
                         if (!RodeoManager.isDuelOver(CURRENT_SPORTS.get(key))) {
                             return CURRENT_SPORTS.get(key);
@@ -136,7 +140,6 @@ public class RodeoManager {
      * 判断决斗的胜负是否已经分出
      *
      * @param rodeo
-     * @return
      */
     public static boolean isDuelOver(Rodeo rodeo) {
         if(!RodeoFactory.DUEL.equals(rodeo.getPlayingMethod())){
@@ -265,7 +268,11 @@ public class RodeoManager {
         CronUtil.remove(startCronKey);
 
         // groupID|2024-08-23|15:18:00|14:38:00|934415751,952746839
-        String taskKey = rodeo.getGroupId() + Constant.SPILT2 + rodeo.getDay() + Constant.SPILT2 + rodeo.getStartTime() + Constant.SPILT2 + rodeo.getEndTime() + Constant.SPILT2 + rodeo.getPlayers();
+        String taskKey = rodeo.getGroupId() + Constant.SPILT2
+                        + rodeo.getDay() + Constant.SPILT2
+                       + rodeo.getStartTime() + Constant.SPILT2
+                      + rodeo.getEndTime() + Constant.SPILT2
+                     + rodeo.getPlayers();
         RodeoOpenTask startTask = new RodeoOpenTask(taskKey, rodeo);
         CronUtil.schedule(startCronKey, startCronExpression, startTask);
 

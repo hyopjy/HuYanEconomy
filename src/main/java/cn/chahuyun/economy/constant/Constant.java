@@ -72,8 +72,7 @@ public interface Constant {
     String MM_SPILT = ",";
 
     String MM_PROP_START = "SS-";
+    // String EXCEL_URL = "/Users/zhangyi/Project/github/HuYanEconomy/fish.xlsx";
 
-    // String EXCEL_URL = "/Users/zhangyi/Project/github/HuYanEconomy/fish_240803.xlsx";
-
-    String EXCEL_URL = "/www/wwwroot/fish.xlsx";
+     String EXCEL_URL = "/www/wwwroot/fish.xlsx";
 }

@@ -8,7 +8,8 @@ public class RedissonConfig {
     private static Redisson redisson = null;
     static{
         config.useSingleServer()
-                .setAddress("redis://47.109.44.209:6379")
+               .setAddress("redis://47.109.44.209:6379")
+                //    .setAddress("redis://127.0.0.1:6379")
                 .setConnectionMinimumIdleSize(5)
                 .setIdleConnectionTimeout(300)
                 .setConnectionPoolSize(5)
