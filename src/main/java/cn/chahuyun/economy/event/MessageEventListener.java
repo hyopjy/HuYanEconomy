@@ -377,10 +377,10 @@ public class MessageEventListener extends SimpleListenerHost {
             }
 
             //    决斗
-            // 决斗 groupId 场次名称 2024-08-23 15:18-14:38 934415751,952746839 5
-            // 轮盘 groupId 场次名称 2024-08-23 15:18-14:38 934415751,952746839,123456,788522
-            // 大乱斗 groupId 场次名称 2024-08-23 15:18-14:38 934415751,952746839,123456,788522
-            if ((code.startsWith("决斗") || code.startsWith("轮盘") || code.startsWith("大乱斗"))
+            // 开启决斗 groupId 场次名称 2024-08-23 15:18-14:38 934415751,952746839 5
+            // 开启轮盘 groupId 场次名称 2024-08-23 15:18-14:38 934415751,952746839,123456,788522
+            // 开启大乱斗 groupId 场次名称 2024-08-23 15:18-14:38 934415751,952746839,123456,788522
+            if ((code.startsWith("开启决斗") || code.startsWith("开启轮盘") || code.startsWith("开启大乱斗"))
                     && EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
                 String[] messageArr = code.split(" ");
                 RodeoStrategy strategy = RodeoFactory.createRodeoDuelStrategy(messageArr[0]);
