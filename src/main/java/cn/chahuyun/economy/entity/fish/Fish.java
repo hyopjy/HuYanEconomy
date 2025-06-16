@@ -88,7 +88,9 @@ public class Fish implements Serializable {
 //            randomInt = RandomUtil.randomInt(dimensions1, dimensions2 == dimensions1 ? dimensions2 + 1 : dimensions2);
 //        }
 //        return randomInt;
-
+        if(dimensionsMin > dimensionsMax){
+            return RandomUtil.randomInt(dimensionsMax, dimensionsMin + 1);
+        }
         return RandomUtil.randomInt(dimensionsMin, dimensionsMax + 1);
     }
 
