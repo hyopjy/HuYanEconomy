@@ -13,12 +13,9 @@ import cn.chahuyun.economy.entity.boss.WorldPropConfig;
 import cn.chahuyun.economy.entity.merchant.MysteriousMerchantSetting;
 import cn.chahuyun.economy.entity.merchant.MysteriousMerchantShop;
 import cn.chahuyun.economy.entity.props.PropsBase;
-import cn.chahuyun.economy.entity.rodeo.Rodeo;
 import cn.chahuyun.economy.manager.*;
 
 import cn.chahuyun.economy.plugin.PropsType;
-import cn.chahuyun.economy.strategy.RodeoFactory;
-import cn.chahuyun.economy.strategy.RodeoStrategy;
 import cn.chahuyun.economy.utils.*;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.RandomUtil;
@@ -131,7 +128,6 @@ public class RandomMoneyListener extends SimpleListenerHost {
                 subject.sendMessage(MessageUtil.formatMessageChain("重置鱼塘成功"));
             }
 
-//            if (message.equals("刷新表格") && EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
              if (message.equals("刷新表格")) {
                  // 重置鱼塘
                  subject.sendMessage(MessageUtil.formatMessageChain("开始加载"));

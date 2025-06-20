@@ -3,7 +3,6 @@ package cn.chahuyun.economy.event;
 import cn.chahuyun.config.EconomyEventConfig;
 import cn.chahuyun.config.RegexConst;
 import cn.chahuyun.economy.manager.GamesManager;
-import cn.chahuyun.economy.manager.RodeoManager;
 import cn.chahuyun.economy.utils.*;
 import kotlin.coroutines.CoroutineContext;
 import net.mamoe.mirai.console.command.CommandSender;
@@ -17,10 +16,8 @@ import net.mamoe.mirai.event.events.EventCancelledException;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.message.data.MessageSource;
 import org.jetbrains.annotations.NotNull;
-import org.redisson.api.RBloomFilter;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -102,11 +99,6 @@ public class EconomyEventListener extends SimpleListenerHost {
             }
         }
 
-        // 校验用户是否正在比赛中，则可以发送 决斗和轮盘命令
-//        if (!RodeoManager.checkUserInRodeo(event.getGroup().getId(), event.getSender().getId())) {
-//            event.intercept();
-//            return ListeningStatus.LISTENING;
-//        }
         return ListeningStatus.LISTENING;
     }
 

@@ -3,12 +3,9 @@ package cn.chahuyun.economy.event;
 import cn.chahuyun.config.EconomyConfig;
 import cn.chahuyun.config.EconomyEventConfig;
 import cn.chahuyun.economy.HuYanEconomy;
-import cn.chahuyun.economy.entity.rodeo.Rodeo;
 import cn.chahuyun.economy.manager.*;
 import cn.chahuyun.economy.plugin.PluginManager;
 import cn.chahuyun.economy.redis.RedisUtils;
-import cn.chahuyun.economy.strategy.RodeoFactory;
-import cn.chahuyun.economy.strategy.RodeoStrategy;
 import cn.chahuyun.economy.utils.CacheUtils;
 import cn.chahuyun.economy.utils.DateUtil;
 import cn.chahuyun.economy.utils.Log;
@@ -275,19 +272,6 @@ public class MessageEventListener extends SimpleListenerHost {
                 return;
             }
 
-            //String walletToBankRegex = "存款 (\\d+(\\d+|\\.\\d)*)?|deposit (\\d+(\\d+|\\.\\d)*)?";
-//            String bankToWalletRegex = "取款 (\\d+(\\d+|\\.\\d)*)?|withdraw (\\d+(\\d+|\\.\\d)*)?";
-           // if (Pattern.matches(walletToBankRegex, code)) {
-//                Log.info("银行指令");
-//                BankManager.deposit(event);
-//                return;
-//            } else
-//            if (Pattern.matches(bankToWalletRegex, code)) {
-//                Log.info("银行指令");
-//                BankManager.withdrawal(event);
-//                return;
-//            }
-
             String setSpecialAchievements = "特殊成就(\\[mirai:at:\\d+])? (\\S+)?";
             if (EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())
                     && Pattern.matches(setSpecialAchievements, code)) {
@@ -374,25 +358,6 @@ public class MessageEventListener extends SimpleListenerHost {
                 Log.info("神秘商店兑换");
                 MysteriousMerchantManager.exchange(event);
                 return;
-            }
-
-            //    决斗
-            // 开启决斗 groupId 场次名称 2024-08-23 15:18-14:38 934415751,952746839 5
-            // 开启轮盘 groupId 场次名称 2024-08-23 15:18-14:38 934415751,952746839,123456,788522
-            // 开启大乱斗 groupId 场次名称 2024-08-23 15:18-14:38 934415751,952746839,123456,788522
-            if ((code.startsWith("开启决斗") || code.startsWith("开启轮盘") || code.startsWith("开启大乱斗"))
-                    && EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
-                String[] messageArr = code.split(" ");
-                RodeoStrategy strategy = RodeoFactory.createRodeoDuelStrategy(messageArr[0]);
-                if (Objects.isNull(strategy)) {
-                    subject.sendMessage("请输入正确命令");
-                    return;
-                }
-                // UserMessageEvent event
-                Rodeo rodeo = strategy.checkOrderAndGetRodeo(event, messageArr);
-                if (Objects.isNull(rodeo)) {
-                    return;
-                }
             }
         } catch (Exception exception) {
             Log.error("发生异常！！！:" + exception.getMessage());

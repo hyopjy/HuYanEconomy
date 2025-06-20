@@ -108,7 +108,6 @@ public final class HuYanEconomy extends JavaPlugin {
             // CompetitionSeasonManager.seasonInit();
             WorldBossConfigManager.init();
             MysteriousMerchantManager.init();
-            RodeoManager.init();
             // 延迟队列init
             RedisUtils.initDelay();
             eventEventChannel.registerListenerHost(new EconomyEventListener());
