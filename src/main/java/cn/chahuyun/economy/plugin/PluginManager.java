@@ -52,9 +52,8 @@ public class PluginManager {
         //加载道具
 //        PropsCard propsCard = new PropsCard(Constant.SIGN_DOUBLE_SINGLE_CARD, "签到双倍币币卡", 99, true, "张", "不要999，不要599，只要199币币，你的下一次签到将翻倍！", false, null, null, false, null);
 //        propsManager.registerProps(propsCard);
-        // todo 重置
-        initPropsFishCard();
         try {
+            initPropsFishCard();
             //壶言会话
             HuYanEconomy.INSTANCE.config.setOwner(ConfigData.INSTANCE.getOwner());
             Log.info("检测到壶言会话,已同步主人!");

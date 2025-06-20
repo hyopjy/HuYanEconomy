@@ -27,6 +27,9 @@ public class RedisUtils {
 
     private static String SPECIAL_TITLE_ONE_DAY_QUEUE = "SpecialTitleOneDayQueue";
 
+    private static volatile boolean delayThreadRunning = false;
+    private static Thread delayThread = null;
+
     public static void setKeyString(String key, String value, Long time, TimeUnit timeUnit) {
         RBucket<String> bucket = RedissonConfig.getRedisson().getBucket(key);
         bucket.set(value, time, timeUnit);
@@ -98,25 +101,40 @@ public class RedisUtils {
 
 
     public static void initDelay() {
-        Thread thread = new Thread(() -> {
+        delayThreadRunning = true;
+        delayThread = new Thread(() -> {
             initDelayedQueueTask();
         });
-        thread.start();
+        delayThread.setDaemon(true); // 设置为守护线程
+        delayThread.setName("Economy-Redis-Delay-Thread");
+        delayThread.start();
     }
+
+    public static void stopDelayThread() {
+        delayThreadRunning = false;
+        if (delayThread != null) {
+            delayThread.interrupt();
+        }
+    }
+
 
     public static void initDelayedQueueTask(){
         RBlockingDeque<String> blockingDeque = RedissonConfig.getRedisson().getBlockingDeque(SPECIAL_TITLE_ONE_DAY_QUEUE);
-        // 注意虽然delayedQueue在这个方法里面没有用到，但是这行代码也是必不可少的。
         RDelayedQueue<String> delayedQueue = RedissonConfig.getRedisson().getDelayedQueue(blockingDeque);
-        while (true) {
+        while (delayThreadRunning) {
             String orderId = null;
             try {
                 orderId = blockingDeque.take();
+            } catch (InterruptedException e) {
+                if (!delayThreadRunning) break;
+                Log.error("initDelayedQueueTask 线程被中断！");
+                continue;
             } catch (Exception e) {
                 Log.error("initDelayedQueueTask 发生异常！");
                 e.printStackTrace();
                 continue;
             }
+            if (!delayThreadRunning) break;
             if (StrUtil.isBlank(orderId)) {
                 continue;
             }

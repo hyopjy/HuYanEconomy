@@ -3,6 +3,8 @@ package cn.chahuyun.economy;
 import cn.chahuyun.config.*;
 import cn.chahuyun.economy.event.*;
 import cn.chahuyun.economy.manager.*;
+import cn.chahuyun.economy.mqtt.MqttClientStart;
+import cn.chahuyun.economy.mqtt.MqttTopic;
 import cn.chahuyun.economy.plugin.FishManager;
 import cn.chahuyun.economy.plugin.PluginManager;
 import cn.chahuyun.economy.power.PowerManager;
@@ -39,6 +41,8 @@ public final class HuYanEconomy extends JavaPlugin {
      */
     public static EconomyConfig config;
 
+    public static final String MQTT_SERVER_NAME = "Economy-MQTT-";
+
     public static final ConcurrentHashMap<Integer, InputStream> INPUT_STREAM_MAP = new ConcurrentHashMap<>(6);
 
     public static final ConcurrentHashMap<String, InputStream> SIGN_STREAM_MAP = new ConcurrentHashMap<>(10);
@@ -47,6 +51,10 @@ public final class HuYanEconomy extends JavaPlugin {
      * 插件所属bot
      */
     public Bot bot;
+
+    // 类成员变量
+    private MqttTopic mqttTopic;
+
 
     public Bot getBotInstance() {
         if (bot == null) {
@@ -120,7 +128,72 @@ public final class HuYanEconomy extends JavaPlugin {
             Log.info("事件已监听!");
         }
         EconomyPluginConfig.INSTANCE.setFirstStart(false);
+
+        // 启动MQTT状态监控线程
+        startMqttStatusMonitor();
+
+        // 初始化并启动MqttTopic线程，订阅 /economy/groupId 主题
+        mqttTopic = new MqttTopic();
+        Thread topicThread = new Thread(mqttTopic, "Economy-MQTT-Topic-Init");
+        topicThread.setDaemon(true);
+        topicThread.start();
+
+
         Log.info(String.format("HuYanEconomy已加载！当前版本 %s !", version));
+    }
+
+    /**
+     * 启动MQTT状态监控线程
+     */
+    private void startMqttStatusMonitor() {
+        Thread monitorThread = new Thread(() -> {
+            MqttClientStart mqttClient = MqttClientStart.getInstance();
+            int lastReconnectAttempts = 0;
+            boolean lastMaxAttemptsReached = false;
+
+            while (true) {
+                try {
+                    Thread.sleep(30000); // 每30秒检查一次
+
+                    // 检查重连次数变化
+                    int currentAttempts = mqttClient.getReconnectAttempts();
+                    if (currentAttempts != lastReconnectAttempts) {
+                        Log.info(MQTT_SERVER_NAME + "MQTT重连次数变化: " + lastReconnectAttempts + " -> " + currentAttempts);
+                        lastReconnectAttempts = currentAttempts;
+                    }
+
+                    // 检查最大尝试次数状态变化
+                    boolean currentMaxAttemptsReached = mqttClient.isMaxAttemptsReached();
+                    if (currentMaxAttemptsReached != lastMaxAttemptsReached) {
+                        if (currentMaxAttemptsReached) {
+                            Log.info(MQTT_SERVER_NAME + "MQTT已达到最大重连次数，将等待60秒后重新尝试");
+                        } else {
+                            Log.info(MQTT_SERVER_NAME +"MQTT重置重连计数，重新开始连接尝试");
+                        }
+                        lastMaxAttemptsReached = currentMaxAttemptsReached;
+                    }
+
+                    // 如果重连次数较多但未达到最大次数，记录警告
+                    if (currentAttempts >= mqttClient.getMaxReconnectAttempts() * 0.6 && !currentMaxAttemptsReached) {
+                        Log.info(MQTT_SERVER_NAME +"MQTT重连次数较多: " + currentAttempts + "/" + mqttClient.getMaxReconnectAttempts());
+                    }
+
+                    // 记录当前连接状态
+                    if (!mqttClient.isConnected()) {
+                        Log.info(MQTT_SERVER_NAME +"MQTT当前状态: " + mqttClient.getConnectionStatus());
+                    }
+
+                } catch (InterruptedException e) {
+                    Log.info(MQTT_SERVER_NAME +"MQTT状态监控线程被中断");
+                    break;
+                } catch (Exception e) {
+                    Log.info(MQTT_SERVER_NAME +"MQTT状态监控异常: " + e.getMessage());
+                }
+            }
+        });
+        monitorThread.setDaemon(true);
+        monitorThread.setName("Economy-MQTT-Status-Monitor");
+        monitorThread.start();
     }
 
     /**
@@ -129,6 +202,14 @@ public final class HuYanEconomy extends JavaPlugin {
     @Override
     public void onDisable() {
         CronUtil.stop();
+        // 停止MQTT客户端
+        MqttClientStart.getInstance().closed();
+        // 优雅关闭MqttTopic线程
+        if (mqttTopic != null) {
+            mqttTopic.stop();
+        }
+        // 优雅关闭延时队列线程
+        RedisUtils.stopDelayThread();
         Log.info("插件已卸载!");
     }
 }
