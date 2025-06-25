@@ -1,6 +1,7 @@
 package cn.chahuyun.economy;
 
 import cn.chahuyun.config.*;
+import cn.chahuyun.economy.commonEvent.UserWinEvent;
 import cn.chahuyun.economy.event.*;
 import cn.chahuyun.economy.manager.*;
 import cn.chahuyun.economy.mqtt.MqttClientStart;
@@ -125,6 +126,14 @@ public final class HuYanEconomy extends JavaPlugin {
             eventEventChannel.registerListenerHost(new RandomMoneyListener());
 //            eventEventChannel.registerListenerHost(new BotPostSendEventListener());
             PowerManager.init(eventEventChannel);
+
+            // java:
+            GlobalEventChannel.INSTANCE.subscribeAlways(UserWinEvent.class, event -> {
+                // 处理事件
+                if (event.getAction().equals("some action")) {
+                    event.setAction("another action");
+                }
+            });
             Log.info("事件已监听!");
         }
         EconomyPluginConfig.INSTANCE.setFirstStart(false);
