@@ -2,17 +2,27 @@ package cn.chahuyun.economy.commonEvent;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import net.mamoe.mirai.event.AbstractEvent;
+
+import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class UserWinEvent  extends AbstractEvent {
     String action;
-    public UserWinEvent(String action) {
+
+    Long groupId;
+
+    List<Long> userIds;
+
+    String propCode;
+
+    public UserWinEvent(String action, Long groupId, List<Long> userIds, String propCode) {
         this.action = action;
+        this.groupId = groupId;
+        this.userIds = userIds;
+        this.propCode = propCode;
     }
 
 }
-
 

@@ -26,6 +26,7 @@ import xyz.cssxsh.mirai.hibernate.MiraiHibernateConfiguration;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class HuYanEconomy extends JavaPlugin {
@@ -130,8 +131,11 @@ public final class HuYanEconomy extends JavaPlugin {
             // java:
             GlobalEventChannel.INSTANCE.subscribeAlways(UserWinEvent.class, event -> {
                 // 处理事件
-                if (event.getAction().equals("some action")) {
-                    event.setAction("another action");
+                if (event.getAction().equals("GIVE_PROP")) {
+                    CompletableFuture.runAsync(() -> {
+                        EventPropHandleService.addProp(event.getGroupId(), event.getUserIds(), event.getPropCode());
+                    });
+
                 }
             });
             Log.info("事件已监听!");
