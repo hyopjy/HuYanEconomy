@@ -18,6 +18,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 public class MysteriousMerchantOpenTask implements Task {
@@ -100,21 +101,18 @@ public class MysteriousMerchantOpenTask implements Task {
 
         // 获取商店商品信息
         List<MysteriousMerchantShop> shopGoodsList = MysteriousMerchantManager.getMysteriousMerchantShopByGoodCodeList(goodCodeList);
-
-        List<MysteriousMerchantShop> upshopGoodsList;
         if(CollectionUtils.isEmpty(shopGoodsList)){
             return;
         }
+        List<MysteriousMerchantShop> upshopGoodsList;
         if(shopGoodsList.size() <= setting.getRandomGoodCount()){
             upshopGoodsList = shopGoodsList;
         }else {
             // 随机-几种
-            // 首先打乱列表
-            Collections.shuffle(shopGoodsList);
             // 然后从打乱后的列表中获取前 numberOfRandomElements 个元素
-            upshopGoodsList = shopGoodsList.subList(0, randomGoodCount)
-                   .stream().sorted(Comparator.comparing(MysteriousMerchantShop::getGoodCode))
-                   .collect(Collectors.toList());
+            shopGoodsList.sort(Comparator.comparing(MysteriousMerchantShop::getGoodCode));
+           // 首先打乱列表
+            upshopGoodsList =  getRandomElements(shopGoodsList, randomGoodCount);
         }
 
         List<MysteriousMerchantGoods> goodUpList = new ArrayList<>(upshopGoodsList.size());
@@ -123,7 +121,7 @@ public class MysteriousMerchantOpenTask implements Task {
             goods.setSettingId(setting.getSettingId());
             goods.setGroupId(groupId);
             goods.setGoodCode(shopGood.getGoodCode());
-            Integer store = RandomUtil.randomInt(minStored, maxStored + 1);
+            int store = RandomUtil.randomInt(minStored, maxStored + 1);
             goods.setGoodStored(store);
             goods.setSold(0);
             goods.setOpenHour(hour);
@@ -183,5 +181,14 @@ public class MysteriousMerchantOpenTask implements Task {
 
         group.sendMessage(message.toString());
 
+    }
+
+    public static <T> List<T> getRandomElements(List<T> list, int count) {
+        if (list == null || list.isEmpty())
+            return Collections.emptyList();
+
+        List<T> copy = new ArrayList<>(list); // 避免修改原列表
+        Collections.shuffle(copy); // 🔀 打乱顺序
+        return copy.subList(0, Math.min(count, copy.size()));
     }
 }
