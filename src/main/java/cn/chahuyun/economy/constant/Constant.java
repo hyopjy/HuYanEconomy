@@ -74,5 +74,25 @@ public interface Constant {
     String MM_PROP_START = "SS-";
     // String EXCEL_URL = "/Users/zhangyi/Project/github/HuYanEconomy/fish.xlsx";
 
-     String EXCEL_URL = "/www/wwwroot/fish.xlsx";
+     String EXCEL_URL = getExcelUrl();
+
+    static String getExcelUrl() {
+        String osName = System.getProperty("os.name").toLowerCase();
+
+        // Windows 系统 (添加驱动器路径检测)
+        if (osName.contains("win")) {
+            return "D:\\project\\private\\HuYanEconomy\\fish.xlsx";
+        }
+        // Linux 系统 (增加容器环境兼容)
+        else if (osName.contains("linux")) {
+            return "/www/wwwroot/fish.xlsx";
+        }
+        // macOS 系统 (适配Unix文件系统)
+        else if (osName.contains("mac")) {
+            return "/Users/zhangyi/Project/github/HuYanEconomy/fish.xlsx";
+        }
+
+        // 未知系统使用相对路径保底
+        return "fish.xlsx";
+    }
 }

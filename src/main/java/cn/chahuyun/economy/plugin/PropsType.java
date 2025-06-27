@@ -56,7 +56,10 @@ public class PropsType {
      */
     public static void add(String code, PropsBase propsBase) {
         props.put(code, propsBase);
-        map.put(String.valueOf(getProps().size()), code);
+        // FISH-
+        String[] noArr = code.split("-");
+//        map.put(String.valueOf(getProps().size()), code);
+        map.put(noArr[1], code);
     }
 
     public static void clear() {

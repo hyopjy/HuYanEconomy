@@ -65,48 +65,48 @@ public class PluginManager {
 
     }
 
-//    private static void initPropsFishCard() {
-//        // 缓存
-//        propsManager.clearProps();
-//
-//        List<PropsFishCard> PropsFishCardList = HibernateUtil.factory.fromSession(session -> {
-//            HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
-//            JpaCriteriaQuery<PropsFishCard> query = builder.createQuery(PropsFishCard.class);
-//            query.select(query.from(PropsFishCard.class));
-//            return session.createQuery(query).list();
-//        });
-//
-//        if (CollectionUtils.isEmpty(PropsFishCardList)) {
-//            reloadPropsFishCard();
-//            return;
-//        }
-//
-//        PropsFishCardList.stream().forEach(propsFishConfig -> {
-//            propsManager.registerProps(propsFishConfig);
-//        });
-//
-//    }
-//
-//    private static void reloadPropsFishCard() {
-//        List<PropsFishCard> propsFishConfigList = getExcelData();
-//        propsFishConfigList.stream().forEach(propsFishConfig -> {
-//            PropsFishCard propsFishCard = new PropsFishCard(propsFishConfig.getCode(),
-//                    propsFishConfig.getName(),
-//                    propsFishConfig.getCost(),
-//                    propsFishConfig.getDescription(),
-//                    propsFishConfig.getFishDesc(),
-//                    propsFishConfig.getContent(),
-//                    propsFishConfig.getBuy(),
-//                    propsFishConfig.getPriceDesc(),
-//                    propsFishConfig.getExchange(),
-//                    propsFishConfig.getDelete(),
-//                    propsFishConfig.getTradable(),
-//                    propsFishConfig.getOffShelf()
-//            );
-//            PropsFishCard finalPropsFishCard = propsFishCard.save();
-//            propsManager.registerProps(finalPropsFishCard);
-//        });
-//    }
+    private static void initPropsFishCard() {
+        // 缓存
+        propsManager.clearProps();
+
+        List<PropsFishCard> PropsFishCardList = HibernateUtil.factory.fromSession(session -> {
+            HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
+            JpaCriteriaQuery<PropsFishCard> query = builder.createQuery(PropsFishCard.class);
+            query.select(query.from(PropsFishCard.class));
+            return session.createQuery(query).list();
+        });
+
+        if (CollectionUtils.isEmpty(PropsFishCardList)) {
+            reloadPropsFishCard();
+            return;
+        }
+
+        PropsFishCardList.stream().forEach(propsFishConfig -> {
+            propsManager.registerProps(propsFishConfig);
+        });
+
+    }
+
+    private static void reloadPropsFishCard() {
+        List<PropsFishCard> propsFishConfigList = getExcelData();
+        propsFishConfigList.stream().forEach(propsFishConfig -> {
+            PropsFishCard propsFishCard = new PropsFishCard(propsFishConfig.getCode(),
+                    propsFishConfig.getName(),
+                    propsFishConfig.getCost(),
+                    propsFishConfig.getDescription(),
+                    propsFishConfig.getFishDesc(),
+                    propsFishConfig.getContent(),
+                    propsFishConfig.getBuy(),
+                    propsFishConfig.getPriceDesc(),
+                    propsFishConfig.getExchange(),
+                    propsFishConfig.getDelete(),
+                    propsFishConfig.getTradable(),
+                    propsFishConfig.getOffShelf()
+            );
+            PropsFishCard finalPropsFishCard = propsFishCard.save();
+            propsManager.registerProps(finalPropsFishCard);
+        });
+    }
 
     /**
      * 获取道具管理实现
