@@ -184,7 +184,6 @@ public class PluginManager {
     }
 
     private static List<PropsFishCard> getExcelData() {
-        HuYanEconomy instance = HuYanEconomy.INSTANCE;
         ExcelReader reader = ExcelUtil.getReader(Constant.EXCEL_URL, 1);
         Map<String, String> map = new HashMap<>();
         map.put("编号", "code");
@@ -200,6 +199,7 @@ public class PluginManager {
         map.put("是否直接兑换","delete");
         map.put("是否可交易","tradable");
         map.put("是否下架","offShelf");
+        map.put("全能道具","allAround");
         List<PropsFishCard> list = reader.setHeaderAlias(map).readAll(PropsFishCard.class);
         reader.close();
         return list;

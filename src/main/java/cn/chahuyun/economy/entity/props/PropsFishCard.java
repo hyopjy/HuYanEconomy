@@ -38,6 +38,9 @@ public class PropsFishCard extends PropsBase implements Serializable {
     // 是否下架
     private Boolean offShelf;
 
+    // 是否是全能道具
+    private Boolean allAround;
+
     public PropsFishCard() {
     }
 
