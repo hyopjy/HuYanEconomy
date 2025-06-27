@@ -111,4 +111,8 @@ public class PropFishUsageFactory {
     public IPropUsage createMoonlightSprinklesIntoFrosting() {
         return new MoonlightSprinklesIntoFrosting();
     }
+
+    public IPropUsage createOmnipotentProps() {
+        return new OmnipotentProps();
+    }
 }

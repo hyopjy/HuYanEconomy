@@ -29,6 +29,7 @@ public class PropsFishCard extends PropsBase implements Serializable {
 
     // 是否兑换
     private Boolean exchange;
+
     // 是否直接兑换
     private Boolean delete;
 
@@ -37,9 +38,6 @@ public class PropsFishCard extends PropsBase implements Serializable {
 
     // 是否下架
     private Boolean offShelf;
-
-    // 是否是全能道具
-    private Boolean allAround;
 
     public PropsFishCard() {
     }

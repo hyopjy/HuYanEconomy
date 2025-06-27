@@ -101,6 +101,9 @@ public class PropFishUsageContext {
             case PropConstant.MOONLIGHT_SPRINKLES_INTO_FROSTING:
                 iPropUsage = factory.createMoonlightSprinklesIntoFrosting();
                 break;
+            case PropConstant.OMNIPOTENT_PROPS:
+                iPropUsage = factory.createOmnipotentProps();
+                break;
             default:
                 event.getSubject().sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "道具暂未开放～"));
                 break;

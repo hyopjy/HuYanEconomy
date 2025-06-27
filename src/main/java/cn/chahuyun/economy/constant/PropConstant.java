@@ -50,4 +50,6 @@ public interface PropConstant {
     String ULNS_2324 = "《乌拉诺斯2324》";
 
     String MOONLIGHT_SPRINKLES_INTO_FROSTING = "《月光洒为糖霜》";
+
+    String OMNIPOTENT_PROPS = "全能道具";
 }

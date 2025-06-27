@@ -53,7 +53,8 @@ public class PluginManager {
 //        PropsCard propsCard = new PropsCard(Constant.SIGN_DOUBLE_SINGLE_CARD, "签到双倍币币卡", 99, true, "张", "不要999，不要599，只要199币币，你的下一次签到将翻倍！", false, null, null, false, null);
 //        propsManager.registerProps(propsCard);
         try {
-            initPropsFishCard();
+//            initPropsFishCard();
+            PluginManager.refreshPropsFishCard();
             //壶言会话
             HuYanEconomy.INSTANCE.config.setOwner(ConfigData.INSTANCE.getOwner());
             Log.info("检测到壶言会话,已同步主人!");
@@ -64,48 +65,48 @@ public class PluginManager {
 
     }
 
-    private static void initPropsFishCard() {
-        // 缓存
-        propsManager.clearProps();
-
-        List<PropsFishCard> PropsFishCardList = HibernateUtil.factory.fromSession(session -> {
-            HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
-            JpaCriteriaQuery<PropsFishCard> query = builder.createQuery(PropsFishCard.class);
-            query.select(query.from(PropsFishCard.class));
-            return session.createQuery(query).list();
-        });
-
-        if (CollectionUtils.isEmpty(PropsFishCardList)) {
-            reloadPropsFishCard();
-            return;
-        }
-
-        PropsFishCardList.stream().forEach(propsFishConfig -> {
-            propsManager.registerProps(propsFishConfig);
-        });
-
-    }
-
-    private static void reloadPropsFishCard() {
-        List<PropsFishCard> propsFishConfigList = getExcelData();
-        propsFishConfigList.stream().forEach(propsFishConfig -> {
-            PropsFishCard propsFishCard = new PropsFishCard(propsFishConfig.getCode(),
-                    propsFishConfig.getName(),
-                    propsFishConfig.getCost(),
-                    propsFishConfig.getDescription(),
-                    propsFishConfig.getFishDesc(),
-                    propsFishConfig.getContent(),
-                    propsFishConfig.getBuy(),
-                    propsFishConfig.getPriceDesc(),
-                    propsFishConfig.getExchange(),
-                    propsFishConfig.getDelete(),
-                    propsFishConfig.getTradable(),
-                    propsFishConfig.getOffShelf()
-            );
-            PropsFishCard finalPropsFishCard = propsFishCard.save();
-            propsManager.registerProps(finalPropsFishCard);
-        });
-    }
+//    private static void initPropsFishCard() {
+//        // 缓存
+//        propsManager.clearProps();
+//
+//        List<PropsFishCard> PropsFishCardList = HibernateUtil.factory.fromSession(session -> {
+//            HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
+//            JpaCriteriaQuery<PropsFishCard> query = builder.createQuery(PropsFishCard.class);
+//            query.select(query.from(PropsFishCard.class));
+//            return session.createQuery(query).list();
+//        });
+//
+//        if (CollectionUtils.isEmpty(PropsFishCardList)) {
+//            reloadPropsFishCard();
+//            return;
+//        }
+//
+//        PropsFishCardList.stream().forEach(propsFishConfig -> {
+//            propsManager.registerProps(propsFishConfig);
+//        });
+//
+//    }
+//
+//    private static void reloadPropsFishCard() {
+//        List<PropsFishCard> propsFishConfigList = getExcelData();
+//        propsFishConfigList.stream().forEach(propsFishConfig -> {
+//            PropsFishCard propsFishCard = new PropsFishCard(propsFishConfig.getCode(),
+//                    propsFishConfig.getName(),
+//                    propsFishConfig.getCost(),
+//                    propsFishConfig.getDescription(),
+//                    propsFishConfig.getFishDesc(),
+//                    propsFishConfig.getContent(),
+//                    propsFishConfig.getBuy(),
+//                    propsFishConfig.getPriceDesc(),
+//                    propsFishConfig.getExchange(),
+//                    propsFishConfig.getDelete(),
+//                    propsFishConfig.getTradable(),
+//                    propsFishConfig.getOffShelf()
+//            );
+//            PropsFishCard finalPropsFishCard = propsFishCard.save();
+//            propsManager.registerProps(finalPropsFishCard);
+//        });
+//    }
 
     /**
      * 获取道具管理实现
@@ -199,7 +200,6 @@ public class PluginManager {
         map.put("是否直接兑换","delete");
         map.put("是否可交易","tradable");
         map.put("是否下架","offShelf");
-        map.put("全能道具","allAround");
         List<PropsFishCard> list = reader.setHeaderAlias(map).readAll(PropsFishCard.class);
         reader.close();
         return list;

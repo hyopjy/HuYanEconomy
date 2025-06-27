@@ -488,7 +488,7 @@ public class RandomMoneyListener extends SimpleListenerHost {
                 SeasonManager.importShopInfo();
 
                 // 10. 删除道具
-                SeasonManager.clearPropCode("FISH-2");
+//                SeasonManager.clearPropCode("FISH-2");
             }
             if (message.startsWith("xb") &&
                     EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())){

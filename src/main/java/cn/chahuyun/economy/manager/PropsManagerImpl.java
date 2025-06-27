@@ -539,7 +539,7 @@ public class PropsManagerImpl implements PropsManager {
         UserInfo userInfo = UserManager.getUserInfo(sender);
         if (propCode.startsWith("FISH-")) {
             List<PropsFishCard> propsByUserFromCode = getPropsByUserFromCode(userInfo, PropsFishCard.class);
-            if (propsByUserFromCode.size() == 0) {
+            if (propsByUserFromCode.isEmpty()) {
                 subject.sendMessage(messages.append("你的包里没有道具!").build());
                 return;
             }
