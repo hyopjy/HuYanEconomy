@@ -51,5 +51,30 @@ public interface PropConstant {
 
     String MOONLIGHT_SPRINKLES_INTO_FROSTING = "《月光洒为糖霜》";
 
-    String OMNIPOTENT_PROPS = "全能道具";
+    String OMNIPOTENT_PROPS = "吉玉头筹";
+
+    String CHAMPIONSHIP_TROPHY="🤺冠军奖杯🏆";
+
+    String FALLING_FLOWERS_FALL= "落花落";
+
+    String GAP = "GAP";
+
+//     🫧泡泡标识
+//     🪙波币标识
+//     🎰梭哈标识
+//     💴万贯标识
+//     准点打工标识
+//     动物大使标识
+//     狗姐心选标识
+//     天选之子标识
+    String FISH_SIGN_1 = "\uD83E\uDEE7泡泡标识";
+
+    String FISH_SIGN_2 = "\uD83E\uDE99波币标识";
+    String FISH_SIGN_3 = "\uD83C\uDFB0梭哈标识";
+    String FISH_SIGN_4 = "\uD83D\uDCB4万贯标识";
+    String FISH_SIGN_5 = "准点打工标识";
+    String FISH_SIGN_6 = "动物大使标识";
+    String FISH_SIGN_7 = "狗姐心选标识";
+
+    String FISH_SIGN_8 = "天选之子标识";
 }

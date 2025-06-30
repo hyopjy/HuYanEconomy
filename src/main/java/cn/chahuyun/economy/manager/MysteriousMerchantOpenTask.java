@@ -124,8 +124,12 @@ public class MysteriousMerchantOpenTask implements Task {
             goods.setSettingId(setting.getSettingId());
             goods.setGroupId(groupId);
             goods.setGoodCode(shopGood.getGoodCode());
-            int store = RandomUtil.randomInt(minStored, maxStored + 1);
-            goods.setGoodStored(store);
+            if(shopGood.getPermanent()){
+                goods.setGoodStored(shopGood.getPermanentCount());
+            }else {
+                int store = RandomUtil.randomInt(minStored, maxStored + 1);
+                goods.setGoodStored(store);
+            }
             goods.setSold(0);
             goods.setOpenHour(hour);
             goods.setStartMinutes(startMinutes);

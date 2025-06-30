@@ -3,6 +3,7 @@ package cn.chahuyun.economy.manager;
 import cn.chahuyun.economy.aop.PropUtils;
 import cn.chahuyun.economy.constant.DailyPropCode;
 import cn.chahuyun.economy.constant.FishSignConstant;
+import cn.chahuyun.economy.constant.PropExchangeDict;
 import cn.chahuyun.economy.entity.UserBackpack;
 import cn.chahuyun.economy.entity.UserInfo;
 import cn.chahuyun.economy.entity.fish.FishInfo;
@@ -34,109 +35,6 @@ import java.util.stream.IntStream;
  * @date 2022/11/14 12:27
  */
 public class PropsManagerImpl implements PropsManager {
-
-
-   private static final Map<String, List<String>> PROP_EXCHANGE = new HashMap<>(10);
-   static {
-       // FBPFK
-       List<String> bfpfkList = new ArrayList<>(5);
-       bfpfkList.add("FISH-4");
-       bfpfkList.add("FISH-3");
-       bfpfkList.add("FISH-5");
-       bfpfkList.add("FISH-3");
-       bfpfkList.add("FISH-6");
-       PROP_EXCHANGE.put("FISH-15",bfpfkList);
-       // FBTNK
-       List<String> bftnkList = new ArrayList<>(5);
-       bftnkList.add("FISH-4");
-       bftnkList.add("FISH-3");
-       bftnkList.add("FISH-7");
-       bftnkList.add("FISH-8");
-       bftnkList.add("FISH-6");
-       PROP_EXCHANGE.put("FISH-16",bftnkList);
-
-       List<String> hkList = new ArrayList<>(6);
-       hkList.add("FISH-9");
-       hkList.add("FISH-10");
-       hkList.add("FISH-11");
-       hkList.add("FISH-12");
-       hkList.add("FISH-13");
-       hkList.add("FISH-24");
-       PROP_EXCHANGE.put("FISH-17",hkList);
-
-       List<String> storyList = new ArrayList<>(2);
-       storyList.add("FISH-18");
-       storyList.add("FISH-19");
-       PROP_EXCHANGE.put("FISH-20",storyList);
-
-
-       List<String> wditBBList = new ArrayList<>(4);
-       wditBBList.add("FISH-35");
-       wditBBList.add("FISH-36");
-       wditBBList.add("FISH-37");
-       wditBBList.add("FISH-38");
-       PROP_EXCHANGE.put("FISH-39", wditBBList);
-
-       List<String> physicalList = new ArrayList<>(6);
-       physicalList.add("FISH-43");
-       physicalList.add("FISH-44");
-       physicalList.add("FISH-45");
-       physicalList.add("FISH-46");
-       physicalList.add("FISH-47");
-       physicalList.add("FISH-48");
-       PROP_EXCHANGE.put("FISH-49", physicalList);
-
-       List<String> uranusList = new ArrayList<>(10);
-       uranusList.add("FISH-52");
-       uranusList.add("FISH-53");
-       uranusList.add("FISH-54");
-       uranusList.add("FISH-55");
-       uranusList.add("FISH-56");
-       uranusList.add("FISH-57");
-       uranusList.add("FISH-58");
-       uranusList.add("FISH-59");
-       uranusList.add("FISH-60");
-       uranusList.add("FISH-61");
-       uranusList.add("FISH-63");
-       uranusList.add("FISH-64");
-       uranusList.add("FISH-65");
-       uranusList.add("FISH-66");
-       uranusList.add("FISH-67");
-       uranusList.add("FISH-68");
-       uranusList.add("FISH-69");
-       uranusList.add("FISH-70");
-       uranusList.add("FISH-71");
-       uranusList.add("FISH-72");
-       uranusList.add("FISH-73");
-       uranusList.add("FISH-74");
-       uranusList.add("FISH-75");
-       uranusList.add("FISH-76");
-       uranusList.add("FISH-77");
-       uranusList.add("FISH-78");
-       uranusList.add("FISH-79");
-       uranusList.add("FISH-80");
-       uranusList.add("FISH-81");
-       uranusList.add("FISH-82");
-       PROP_EXCHANGE.put("FISH-62", uranusList);
-
-
-
-       List<String> FISH_95_LIST = new ArrayList<>(10);
-       FISH_95_LIST.add("FISH-83");
-       FISH_95_LIST.add("FISH-84");
-       FISH_95_LIST.add("FISH-85");
-       FISH_95_LIST.add("FISH-86");
-       FISH_95_LIST.add("FISH-87");
-       FISH_95_LIST.add("FISH-88");
-       FISH_95_LIST.add("FISH-89");
-       FISH_95_LIST.add("FISH-90");
-       FISH_95_LIST.add("FISH-91");
-       FISH_95_LIST.add("FISH-92");
-       FISH_95_LIST.add("FISH-93");
-       FISH_95_LIST.add("FISH-94");
-       PROP_EXCHANGE.put("FISH-95", FISH_95_LIST);
-
-   }
 
     /**
      * 注册道具<p>
@@ -784,7 +682,7 @@ public class PropsManagerImpl implements PropsManager {
         List<UserBackpack> userBackpack = userInfo.getBackpacks();
 
         // 获取组成的道具
-        List<String> propsList = PROP_EXCHANGE.get(propsInfo.getCode());
+        List<String> propsList = PropExchangeDict.PROP_EXCHANGE.get(propsInfo.getCode());
         if (CollectionUtils.isEmpty(propsList)) {
             messages.append("兑换道具不存在!");
             subject.sendMessage(messages.build());

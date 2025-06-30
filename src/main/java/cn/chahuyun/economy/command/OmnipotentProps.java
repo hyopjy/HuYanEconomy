@@ -56,9 +56,9 @@ public class OmnipotentProps extends AbstractPropUsage {
             subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "需要获得的道具不存在！"));
             return false;
         }
-        if (!propsInfo.getBuy()) {
+        if (!propsInfo.getTradable()) {
             subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),
-                    "😣 [" + propsInfo.getName() + "] 是不可购买道具，不可兑换"));
+                    "😣 [" + propsInfo.getName() + "] 是不可交易的道具，不可兑换"));
             return false;
         }
         changePropCode = propCode;

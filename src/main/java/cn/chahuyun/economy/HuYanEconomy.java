@@ -1,7 +1,6 @@
 package cn.chahuyun.economy;
 
 import cn.chahuyun.config.*;
-import cn.chahuyun.economy.commonEvent.UserWinEvent;
 import cn.chahuyun.economy.event.*;
 import cn.chahuyun.economy.manager.*;
 import cn.chahuyun.economy.mqtt.MqttClientStart;

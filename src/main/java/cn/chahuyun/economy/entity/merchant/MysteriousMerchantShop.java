@@ -42,6 +42,10 @@ public class MysteriousMerchantShop implements Serializable {
     // 常驻商品
     private Boolean permanent;
 
+    // 常驻数量
+    private int permanentCount;
+
+
     public boolean saveOrUpdate() {
         try {
             HibernateUtil.factory.fromTransaction(session -> session.merge(this));

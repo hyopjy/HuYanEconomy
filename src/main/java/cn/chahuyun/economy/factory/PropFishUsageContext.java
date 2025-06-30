@@ -104,6 +104,25 @@ public class PropFishUsageContext {
             case PropConstant.OMNIPOTENT_PROPS:
                 iPropUsage = factory.createOmnipotentProps();
                 break;
+            case PropConstant.CHAMPIONSHIP_TROPHY:
+                iPropUsage = factory.createChampionshipTrophy();
+                break;
+            case PropConstant.FALLING_FLOWERS_FALL:
+                iPropUsage = factory.createFallingFlowersFall();
+                break;
+            case PropConstant.GAP:
+                iPropUsage = factory.createGAP();
+                break;
+            case PropConstant.FISH_SIGN_1:
+            case PropConstant.FISH_SIGN_2:
+            case PropConstant.FISH_SIGN_3:
+            case PropConstant.FISH_SIGN_4:
+            case PropConstant.FISH_SIGN_5:
+            case PropConstant.FISH_SIGN_6:
+            case PropConstant.FISH_SIGN_7:
+            case PropConstant.FISH_SIGN_8:
+                iPropUsage = factory.createFishingCostume();
+                break;
             default:
                 event.getSubject().sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "道具暂未开放～"));
                 break;

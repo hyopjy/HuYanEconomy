@@ -347,7 +347,6 @@ public class MysteriousMerchantManager {
     }
 
     private static List<MysteriousMerchantShop> getExcelData() {
-        HuYanEconomy instance = HuYanEconomy.INSTANCE;
         ExcelReader reader = ExcelUtil.getReader(Constant.EXCEL_URL, 2);
         Map<String, String> map = new HashMap<>();
         map.put("编号", "goodCode");
@@ -357,6 +356,7 @@ public class MysteriousMerchantManager {
         map.put("币币", "bbCount");
         map.put("赛季币", "seasonMoney");
         map.put("是否常驻","permanent");
+        map.put("常驻数量", "permanentCount");
         List<MysteriousMerchantShop> list = reader.setHeaderAlias(map).readAll(MysteriousMerchantShop.class);
         reader.close();
         return list;

@@ -115,4 +115,20 @@ public class PropFishUsageFactory {
     public IPropUsage createOmnipotentProps() {
         return new OmnipotentProps();
     }
+
+    public IPropUsage createChampionshipTrophy() {
+        return new ChampionshipTrophy();
+    }
+
+    public IPropUsage createFallingFlowersFall() {
+        return new FallingFlowersFall();
+    }
+
+    public IPropUsage createGAP() {
+        return new GAP();
+    }
+
+    public IPropUsage createFishingCostume() {
+        return new FishingCostume();
+    }
 }
