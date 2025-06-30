@@ -115,6 +115,9 @@ public class MysteriousMerchantOpenTask implements Task {
             upshopGoodsList =  getRandomElements(shopGoodsList, randomGoodCount);
         }
 
+        List<MysteriousMerchantShop> permanentShopGoodsList = MysteriousMerchantManager.getPermanentGoodCodeList();
+        upshopGoodsList.addAll(permanentShopGoodsList);
+
         List<MysteriousMerchantGoods> goodUpList = new ArrayList<>(upshopGoodsList.size());
         upshopGoodsList.forEach(shopGood->{
             MysteriousMerchantGoods goods = new MysteriousMerchantGoods();

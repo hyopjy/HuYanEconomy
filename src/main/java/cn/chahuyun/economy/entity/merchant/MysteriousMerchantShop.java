@@ -39,6 +39,9 @@ public class MysteriousMerchantShop implements Serializable {
      */
     private Integer changeType;
 
+    // 常驻商品
+    private Boolean permanent;
+
     public boolean saveOrUpdate() {
         try {
             HibernateUtil.factory.fromTransaction(session -> session.merge(this));

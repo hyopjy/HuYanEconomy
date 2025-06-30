@@ -356,6 +356,7 @@ public class MysteriousMerchantManager {
         map.put("其他道具数量", "prop2Count");
         map.put("币币", "bbCount");
         map.put("赛季币", "seasonMoney");
+        map.put("是否常驻","permanent");
         List<MysteriousMerchantShop> list = reader.setHeaderAlias(map).readAll(MysteriousMerchantShop.class);
         reader.close();
         return list;
@@ -660,4 +661,14 @@ public class MysteriousMerchantManager {
         shopList.stream().forEach(MysteriousMerchantShop::saveOrUpdate);
     }
 
+    public static List<MysteriousMerchantShop> getPermanentGoodCodeList() {
+        return HibernateUtil.factory.fromSession(session -> {
+            HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
+            JpaCriteriaQuery<MysteriousMerchantShop> query = builder.createQuery(MysteriousMerchantShop.class);
+            JpaRoot<MysteriousMerchantShop> shop = query.from(MysteriousMerchantShop.class);
+            query.select(shop).where(builder.equal(shop.get("permanent"), true));
+            query.orderBy(builder.asc(shop.get("goodCode"))); // 按照 goodCode 正序排序
+            return session.createQuery(query).list();
+        });
+    }
 }
