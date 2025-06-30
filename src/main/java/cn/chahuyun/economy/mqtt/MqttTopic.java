@@ -14,8 +14,10 @@ public class MqttTopic implements Runnable{
     private final List<Long> pendingSubscriptions = new ArrayList<>(); // 待订阅的主题列表
 
     public void addGroupTopic(){
-        List<Long> initGroupList = new ArrayList<>(2);
+        List<Long> initGroupList = new ArrayList<>(3);
         initGroupList.add(835186488L);
+        initGroupList.add(227265762L);
+        initGroupList.add(758085692L);
         initialized = true;
         // 初始化时就加到待订阅
         pendingSubscriptions.clear();
@@ -63,7 +65,7 @@ public class MqttTopic implements Runnable{
                     System.err.println("订阅验证失败: " + topic);
                 }
                 // 订阅成功后立即发送一条测试消息验证订阅
-                MqttTopicUtil.publish(topic, "MqttTopic订阅测试消息");
+//                MqttTopicUtil.publish(topic, "MqttTopic订阅测试消息");
             } catch (Exception e) {
                 System.err.println("订阅主题失败: topic/" + groupId + ", 错误: " + e.getMessage());
             }

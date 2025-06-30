@@ -85,6 +85,7 @@ public final class HuYanEconomy extends JavaPlugin {
 
     @Override
     public void onEnable() {
+
         EventChannel<Event> eventEventChannel = GlobalEventChannel.INSTANCE.parentScope(HuYanEconomy.INSTANCE);
         //加载前置
         MiraiHibernateConfiguration configuration = new MiraiHibernateConfiguration(this);
@@ -125,19 +126,10 @@ public final class HuYanEconomy extends JavaPlugin {
             eventEventChannel.registerListenerHost(new MessageEventListener());
             eventEventChannel.registerListenerHost(new DriverCarEventListener());
             eventEventChannel.registerListenerHost(new RandomMoneyListener());
+
 //            eventEventChannel.registerListenerHost(new BotPostSendEventListener());
             PowerManager.init(eventEventChannel);
 
-            // java:
-            GlobalEventChannel.INSTANCE.subscribeAlways(UserWinEvent.class, event -> {
-                // 处理事件
-                if (event.getAction().equals("GIVE_PROP")) {
-                    CompletableFuture.runAsync(() -> {
-                        EventPropHandleService.addProp(event.getGroupId(), event.getUserIds(), event.getPropCode());
-                    });
-
-                }
-            });
             Log.info("事件已监听!");
         }
         EconomyPluginConfig.INSTANCE.setFirstStart(false);

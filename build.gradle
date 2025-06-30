@@ -53,7 +53,6 @@ dependencies {
 //    implementation 'cglib:cglib:3.2.7'
     implementation 'net.bytebuddy:byte-buddy:1.14.2'
     implementation 'org.redisson:redisson:3.20.1'
-    implementation 'com.alibaba:fastjson:2.0.28'
     implementation 'com.dtflys.forest:forest-core:1.5.36'
     //测试库
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.0'
@@ -64,6 +63,9 @@ dependencies {
 //    implementation("com.fish:fish-common-api:1.0.2")
 
     testConsoleRuntime("top.mrxiaom.mirai:overflow-core:1.0.5")
+
+    implementation("com.alibaba.fastjson2:fastjson2-kotlin:2.0.45")
+
 
 
 }

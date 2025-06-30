@@ -1,5 +1,9 @@
 package cn.chahuyun.economy.mqtt;
 
+import cn.chahuyun.economy.dto.ContentUserWinEventDTO;
+import cn.chahuyun.economy.manager.EventPropHandleService;
+import cn.chahuyun.economy.utils.Log;
+import com.alibaba.fastjson2.JSONObject;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import java.util.ArrayList;
@@ -73,6 +77,7 @@ public class MqttClientStart {
                 @Override
                 public void messageArrived(String topic, MqttMessage message) throws Exception {
                     // 新增：分发给工具类的回调
+                    Log.info("我监听到事件啦！！");
                     MqttTopicUtil.onMessage(topic, message);
 
                     System.out.println(MQTT_SERVER_NAME +"收到消息: " + topic + " " + new String(message.getPayload()));
@@ -80,6 +85,11 @@ public class MqttClientStart {
                     System.out.println(MQTT_SERVER_NAME +"处理消息: " + messageStr);
                     
                     try {
+                        ContentUserWinEventDTO dto = JSONObject.parseObject(messageStr, ContentUserWinEventDTO.class);
+                        if("USER_WIN_EVENT".equals(dto.getMessageType())){
+                            Long groupId = dto.getGroupId();
+                            EventPropHandleService.addProp(groupId, dto.getUserIds(), dto.getPropCode());
+                        }
 
                     } catch (Exception e) {
                         System.err.println(MQTT_SERVER_NAME +"处理消息时发生异常: " + e.getMessage());
