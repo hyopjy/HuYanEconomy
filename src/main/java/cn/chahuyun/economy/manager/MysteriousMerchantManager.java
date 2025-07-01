@@ -36,6 +36,8 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import static cn.chahuyun.economy.constant.Constant.MM_PROP_START;
+
 /**
  * 神秘商人管理
  *
@@ -82,9 +84,13 @@ public class MysteriousMerchantManager {
 
     public static final Map<String, MysteriousMerchantShop> SHOP_GOODS_MAP = new ConcurrentHashMap<>();
 
+    public static final Map<String, String> SHOP_GOODS_NO_MAP = new ConcurrentHashMap<>();
+
     public static void init(){
         // 加载商品信息
-        reloadShopListMap();
+        importShopInfo();
+
+//        reloadShopListMap();
         // 开启定时任务
         open();
     }
@@ -194,6 +200,13 @@ public class MysteriousMerchantManager {
     }
 
     public static int getEndMinutes(MysteriousMerchantSetting setting) {
+// , Integer hour
+//        LocalDateTime now = LocalDateTime.of(LocalDate.now(), LocalTime.of(hour, getStartMinutes(), 0));
+//        LocalDateTime plusDateTime  = now.plusMinutes(setting.getPassMinute());
+//
+//        List<Integer> integer = new ArrayList<>(2);
+//        integer.add(plusDateTime.getHour());
+//        integer.add(plusDateTime.getMinute());
         return getStartMinutes() + setting.getPassMinute();
     }
 
@@ -232,9 +245,8 @@ public class MysteriousMerchantManager {
     }
 
     private static void runTask(MysteriousMerchantSetting setting) {
-        // 启动任务
-        int startMinutes = getStartMinutes();
-        int endMinutes = getEndMinutes(setting);
+
+
         Long settingId = setting.getSettingId();
         List<Integer> hourList = Arrays.stream(setting.getHourStr().split(Constant.SPILT))
                 .mapToInt(Integer::parseInt)
@@ -243,6 +255,10 @@ public class MysteriousMerchantManager {
 
         for (int i = 0; i < hourList.size(); i++) {
             Integer hour = hourList.get(i);
+            // 启动任务
+            int startMinutes = getStartMinutes();
+            int endMinutes = getEndMinutes(setting);
+
             String startCronKey = getStartKey(settingId, hour, startMinutes);
             String endCronKey = getEndKey(settingId, hour, endMinutes);
             // task
@@ -332,6 +348,7 @@ public class MysteriousMerchantManager {
          * 查出数据库有的神秘商品
          */
         SHOP_GOODS_MAP.clear();
+        SHOP_GOODS_NO_MAP.clear();
 
         List<MysteriousMerchantShop> shopGoodList =  HibernateUtil.factory.fromSession(session -> {
             HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
@@ -343,6 +360,7 @@ public class MysteriousMerchantManager {
 
         shopGoodList.forEach(shopGood->{
             SHOP_GOODS_MAP.put(shopGood.getGoodCode(),shopGood);
+            SHOP_GOODS_NO_MAP.put(shopGood.getGoodCode().replace(MM_PROP_START, "") ,shopGood.getGoodCode());
         });
     }
 
@@ -387,16 +405,15 @@ public class MysteriousMerchantManager {
             return;
         }
         String goodCode = s[1];
-        if(!goodCode.startsWith(Constant.MM_PROP_START)){
-            subject.sendMessage(MessageUtil.formatMessageChain(message, "请输入完整号码SS-xxx"));;
-//            goodCode = Constant.MM_PROP_START + goodCode;
+//        if(!goodCode.startsWith(MM_PROP_START)){
+////            subject.sendMessage(MessageUtil.formatMessageChain(message, "请输入完整号码SS-xxx"));;
+//            goodCode =
+//        }
+        MysteriousMerchantShop shop = MysteriousMerchantManager.getShopGoodLike(goodCode);
+        if(Objects.isNull(shop) || Objects.isNull(Objects.requireNonNull(shop).getChangeType())){
             return;
         }
-        MysteriousMerchantShop shop = MysteriousMerchantManager.getShopGoodCode(goodCode);
-        if(Objects.isNull(shop) || Objects.isNull(shop.getChangeType())){
-            return;
-        }
-
+        goodCode = shop.getGoodCode();
         // 查询商品是否在售
         MysteriousMerchantGoods goods = MysteriousMerchantManager.getShopGoodByGoodCode(goodCode, group.getId());
         if(Objects.isNull(goods)){
@@ -415,13 +432,12 @@ public class MysteriousMerchantManager {
         Long senderId = event.getSender().getId();
         String shopGoodUserRedisKey = getShopGoodUserRedisKey(goods, senderId);
         if(Objects.nonNull(RedisUtils.getKeyObject(shopGoodUserRedisKey))){
-            subject.sendMessage(MessageUtil.formatMessageChain(message, "限购喽"));
+            subject.sendMessage(MessageUtil.formatMessageChain(message, "限购"));
             return;
         }
         // redis增加库存
         RedisUtils.setKeyObject(shopGoodRedisKey, (int)RedisUtils.getKeyObject(shopGoodRedisKey) - 1);
         RedisUtils.setKeyObject(shopGoodUserRedisKey, 1);
-
 
 
         // 判断抢购规则
@@ -433,6 +449,7 @@ public class MysteriousMerchantManager {
             if (CollectionUtils.isEmpty(prop2List) || prop2List.size() < shop.getProp2Count()) {
                 RedisUtils.setKeyObject(shopGoodRedisKey, (int)RedisUtils.getKeyObject(shopGoodRedisKey) + 1);
                 RedisUtils.deleteKeyString(shopGoodUserRedisKey);
+                subject.sendMessage(MessageUtil.formatMessageChain(message, "需要兑换道具不够"));
                 return;
             }
             // 用户减去兑换的道具
@@ -449,6 +466,7 @@ public class MysteriousMerchantManager {
             if(userMoney < shop.getBbCount()){
                 RedisUtils.setKeyObject(shopGoodRedisKey, (int)RedisUtils.getKeyObject(shopGoodRedisKey) + 1);
                 RedisUtils.deleteKeyString(shopGoodUserRedisKey);
+                subject.sendMessage(MessageUtil.formatMessageChain(message, SeasonCommonInfoManager.getBBMoney() + "不足"));
                 return;
             }
             if (!EconomyUtil.minusMoneyToUser(event.getSender(), shop.getBbCount())) {
@@ -463,6 +481,7 @@ public class MysteriousMerchantManager {
             if(userBankMoney < shop.getSeasonMoney()){
                 RedisUtils.setKeyObject(shopGoodRedisKey, (int)RedisUtils.getKeyObject(shopGoodRedisKey) + 1);
                 RedisUtils.deleteKeyString(shopGoodUserRedisKey);
+                subject.sendMessage(MessageUtil.formatMessageChain(message, SeasonCommonInfoManager.getSeasonMoney() + "不足"));
                 return;
             }
             if (!EconomyUtil.minusMoneyToBank(event.getSender(), shop.getSeasonMoney())) {
@@ -629,7 +648,13 @@ public class MysteriousMerchantManager {
             HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
             JpaCriteriaQuery<MysteriousMerchantShop> query = builder.createQuery(MysteriousMerchantShop.class);
             JpaRoot<MysteriousMerchantShop> shop = query.from(MysteriousMerchantShop.class);
-            query.select(shop).where(builder.in(shop.get("goodCode")).value(goodCodeList));
+            query.select(shop)
+                    .where(
+                            builder.and(
+                                    builder.in(shop.get("goodCode")).value(goodCodeList),
+                                    builder.equal(shop.get("permanent"), false)  // 新增的永久性条件[2][9]
+                            )
+                    );
             query.orderBy(builder.asc(shop.get("goodCode"))); // 按照 goodCode 正序排序
             return session.createQuery(query).list();
         });
@@ -638,6 +663,26 @@ public class MysteriousMerchantManager {
     public static MysteriousMerchantShop getShopGoodCode(String codeStr) {
         return SHOP_GOODS_MAP.get(codeStr);
     }
+
+    /**
+     * 模糊获取商品
+     * @param str
+     * @return
+     */
+
+    public static MysteriousMerchantShop getShopGoodLike(String str) {
+        MysteriousMerchantShop shop = SHOP_GOODS_MAP.get(str);
+        if(Objects.nonNull(shop)){
+            return shop;
+        }
+        String goodCode = SHOP_GOODS_NO_MAP.get(str);
+        MysteriousMerchantShop shop1 = SHOP_GOODS_MAP.get(goodCode);
+        if(Objects.nonNull(shop1)){
+            return shop1;
+        }
+        return null;
+    }
+
 
     /**
      * 保存当前生成的商品信息

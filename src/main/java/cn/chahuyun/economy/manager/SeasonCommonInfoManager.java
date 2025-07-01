@@ -10,7 +10,7 @@ public class SeasonCommonInfoManager {
      * @return
      */
     public static String getBBMoney(){
-        return "bb";
+        return "WDITBB";
     }
 
     /**

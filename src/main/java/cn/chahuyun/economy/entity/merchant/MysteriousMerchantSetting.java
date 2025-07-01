@@ -53,6 +53,7 @@ public class MysteriousMerchantSetting implements Serializable {
     /**
      * 上架商品列表
      */
+    @Column(columnDefinition = "text")
     private String goodCodeStr;
 
     /**
