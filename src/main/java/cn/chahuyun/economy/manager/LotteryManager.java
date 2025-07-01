@@ -213,12 +213,9 @@ public class LotteryManager {
         lotteryInfo.save();
         // 通过单次猜签100000及以上币币获得 梭哈标识碎片 FISH-113
         if(money >= 100000){
-            PropsBase propsInfo = PropsType.getPropsInfo("FISH-113");
-            UserInfo newUserInfo = UserManager.getUserInfo(user);
-            UserBackpack newBackpackItem = new UserBackpack(newUserInfo, propsInfo);
-            newUserInfo.addPropToBackpack(newBackpackItem);
+            String propName = GroupAdminManager.giveAllIn(user);
             subject.sendMessage(MessageUtil.formatMessageChain(message,
-                    "猜签成功:\r\n猜签类型:%s\r\n猜签号码:%s\r\n猜签WDIT币币:%s\r\r获得道具：%s", typeString, number, money, propsInfo.getName()));
+                    "猜签成功:\r\n猜签类型:%s\r\n猜签号码:%s\r\n猜签WDIT币币:%s\r\r获得道具：%s", typeString, number, money, propName));
         }else {
             subject.sendMessage(MessageUtil.formatMessageChain(message,
                     "猜签成功:\r\n猜签类型:%s\r\n猜签号码:%s\r\n猜签WDIT币币:%s", typeString, number, money));

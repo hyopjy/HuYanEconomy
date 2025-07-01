@@ -3,6 +3,7 @@ package cn.chahuyun.economy.utils;
 import cn.chahuyun.config.CarDetail;
 import cn.chahuyun.config.DriverCarEventConfig;
 import cn.chahuyun.config.EconomyEventConfig;
+import cn.chahuyun.economy.manager.GroupAdminManager;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.RandomUtil;
 import net.mamoe.mirai.contact.*;
@@ -105,7 +106,18 @@ public class CommandOperator {
                     int i = RandomUtil.randomInt(0, car.getCarNumber() - 1);
                     luckBoy = carUsers.get(i);
                     luckMoney = i + 1;
-                    message = message.plus("天选之人：").plus(new At(luckBoy)).plus("\r\n");
+                    //
+                    NormalMember member = group.get(luckBoy);
+                    if (Objects.nonNull(member)) {
+                        String propsInfoName = GroupAdminManager.giveTheChosenOneProp(member);
+                        message = message.plus("天选之人：").plus(new At(luckBoy))
+                                .plus("\r\n")
+                                .plus("获得道具： " + propsInfoName)
+                                .plus("\r\n");
+                    } else {
+                        message = message.plus("天选之人：").plus(new At(luckBoy))
+                                .plus("\r\n");
+                    }
                 }
                 Boolean money = setMoney(carUsers, car.getDriverUser(), luckBoy, userMoney, driverMoney, luckMoney, group);
                 message = message.plus(car.getCarName() + " 封车！");

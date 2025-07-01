@@ -72,6 +72,10 @@ public class RandomMoneyListener extends SimpleListenerHost {
             subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "恭喜你获得" + money + "WDIT 币币"));
         }
 
+        if (message.startsWith("颁发") && EconomyEventConfig.INSTANCE.getEconomyLongByRandomAdmin().contains(sender.getId())) {
+            GroupAdminManager.giveCup(event);
+        }
+
         if (message.equals("余额")) {
             double money = EconomyUtil.getMoneyByUser(sender);
             double bankMoney = EconomyUtil.getMoneyByBank(sender);
