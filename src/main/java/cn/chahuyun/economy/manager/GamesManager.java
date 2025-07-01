@@ -1,6 +1,7 @@
 package cn.chahuyun.economy.manager;
 
 import cn.chahuyun.economy.HuYanEconomy;
+import cn.chahuyun.economy.command.FishingCostume;
 import cn.chahuyun.economy.constant.BuffPropsEnum;
 import cn.chahuyun.economy.constant.DailyPropCode;
 import cn.chahuyun.economy.dto.AutomaticFish;
@@ -16,6 +17,7 @@ import cn.chahuyun.economy.entity.props.PropsFishCard;
 import cn.chahuyun.economy.entity.props.factory.PropsCardFactory;
 import cn.chahuyun.economy.plugin.PluginManager;
 import cn.chahuyun.economy.plugin.PropsType;
+import cn.chahuyun.economy.redis.RedisUtils;
 import cn.chahuyun.economy.utils.*;
 import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
@@ -147,9 +149,25 @@ public class GamesManager {
                 userName = member.getNameCard();
             }
         }
+        String start;
+        String propUsed =  FishingCostume.getRedisObject(event.getSender().getId());
+        List<String> propStartEnd = FishingCostume.startAndEnd(propUsed);
+        if (StringUtils.isNotBlank(propUsed) && CollectionUtils.isNotEmpty(propStartEnd) && propStartEnd.size() == 2) {
+            String startTag = propStartEnd.get(0);
+            String endTag = propStartEnd.get(1);
+            start = String.format("\r\n%s\r\n%s开始钓鱼\r\n鱼塘:%s\r\n等级:%s\r\n最低鱼竿等级:%s\r\n%s\r\n%s\r\n",
+                    startTag,
+                    userName,
+                    fishPond.getName(),
+                    fishPond.getPondLevel(),
+                    fishPond.getMinLevel(),
+                    fishPond.getDescription(),
+                    endTag);
 
+        } else {
+            start = String.format("%s开始钓鱼\r\n鱼塘:%s\r\n等级:%s\r\n最低鱼竿等级:%s\r\n%s", userName, fishPond.getName(), fishPond.getPondLevel(), fishPond.getMinLevel(), fishPond.getDescription());
+        }
         //开始钓鱼
-        String start = String.format("%s开始钓鱼\n鱼塘:%s\n等级:%s\n最低鱼竿等级:%s\n%s", userName, fishPond.getName(), fishPond.getPondLevel(), fishPond.getMinLevel(), fishPond.getDescription());
         subject.sendMessage(start);
         Log.info(String.format("%s消耗%s币币开始钓鱼", userInfo.getName(), Optional.ofNullable(userPay.get(user.getId())).orElse(0.0)));
         // 睡眠等待
