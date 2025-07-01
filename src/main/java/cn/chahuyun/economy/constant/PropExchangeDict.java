@@ -15,7 +15,7 @@ public class PropExchangeDict {
         PROP_EXCHANGE_COUNT.put("FISH-101", list101);
         //       FISH-102	🪙波币标识	兑换物品	道具兑换	消耗100个波币标识碎片获得，印有波波的代币
         Map<String, Long> list102 = new HashMap<>();
-        list101.putAll(bindCoutMap("FISH-112", 100L));
+        list102.putAll(bindCoutMap("FISH-112", 100L));
         PROP_EXCHANGE_COUNT.put("FISH-102", list102);
 //         FISH-103	🎰梭哈标识	兑换物品	道具兑换	消耗100个梭哈标识碎片获得，搏一搏！
         Map<String, Long> list103 = new HashMap<>();

@@ -151,31 +151,31 @@ public class PropsManagerImpl implements PropsManager {
      * @param props    用户道具
      * @return true 成功删除
      */
-//    @Override
-//    public UserInfo deleteProp(UserInfo userInfo, PropsBase props, int limit) {
-//        List<UserBackpack> backpacks = Optional.ofNullable(userInfo.getBackpacks()).orElse(new ArrayList<>());
-//        backpacks.stream().filter(Objects::nonNull)
-//                .filter(back -> back.getPropId() == props.getId())
-//                .limit(limit).forEach(UserBackpack::remove);
-//        return UserManager.getUserInfo(userInfo.getUser());
-//    }
     @Override
-    public UserInfo deleteProp(UserInfo userInfo, PropsBase props, int deleteCount) {
-        List<UserBackpack> backpacks = Optional.ofNullable(userInfo.getBackpacks())
-                .orElse(new ArrayList<>());
-
-        // 使用迭代器安全删除[5][6]
-        Iterator<UserBackpack> it = backpacks.iterator();
-        int removed = 0;
-        while (it.hasNext() && removed < deleteCount) {
-            UserBackpack item = it.next();
-            if (item != null && item.getPropId() == props.getId()) {
-                it.remove();
-                removed++;
-            }
-        }
+    public UserInfo deleteProp(UserInfo userInfo, PropsBase props, int limit) {
+        List<UserBackpack> backpacks = Optional.ofNullable(userInfo.getBackpacks()).orElse(new ArrayList<>());
+        backpacks.stream().filter(Objects::nonNull)
+                .filter(back -> back.getPropId() == props.getId())
+                .limit(limit).forEach(UserBackpack::remove);
         return UserManager.getUserInfo(userInfo.getUser());
     }
+//    @Override
+//    public UserInfo deleteProp(UserInfo userInfo, PropsBase props, int deleteCount) {
+//        List<UserBackpack> backpacks = Optional.ofNullable(userInfo.getBackpacks())
+//                .orElse(new ArrayList<>());
+//
+//        // 使用迭代器安全删除[5][6]
+//        Iterator<UserBackpack> it = backpacks.iterator();
+//        int removed = 0;
+//        while (it.hasNext() && removed < deleteCount) {
+//            UserBackpack item = it.next();
+//            if (item != null && item.getPropId() == props.getId()) {
+//                it.remove();
+//                removed++;
+//            }
+//        }
+//        return UserManager.getUserInfo(userInfo.getUser());
+//    }
 
     @Override
     public UserInfo deleteProp(UserInfo userInfo, PropsBase props) {
@@ -728,7 +728,11 @@ public class PropsManagerImpl implements PropsManager {
                 countMap.forEach((pCode, count) -> {
                     PropsBase prop = PropsType.getPropsInfo(pCode);
                     // 调用支持批量删除的方法[7]
-                    deleteProp(userInfo, prop, Math.toIntExact(count));
+                    for(int i =0; i < count; i++){
+                        UserInfo newUserInfo = UserManager.getUserInfo(userInfo.getUser());
+                        deleteProp(newUserInfo, prop);
+                    }
+
                 });
 
                 // 4. 新增道具（添加事务处理）
