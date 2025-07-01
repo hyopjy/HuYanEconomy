@@ -7,50 +7,50 @@ import java.util.Map;
 
 public class PropExchangeDict {
 
-    public static final Map<String, List<Map<String, Integer>>> PROP_EXCHANGE_COUNT = new HashMap<>(20);
+    public static final Map<String, Map<String, Long>> PROP_EXCHANGE_COUNT = new HashMap<>(20);
     static {
 //        FISH-101	🫧泡泡标识	兑换物品	道具兑换	消耗100个泡泡标识碎片获得，bubble bubble
-        List<Map<String, Integer>> list101 = new ArrayList<>();
-        list101.add(bindCoutMap("FISH-111", 100));
+        Map<String, Long> list101 = new HashMap<>();
+        list101.putAll(bindCoutMap("FISH-111", 100L));
         PROP_EXCHANGE_COUNT.put("FISH-101", list101);
-  //       FISH-102	🪙波币标识	兑换物品	道具兑换	消耗100个波币标识碎片获得，印有波波的代币
-        List<Map<String, Integer>> list102 = new ArrayList<>();
-        list101.add(bindCoutMap("FISH-112", 100));
+        //       FISH-102	🪙波币标识	兑换物品	道具兑换	消耗100个波币标识碎片获得，印有波波的代币
+        Map<String, Long> list102 = new HashMap<>();
+        list101.putAll(bindCoutMap("FISH-112", 100L));
         PROP_EXCHANGE_COUNT.put("FISH-102", list102);
 //         FISH-103	🎰梭哈标识	兑换物品	道具兑换	消耗100个梭哈标识碎片获得，搏一搏！
-        List<Map<String, Integer>> list103 = new ArrayList<>();
-        list101.add(bindCoutMap("FISH-113", 100));
+        Map<String, Long> list103 = new HashMap<>();
+        list103.putAll(bindCoutMap("FISH-113", 100L));
         PROP_EXCHANGE_COUNT.put("FISH-103", list103);
 
 //        FISH-104	💴万贯标识	兑换物品	道具兑换	消耗10个万贯标识碎片获得，非常有钱
-        List<Map<String, Integer>> list104 = new ArrayList<>();
-        list101.add(bindCoutMap("FISH-114", 10));
+        Map<String, Long> list104 = new HashMap<>();
+        list104.putAll(bindCoutMap("FISH-114", 10L));
         PROP_EXCHANGE_COUNT.put("FISH-104", list104);
 
 //        FISH-105	准点打工标识	兑换物品	道具兑换	消耗60个准点打工标识碎片获得，希望你像准点上班一样准点来钓鱼
-        List<Map<String, Integer>> list105 = new ArrayList<>();
-        list101.add(bindCoutMap("FISH-115", 60));
+        Map<String, Long> list105 = new HashMap<>();
+        list105.putAll(bindCoutMap("FISH-115", 60L));
         PROP_EXCHANGE_COUNT.put("FISH-105", list105);
 
 //        FISH-106	动物大使标识	兑换物品	道具兑换	消耗60个动物大使标识碎片获得，智人才是地球之癌，所有的其它动物都不是
-        List<Map<String, Integer>> list106 = new ArrayList<>();
-        list101.add(bindCoutMap("FISH-116", 60));
+        Map<String, Long> list106 = new HashMap<>();
+        list106.putAll(bindCoutMap("FISH-116", 60L));
         PROP_EXCHANGE_COUNT.put("FISH-106", list106);
 
 //        FISH-107	狗姐心选标识	兑换物品	道具兑换	消耗80个狗姐心选标识碎片获得，姐姐看没看上你不知道，但是你被狗盯上了！
-        List<Map<String, Integer>> list107 = new ArrayList<>();
-        list101.add(bindCoutMap("FISH-117", 80));
+        Map<String, Long> list107 = new HashMap<>();
+        list107.putAll(bindCoutMap("FISH-117", 80L));
         PROP_EXCHANGE_COUNT.put("FISH-107", list107);
 
 //        FISH-108	天选之子标识	兑换物品	道具兑换	消耗100个天选之子标识碎片获得，就是你了！bobo的天选之子！
-        List<Map<String, Integer>> list108 = new ArrayList<>();
-        list101.add(bindCoutMap("FISH-118", 80));
+        Map<String, Long> list108 = new HashMap<>();
+        list108.putAll(bindCoutMap("FISH-118", 80L));
         PROP_EXCHANGE_COUNT.put("FISH-108", list108);
 
     }
 
-    public static Map<String, Integer> bindCoutMap(String code, Integer count){
-        Map<String, Integer> map = new HashMap<>(1);
+    public static Map<String, Long> bindCoutMap(String code, Long count){
+        Map<String, Long> map = new HashMap<>(1);
         map.put(code, count);
         return map;
     }

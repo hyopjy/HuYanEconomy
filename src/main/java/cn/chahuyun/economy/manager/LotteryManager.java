@@ -4,6 +4,10 @@ import cn.chahuyun.config.EconomyConfig;
 import cn.chahuyun.economy.HuYanEconomy;
 import cn.chahuyun.economy.dto.LotteryLocationInfo;
 import cn.chahuyun.economy.entity.LotteryInfo;
+import cn.chahuyun.economy.entity.UserBackpack;
+import cn.chahuyun.economy.entity.UserInfo;
+import cn.chahuyun.economy.entity.props.PropsBase;
+import cn.chahuyun.economy.plugin.PropsType;
 import cn.chahuyun.economy.utils.*;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.NumberUtil;
@@ -207,7 +211,19 @@ public class LotteryManager {
             return;
         }
         lotteryInfo.save();
-        subject.sendMessage(MessageUtil.formatMessageChain(message,"猜签成功:\n猜签类型:%s\n猜签号码:%s\n猜签WDIT币币:%s", typeString, number, money));
+        // 通过单次猜签100000及以上币币获得 梭哈标识碎片 FISH-113
+        if(money >= 100000){
+            PropsBase propsInfo = PropsType.getPropsInfo("FISH-113");
+            UserInfo newUserInfo = UserManager.getUserInfo(user);
+            UserBackpack newBackpackItem = new UserBackpack(newUserInfo, propsInfo);
+            newUserInfo.addPropToBackpack(newBackpackItem);
+            subject.sendMessage(MessageUtil.formatMessageChain(message,
+                    "猜签成功:\r\n猜签类型:%s\r\n猜签号码:%s\r\n猜签WDIT币币:%s\r\r获得道具：%s", typeString, number, money, propsInfo.getName()));
+        }else {
+            subject.sendMessage(MessageUtil.formatMessageChain(message,
+                    "猜签成功:\r\n猜签类型:%s\r\n猜签号码:%s\r\n猜签WDIT币币:%s", typeString, number, money));
+        }
+
         init(false);
     }
 

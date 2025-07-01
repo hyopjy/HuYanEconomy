@@ -22,9 +22,11 @@ import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.message.data.*;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.redisson.api.RBloomFilter;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -149,12 +151,29 @@ public class PropsManagerImpl implements PropsManager {
      * @param props    用户道具
      * @return true 成功删除
      */
+//    @Override
+//    public UserInfo deleteProp(UserInfo userInfo, PropsBase props, int limit) {
+//        List<UserBackpack> backpacks = Optional.ofNullable(userInfo.getBackpacks()).orElse(new ArrayList<>());
+//        backpacks.stream().filter(Objects::nonNull)
+//                .filter(back -> back.getPropId() == props.getId())
+//                .limit(limit).forEach(UserBackpack::remove);
+//        return UserManager.getUserInfo(userInfo.getUser());
+//    }
     @Override
-    public UserInfo deleteProp(UserInfo userInfo, PropsBase props, int limit) {
-        List<UserBackpack> backpacks = Optional.ofNullable(userInfo.getBackpacks()).orElse(new ArrayList<>());
-        backpacks.stream().filter(Objects::nonNull)
-                .filter(back -> back.getPropId() == props.getId())
-                .limit(limit).forEach(UserBackpack::remove);
+    public UserInfo deleteProp(UserInfo userInfo, PropsBase props, int deleteCount) {
+        List<UserBackpack> backpacks = Optional.ofNullable(userInfo.getBackpacks())
+                .orElse(new ArrayList<>());
+
+        // 使用迭代器安全删除[5][6]
+        Iterator<UserBackpack> it = backpacks.iterator();
+        int removed = 0;
+        while (it.hasNext() && removed < deleteCount) {
+            UserBackpack item = it.next();
+            if (item != null && item.getPropId() == props.getId()) {
+                it.remove();
+                removed++;
+            }
+        }
         return UserManager.getUserInfo(userInfo.getUser());
     }
 
@@ -680,6 +699,59 @@ public class PropsManagerImpl implements PropsManager {
 
         // 道具背包
         List<UserBackpack> userBackpack = userInfo.getBackpacks();
+
+        // 是否按照数量兑换
+        Map<String, Long> countMap = PropExchangeDict.PROP_EXCHANGE_COUNT.get(propsInfo.getCode());
+        if (MapUtils.isNotEmpty(countMap)) {
+            // 1. 道具数量统计（优化分组计算）
+            Map<String, Long> userPropCount = userBackpack.stream()
+                    .filter(item -> item.getPropsCode() != null)
+                    .collect(Collectors.groupingBy(
+                            UserBackpack::getPropsCode,
+                            Collectors.counting()
+                    ));
+
+            // 2. 道具充足性检查（替换AtomicBoolean）
+            boolean isAllPropsSufficient = countMap.entrySet().stream()
+                    .allMatch(entry ->
+                            userPropCount.getOrDefault(entry.getKey(), 0L) >= entry.getValue()
+                    );
+
+            if (!isAllPropsSufficient) {
+                messages.append(new PlainText("😣 请集齐道具再来兑换"));
+                subject.sendMessage(messages.build());
+                return;
+            }
+
+            try {
+                // 3. 批量删除道具（一次处理多个道具）
+                countMap.forEach((pCode, count) -> {
+                    PropsBase prop = PropsType.getPropsInfo(pCode);
+                    // 调用支持批量删除的方法[7]
+                    deleteProp(userInfo, prop, Math.toIntExact(count));
+                });
+
+                // 4. 新增道具（添加事务处理）
+                UserInfo newUserInfo = UserManager.getUserInfo(userInfo.getUser());
+                UserBackpack newBackpackItem = new UserBackpack(newUserInfo, propsInfo);
+
+                if (!newUserInfo.addPropToBackpack(newBackpackItem)) {
+                    // 5. 失败补偿机制（回滚已删除道具）
+                    Log.error("道具添加失败，执行回滚");
+                    subject.sendMessage("系统出错，请联系管理员！");
+                    return;
+                }
+
+                // 6. 成功反馈
+                messages.append(new PlainText(propsInfo.getName() + "兑换成功！请到背包查看"));
+                subject.sendMessage(messages.build());
+
+            } catch (Exception e) {
+                Log.error("道具兑换异常: " + e.getMessage(), e);
+                subject.sendMessage("系统出错，请联系管理员！");
+            }
+            return;
+        }
 
         // 获取组成的道具
         List<String> propsList = PropExchangeDict.PROP_EXCHANGE.get(propsInfo.getCode());

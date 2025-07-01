@@ -1,5 +1,7 @@
 package cn.chahuyun.economy.entity.props;
 
+import cn.chahuyun.economy.entity.UserBackpack;
+import cn.chahuyun.economy.entity.UserInfo;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -116,6 +118,10 @@ public abstract class PropsBase implements Serializable {
         return null;
     }
 
+//    public void rollbackDelete(UserInfo userInfo) {
+//        // 将已删除的道具加回背包
+//        userInfo.getBackpacks().add(new UserBackpack(userInfo, this));
+//    }
 }
 
 
