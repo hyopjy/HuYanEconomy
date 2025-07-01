@@ -38,6 +38,11 @@ public class RedisUtils {
         RBucket<Object> bucket = RedissonConfig.getRedisson().getBucket(key);
         bucket.set(value);
     }
+    public synchronized static void setKeyObject(String key, Object value, Long time, TimeUnit timeUnit) {
+        RBucket<Object> bucket = RedissonConfig.getRedisson().getBucket(key);
+        bucket.set(value, time, timeUnit);
+    }
+
 
     public static Object getKeyObject(String key) {
         return RedissonConfig.getRedisson().getBucket(key).get();

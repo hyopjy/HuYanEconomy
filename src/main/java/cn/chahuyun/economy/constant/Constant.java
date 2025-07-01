@@ -37,6 +37,7 @@ public interface Constant {
 
     DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
+    DateTimeFormatter FORMATTER_YYYY_MM_DD = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     DateTimeFormatter FORMATTER_YYMMDDHHMMSS = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 
     int BOSS_TYPE_INT = 1;
