@@ -93,7 +93,7 @@ public class MysteriousMerchantEndTask implements Task {
             message.append("商品信息:\r\n");
             message.append("编码： [" + shopGood.getGoodCode() + "] \r\n");
             PropsBase props1Base = PropsCardFactory.INSTANCE.getPropsBase(shopGood.getProp1Code());
-            message.append("道具名：" + props1Base.getName() + "\r\n");
+            message.append("道具名：" + props1Base.getName() + " x " +  shopGood.getProp1Count()  + "\r\n");
             message.append("商品库存: " + good.getGoodStored() + "\r\n");
             message.append("已兑换: " + good.getSold()+ "\r\n");
             // todo 兑换人列表

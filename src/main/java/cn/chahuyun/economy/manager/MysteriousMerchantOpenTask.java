@@ -163,24 +163,24 @@ public class MysteriousMerchantOpenTask implements Task {
             }
 
             MysteriousMerchantShop shopGood = shopGoodOptional.get();
-            message.append("编码： [" + shopGood.getGoodCode() + "] \r\n");
+            message.append("编码： [").append(shopGood.getGoodCode()).append("] \r\n");
             PropsBase props1Base = PropsCardFactory.INSTANCE.getPropsBase(shopGood.getProp1Code());
-            message.append("道具名：" + props1Base.getName() + "\r\n");
+            message.append("道具名：").append(props1Base.getName()).append(" x ").append(shopGood.getProp1Count()).append("\r\n");
             message.append("兑换条件: ");
             // 道具兑换
             if(shopGood.getChangeType().equals(MysteriousMerchantManager.CHANGE_TYPE_PROP)){
                 PropsBase propsBase = PropsCardFactory.INSTANCE.getPropsBase(shopGood.getProp2Code());
-                message.append(propsBase.getName() + "x" + shopGood.getProp2Count() + " \r\n");
+                message.append(propsBase.getName()).append(" x ").append(shopGood.getProp2Count()).append(" \r\n");
             }
             // bb兑换
             if(shopGood.getChangeType().equals(MysteriousMerchantManager.CHANGE_TYPE_BB)){
-                message.append(SeasonCommonInfoManager.getBBMoney() + "x" + shopGood.getBbCount() + " \r\n");
+                message.append(SeasonCommonInfoManager.getBBMoney()).append("x").append(shopGood.getBbCount()).append(" \r\n");
             }
             // 赛季币兑换
             if(shopGood.getChangeType().equals(MysteriousMerchantManager.CHANGE_TYPE_SEASON)){
-                message.append(SeasonCommonInfoManager.getSeasonMoney() + "x" + shopGood.getSeasonMoney() + " \r\n");
+                message.append(SeasonCommonInfoManager.getSeasonMoney()).append("x").append(shopGood.getSeasonMoney()).append(" \r\n");
             }
-            message.append("商品库存: " + good.getGoodStored() + "\r\n");
+            message.append("商品库存: ").append(good.getGoodStored()).append("\r\n");
 //            message.append("已售出: " + good.getSold()+ "\r\n");
 
             message.append("-----------------------\r\n");

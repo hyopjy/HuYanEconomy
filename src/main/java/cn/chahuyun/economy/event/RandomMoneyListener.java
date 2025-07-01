@@ -622,7 +622,7 @@ public class RandomMoneyListener extends SimpleListenerHost {
                 }
 
                 if ("设置规则".equals(codeArr[1])) {
-//                  神秘商人 设置规则 14,17,21    10(几分钟消失)  15%(概率) 1-52/0(商品编码范围) 2(几种道具)  1-3(随机道具库存)
+//                  神秘商人 设置规则 14,17,21    10(几分钟消失)  15(概率) 1-52/0(商品编码范围) 2(几种道具)  1-3(随机道具库存)
                     // 小时数量
                     List<String> hourList = Arrays.asList(StringUtils.split(codeArr[2] , Constant.MM_SPILT));
                     // 过多久消失

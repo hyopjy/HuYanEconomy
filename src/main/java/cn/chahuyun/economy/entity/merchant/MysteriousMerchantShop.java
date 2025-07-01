@@ -23,6 +23,8 @@ public class MysteriousMerchantShop implements Serializable {
 
     private String prop1Code;
 
+    private Integer prop1Count;
+
     private String prop2Code;
 
     private Integer prop2Count;

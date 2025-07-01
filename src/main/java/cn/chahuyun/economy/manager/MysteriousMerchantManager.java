@@ -311,9 +311,9 @@ public class MysteriousMerchantManager {
         List<MysteriousMerchantShop> saveShop = excelData.stream().map(data -> {
             if (StringUtils.isNotEmpty(data.getProp2Code())) {
                 data.setChangeType(CHANGE_TYPE_PROP);
-            } else if (StringUtils.isNotEmpty(data.getProp2Code())) {
+            } else if (Objects.nonNull(data.getBbCount())) {
                 data.setChangeType(CHANGE_TYPE_BB);
-            } else if (StringUtils.isNotEmpty(data.getProp2Code())) {
+            } else if (Objects.nonNull(data.getSeasonMoney())) {
                 data.setChangeType(CHANGE_TYPE_SEASON);
             } else {
                 return null;
@@ -351,10 +351,14 @@ public class MysteriousMerchantManager {
         Map<String, String> map = new HashMap<>();
         map.put("编号", "goodCode");
         map.put("道具编号", "prop1Code");
+        map.put("道具数量", "prop1Count");
+
         map.put("其他道具", "prop2Code");
         map.put("其他道具数量", "prop2Count");
+
         map.put("币币", "bbCount");
         map.put("赛季币", "seasonMoney");
+
         map.put("是否常驻","permanent");
         map.put("常驻数量", "permanentCount");
         List<MysteriousMerchantShop> list = reader.setHeaderAlias(map).readAll(MysteriousMerchantShop.class);
@@ -418,8 +422,6 @@ public class MysteriousMerchantManager {
         RedisUtils.setKeyObject(shopGoodRedisKey, (int)RedisUtils.getKeyObject(shopGoodRedisKey) - 1);
         RedisUtils.setKeyObject(shopGoodUserRedisKey, 1);
 
-        // 用户新增道具
-        PropsBase prop1Code = PropsCardFactory.INSTANCE.getPropsBase(shop.getProp1Code());
 
 
         // 判断抢购规则
@@ -476,12 +478,21 @@ public class MysteriousMerchantManager {
             return;
         }
         // 增加用户抢购记录
-        addExchangeRecordsLog(SETTING_ID,goodCode, group.getId(), senderId);
+        addExchangeRecordsLog(SETTING_ID, goodCode, group.getId(), senderId);
+        // 用户新增道具
+        PropsBase prop1Code = PropsCardFactory.INSTANCE.getPropsBase(shop.getProp1Code());
 
-        // 增加道具
-        PluginManager.getPropsManager().addProp(userInfo, prop1Code);
+        //  增加道具
+        //  PluginManager.getPropsManager().addProp(userInfo, prop1Code);
+        int prop1Count = shop.getProp1Count();
+        for (int i = 0; i < prop1Count; i++) {
+            UserInfo newUserInfo = UserManager.getUserInfo(event.getSender());
+            PluginManager.getPropsManager().addProp(newUserInfo, prop1Code);
+        }
+
         // 发送消息
-        String content = String.format("\uD83C\uDF89恭喜%s抢购到了%s", group.get(event.getSender().getId()).getNameCard(), prop1Code.getName());
+        String content = String.format("\uD83C\uDF89恭喜%s抢购到了%s", group.get(event.getSender().getId()).getNameCard(),
+                prop1Code.getName() + " x " + prop1Count);
         subject.sendMessage(MessageUtil.formatMessageChain(message, content));
     }
 
