@@ -208,6 +208,13 @@ public class MessageEventListener extends SimpleListenerHost {
                     Log.info("银行指令");
                     BankManager.viewBankInterest(event);
                     return;
+                case "收集册":
+                case "book":
+                case "Book":
+                case "BOOK":
+                    Log.info("收集册");
+                    CollectionBookManager.drawImage(event);
+                    return;
 
             }
 

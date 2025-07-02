@@ -745,7 +745,12 @@ public class PropsManagerImpl implements PropsManager {
                     subject.sendMessage("系统出错，请联系管理员！");
                     return;
                 }
-
+                // 兑换成功 加入徽章信息
+                String signCode = propCode.toUpperCase(Locale.ROOT);
+                // 成就
+                if (FishSignConstant.getSignPropCode().contains(signCode)) {
+                    BadgeInfoManager.updateOrInsertBadgeInfo(subject.getId(), userInfo.getQq(), signCode, null, null);
+                }
                 // 6. 成功反馈
                 messages.append(new PlainText(propsInfo.getName() + "兑换成功！请到背包查看"));
                 subject.sendMessage(messages.build());

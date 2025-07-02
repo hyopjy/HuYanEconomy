@@ -54,11 +54,11 @@ public class SignManager {
             subject.sendMessage("签到失败!");
             return;
         }
-//        if (!userInfo.sign()) {
-//            messages.append(new PlainText("你已经签到过了哦!"));
-//            subject.sendMessage(messages.build());
-//            return;
-//        }
+        if (!userInfo.sign()) {
+            messages.append(new PlainText("你已经签到过了哦!"));
+            subject.sendMessage(messages.build());
+            return;
+        }
 
         double goldNumber;
 

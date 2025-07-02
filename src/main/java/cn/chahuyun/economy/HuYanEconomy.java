@@ -48,6 +48,9 @@ public final class HuYanEconomy extends JavaPlugin {
 
     public static final ConcurrentHashMap<String, InputStream> SIGN_STREAM_MAP = new ConcurrentHashMap<>(10);
 
+
+    public static InputStream BASE_INFO_STREAM = null;
+
     /**
      * 插件所属bot
      */
@@ -99,9 +102,10 @@ public final class HuYanEconomy extends JavaPlugin {
         AutomaticFishingMachineManager.init();
 
         // 加载文件流
-        for (int i = 1; i < 7; i++) {
-            FileUtils.getInputStream(i);
-        }
+//        for (int i = 1; i < 7; i++) {
+//            FileUtils.getInputStream(i);
+//        }
+        FileUtils.loadBaseInfoPNG();
         FileUtils.getSignFishStream();
         config = EconomyConfig.INSTANCE;
         //插件功能初始化

@@ -5,19 +5,22 @@ import cn.chahuyun.economy.HuYanEconomy;
 import java.io.*;
 import java.util.Objects;
 
-public class FileUtils {
-    public static InputStream LOTTERY_STREAM = null;
+import static cn.chahuyun.economy.constant.FishSignConstant.*;
 
-    static {
-        try {
-            InputStream in = HuYanEconomy.INSTANCE.getResourceAsStream("lottery.png");
-            if (!Objects.isNull(in)) {
-                LOTTERY_STREAM = new ByteArrayInputStream(in.readAllBytes());
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+public class FileUtils {
+//    public static InputStream BASE_INFO_STREAM = null;
+//
+//
+//    static {
+//        try {
+//            InputStream in = HuYanEconomy.INSTANCE.getResourceAsStream("收集册info.png");
+//            if (!Objects.isNull(in)) {
+//                BASE_INFO_STREAM = new ByteArrayInputStream(in.readAllBytes());
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     private static ByteArrayOutputStream getBOS(InputStream in) {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -47,19 +50,42 @@ public class FileUtils {
         return null;
     }
 
+    public static ByteArrayInputStream loadBaseInfoPNG() {
+        try {
+            InputStream in = HuYanEconomy.INSTANCE.getResourceAsStream("收集册info.png");
+            if (!Objects.isNull(in)) {
+                HuYanEconomy.BASE_INFO_STREAM = new ByteArrayInputStream(in.readAllBytes());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public static void getSignFishStream() {
-        HuYanEconomy.SIGN_STREAM_MAP.put("FISH-15", getByteArrayInputStream("FISH-15.png"));
-        HuYanEconomy.SIGN_STREAM_MAP.put("FISH-16", getByteArrayInputStream("FISH-16.png"));
-        HuYanEconomy.SIGN_STREAM_MAP.put("FISH-17", getByteArrayInputStream("FISH-17.png"));
-        HuYanEconomy.SIGN_STREAM_MAP.put("FISH-20", getByteArrayInputStream("FISH-20.png"));
-        HuYanEconomy.SIGN_STREAM_MAP.put("FISH-31", getByteArrayInputStream("FISH-31.png"));
-        HuYanEconomy.SIGN_STREAM_MAP.put("FISH-32", getByteArrayInputStream("FISH-32.png"));
-        HuYanEconomy.SIGN_STREAM_MAP.put("FISH-33", getByteArrayInputStream("FISH-33.png"));
-        HuYanEconomy.SIGN_STREAM_MAP.put("FISH-39", getByteArrayInputStream("FISH-39.png"));
-        HuYanEconomy.SIGN_STREAM_MAP.put("FISH-49", getByteArrayInputStream("FISH-49.png"));
-        HuYanEconomy.SIGN_STREAM_MAP.put("FISH-62", getByteArrayInputStream("FISH-62.png"));
-        HuYanEconomy.SIGN_STREAM_MAP.put("FISH-ROD-LEVEL", getByteArrayInputStream("FISH-ROD-LEVEL.png"));
-        HuYanEconomy.SIGN_STREAM_MAP.put("FISH-95", getByteArrayInputStream("FISH-95.png"));
+
+        HuYanEconomy.SIGN_STREAM_MAP.put(FISH_15, getByteArrayInputStream("FBPFKL.png"));
+        HuYanEconomy.SIGN_STREAM_MAP.put(FISH_16, getByteArrayInputStream("FBTNKL.png"));
+        HuYanEconomy.SIGN_STREAM_MAP.put(FISH_17, getByteArrayInputStream("警笛.png"));
+        HuYanEconomy.SIGN_STREAM_MAP.put(FISH_20, getByteArrayInputStream("小喇叭鱼.png"));
+
+//        HuYanEconomy.SIGN_STREAM_MAP.put("FISH-31", getByteArrayInputStream("FISH-31.png"));
+//        HuYanEconomy.SIGN_STREAM_MAP.put("FISH-32", getByteArrayInputStream("FISH-32.png"));
+//        HuYanEconomy.SIGN_STREAM_MAP.put("FISH-33", getByteArrayInputStream("FISH-33.png"));
+
+        HuYanEconomy.SIGN_STREAM_MAP.put(FISH_39, getByteArrayInputStream("WDITBB4.0.png"));
+        HuYanEconomy.SIGN_STREAM_MAP.put(FISH_49, getByteArrayInputStream("体育生与艺术生.png"));
+        HuYanEconomy.SIGN_STREAM_MAP.put(FISH_62, getByteArrayInputStream("uranus.png"));
+        HuYanEconomy.SIGN_STREAM_MAP.put(FISH_ROD_LEVEL, getByteArrayInputStream("fishing.png"));
+        HuYanEconomy.SIGN_STREAM_MAP.put(FISH_95, getByteArrayInputStream("可乐华夫.png"));
+
+        HuYanEconomy.SIGN_STREAM_MAP.put(FISH_133, getByteArrayInputStream("GAP the series.png"));
+        HuYanEconomy.SIGN_STREAM_MAP.put(FISH_125, getByteArrayInputStream("落花落.png"));
+
+        //ball.png
+        //   HuYanEconomy.SIGN_STREAM_MAP.put("FISH-95", getByteArrayInputStream("ball.png"));
+        //昆三陵鱼.png
+       //  HuYanEconomy.SIGN_STREAM_MAP.put("FISH-95", getByteArrayInputStream("昆三陵鱼.png"));
     }
 
     public static ByteArrayInputStream getByteArrayInputStream(String key) {
