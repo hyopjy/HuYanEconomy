@@ -10,8 +10,16 @@ public class SeasonCommonInfoManager {
      * @return
      */
     public static String getBBMoney(){
-        return "WDITBB";
+        return "币币";
     }
+    public static String getBBMoneyDesc(){
+        return "\uD83E\uDE99WDIT币币";
+    }
+
+    public static String getSeasonMoneyDesc(){
+        return "\uD83C\uDF51夏季桃子";
+    }
+
 
     /**
      * 获取当前赛季币信息

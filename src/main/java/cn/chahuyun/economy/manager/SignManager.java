@@ -9,9 +9,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.RandomUtil;
 import net.mamoe.mirai.contact.*;
 import net.mamoe.mirai.event.events.MessageEvent;
-import net.mamoe.mirai.message.data.MessageChain;
-import net.mamoe.mirai.message.data.MessageChainBuilder;
-import net.mamoe.mirai.message.data.PlainText;
+import net.mamoe.mirai.message.data.*;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -20,6 +18,8 @@ import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static cn.chahuyun.economy.utils.CurrencyConverter.convertToChineseWithDecimal;
 
 /**
  * 签到管理<p>
@@ -54,11 +54,11 @@ public class SignManager {
             subject.sendMessage("签到失败!");
             return;
         }
-        if (!userInfo.sign()) {
-            messages.append(new PlainText("你已经签到过了哦!"));
-            subject.sendMessage(messages.build());
-            return;
-        }
+//        if (!userInfo.sign()) {
+//            messages.append(new PlainText("你已经签到过了哦!"));
+//            subject.sendMessage(messages.build());
+//            return;
+//        }
 
         double goldNumber;
 
@@ -70,19 +70,19 @@ public class SignManager {
             if (randomNumber > 8) {
                 goldNumber = RandomUtil.randomInt(6000, 11000);
 //                plainText = new PlainText(String.format("今天的你运气爆棚,获得了%s" + SeasonCommonInfoManager.getSeasonMoney(), goldNumber));
-                plainText = new PlainText(String.format("今天的你运气爆棚,获得了%s 币币", goldNumber));
+                plainText = new PlainText(String.format("今天的你运气爆棚,获得了%s " + SeasonCommonInfoManager.getBBMoney(), goldNumber));
             } else {
                 goldNumber = RandomUtil.randomInt(6000, 15000);
 //                plainText = new PlainText(String.format("好耶,获得%s " +  SeasonCommonInfoManager.getSeasonMoney(), goldNumber));
-                plainText = new PlainText(String.format("好耶,获得%s 币币", goldNumber));
+                plainText = new PlainText(String.format("好耶,获得%s " +  SeasonCommonInfoManager.getBBMoney(), goldNumber));
             }
         } else {
             // 签到收益改为币币，随机范围5000~10000
             goldNumber = RandomUtil.randomInt(5000, 10000);
         }
-
+        // bb
         if (!EconomyUtil.plusMoneyToUser(userInfo.getUser(), goldNumber)) {
-        // new 枫叶
+        // 赛季币
 //        if (!EconomyUtil.plusMoneyToBank(userInfo.getUser(), goldNumber)) {
             subject.sendMessage("签到失败!");
             //todo 签到失败回滚
@@ -90,21 +90,33 @@ public class SignManager {
         }
         userInfo.setSignEarnings(goldNumber);
         userInfo.save();
-        double moneyBytUser = EconomyUtil.getMoneyByUser(userInfo.getUser());
-//        double moneyBytUser = EconomyUtil.getMoneyByBank(userInfo.getUser());
-        messages.append(new PlainText("签到成功!"));
-        messages.append(new PlainText(String.format(SeasonCommonInfoManager.getSeasonMoney() +":%s(+%s)", moneyBytUser, goldNumber)));
+        messages.append(new At(user.getId()));
         if (userInfo.getOldSignNumber() != 0) {
-            messages.append(String.format("你的连签线断在了%d天,可惜~", userInfo.getOldSignNumber()));
+            messages.append(String.format(" 你的连签线断在了%d天,可惜~ \r\n", userInfo.getOldSignNumber()));
+        } else {
+            messages.append(String.format(" 连签%d次成功！\r\n", userInfo.getSignNumber()));
         }
+
+        messages.append("本次获得").append(": ");
         if (plainText != null) {
-            messages.append(plainText);
+            messages.append(plainText).append("\r\n");
+        }else {
+            messages.append(String.format("%s", goldNumber)).append(SeasonCommonInfoManager.getBBMoney()).append("\r\n");
         }
+        // bb
+        double moneyBytUser = EconomyUtil.getMoneyByUser(userInfo.getUser());
+        String bbStr = String.format("%s", convertToChineseWithDecimal(moneyBytUser));
+        // 赛季币
+        double moneyBySeasonUser = EconomyUtil.getMoneyByBank(userInfo.getUser());
+        String seasonStr = String.format("%s", convertToChineseWithDecimal(moneyBySeasonUser));
+        messages.append("佬的小金库余额：").append("\r\n");
+        messages.append("    ").append(SeasonCommonInfoManager.getBBMoneyDesc()).append(": ").append(bbStr).append(SeasonCommonInfoManager.getBBMoney()).append("\r\n");
+        messages.append("    ").append(SeasonCommonInfoManager.getSeasonMoneyDesc()).append(": ").append(seasonStr).append(SeasonCommonInfoManager.getSeasonMoney()).append("\r\n");
        //  sendSignImage(userInfo, subject, messages.build());
 //        sendSignImage(userInfo, user, subject, moneyBytUser, goldNumber, messages.build());
 
-//        subject.sendMessage(messages.build());
-        sendSignImageFb(userInfo, subject, messages.build());
+        subject.sendMessage(messages.build());
+//        sendSignImageFb(userInfo, subject, messages.build());
     }
 
     public static void sendSignImageFb(UserInfo userInfo, Contact subject, MessageChain messages) {
