@@ -200,13 +200,18 @@ public class PropsManagerImpl implements PropsManager {
        // iNodes.add(bot, new PlainText("道具系统"));
         propCard.add(bot, new PlainText("道具卡商店"));
         Set<String> strings = PropsType.getProps().keySet();
-        List<String> stringsSort = strings.stream().sorted().collect(Collectors.toList());
-        for (String string : stringsSort) {
-            if (string.startsWith("K-")) {
-                String propInfo = String.format("道具编号:%s\n", PropsType.getNo(string));
-                propInfo += PropsType.getPropsInfo(string).toString();
-                propCard.add(bot, new PlainText(propInfo));
-            }
+        List<Integer> stringsSort = strings.stream()
+                .mapToInt(s -> Integer.parseInt(s.replace("FISH-", "")))
+                .sorted()
+                .boxed() // 将 IntStream 转换为 Stream<Integer>
+                .collect(Collectors.toList());
+        for (Integer intee : stringsSort) {
+//            if (string.startsWith("K-")) {
+//                String propInfo = String.format("道具编号:%s\n", PropsType.getNo(string));
+//                propInfo += PropsType.getPropsInfo(string).toString();
+//                propCard.add(bot, new PlainText(propInfo));
+//            }
+           String string = "FISH-" + intee;
             if (string.startsWith("FISH-")) {
                 if(PropsType.getPropsInfo(string) instanceof PropsFishCard){
                     PropsFishCard propsFishCard =(PropsFishCard)PropsType.getPropsInfo(string);
@@ -218,7 +223,8 @@ public class PropsManagerImpl implements PropsManager {
             }
         }
         propCard.add(bot, new PlainText("兑换商店"));
-        for (String string : stringsSort) {
+        for (Integer intee : stringsSort) {
+            String string = "FISH-" + intee;
             if (string.startsWith("FISH-")) {
                 if(PropsType.getPropsInfo(string) instanceof PropsFishCard){
                     PropsFishCard propsFishCard =(PropsFishCard)PropsType.getPropsInfo(string);

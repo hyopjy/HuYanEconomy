@@ -1,5 +1,7 @@
 package cn.chahuyun.economy.entity.props;
 
+import cn.chahuyun.economy.manager.SeasonCommonInfoManager;
+import cn.chahuyun.economy.manager.SeasonManager;
 import cn.chahuyun.economy.utils.HibernateUtil;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -91,7 +93,7 @@ public class PropsFishCard extends PropsBase implements Serializable {
 
     @Override
     public String toString() {
-        String price = this.getCost() +"币币";
+        String price = this.getCost() + SeasonCommonInfoManager.getBBMoney();
         if(this.getCost() < 0){
             price = this.getPriceDesc();
         }

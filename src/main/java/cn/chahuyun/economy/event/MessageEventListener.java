@@ -87,7 +87,7 @@ public class MessageEventListener extends SimpleListenerHost {
                 case "个人信息":
                 case "info":
                     Log.info("个人信息指令");
-                    FbUserManager.getUserInfoImageFb(event);
+                    FbUserManager.getUserInfo(event);
                     return;
                 case "背包":
                 case "backpack":

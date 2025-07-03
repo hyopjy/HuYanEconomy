@@ -7,13 +7,14 @@ import cn.chahuyun.economy.entity.badge.BadgeInfo;
 import cn.chahuyun.economy.utils.CacheUtils;
 import cn.chahuyun.economy.utils.EconomyUtil;
 import cn.chahuyun.economy.utils.Log;
-import cn.hutool.core.date.DateUtil;
+import cn.chahuyun.economy.utils.MessageUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import net.mamoe.mirai.contact.*;
 import net.mamoe.mirai.event.events.MessageEvent;
+import net.mamoe.mirai.message.data.At;
+import net.mamoe.mirai.message.data.MessageChain;
 import net.mamoe.mirai.message.data.MessageChainBuilder;
-import org.apache.commons.lang3.StringUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -31,6 +32,24 @@ public class FbUserManager  {
         super();
     }
 
+    public static void getUserInfo(MessageEvent event) {
+        User user = event.getSender();
+        Contact subject = event.getSubject();
+        MessageChain message = event.getMessage();
+        UserInfo userInfo = UserManager.getUserInfo(user);
+
+        MessageChainBuilder messages = MessageUtil.quoteReply(message);
+        messages.append(new At(user.getId())).append("\r\n");
+        // bb
+        String bbStr  = EconomyUtil.getMoneyByUserStr(userInfo.getUser());
+        // 赛季币
+        String seasonStr = EconomyUtil.getMoneyByBankStr(userInfo.getUser());
+        messages.append("佬的小金库余额：").append("\r\n");
+        messages.append("    ").append(SeasonCommonInfoManager.getBBMoneyDesc()).append(": ").append(bbStr).append(SeasonCommonInfoManager.getBBMoney()).append("\r\n");
+        messages.append("    ").append(SeasonCommonInfoManager.getSeasonMoneyDesc()).append(": ").append(seasonStr).append(SeasonCommonInfoManager.getSeasonMoney()).append("\r\n");
+
+        subject.sendMessage(messages.build());
+    }
     public static void getUserInfoImageFb(MessageEvent event) {
         Contact subject = event.getSubject();
         User sender = event.getSender();

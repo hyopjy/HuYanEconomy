@@ -211,12 +211,12 @@ public class LotteryManager {
             return;
         }
         lotteryInfo.save();
-        // 通过单次猜签100000及以上币币获得 梭哈标识碎片 FISH-113
-        if(money >= 100000){
+        // 通过单次猜签100000及以上币币获得 梭哈标识碎片 FISH-113 通过单次猜签10,0000及以上币币随机获得 	概率50%
+        if (money >= 100000 && RandomHelperUtil.checkRandomByProp(50)) {
             String propName = GroupAdminManager.giveAllIn(user);
             subject.sendMessage(MessageUtil.formatMessageChain(message,
                     "猜签成功:\r\n猜签类型:%s\r\n猜签号码:%s\r\n猜签WDIT币币:%s\r\r获得道具：%s", typeString, number, money, propName));
-        }else {
+        } else {
             subject.sendMessage(MessageUtil.formatMessageChain(message,
                     "猜签成功:\r\n猜签类型:%s\r\n猜签号码:%s\r\n猜签WDIT币币:%s", typeString, number, money));
         }

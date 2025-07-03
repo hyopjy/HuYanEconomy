@@ -86,7 +86,7 @@ public interface Constant {
         }
         // Linux 系统 (增加容器环境兼容)
         else if (osName.contains("linux")) {
-            return "/www/wwwroot/fish.xlsx";
+            return "/www/fish.xlsx";
         }
         // macOS 系统 (适配Unix文件系统)
         else if (osName.contains("mac")) {
