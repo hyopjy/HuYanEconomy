@@ -34,7 +34,7 @@ public class CollectionBookManager {
             {"", "", FISH_ROD_LEVEL, FISH_20, "", "", "", FISH_39},
             {FISH_133, "", "", "", "", "", "", ""},
             {"", "", "", "", FISH_49, "", FISH_95, ""},
-            {FISH_62, "", "", "", "", "", FISH_15, ""},
+            {FISH_62, "", "", "", "", FISH_PAO_PAO, FISH_15, ""},
             {"", "", "", "", "", "", "", ""},
             {"", "", FISH_17, FISH_16, "", "", "", ""},
             {"", "", "", "", "", "", "", ""}
@@ -52,6 +52,8 @@ public class CollectionBookManager {
         IMAGE_TAG_MAP.put(FISH_95, new Integer[]{545, 288});
         IMAGE_TAG_MAP.put(FISH_62, new Integer[]{22, 375});
         IMAGE_TAG_MAP.put(FISH_15, new Integer[]{545, 373});
+
+        IMAGE_TAG_MAP.put(FISH_PAO_PAO, new Integer[]{457, 372});
         IMAGE_TAG_MAP.put(FISH_17, new Integer[]{201, 548});
         IMAGE_TAG_MAP.put(FISH_16, new Integer[]{281, 548});
     }
@@ -108,23 +110,11 @@ public class CollectionBookManager {
                     String key = IMAGE_TAG_ARR[row][col];
                     if (StringUtils.isNotBlank(key)) {
                         key = key.toUpperCase(Locale.ROOT);
-//                        if (BadgeInfoManager.getCount(group.getId(), userInfo.getQq(), key) > 0) {
-                            InputStream fishSignStream = HuYanEconomy.SIGN_STREAM_MAP.get(key);
-                            if (fishSignStream != null) {
-                                BufferedImage fishImage = ImageIO.read(fishSignStream);
-                                fishSignStream.reset();
-                                // 5. 绘制图片
-                                Integer[] pos = IMAGE_TAG_MAP.get(key);
-                                pen.drawImage(fishImage,
-                                        pos[0],
-                                        pos[1],
-                                        fishImage.getWidth(), fishImage.getHeight(),
-                                        null
-                                );
-                            } else {
-                                Log.info(String.format("图标资源缺失: %s", key)); // 资源找不到时提示
-                            }
-//                        }
+                        if(getDefaultPropCode().contains(key)){
+                            drawIcon(key, pen);
+                        }else if (BadgeInfoManager.getCount(group.getId(), userInfo.getQq(), key) > 0) {
+                            drawIcon(key, pen);
+                        }
                     }
                 }
             }
@@ -136,6 +126,24 @@ public class CollectionBookManager {
         } catch (IOException exception) {
             Log.error("用户管理:个人信息基础信息绘图错误!", exception);
             return null;
+        }
+    }
+
+    private static void drawIcon(String key, Graphics2D pen) throws IOException {
+        InputStream fishSignStream = HuYanEconomy.SIGN_STREAM_MAP.get(key);
+        if (fishSignStream != null) {
+            BufferedImage fishImage = ImageIO.read(fishSignStream);
+            fishSignStream.reset();
+            // 5. 绘制图片
+            Integer[] pos = IMAGE_TAG_MAP.get(key);
+            pen.drawImage(fishImage,
+                    pos[0],
+                    pos[1],
+                    fishImage.getWidth(), fishImage.getHeight(),
+                    null
+            );
+        } else {
+            Log.info(String.format("图标资源缺失: %s", key)); // 资源找不到时提示
         }
     }
 

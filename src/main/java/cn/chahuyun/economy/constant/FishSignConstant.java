@@ -41,6 +41,14 @@ public class FishSignConstant {
     public static final String FISH_133 = "FISH-133";
 
     public static final String FISH_125 = "FISH-125";
+
+    public static final String FISH_PAO_PAO= "FISH-PAO-PAO";
+
+    public static Set<String> getDefaultPropCode(){
+        HashSet<String> strings = new HashSet<>(1);
+        strings.add(FISH_PAO_PAO);
+        return strings;
+    }
     /**
      * 通用成就
      * @return

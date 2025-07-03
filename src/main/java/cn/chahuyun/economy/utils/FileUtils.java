@@ -83,7 +83,7 @@ public class FileUtils {
         HuYanEconomy.SIGN_STREAM_MAP.put(FISH_125, getByteArrayInputStream("落花落.png"));
 
         //ball.png
-        //   HuYanEconomy.SIGN_STREAM_MAP.put("FISH-95", getByteArrayInputStream("ball.png"));
+        HuYanEconomy.SIGN_STREAM_MAP.put(FISH_PAO_PAO, getByteArrayInputStream("ball.png"));
         //昆三陵鱼.png
        //  HuYanEconomy.SIGN_STREAM_MAP.put("FISH-95", getByteArrayInputStream("昆三陵鱼.png"));
     }
