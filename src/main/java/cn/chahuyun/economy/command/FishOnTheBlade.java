@@ -38,7 +38,7 @@ public class FishOnTheBlade extends AbstractPropUsage {
     @Override
     public void excute() {
         User sender = event.getSender();
-        // 消耗品，使用后获得「年年有鱼」buff，之后的5次钓鱼都会额外增加difficultymin50，rankmin5
+        // 消耗品，使用后获得「游刃有鱼」buff，之后的5次钓鱼都会为特殊鱼增加难度系数12%
         Buff buff = new Buff();
         buff.setGroupId(group.getId());
         buff.setQq(sender.getId());
@@ -46,11 +46,11 @@ public class FishOnTheBlade extends AbstractPropUsage {
         buff.setBuffType(Constant.BUFF_FRONT);
         buff.setCount(5);
         buff.setNum(5);
-        List<BuffProperty> properties = new ArrayList<>(2);
-        BuffProperty property1 = new BuffProperty(BuffPropsEnum.DIFFICULTY_MIN.getName(), 0.08);
-        BuffProperty property2 = new BuffProperty(BuffPropsEnum.RANK_MIN.getName(), 5);
+        List<BuffProperty> properties = new ArrayList<>(1);
+        BuffProperty property1 = new BuffProperty(BuffPropsEnum.DIFFICULTY_MIN.getName(), 0.12);
+//        BuffProperty property2 = new BuffProperty(BuffPropsEnum.RANK_MIN.getName(), 5);
         properties.add(property1);
-        properties.add(property2);
+//        properties.add(property2);
         buff.setProperties(properties);
 
         CacheUtils.addBuff(group.getId(), sender.getId(), buff);

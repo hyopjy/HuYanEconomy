@@ -13,6 +13,8 @@ import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.message.data.MessageChainBuilder;
 import net.mamoe.mirai.message.data.QuoteReply;
+import org.apache.poi.ss.formula.functions.T;
+import org.checkerframework.checker.units.qual.N;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +39,8 @@ public class FBTNK extends AbstractPropUsage {
     @Override
     public void excute() {
         User sender = event.getSender();
-        // 消耗品，使用后获得「年年有鱼」buff，之后的5次钓鱼都会额外增加difficultymin50，rankmin5
+
+//        消耗五个字母牌F、B、T、N、K兑换获得，使用后消失，同时获得「FBTNK」buff（之后的5次钓鱼都会额外为特殊鱼增加难度系数16%），且获得513140币币
         Buff buff = new Buff();
         buff.setGroupId(group.getId());
         buff.setQq(sender.getId());
@@ -45,11 +48,11 @@ public class FBTNK extends AbstractPropUsage {
         buff.setBuffType(Constant.BUFF_FRONT);
         buff.setCount(5);
         buff.setNum(5);
-        List<BuffProperty> properties = new ArrayList<>(2);
-        BuffProperty property1 = new BuffProperty(BuffPropsEnum.DIFFICULTY_MIN.getName(), 0.12);
-        BuffProperty property2 = new BuffProperty(BuffPropsEnum.RANK_MIN.getName(), 6);
+        List<BuffProperty> properties = new ArrayList<>(1);
+        BuffProperty property1 = new BuffProperty(BuffPropsEnum.DIFFICULTY_MIN.getName(), 0.16);
+//        BuffProperty property2 = new BuffProperty(BuffPropsEnum.RANK_MIN.getName(), 6);
         properties.add(property1);
-        properties.add(property2);
+//        properties.add(property2);
         buff.setProperties(properties);
 
         EconomyUtil.plusMoneyToUser(sender, 513140);

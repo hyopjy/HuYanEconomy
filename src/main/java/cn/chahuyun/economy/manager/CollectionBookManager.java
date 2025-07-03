@@ -1,9 +1,7 @@
 package cn.chahuyun.economy.manager;
 
 import cn.chahuyun.economy.HuYanEconomy;
-import cn.chahuyun.economy.constant.FishSignConstant;
 import cn.chahuyun.economy.entity.UserInfo;
-import cn.chahuyun.economy.utils.AdvancedRandomColorTextRenderer;
 import cn.chahuyun.economy.utils.Log;
 import cn.chahuyun.economy.utils.MessageUtil;
 import cn.hutool.core.util.StrUtil;
@@ -169,38 +167,27 @@ public class CollectionBookManager {
         }
 
         // 设置权限颜色
-        Boolean isAdmin = false;
         if (user instanceof Member) {
             MemberPermission permission = ((Member) user).getPermission();
             if (permission.getLevel() == MemberPermission.OWNER.getLevel()) {
-//                pen.setColor(Color.YELLOW);
-                isAdmin =true;
+                pen.setColor(Color.YELLOW);
             } else if (permission.getLevel() == MemberPermission.ADMINISTRATOR.getLevel()) {
-//                pen.setColor(Color.GREEN);
-                isAdmin =true;
+                pen.setColor(Color.GREEN);
             } else {
                 pen.setColor(Color.BLACK);
             }
         }
 
+
         // 绘制姓名
+        int fontSize = 22;
+        pen.setFont(new Font("黑体", Font.BOLD, fontSize));
         FontMetrics fm = pen.getFontMetrics();
         int textWidth = fm.stringWidth(userInfoName);
         int margin = 20;
         int textX = image.getWidth() - textWidth - margin;
         int textY = image.getHeight() - margin;
-
-//        pen.setFont(new Font("黑体", Font.BOLD, 20));
-//        pen.drawString(userInfoName, textX, textY);
-
-//        -Djava.awt.headless=true --add-exports=java.base/sun.nio.ch=ALL-UNNAMED --add-exports=java.desktop/sun.font=ALL-UNNAMED --add-opens=java.desktop/java.awt=ALL-UNNAMED
-
-        // 根据用户身份选择特效
-        int effects = isAdmin ? 3 : 1; // 管理员=阴影+描边，普通用户=渐变
-        // 渲染带特效文字
-        AdvancedRandomColorTextRenderer.renderTextWithEffects(pen, userInfoName, textX, textY, effects);
-
-
+        pen.drawString(userInfoName, textX, textY);
     }
 
 
