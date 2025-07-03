@@ -3,6 +3,7 @@ package cn.chahuyun.economy.manager;
 import cn.chahuyun.economy.HuYanEconomy;
 import cn.chahuyun.economy.constant.FishSignConstant;
 import cn.chahuyun.economy.entity.UserInfo;
+import cn.chahuyun.economy.utils.AdvancedRandomColorTextRenderer;
 import cn.chahuyun.economy.utils.Log;
 import cn.chahuyun.economy.utils.MessageUtil;
 import cn.hutool.core.util.StrUtil;
@@ -53,7 +54,7 @@ public class CollectionBookManager {
         IMAGE_TAG_MAP.put(FISH_62, new Integer[]{22, 375});
         IMAGE_TAG_MAP.put(FISH_15, new Integer[]{545, 373});
 
-        IMAGE_TAG_MAP.put(FISH_PAO_PAO, new Integer[]{457, 372});
+        IMAGE_TAG_MAP.put(FISH_PAO_PAO, new Integer[]{457, 371});
         IMAGE_TAG_MAP.put(FISH_17, new Integer[]{201, 548});
         IMAGE_TAG_MAP.put(FISH_16, new Integer[]{281, 548});
     }
@@ -168,26 +169,38 @@ public class CollectionBookManager {
         }
 
         // 设置权限颜色
+        Boolean isAdmin = false;
         if (user instanceof Member) {
             MemberPermission permission = ((Member) user).getPermission();
             if (permission.getLevel() == MemberPermission.OWNER.getLevel()) {
-                pen.setColor(Color.YELLOW);
+//                pen.setColor(Color.YELLOW);
+                isAdmin =true;
             } else if (permission.getLevel() == MemberPermission.ADMINISTRATOR.getLevel()) {
-                pen.setColor(Color.GREEN);
+//                pen.setColor(Color.GREEN);
+                isAdmin =true;
             } else {
-                pen.setColor(Color.WHITE);
+                pen.setColor(Color.BLACK);
             }
         }
 
         // 绘制姓名
-        int fontSize = 22;
-        pen.setFont(new Font("黑体", Font.BOLD, fontSize));
         FontMetrics fm = pen.getFontMetrics();
         int textWidth = fm.stringWidth(userInfoName);
         int margin = 20;
         int textX = image.getWidth() - textWidth - margin;
         int textY = image.getHeight() - margin;
-        pen.drawString(userInfoName, textX, textY);
+
+//        pen.setFont(new Font("黑体", Font.BOLD, 20));
+//        pen.drawString(userInfoName, textX, textY);
+
+//        -Djava.awt.headless=true --add-exports=java.base/sun.nio.ch=ALL-UNNAMED --add-exports=java.desktop/sun.font=ALL-UNNAMED --add-opens=java.desktop/java.awt=ALL-UNNAMED
+
+        // 根据用户身份选择特效
+        int effects = isAdmin ? 3 : 1; // 管理员=阴影+描边，普通用户=渐变
+        // 渲染带特效文字
+        AdvancedRandomColorTextRenderer.renderTextWithEffects(pen, userInfoName, textX, textY, effects);
+
+
     }
 
 

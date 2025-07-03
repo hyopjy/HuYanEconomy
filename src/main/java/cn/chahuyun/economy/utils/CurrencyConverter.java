@@ -1,5 +1,8 @@
 package cn.chahuyun.economy.utils;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 public class CurrencyConverter {
     private static final char[] DIGITS = {'零', '一', '二', '三', '四', '五', '六', '七', '八', '九'};
     private static final String[] SECTION_UNITS = {"", "万", "亿", "万亿", "亿亿", "万亿亿"};
@@ -154,6 +157,101 @@ public class CurrencyConverter {
         return sb.toString();
     }
 
+
+    /**
+     * 将double类型的金额转换为小写数字和中文单位混合格式（仅整数部分）
+     * @param amount 金额（double类型）
+     * @return 小写数字和中文单位混合格式
+     */
+    public static String convertToMixed(double amount) {
+        // 处理小数部分（四舍五入到整数）
+        long integerPart = Math.round(Math.abs(amount));
+        String sign = amount < 0 ? "-" : "";
+
+        if (integerPart == 0) {
+            return "0";
+        }
+
+        return sign + convertLongToMixed(integerPart);
+    }
+
+    /**
+     * 将double类型的金额转换为小写数字和中文单位混合格式（含小数部分）
+     * @param amount 金额（double类型）
+     * @return 小写数字和中文单位混合格式
+     */
+    public static String convertToMixedWithDecimal(double amount) {
+        // 使用BigDecimal处理精度问题
+        BigDecimal bigAmount = new BigDecimal(String.valueOf(amount));
+        String sign = bigAmount.signum() < 0 ? "-" : "";
+        bigAmount = bigAmount.abs();
+
+        // 分离整数和小数部分
+        long integerPart = bigAmount.setScale(0, RoundingMode.DOWN).longValue();
+        BigDecimal fractional = bigAmount.subtract(new BigDecimal(integerPart));
+        int decimalPart = fractional.multiply(new BigDecimal(100)).setScale(0, RoundingMode.HALF_UP).intValue();
+
+        StringBuilder result = new StringBuilder();
+
+        // 转换整数部分
+        if (integerPart > 0 || decimalPart == 0) {
+            result.append(convertLongToMixed(integerPart));
+        } else {
+            result.append("0");
+        }
+
+        // 转换小数部分
+        if (decimalPart > 0) {
+            result.append(".");
+            result.append(String.format("%02d", decimalPart));
+        }
+
+        return sign + result.toString();
+    }
+
+    /**
+     * 将long类型的整数转换为小写数字和中文单位混合格式
+     */
+    private static String convertLongToMixed(long number) {
+        if (number == 0) return "0";
+
+        String numStr = String.valueOf(number);
+        int len = numStr.length();
+        int sections = (len + 3) / 4;
+        String[] sectionsArr = new String[sections];
+
+        // 分割为4位一节的数组
+        for (int i = 0; i < sections; i++) {
+            int end = len - i * 4;
+            int start = Math.max(0, end - 4);
+            sectionsArr[i] = numStr.substring(start, end);
+        }
+
+        StringBuilder result = new StringBuilder();
+
+        // 从高位到低位处理每一节
+        for (int i = sections - 1; i >= 0; i--) {
+            // 去除前导零
+            String section = sectionsArr[i].replaceFirst("^0+", "");
+            if (section.isEmpty()) section = "0";
+
+            // 添加节内容
+            if (!section.equals("0") || (i == 0 && result.length() == 0)) {
+                result.append(section);
+
+                // 添加节单位
+                if (i < SECTION_UNITS.length) {
+                    result.append(SECTION_UNITS[i]);
+                } else {
+                    // 超过预定义单位时使用组合单位
+                    result.append(SECTION_UNITS[i % 2 + 2]).append(SECTION_UNITS[i / 2]);
+                }
+            }
+        }
+
+        return result.toString();
+    }
+
     // 测试代码
     public static void main(String[] args) {
         double[] testCases = {
@@ -179,6 +277,16 @@ public class CurrencyConverter {
         System.out.println("\n===== 含小数部分转换 =====");
         for (double num : testCases) {
             System.out.printf("%.2f: %s\n", num, convertToChineseWithDecimal(num));
+        }
+
+        System.out.println("===== 小写数字混合格式 - 整数部分转换 =====");
+        for (double num : testCases) {
+            System.out.printf("%.2f: %s\n", num, convertToMixed(num));
+        }
+
+        System.out.println("\n===== 小写数字混合格式 - 含小数部分转换 =====");
+        for (double num : testCases) {
+            System.out.printf("%.2f: %s\n", num, convertToMixedWithDecimal(num));
         }
     }
 }

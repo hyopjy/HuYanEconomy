@@ -11,6 +11,8 @@ import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 
+import static cn.chahuyun.economy.utils.CurrencyConverter.convertToMixedWithDecimal;
+
 /**
  * 经济工具<p>
  * 使用前请先初始化 调用 [init] 方法<p>
@@ -71,6 +73,10 @@ public class EconomyUtil {
         return getMoneyByUser(user, Constant.CURRENCY_GOLD);
     }
 
+    public static String getMoneyByUserStr(User user) {
+        return  String.format("%s", convertToMixedWithDecimal(getMoneyByUser(user, Constant.CURRENCY_GOLD)));
+    }
+
 
     /**
      * 从用户 [钱包] 获取 [货币] 余额<p>
@@ -107,6 +113,10 @@ public class EconomyUtil {
      */
     public static double getMoneyByBank(User user) {
         return getMoneyByBank(user, Constant.CURRENCY_GOLD);
+    }
+    public static String getMoneyByBankStr(User user) {
+        return String.format("%s", convertToMixedWithDecimal(getMoneyByBank(user, Constant.CURRENCY_GOLD)));
+
     }
 
     /**

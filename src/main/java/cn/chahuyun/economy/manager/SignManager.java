@@ -19,7 +19,6 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static cn.chahuyun.economy.utils.CurrencyConverter.convertToChineseWithDecimal;
 
 /**
  * 签到管理<p>
@@ -104,11 +103,9 @@ public class SignManager {
             messages.append(String.format("%s", goldNumber)).append(SeasonCommonInfoManager.getBBMoney()).append("\r\n");
         }
         // bb
-        double moneyBytUser = EconomyUtil.getMoneyByUser(userInfo.getUser());
-        String bbStr = String.format("%s", convertToChineseWithDecimal(moneyBytUser));
+        String bbStr  = EconomyUtil.getMoneyByUserStr(userInfo.getUser());
         // 赛季币
-        double moneyBySeasonUser = EconomyUtil.getMoneyByBank(userInfo.getUser());
-        String seasonStr = String.format("%s", convertToChineseWithDecimal(moneyBySeasonUser));
+        String seasonStr = EconomyUtil.getMoneyByBankStr(userInfo.getUser());
         messages.append("佬的小金库余额：").append("\r\n");
         messages.append("    ").append(SeasonCommonInfoManager.getBBMoneyDesc()).append(": ").append(bbStr).append(SeasonCommonInfoManager.getBBMoney()).append("\r\n");
         messages.append("    ").append(SeasonCommonInfoManager.getSeasonMoneyDesc()).append(": ").append(seasonStr).append(SeasonCommonInfoManager.getSeasonMoney()).append("\r\n");

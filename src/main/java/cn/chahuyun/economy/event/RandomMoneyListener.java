@@ -43,6 +43,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 
+
 public class RandomMoneyListener extends SimpleListenerHost {
 
     @Override
@@ -77,9 +78,12 @@ public class RandomMoneyListener extends SimpleListenerHost {
         }
 
         if (message.equals("余额")) {
-            double money = EconomyUtil.getMoneyByUser(sender);
-            double bankMoney = EconomyUtil.getMoneyByBank(sender);
-            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "当前WDIT 币币余额%s;"+ SeasonCommonInfoManager.getSeasonMoney()+"%s", money, bankMoney));
+            String bbStr = EconomyUtil.getMoneyByUserStr(sender);
+            String seasonStr = EconomyUtil.getMoneyByBankStr(sender);
+
+            subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(),
+                    SeasonCommonInfoManager.getBBMoneyDesc() + ": %s \r\n"
+                    + SeasonCommonInfoManager.getSeasonMoneyDesc()+": %s \r\n", bbStr, seasonStr));
         }
         if (message.equals("查看签签")) {
             List<LotteryInfo> list = HibernateUtil.factory.fromSession(session -> {
