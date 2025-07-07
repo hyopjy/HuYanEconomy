@@ -215,8 +215,10 @@ class BankInterestTask implements Task {
                     BigDecimal vB = NumberUtil.round(NumberUtil.mul(entry.getValue().doubleValue(),dd),2);
                     double v = vB.doubleValue();
 
-                    // if (EconomyUtil.plusMoneyToWalletForAccount(entry.getKey(), v)) {
-                     if (EconomyUtil.plusMoneyToBankForAccount(entry.getKey(), v)) {
+//                    if (EconomyUtil.plusMoneyToBankForAccount(entry.getKey(), v)) {
+                     // bank 是赛季币
+                     // 余额是 wditBB
+                     if (EconomyUtil.minusMoneyToBankForAccount(entry.getKey(), v)) {
                         Log.info("用户："+ userInfo.getQq() + "获得"+ SeasonCommonInfoManager.getSeasonMoney()+"：" + v);
                         userInfo.setBankEarnings(v);
                         userInfo.save();

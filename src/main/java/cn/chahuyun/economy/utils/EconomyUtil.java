@@ -676,4 +676,18 @@ public class EconomyUtil {
             return false;
         }
     }
+
+    public static boolean minusMoneyToBankForAccount(EconomyAccount account, double quantity) {
+        return minusMoneyToBankForAccount(account, quantity, Constant.CURRENCY_GOLD);
+    }
+
+    public static boolean minusMoneyToBankForAccount(EconomyAccount account, double quantity, EconomyCurrency currency) {
+        try (EconomyContext context = economyService.global()) {
+            context.minusAssign(account, currency, quantity);
+            return true;
+        } catch (Exception e) {
+            Log.error("经济转移出错:减少用户经济", e);
+            return false;
+        }
+    }
 }
