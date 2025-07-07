@@ -5,15 +5,15 @@ import cn.chahuyun.economy.entity.UserBackpack;
 import cn.chahuyun.economy.entity.UserInfo;
 import cn.chahuyun.economy.entity.props.PropsBase;
 import cn.chahuyun.economy.plugin.PropsType;
+import cn.chahuyun.economy.utils.EconomyUtil;
 import cn.chahuyun.economy.utils.Log;
 import cn.chahuyun.economy.utils.MessageUtil;
 import net.mamoe.mirai.contact.Contact;
+import net.mamoe.mirai.contact.Group;
+import net.mamoe.mirai.contact.NormalMember;
 import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
-import net.mamoe.mirai.message.data.At;
-import net.mamoe.mirai.message.data.MessageChain;
-import net.mamoe.mirai.message.data.PlainText;
-import net.mamoe.mirai.message.data.SingleMessage;
+import net.mamoe.mirai.message.data.*;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -23,6 +23,13 @@ public class GroupAdminManager {
     public static void giveCup(GroupMessageEvent event) {
         Contact subject = event.getSubject();
         MessageChain chain = event.getMessage();
+        Group group;
+        if (subject instanceof Group) {
+            group = (Group) subject;
+        } else {
+            group = null;
+        }
+
         long senderId = event.getSender().getId();
 
         // 检查权限和命令前缀
@@ -81,13 +88,45 @@ public class GroupAdminManager {
             return;
         }
 
-        for(int i=0; i< targets.size(); i++){
-            Long userId = targets.get(i);
-            for(int j =0; j < amount; j++ ){
-                giveProp(PropsType.getCode(propIdentifier), event.getGroup().get(userId));
+        if (SeasonCommonInfoManager.getBBMoney().equals(propIdentifier)) {
+            for (int i = 0; i < targets.size(); i++) {
+                Long userId = targets.get(i);
+                // bb
+                NormalMember member = group.get(userId);
+                EconomyUtil.plusMoneyToUser(member, amount);
+                MessageChain msg = new MessageChainBuilder().append("bobo向").append(new At(userId))  // ✅ 调用单例
+                        .append("颁发光荣的").append(SeasonCommonInfoManager.getBBMoney()).append(" x ").append(String.valueOf(amount)).append("\r\n").build();
+                subject.sendMessage(msg);
+
+            }
+        } else if (SeasonCommonInfoManager.getSeasonMoney().equals(propIdentifier)) {
+            for (int i = 0; i < targets.size(); i++) {
+                Long userId = targets.get(i);
+                // 赛季币
+                NormalMember member = group.get(userId);
+                EconomyUtil.plusMoneyToBank(member, amount);
+                MessageChain msg = new MessageChainBuilder().append("bobo向").append(new At(userId))  // ✅ 调用单例
+                        .append("颁发光荣的").append(SeasonCommonInfoManager.getSeasonMoney()).append(" x ").append(String.valueOf(amount)).append("\r\n").build();
+                subject.sendMessage(msg);
+            }
+        } else {
+            String propNo = PropsType.getCode(propIdentifier);
+            PropsBase propsInfo = PropsType.getPropsInfo(propNo);
+            if (Objects.isNull(propsInfo)) {
+                subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "道具不存在"));
+                return;
+            }
+
+            for (int i = 0; i < targets.size(); i++) {
+                Long userId = targets.get(i);
+                for (int j = 0; j < amount; j++) {
+                    giveProp(propNo, event.getGroup().get(userId));
+                }
+                MessageChain msg = new MessageChainBuilder().append("bobo向").append(new At(userId))  // ✅ 调用单例
+                        .append("颁发光荣的").append(propsInfo.getName()).append(" x ").append(String.valueOf(amount)).append("\r\n").build();
+                subject.sendMessage(msg);
             }
         }
-        subject.sendMessage(MessageUtil.formatMessageChain(event.getMessage(), "颁发成功"));
     }
 
     public static String giveCupProp(User user){
