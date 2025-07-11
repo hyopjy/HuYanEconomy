@@ -30,6 +30,7 @@ public class ChampionshipTrophy extends AbstractPropUsage {
                     propsCard.getName() + " 每天限使用一次"));
             return false;
         }
+        this.deleteProp = Boolean.FALSE;
         return true;
     }
 

@@ -33,6 +33,8 @@ public abstract class AbstractPropUsage implements IPropUsage{
     protected Long target;
 
     protected Boolean isBuff = false;
+
+    protected Boolean deleteProp = true;
     @Override
     public abstract boolean checkOrder();
 

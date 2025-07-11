@@ -152,7 +152,9 @@ public class PropFishUsageContext {
                 return;
             }
             abstractPropUsage.excute();
-            PluginManager.getPropsManager().deleteProp(userInfo, propsCard);
+            if(abstractPropUsage.getDeleteProp()){
+                PluginManager.getPropsManager().deleteProp(userInfo, propsCard);
+            }
         }
     }
 

@@ -160,22 +160,22 @@ public class PropExchangeDict {
         PROP_EXCHANGE.put("FISH-95", FISH_95_LIST);
 
         List<String> FISH_133_LIST = new ArrayList<>(7);
-        FISH_95_LIST.add("FISH-126");
-        FISH_95_LIST.add("FISH-127");
-        FISH_95_LIST.add("FISH-128");
-        FISH_95_LIST.add("FISH-129");
-        FISH_95_LIST.add("FISH-130");
-        FISH_95_LIST.add("FISH-131");
-        FISH_95_LIST.add("FISH-132");
+        FISH_133_LIST.add("FISH-126");
+        FISH_133_LIST.add("FISH-127");
+        FISH_133_LIST.add("FISH-128");
+        FISH_133_LIST.add("FISH-129");
+        FISH_133_LIST.add("FISH-130");
+        FISH_133_LIST.add("FISH-131");
+        FISH_133_LIST.add("FISH-132");
         PROP_EXCHANGE.put("FISH-133", FISH_133_LIST);
 
         List<String> FISH_125_LIST = new ArrayList<>(7);
-        FISH_95_LIST.add("FISH-119");
-        FISH_95_LIST.add("FISH-120");
-        FISH_95_LIST.add("FISH-121");
-        FISH_95_LIST.add("FISH-122");
-        FISH_95_LIST.add("FISH-123");
-        FISH_95_LIST.add("FISH-124");
+        FISH_125_LIST.add("FISH-119");
+        FISH_125_LIST.add("FISH-120");
+        FISH_125_LIST.add("FISH-121");
+        FISH_125_LIST.add("FISH-122");
+        FISH_125_LIST.add("FISH-123");
+        FISH_125_LIST.add("FISH-124");
         PROP_EXCHANGE.put("FISH-125", FISH_125_LIST);
 
     }
