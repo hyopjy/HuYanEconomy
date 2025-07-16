@@ -381,6 +381,38 @@ public class EconomyUtil {
         }
     }
 
+    /**
+     * 增加wdit bb
+     * @param account
+     * @param quantity
+     * @return
+     */
+    public static boolean plusMoneyForAccount(EconomyAccount account, double quantity) {
+        try (EconomyContext context = economyService.custom(HuYanEconomy.INSTANCE)) {
+            context.plusAssign(account, Constant.CURRENCY_GOLD, quantity);
+            return true;
+        } catch (Exception e) {
+            Log.error("经济转移出错:添加用户经济", e);
+            return false;
+        }
+    }
+
+    /**
+     * 减少widt b
+     * @param account
+     * @param quantity
+     * @return
+     */
+    public static boolean minusMoneyForAccount(EconomyAccount account, double quantity) {
+        try (EconomyContext context = economyService.custom(HuYanEconomy.INSTANCE)) {
+            context.minusAssign(account, Constant.CURRENCY_GOLD, quantity);
+            return true;
+        } catch (Exception e) {
+            Log.error("经济转移出错:添加用户经济", e);
+            return false;
+        }
+    }
+
 
 
     /**

@@ -193,10 +193,12 @@ class BankInterestTask implements Task {
      */
     @Override
     public void execute() {
+        boolean plusMoney = DateUtil.thisDayOfWeek() == 2;
         for (BankInfo bankInfo : bankList) {
             if (bankInfo.isInterestSwitch()) {
-                if (DateUtil.thisDayOfWeek() == 2) {
-                    bankInfo.setInterest(RandomUtil.randomInt(2, 9));
+                bankInfo.setInterest(2);
+                if (plusMoney) {
+                    bankInfo.setInterest(RandomUtil.randomInt(1, 6));
                 }
             }
             Log.info("bankInfo-id:"+ bankInfo.getId());
@@ -212,18 +214,31 @@ class BankInterestTask implements Task {
                         continue;
                     }
                     double dd = interest / 100.00;
-                    BigDecimal vB = NumberUtil.round(NumberUtil.mul(entry.getValue().doubleValue(),dd),2);
+                    BigDecimal vB = NumberUtil.round(NumberUtil.mul(entry.getValue().doubleValue(), dd),2);
                     double v = vB.doubleValue();
 
-//                    if (EconomyUtil.plusMoneyToBankForAccount(entry.getKey(), v)) {
-                     // bank 是赛季币
-                     // 余额是 wditBB
-                     if (EconomyUtil.minusMoneyToBankForAccount(entry.getKey(), v)) {
-                        Log.info("用户："+ userInfo.getQq() + "获得"+ SeasonCommonInfoManager.getSeasonMoney()+"：" + v);
-                        userInfo.setBankEarnings(v);
-                        userInfo.save();
-                    } else {
-                        Log.error(SeasonCommonInfoManager.getSeasonMoney() + "管理:" + id + "添加利息出错");
+
+                    if(plusMoney){
+                        // bank 是赛季币  plusMoneyToBankForAccount
+                        // 余额是 wditBB  plusMoneyForAccount
+                        if (EconomyUtil.plusMoneyForAccount(entry.getKey(), v)) {
+                            Log.info("用户："+ userInfo.getQq() + "获得"+ SeasonCommonInfoManager.getSeasonMoney()+"：" + v);
+                            userInfo.setBankEarnings(v);
+                            userInfo.save();
+                        } else {
+                            Log.error(SeasonCommonInfoManager.getSeasonMoney() + "管理:" + id + "添加利息出错");
+                        }
+                    }else {
+                        // bank 是赛季币 minusMoneyToBankForAccount
+                        // 余额是 wditBB minusMoneyForAccount
+                        if (EconomyUtil.minusMoneyForAccount(entry.getKey(), v)) {
+                            Log.info("用户："+ userInfo.getQq() + "获得"+ SeasonCommonInfoManager.getSeasonMoney()+"：" + v);
+                            userInfo.setBankEarnings(v);
+                            userInfo.save();
+                        } else {
+                            Log.error(SeasonCommonInfoManager.getSeasonMoney() + "管理:" + id + "添加利息出错");
+                        }
+
                     }
                 }
             }
