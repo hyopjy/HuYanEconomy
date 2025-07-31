@@ -47,8 +47,8 @@ public class CommandOperator {
         int carNumber = 0;
         try {
             carNumber = Integer.parseInt(messages[2]);
-            if (carNumber < 1) {
-                return new PlainText("上车人数请大于0");
+            if (carNumber < 3) {
+                return new PlainText("上车人数请大于3");
             }
             if (carNumber > 50) {
                 return new PlainText("上车人数请不能超过50");
@@ -103,7 +103,11 @@ public class CommandOperator {
 
             if (carSize == car.getCarNumber() && messageType.equals("封车")) {
                 if ("random".equals(car.getRandom())) {
-                    int i = RandomUtil.randomInt(0, car.getCarNumber() - 1);
+//                    int i = RandomUtil.randomInt(0, car.getCarNumber() - 1);
+                    int i = RandomUtil.randomInt(0, car.getCarNumber());
+                    // 0 1
+                    // 0 , 1
+
                     luckBoy = carUsers.get(i);
                     luckMoney = i + 1;
                     //
